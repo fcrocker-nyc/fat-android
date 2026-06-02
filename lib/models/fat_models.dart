@@ -1,0 +1,230 @@
+// Models — direct port of FATCategory.swift, FATCategoryResult.swift,
+// ClaimCredibility.swift, and FATResult.swift
+import 'package:flutter/material.dart';
+
+// ─────────────────────────────────────────────
+// MARK: - ClaimCredibility
+// ─────────────────────────────────────────────
+
+enum ClaimCredibility {
+  verified,        // Third-party audited (weight 1.0)
+  usdaApproved,    // USDA-reviewed / NPDES permit (weight 0.7)
+  producerAffidavit, // Producer affidavit only (weight 0.4)
+  labelClaimOnly;  // Unverified marketing (weight 0.2)
+
+  String get displayName {
+    switch (this) {
+      case verified:          return 'Third-Party Audited';
+      case usdaApproved:      return 'USDA-Reviewed';
+      case producerAffidavit: return 'Producer Affidavit';
+      case labelClaimOnly:    return 'Unverified Marketing';
+    }
+  }
+
+  String get explanation {
+    switch (this) {
+      case verified:
+        return 'Independently audited on-farm by a third-party certifier.';
+      case usdaApproved:
+        return 'USDA-reviewed under a federal program with audit teeth (Process Verified, USDA grade marks, organic verification) — or identity-substantiated via EPA NPDES CAFO permit or qualifying state CAFO permit (per FAT DSA v1.1).';
+      case producerAffidavit:
+        return 'FSIS approved the label language; the producer\'s affidavit is the only backing — no independent on-farm audit.';
+      case labelClaimOnly:
+        return 'Printed on the label with no known third-party audit and no government label-language approval.';
+    }
+  }
+
+  String get iconData {
+    switch (this) {
+      case verified:          return 'verified';
+      case usdaApproved:      return 'approval';
+      case producerAffidavit: return 'description';
+      case labelClaimOnly:    return 'info';
+    }
+  }
+
+  double get scoreWeight {
+    switch (this) {
+      case verified:          return 1.0;
+      case usdaApproved:      return 0.7;
+      case producerAffidavit: return 0.4;
+      case labelClaimOnly:    return 0.2;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// MARK: - CaptivityStatus
+// ─────────────────────────────────────────────
+
+enum CaptivityStatus {
+  packerOwned,
+  packerContracted,
+  independent,
+  undisclosed;
+
+  String get displayName {
+    switch (this) {
+      case packerOwned:       return 'Packer-Owned';
+      case packerContracted:  return 'Captive Supply (Contracted)';
+      case independent:       return 'Independent';
+      case undisclosed:       return 'Captivity Not Disclosed';
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// MARK: - FATCategoryResult
+// ─────────────────────────────────────────────
+
+enum DisclosureStatus { known, partial, missing, notRequired }
+
+class FATCategoryResult {
+  final DisclosureStatus status;
+  final String? value;
+  final ClaimCredibility? credibility;
+  final String? credibilityNote;
+  final CaptivityStatus? captivityStatus;
+
+  const FATCategoryResult({
+    required this.status,
+    this.value,
+    this.credibility,
+    this.credibilityNote,
+    this.captivityStatus,
+  });
+
+  static const FATCategoryResult missing = FATCategoryResult(status: DisclosureStatus.missing);
+}
+
+// ─────────────────────────────────────────────
+// MARK: - FATCategory
+// ─────────────────────────────────────────────
+
+enum FATCategory {
+  usdaFsisRequiredLanguage,
+  species,
+  breed,
+  countryOrigin,
+  farmRanch,
+  supplyChainIntermediary,
+  processor,
+  feed,
+  animalWelfare,
+  pasture,
+  regenerative,
+  qualityPalatability,
+  dietaryAttributes,
+  medicine,
+  hormones,
+  ageAtSlaughter,
+  organic;
+
+  String get displayName {
+    switch (this) {
+      case usdaFsisRequiredLanguage: return 'USDA / FSIS Required Language';
+      case species:                  return 'Species';
+      case breed:                    return 'Breed';
+      case countryOrigin:            return 'Country / Origin';
+      case farmRanch:                return 'Farm / Ranch';
+      case supplyChainIntermediary:  return 'Feedlot / Contract Grower';
+      case processor:                return 'Processor';
+      case feed:                     return 'Feed';
+      case animalWelfare:            return 'Animal Welfare';
+      case pasture:                  return 'Pasture / Outdoor Access';
+      case regenerative:             return 'Regenerative / Land Use';
+      case qualityPalatability:      return 'Quality / Palatability';
+      case dietaryAttributes:        return 'Dietary Attributes';
+      case medicine:                 return 'Medicine / Antibiotics';
+      case hormones:                 return 'Hormones';
+      case ageAtSlaughter:           return 'Age at Slaughter';
+      case organic:                  return 'Organic (USDA NOP)';
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+// MARK: - FATResult
+// ─────────────────────────────────────────────
+
+class FATResult {
+  final String id;
+  final String scannedText;
+  final DateTime scannedAt;
+  final Map<FATCategory, FATCategoryResult> categories;
+  final String? detectedEstablishmentNumber;
+  final bool estMissing;
+  final bool estSpeciesMismatch;
+  final String? estSpeciesMismatchNote;
+  final String? speciesClaimMisuseNote;
+
+  FATResult({
+    String? id,
+    required this.scannedText,
+    DateTime? scannedAt,
+    required this.categories,
+    this.detectedEstablishmentNumber,
+    this.estMissing = false,
+    this.estSpeciesMismatch = false,
+    this.estSpeciesMismatchNote,
+    this.speciesClaimMisuseNote,
+  })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        scannedAt = scannedAt ?? DateTime.now();
+
+  int get knownCount   => categories.values.where((r) => r.status == DisclosureStatus.known).length;
+  int get partialCount => categories.values.where((r) => r.status == DisclosureStatus.partial).length;
+  int get missingCount => categories.values.where((r) => r.status == DisclosureStatus.missing).length;
+
+  bool get regulatoryPassed =>
+      categories[FATCategory.usdaFsisRequiredLanguage]?.status == DisclosureStatus.known;
+
+  /// 0–100 FAT Score: 70% Disclosure + 30% Credibility
+  double get fatScore {
+    final allCats = FATCategory.values;
+    // Pillar 1 — Disclosure (70 pts)
+    double disclosurePoints = 0;
+    for (final cat in allCats) {
+      final r = categories[cat];
+      if (r == null) continue;
+      switch (r.status) {
+        case DisclosureStatus.known:    disclosurePoints += 5; break;
+        case DisclosureStatus.partial:  disclosurePoints += 2; break;
+        default: break;
+      }
+    }
+    final maxDisclosure = allCats.length * 5.0;
+    final disclosurePillar = (disclosurePoints / maxDisclosure) * 70;
+
+    // Pillar 2 — Credibility (30 pts)
+    final credWeights = categories.values
+        .where((r) => r.credibility != null)
+        .map((r) => r.credibility!.scoreWeight)
+        .toList();
+    double credPillar = 0;
+    if (credWeights.isNotEmpty) {
+      final avg = credWeights.reduce((a, b) => a + b) / credWeights.length;
+      credPillar = avg * 30;
+    }
+
+    return (disclosurePillar + credPillar).clamp(0, 100);
+  }
+
+  String get grade {
+    final s = fatScore;
+    if (s >= 80) return 'A';
+    if (s >= 65) return 'B';
+    if (s >= 50) return 'C';
+    if (s >= 35) return 'D';
+    return 'F';
+  }
+
+  Color get gradeColor {
+    switch (grade) {
+      case 'A': return const Color(0xFF34A853);
+      case 'B': return const Color(0xFF64B446);
+      case 'C': return const Color(0xFFFBC02D);
+      case 'D': return const Color(0xFFEA8600);
+      default:  return const Color(0xFFDC2626);
+    }
+  }
+}
