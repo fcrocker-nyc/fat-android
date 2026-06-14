@@ -14,6 +14,13 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   List<FATResult> _results = [];
   bool _loading = true;
+  String _search = '';
+  final _searchController = TextEditingController();
+
+  static const _months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ];
 
   @override
   void initState() {
@@ -21,118 +28,261 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     final results = await ScanStore.instance.loadAll();
-    if (mounted) setState(() { _results = results; _loading = false; });
+    if (mounted) {
+      setState(() {
+        _results = results;
+        _loading = false;
+      });
+    }
+  }
+
+  List<FATResult> get _filtered {
+    final needle = _search.trim().toLowerCase();
+    if (needle.isEmpty) return _results;
+    return _results.where((r) {
+      final est = (r.detectedEstablishmentNumber ?? '').toLowerCase();
+      final text = r.scannedText.toLowerCase();
+      return est.contains(needle) || text.contains(needle);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Scan History'),
-        actions: [
+      body: SafeArea(
+        child: _loading
+            ? const Center(
+                child: CircularProgressIndicator(color: FATTheme.scanGreen))
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _headerRow(),
+                  _searchBar(),
+                  const SizedBox(height: 6),
+                  Expanded(child: _list()),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _headerRow() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Row(
+        children: [
+          const Text('History',
+              style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900)),
+          const Spacer(),
           if (_results.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.delete_outline),
-              onPressed: _confirmClear,
+            GestureDetector(
+              onTap: _confirmClear,
+              child: const Text('Clear All',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red)),
             ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator(color: FATTheme.scanGreen))
-          : _results.isEmpty
-              ? _emptyState()
-              : RefreshIndicator(
-                  onRefresh: _load,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _results.length,
-                    itemBuilder: (_, i) => _historyCard(_results[i]),
-                  ),
-                ),
     );
   }
 
-  Widget _emptyState() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.history, size: 64, color: FATTheme.primaryGreen),
-          SizedBox(height: 16),
-          Text('No scans yet', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-          SizedBox(height: 8),
-          Text('Scan a meat or seafood label to get started.',
-              style: TextStyle(fontSize: 16, color: FATTheme.textSecondary)),
-        ],
-      ),
-    );
-  }
-
-  Widget _historyCard(FATResult result) {
-    final species = result.categories[FATCategory.species]?.value ?? 'Unknown species';
-    final scoreStr = result.fatScore.toStringAsFixed(0);
-    final gradeColor = result.gradeColor;
-    final date = result.scannedAt;
-
-    return GestureDetector(
-      onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ResultsScreen(result: result))),
+  Widget _searchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
-          color: FATTheme.primaryGreen,
-          borderRadius: BorderRadius.circular(16),
+          color: const Color(0xFFF2F2F2),
+          borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: gradeColor,
-              child: Text(result.grade,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white)),
-            ),
-            const SizedBox(width: 14),
+            const Icon(Icons.search, color: Colors.black54, size: 20),
+            const SizedBox(width: 8),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(species, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
-                  const SizedBox(height: 2),
-                  Text('Score: $scoreStr/100  ·  ${_formatDate(date)}',
-                      style: const TextStyle(fontSize: 14, color: FATTheme.textSecondary)),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${result.knownCount} disclosed  ${result.partialCount} partial  ${result.missingCount} missing',
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                ],
+              child: TextField(
+                controller: _searchController,
+                onChanged: (v) => setState(() => _search = v),
+                textInputAction: TextInputAction.search,
+                decoration: const InputDecoration(
+                  hintText: 'Search EST # or brand',
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: FATTheme.textSecondary),
+            if (_search.isNotEmpty)
+              GestureDetector(
+                onTap: () {
+                  _searchController.clear();
+                  setState(() => _search = '');
+                },
+                child: const Icon(Icons.cancel,
+                    color: Colors.black38, size: 18),
+              ),
           ],
         ),
       ),
     );
   }
 
-  String _formatDate(DateTime dt) {
-    return '${dt.month}/${dt.day}/${dt.year}';
+  Widget _list() {
+    if (_results.isEmpty) {
+      return _emptyState(Icons.inbox_outlined, 'No saved evaluations yet');
+    }
+    final filtered = _filtered;
+    if (filtered.isEmpty) {
+      return _emptyState(
+          Icons.filter_list_off, 'No scans match the current filter');
+    }
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+        itemCount: filtered.length,
+        itemBuilder: (_, i) => _historyCard(filtered[i]),
+      ),
+    );
+  }
+
+  Widget _emptyState(IconData icon, String title) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 56, color: Colors.black26),
+          const SizedBox(height: 12),
+          Text(title,
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black54)),
+        ],
+      ),
+    );
+  }
+
+  Widget _historyCard(FATResult r) {
+    final regMet = r.regulatoryPassed;
+    final est = r.detectedEstablishmentNumber;
+    return GestureDetector(
+      onTap: () => Navigator.push(context,
+          MaterialPageRoute(builder: (_) => ResultsScreen(result: r))),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: FATTheme.primaryGreen.withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: FATTheme.primaryGreen),
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: r.gradeColor,
+              child: Text(r.grade,
+                  style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white)),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(_dateStr(r.scannedAt),
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(width: 6),
+                      const Text('at',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54)),
+                      const SizedBox(width: 6),
+                      Text(_timeStr(r.scannedAt),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: regMet
+                          ? FATTheme.primaryGreen
+                          : FATTheme.errorBGTint,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      regMet
+                          ? 'USDA / FSIS disclosure detected'
+                          : 'USDA / FSIS disclosure not detected',
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: regMet ? Colors.black : FATTheme.errorRed),
+                    ),
+                  ),
+                  if (est != null) ...[
+                    const SizedBox(height: 4),
+                    Text('EST. $est',
+                        style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54)),
+                  ],
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.black54),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _dateStr(DateTime d) => '${_months[d.month - 1]} ${d.day}, ${d.year}';
+
+  String _timeStr(DateTime d) {
+    final h = d.hour == 0 ? 12 : (d.hour > 12 ? d.hour - 12 : d.hour);
+    final m = d.minute.toString().padLeft(2, '0');
+    final ap = d.hour < 12 ? 'AM' : 'PM';
+    return '$h:$m $ap';
   }
 
   Future<void> _confirmClear() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Clear History'),
-        content: const Text('Delete all saved scans? This cannot be undone.'),
+        title: const Text('Clear All History?'),
+        content: const Text(
+            'This will permanently delete all saved evaluations. This cannot be undone.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete All', style: TextStyle(color: Colors.red)),
+            child:
+                const Text('Delete All', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

@@ -11,6 +11,8 @@ class FATTheme {
   static const Color fatAmber       = Color(0xFFCA8A04); // partial / warnings
   static const Color fatRed         = Color(0xFFDC2626); // missing / danger
   static const Color fatOrange      = Color(0xFFE67E22);
+  static const Color errorRed       = Color(0xFFB91C1C); // error text (matches iOS)
+  static const Color errorBGTint    = Color(0xFFFFE6E1); // error bg tint (matches iOS)
 
   // MARK: - Backgrounds
   static const Color pageBG         = Color(0xFFFFFFFF);

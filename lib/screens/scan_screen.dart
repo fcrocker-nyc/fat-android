@@ -6,6 +6,7 @@ import '../interpreter/label_interpreter.dart';
 import '../theme/fat_theme.dart';
 import '../services/scan_store.dart';
 import 'results_screen.dart';
+import 'seafood_results_screen.dart';
 
 class ScanScreen extends StatefulWidget {
   final bool autoLaunch;
@@ -48,6 +49,14 @@ class _ScanScreenState extends State<ScanScreen> {
   Future<void> _launchCamera() async {
     await _pickAndScan(ImageSource.camera);
   }
+
+  /// Whether a scan result should route to the seafood screen.
+  ///
+  /// The current FATResult model exposes no seafood signal (no productType /
+  /// isSeafood / seafoodCategories field), so this always returns false and
+  /// every scan routes to the meat ResultsScreen. Replace the body once the
+  /// model or interpreter surfaces a seafood indicator.
+  bool _detectSeafood(FATResult result) => false;
 
   Future<void> _pickAndScan(ImageSource source) async {
     setState(() {
@@ -93,9 +102,20 @@ class _ScanScreenState extends State<ScanScreen> {
       await ScanStore.instance.saveResult(fatResult);
 
       if (!mounted) return;
+      // TODO(seafood-routing): FATResult has no seafood signal (no productType /
+      // isSeafood / seafoodCategories field on the current model). When the model
+      // or interpreter exposes one, set isSeafood from it to route to
+      // SeafoodResultsScreen. For now all scans route to the meat ResultsScreen
+      // to preserve the existing flow. SeafoodResultsScreen is referenced below
+      // so the routing wiring stays compile-checked and ready.
+      final bool isSeafood = _detectSeafood(fatResult);
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => ResultsScreen(result: fatResult)),
+        MaterialPageRoute(
+          builder: (_) => isSeafood
+              ? SeafoodResultsScreen(result: fatResult)
+              : ResultsScreen(result: fatResult),
+        ),
       );
     } catch (e) {
       setState(() => _errorMessage = 'Error processing image: $e');
@@ -114,23 +134,21 @@ class _ScanScreenState extends State<ScanScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 94),
+              const SizedBox(height: 80),
               const Text(
                 'Scan',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 48,
+                  fontSize: 44,
                   fontWeight: FontWeight.w900,
-                  letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 18),
               const Text(
                 'Photograph one or more label panels, then evaluate what the label discloses.',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   color: Colors.black,
-                  fontWeight: FontWeight.w800,
                   height: 1.18,
                 ),
                 textAlign: TextAlign.center,
