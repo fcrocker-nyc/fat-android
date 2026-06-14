@@ -20,6 +20,16 @@ class FATTheme {
   static const Color textPrimary    = Color(0xFF111111);
   static const Color textSecondary  = Color(0xFF555555);
 
+  // MARK: - Credibility / Tier Colors
+  static const Color usdaApprovedBlue = Color(0xFF1D4ED8); // USDA-Reviewed tier
+  static const Color tierHighest    = Color(0xFF15803D); // highest welfare
+  static const Color tierHigh       = Color(0xFF4D9A2A); // high welfare
+  static const Color tierMeaningful = Color(0xFF84B026); // meaningful welfare
+  static const Color tierModerate   = Color(0xFFCA8A04); // moderate welfare
+  static const Color tierMarginal   = Color(0xFFE67E22); // marginal welfare
+  static const Color tierMisleading = Color(0xFFDC2626); // potentially misleading
+  static const Color porkSmall      = Color(0xFF27AE60); // unconcentrated (chicken HHI)
+
   // MARK: - ThemeData
   static ThemeData get themeData => ThemeData(
     colorScheme: ColorScheme.fromSeed(
