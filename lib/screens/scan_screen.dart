@@ -50,11 +50,17 @@ class _ScanScreenState extends State<ScanScreen> {
   }
 
   Future<void> _pickAndScan(ImageSource source) async {
-    setState(() { _isProcessing = true; _errorMessage = null; });
+    setState(() {
+      _isProcessing = true;
+      _errorMessage = null;
+    });
     try {
       final picker = ImagePicker();
       final xFile = await picker.pickImage(source: source, imageQuality: 90);
-      if (xFile == null) { setState(() => _isProcessing = false); return; }
+      if (xFile == null) {
+        setState(() => _isProcessing = false);
+        return;
+      }
 
       final inputImage = InputImage.fromFilePath(xFile.path);
       final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
@@ -71,8 +77,11 @@ class _ScanScreenState extends State<ScanScreen> {
       }
 
       final categories = LabelInterpreter.interpret(scannedText);
-      final estNumber = LabelInterpreter.extractEstablishmentNumber(scannedText.toLowerCase());
-      final isMeat = categories[FATCategory.species]?.status == DisclosureStatus.known;
+      final estNumber = LabelInterpreter.extractEstablishmentNumber(
+        scannedText.toLowerCase(),
+      );
+      final isMeat =
+          categories[FATCategory.species]?.status == DisclosureStatus.known;
 
       final fatResult = FATResult(
         scannedText: scannedText,
@@ -84,7 +93,10 @@ class _ScanScreenState extends State<ScanScreen> {
       await ScanStore.instance.saveResult(fatResult);
 
       if (!mounted) return;
-      Navigator.push(context, MaterialPageRoute(builder: (_) => ResultsScreen(result: fatResult)));
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => ResultsScreen(result: fatResult)),
+      );
     } catch (e) {
       setState(() => _errorMessage = 'Error processing image: $e');
     } finally {
@@ -98,28 +110,42 @@ class _ScanScreenState extends State<ScanScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 32),
+              const SizedBox(height: 94),
               const Text(
                 'Scan',
-                style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 48,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.5,
+                ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 26),
               const Text(
                 'Photograph one or more label panels, then evaluate what the label discloses.',
-                style: TextStyle(fontSize: 16, color: FATTheme.textSecondary),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.black,
+                  fontWeight: FontWeight.w800,
+                  height: 1.18,
+                ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 36),
+              const SizedBox(height: 34),
               if (_isProcessing) ...[
-                const Center(child: CircularProgressIndicator(color: FATTheme.scanGreen)),
+                const Center(
+                  child: CircularProgressIndicator(color: FATTheme.scanGreen),
+                ),
                 const SizedBox(height: 16),
                 const Center(
-                  child: Text('Analyzing label…',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  child: Text(
+                    'Analyzing label…',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ] else ...[
                 ElevatedButton.icon(
@@ -127,12 +153,12 @@ class _ScanScreenState extends State<ScanScreen> {
                   icon: const Icon(Icons.camera_alt_outlined, size: 26),
                   label: const Text(
                     'Scan Label',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+                    style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD4D4C8),
+                    backgroundColor: FATTheme.primaryGreen,
                     foregroundColor: Colors.black,
-                    minimumSize: const Size.fromHeight(64),
+                    minimumSize: const Size.fromHeight(66),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -154,8 +180,11 @@ class _ScanScreenState extends State<ScanScreen> {
                       const Icon(Icons.error_outline, color: Colors.red),
                       const SizedBox(width: 10),
                       Expanded(
-                          child: Text(_errorMessage!,
-                              style: const TextStyle(color: Colors.red))),
+                        child: Text(
+                          _errorMessage!,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
                     ],
                   ),
                 ),

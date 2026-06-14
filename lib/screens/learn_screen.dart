@@ -7,7 +7,11 @@ class _LearnTopic {
   final String title;
   final String subtitle;
   final String body;
-  const _LearnTopic({required this.title, required this.subtitle, required this.body});
+  const _LearnTopic({
+    required this.title,
+    required this.subtitle,
+    required this.body,
+  });
 }
 
 class _LearnSection {
@@ -174,7 +178,7 @@ class LearnScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Container(
               height: 2,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
+              margin: const EdgeInsets.symmetric(horizontal: 14),
               color: FATTheme.primaryGreen,
             ),
           ),
@@ -182,53 +186,74 @@ class LearnScreen extends StatelessWidget {
           for (final section in _sections) ...[
             SliverToBoxAdapter(child: _sectionHeader(section, context)),
           ],
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
+          const SliverToBoxAdapter(child: SizedBox(height: 120)),
         ],
       ),
     );
   }
 
   Widget _heroHeader() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Image.asset(
-          'assets/images/hero.jpg',
-          height: 200,
-          width: double.infinity,
-          fit: BoxFit.cover,
+    return SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(26),
+                bottomRight: Radius.circular(26),
+              ),
+              child: Image.asset(
+                'assets/images/hero.jpg',
+                height: 252,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(26),
+                bottomRight: Radius.circular(26),
+              ),
+              child: Container(
+                height: 252,
+                width: double.infinity,
+                color: Colors.black.withValues(alpha: 0.10),
+              ),
+            ),
+            const Text(
+              'LEARN',
+              style: TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+                letterSpacing: 0,
+                shadows: [Shadow(blurRadius: 4, color: Colors.black45)],
+              ),
+            ),
+          ],
         ),
-        Container(
-          height: 200,
-          width: double.infinity,
-          color: Colors.black.withOpacity(0.25),
-        ),
-        const Text(
-          'LEARN',
-          style: TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.w900,
-            color: Colors.white,
-            letterSpacing: 2,
-            shadows: [Shadow(blurRadius: 4, color: Colors.black45)],
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _independenceBadges() {
     const style = TextStyle(
-        fontSize: 13, fontWeight: FontWeight.w700, color: FATTheme.scanGreen);
+      fontSize: 16,
+      fontWeight: FontWeight.w900,
+      color: FATTheme.scanGreen,
+    );
     const iconColor = FATTheme.scanGreen;
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.fromLTRB(14, 24, 14, 12),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: FATTheme.scanGreen.withOpacity(0.06),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: FATTheme.scanGreen.withOpacity(0.35)),
+        color: FATTheme.scanGreen.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: FATTheme.scanGreen.withValues(alpha: 0.35)),
       ),
       child: Row(
         children: [
@@ -236,30 +261,38 @@ class LearnScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Icon(Icons.verified, size: 15, color: iconColor),
-                SizedBox(width: 5),
+                Icon(Icons.verified, size: 20, color: iconColor),
+                SizedBox(width: 7),
                 Text('Independent', style: style),
               ],
             ),
           ),
-          Container(width: 1, height: 24, color: FATTheme.scanGreen.withOpacity(0.3)),
+          Container(
+            width: 1,
+            height: 24,
+            color: FATTheme.scanGreen.withValues(alpha: 0.3),
+          ),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Icon(Icons.block, size: 15, color: iconColor),
-                SizedBox(width: 5),
+                Icon(Icons.block, size: 20, color: iconColor),
+                SizedBox(width: 7),
                 Text('No Ads', style: style),
               ],
             ),
           ),
-          Container(width: 1, height: 24, color: FATTheme.scanGreen.withOpacity(0.3)),
+          Container(
+            width: 1,
+            height: 24,
+            color: FATTheme.scanGreen.withValues(alpha: 0.3),
+          ),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: const [
-                Icon(Icons.money_off, size: 15, color: iconColor),
-                SizedBox(width: 5),
+                Icon(Icons.money_off, size: 20, color: iconColor),
+                SizedBox(width: 7),
                 Text('No Sponsors', style: style),
               ],
             ),
@@ -271,16 +304,24 @@ class LearnScreen extends StatelessWidget {
 
   Widget _tocHeader() {
     return const Padding(
-      padding: EdgeInsets.fromLTRB(20, 8, 20, 4),
+      padding: EdgeInsets.fromLTRB(18, 22, 18, 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Table of Contents',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-          SizedBox(height: 3),
-          Text('Tap any topic to open it.',
-              style: TextStyle(fontSize: 14, color: FATTheme.textSecondary)),
-          SizedBox(height: 8),
+          Text(
+            'Table of Contents',
+            style: TextStyle(fontSize: 27, fontWeight: FontWeight.w900),
+          ),
+          SizedBox(height: 4),
+          Text(
+            'Tap any topic to open it.',
+            style: TextStyle(
+              fontSize: 18,
+              color: Color(0xFF999999),
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          SizedBox(height: 12),
         ],
       ),
     );
@@ -288,35 +329,39 @@ class LearnScreen extends StatelessWidget {
 
   Widget _sectionHeader(_LearnSection section, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(14, 18, 14, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 6),
+            padding: const EdgeInsets.only(left: 4, bottom: 10),
             child: Text(
               section.title.toUpperCase(),
               style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: FATTheme.textSecondary,
-                letterSpacing: 0.8,
+                fontSize: 17,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF999999),
+                letterSpacing: 1.1,
               ),
             ),
           ),
           if (section.intro != null)
             Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 10),
+              padding: const EdgeInsets.only(left: 4, bottom: 18),
               child: Text(
                 section.intro!,
                 style: const TextStyle(
-                    fontSize: 14, color: Colors.black87, height: 1.5),
+                  fontSize: 18,
+                  color: Color(0xFF222222),
+                  height: 1.24,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           Container(
             decoration: BoxDecoration(
               color: FATTheme.primaryGreen,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(18),
             ),
             child: Column(
               children: List.generate(section.topics.length, (i) {
@@ -327,7 +372,10 @@ class LearnScreen extends StatelessWidget {
                     _tocRow(i + 1, topic, context),
                     if (!isLast)
                       const Divider(
-                          height: 1, indent: 48, color: Colors.white38),
+                        height: 1,
+                        indent: 62,
+                        color: Color(0x55FFFFFF),
+                      ),
                   ],
                 );
               }),
@@ -344,36 +392,38 @@ class LearnScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(
-            builder: (_) => _LearnDetailScreen(topic: topic),
-          ),
+          MaterialPageRoute(builder: (_) => _LearnDetailScreen(topic: topic)),
         );
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         child: Row(
           children: [
             SizedBox(
-              width: 28,
+              width: 38,
               child: Text(
                 '$number.',
                 textAlign: TextAlign.right,
                 style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black54),
+                  fontSize: 19,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black54,
+                ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Expanded(
               child: Text(
                 topic.title,
                 style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w600),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  height: 1.12,
+                ),
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, size: 18, color: Colors.black38),
+            const Icon(Icons.chevron_right, size: 28, color: Colors.black38),
           ],
         ),
       ),
@@ -394,9 +444,10 @@ class _LearnDetailScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: FATTheme.primaryGreen,
         elevation: 0,
-        title: Text(topic.title,
-            style: const TextStyle(
-                fontSize: 17, fontWeight: FontWeight.w800)),
+        title: Text(
+          topic.title,
+          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -406,23 +457,22 @@ class _LearnDetailScreen extends StatelessWidget {
             Text(
               topic.subtitle,
               style: const TextStyle(
-                  fontSize: 14,
-                  color: FATTheme.textSecondary,
-                  fontStyle: FontStyle.italic),
+                fontSize: 14,
+                color: FATTheme.textSecondary,
+                fontStyle: FontStyle.italic,
+              ),
             ),
             const SizedBox(height: 16),
-            Text(
-              topic.body,
-              style: const TextStyle(fontSize: 15, height: 1.6),
-            ),
+            Text(topic.body, style: const TextStyle(fontSize: 15, height: 1.6)),
             const SizedBox(height: 32),
             const Center(
               child: Text(
                 'farmanimaltransparency.com',
                 style: TextStyle(
-                    fontSize: 13,
-                    color: FATTheme.scanGreen,
-                    fontWeight: FontWeight.w600),
+                  fontSize: 13,
+                  color: FATTheme.scanGreen,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             const SizedBox(height: 20),
