@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import '../theme/fat_theme.dart';
+import '../data/meat_brand_database.dart';
+import '../data/seafood_brand_database.dart';
+import '../data/pork_owner_database.dart';
 
 class LookupScreen extends StatefulWidget {
   const LookupScreen({super.key});
@@ -13,22 +17,40 @@ class LookupScreen extends StatefulWidget {
 class _LookupScreenState extends State<LookupScreen> {
   int _selectedTab = 0; // 0=EST, 1=Meat Brand, 2=Seafood Brand
   final _estController = TextEditingController();
-  final _brandController = TextEditingController();
-  bool _isLoading = false;
-  Map<String, dynamic>? _processorData;
-  bool _lookupFailed = false;
-  String? _failureMsg;
+  final _meatController = TextEditingController();
+  final _seafoodController = TextEditingController();
 
-  final List<String> _tabs = ['EST', 'Meat Brand', 'Seafood Brand'];
+  bool _isLoading = false;
+
+  // EST
+  Map<String, dynamic>? _processorData;
+  PorkOwnerResult? _porkOwner;
+  bool _estSearched = false;
+  bool _lookupFailed = false;
+
+  // Brand searches
+  List<MeatBrandResult>? _meatResults;
+  List<SeafoodBrandResult>? _seafoodResults;
+
+  static const _tabs = ['EST', 'Meat Brand', 'Seafood Brand'];
+
+  Future<void> _openUrl(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri != null) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
 
   Future<void> _lookupEst() async {
-    final est = _estController.text.trim();
+    final est = _estController.text.trim().replaceAll(
+        RegExp(r'^est\.?\s*', caseSensitive: false), '');
     if (est.isEmpty) return;
     setState(() {
       _isLoading = true;
       _processorData = null;
+      _porkOwner = null;
+      _estSearched = true;
       _lookupFailed = false;
-      _failureMsg = null;
     });
     try {
       final uri = Uri.parse(
@@ -38,48 +60,31 @@ class _LookupScreenState extends State<LookupScreen> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data is Map && data.containsKey('establishmentName')) {
-          setState(() => _processorData = Map<String, dynamic>.from(data));
+          _processorData = Map<String, dynamic>.from(data);
         } else {
-          setState(() {
-            _lookupFailed = true;
-            _failureMsg = 'No establishment found for EST. $est.';
-          });
+          _lookupFailed = true;
         }
       } else {
-        setState(() {
-          _lookupFailed = true;
-          _failureMsg = 'Server returned ${response.statusCode}.';
-        });
-      }
-    } catch (e) {
-      setState(() {
         _lookupFailed = true;
-        _failureMsg = 'Network error. Check your connection and try again.';
-      });
+      }
+    } catch (_) {
+      _lookupFailed = true;
     } finally {
+      _porkOwner =
+          PorkOwnerDatabase.detectOwnerAnySpeciesForEstablishment(est);
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _lookupBrand() async {
-    final brand = _brandController.text.trim();
-    if (brand.isEmpty) return;
-    setState(() {
-      _isLoading = true;
-      _processorData = null;
-      _lookupFailed = false;
-      _failureMsg = null;
-    });
-    // Brand lookup not yet implemented — show coming soon
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-        _lookupFailed = true;
-        _failureMsg =
-            'Brand lookup coming soon. Use the EST tab to look up a USDA establishment number.';
-      });
-    }
+  void _searchMeat() {
+    FocusScope.of(context).unfocus();
+    setState(() => _meatResults = MeatBrandDatabase.search(_meatController.text));
+  }
+
+  void _searchSeafood() {
+    FocusScope.of(context).unfocus();
+    setState(() =>
+        _seafoodResults = SeafoodBrandDatabase.search(_seafoodController.text));
   }
 
   @override
@@ -88,116 +93,87 @@ class _LookupScreenState extends State<LookupScreen> {
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          SliverToBoxAdapter(child: _heroHeader()),
+          SliverToBoxAdapter(child: _hero()),
           SliverToBoxAdapter(child: _topRule()),
-          SliverToBoxAdapter(child: _tabSegmentedControl()),
+          SliverToBoxAdapter(child: _segmentedControl()),
           SliverToBoxAdapter(child: _tabContent()),
-          const SliverToBoxAdapter(child: SizedBox(height: 120)),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
       ),
     );
   }
 
-  Widget _heroHeader() {
+  // ── Hero ──────────────────────────────────────────────────────────────
+  Widget _hero() {
     return SafeArea(
       bottom: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 0, 14, 0),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(26),
-                bottomRight: Radius.circular(26),
-              ),
-              child: Image.asset(
-                'assets/images/hero.jpg',
-                height: 252,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(18),
+          child: SizedBox(
+            height: 200,
+            width: double.infinity,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned.fill(
+                    child:
+                        Image.asset('assets/images/hero.jpg', fit: BoxFit.cover)),
+                const Text('LOOKUP',
+                    style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        shadows: [Shadow(blurRadius: 3, color: Colors.black54)])),
+              ],
             ),
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(26),
-                bottomRight: Radius.circular(26),
-              ),
-              child: Container(
-                height: 252,
-                width: double.infinity,
-                color: Colors.black.withValues(alpha: 0.10),
-              ),
-            ),
-            const Text(
-              'LOOKUP',
-              style: TextStyle(
-                fontSize: 40,
-                fontWeight: FontWeight.w900,
-                color: Colors.white,
-                letterSpacing: 0,
-                shadows: [Shadow(blurRadius: 4, color: Colors.black45)],
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _topRule() {
-    return Container(
+  Widget _topRule() => Container(
       height: 2,
-      margin: const EdgeInsets.fromLTRB(14, 24, 14, 0),
-      color: FATTheme.primaryGreen,
-    );
-  }
+      margin: const EdgeInsets.fromLTRB(16, 18, 16, 0),
+      color: FATTheme.primaryGreen);
 
-  Widget _tabSegmentedControl() {
+  Widget _segmentedControl() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 24, 14, 0),
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 0),
       child: Container(
-        height: 50,
+        height: 44,
         decoration: BoxDecoration(
           color: const Color(0xFFEFEFEF),
-          borderRadius: BorderRadius.circular(23),
+          borderRadius: BorderRadius.circular(9),
         ),
         child: Row(
           children: List.generate(_tabs.length, (i) {
             final selected = i == _selectedTab;
             return Expanded(
               child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedTab = i;
-                    _processorData = null;
-                    _lookupFailed = false;
-                    _failureMsg = null;
-                  });
-                },
+                onTap: () => setState(() => _selectedTab = i),
                 child: Container(
-                  height: 44,
-                  margin: const EdgeInsets.all(3),
+                  margin: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: selected ? Colors.white : Colors.transparent,
-                    borderRadius: BorderRadius.circular(21),
-                    border: selected
-                        ? Border.all(
-                            color: Colors.black.withValues(alpha: 0.04),
-                          )
+                    borderRadius: BorderRadius.circular(7),
+                    boxShadow: selected
+                        ? [
+                            BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.12),
+                                blurRadius: 3)
+                          ]
                         : null,
                   ),
                   child: Center(
-                    child: Text(
-                      _tabs[i],
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black,
-                      ),
-                    ),
+                    child: Text(_tabs[i],
+                        maxLines: 1,
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: selected ? Colors.black : Colors.black54)),
                   ),
                 ),
               ),
@@ -209,293 +185,760 @@ class _LookupScreenState extends State<LookupScreen> {
   }
 
   Widget _tabContent() {
-    if (_selectedTab == 0) return _estTab();
-    return _brandTab(_selectedTab == 1 ? 'Meat' : 'Seafood');
+    switch (_selectedTab) {
+      case 1:
+        return _meatTab();
+      case 2:
+        return _seafoodTab();
+      default:
+        return _estTab();
+    }
   }
 
+  // ── EST tab ───────────────────────────────────────────────────────────
   Widget _estTab() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 24, 14, 0),
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Enter USDA Establishment Number',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 14),
-          TextField(
-            controller: _estController,
-            keyboardType: TextInputType.number,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-            decoration: InputDecoration(
-              hintText: 'e.g. 969',
-              hintStyle: const TextStyle(
-                color: Color(0xFFC9C9C9),
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-              ),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 18,
-              ),
-            ),
-            onSubmitted: (_) => _lookupEst(),
-          ),
-          const SizedBox(height: 14),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _lookupEst,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: FATTheme.primaryGreen,
-              foregroundColor: Colors.black.withValues(alpha: 0.50),
-              disabledBackgroundColor: FATTheme.primaryGreen.withValues(
-                alpha: 0.60,
-              ),
-              disabledForegroundColor: Colors.black.withValues(alpha: 0.42),
-              elevation: 0,
-              minimumSize: const Size.fromHeight(62),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text(
-                    'Look Up',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-                  ),
-          ),
-          const SizedBox(height: 24),
-          if (_processorData != null) _processorCard(_processorData!),
-          if (_lookupFailed) _failureCard(),
-          if (_processorData == null && !_lookupFailed) _estInfoSection(),
-        ],
-      ),
-    );
-  }
-
-  Widget _brandTab(String type) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'Enter $type Brand Name',
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 10),
-          TextField(
-            controller: _brandController,
-            decoration: InputDecoration(
-              hintText: 'e.g. Tyson, Gorton\'s',
-              hintStyle: const TextStyle(color: Colors.black38),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 14,
-              ),
-            ),
-            onSubmitted: (_) => _lookupBrand(),
-          ),
+          const Text('Enter USDA Establishment Number',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: _isLoading ? null : _lookupBrand,
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(52),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    width: 22,
-                    height: 22,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text(
-                    'Look Up',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-                  ),
-          ),
+          _searchField(_estController, 'e.g. 969',
+              keyboard: TextInputType.number, onSubmit: _lookupEst),
+          const SizedBox(height: 14),
+          _actionButton('Look Up', _isLoading ? null : _lookupEst),
           const SizedBox(height: 20),
-          if (_lookupFailed) _failureCard(),
+          if (_estSearched && _processorData != null)
+            _processorCard(_processorData!),
+          if (_porkOwner != null) ...[
+            const SizedBox(height: 14),
+            _porkOwnerCard(_porkOwner!),
+          ],
+          if (_estSearched && _lookupFailed && _processorData == null)
+            _estFailureCard(),
+          if (!_estSearched) _estInfoSection(),
         ],
       ),
     );
   }
 
+  // ── Meat tab ──────────────────────────────────────────────────────────
+  Widget _meatTab() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('Search Meat Brand or Company',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 12),
+          _searchField(_meatController, 'e.g. Tyson, Smithfield, Perdue',
+              onSubmit: _searchMeat),
+          const SizedBox(height: 14),
+          _actionButton('Search', _searchMeat),
+          const SizedBox(height: 20),
+          if (_meatResults != null) ...[
+            if (_meatResults!.isEmpty)
+              _notFoundCard('Brand Not Found',
+                  'No results for "${_meatController.text}". Try searching by parent company, subsidiary brand, or processor name.')
+            else
+              for (final b in _meatResults!) ...[
+                _meatBrandCard(b),
+                const SizedBox(height: 14),
+              ],
+          ] else
+            _meatInfoSection(),
+        ],
+      ),
+    );
+  }
+
+  // ── Seafood tab ───────────────────────────────────────────────────────
+  Widget _seafoodTab() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('Search Seafood Brand',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 12),
+          _searchField(_seafoodController, "e.g. Gorton's, SeaPak, StarKist",
+              onSubmit: _searchSeafood),
+          const SizedBox(height: 14),
+          _actionButton('Search', _searchSeafood),
+          const SizedBox(height: 20),
+          if (_seafoodResults != null) ...[
+            if (_seafoodResults!.isEmpty)
+              _notFoundCard('Brand Not Found',
+                  'No results for "${_seafoodController.text}". This brand may not be in our database yet. Try searching by parent company name or a different spelling.')
+            else
+              for (final b in _seafoodResults!) ...[
+                _seafoodBrandCard(b),
+                const SizedBox(height: 14),
+              ],
+          ] else
+            _seafoodInfoSection(),
+        ],
+      ),
+    );
+  }
+
+  // ── Shared input widgets ──────────────────────────────────────────────
+  Widget _searchField(TextEditingController c, String hint,
+      {TextInputType? keyboard, VoidCallback? onSubmit}) {
+    return TextField(
+      controller: c,
+      keyboardType: keyboard,
+      textCapitalization: keyboard == TextInputType.number
+          ? TextCapitalization.none
+          : TextCapitalization.words,
+      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Color(0xFFB0B0B0)),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFFC8C8C8))),
+        enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFFC8C8C8))),
+      ),
+      onSubmitted: (_) => onSubmit?.call(),
+    );
+  }
+
+  Widget _actionButton(String label, VoidCallback? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Opacity(
+        opacity: onTap == null ? 0.5 : 1,
+        child: Container(
+          height: 52,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: FATTheme.primaryGreen,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: _isLoading
+              ? const SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: Colors.black))
+              : Text(label,
+                  style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black)),
+        ),
+      ),
+    );
+  }
+
+  // ── EST processor card ────────────────────────────────────────────────
+  Widget _processorCard(Map<String, dynamic> data) {
+    final name = data['establishmentName'] as String? ?? 'Unknown';
+    final address = data['fullAddress'] as String? ?? '';
+    final est = _estController.text.trim();
+    return _greenCard(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(name,
+              style:
+                  const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.6),
+                borderRadius: BorderRadius.circular(20)),
+            child: Text('USDA EST. $est',
+                style: const TextStyle(
+                    fontSize: 14, fontWeight: FontWeight.bold)),
+          ),
+          if (address.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            _iconLine(Icons.location_on, address),
+          ],
+          const SizedBox(height: 14),
+          GestureDetector(
+            onTap: () => _openUrl(
+                'https://farmanimaltransparency.com/processor-lookup/?est=$est'),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.public, size: 16, color: Colors.blue),
+                SizedBox(width: 6),
+                Text('View Full Profile',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _porkOwnerCard(PorkOwnerResult r) {
+    final o = r.owner;
+    return _greenCard(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Corporate Owner',
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black.withValues(alpha: 0.6))),
+          const SizedBox(height: 4),
+          Text('${o.flag} ${o.name}',
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 2),
+          Text('${o.country} · ${o.marketSharePct.toStringAsFixed(0)}% market share'
+              '${o.isTop3 ? ' · Top 3' : ''}',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          Text(o.note, style: const TextStyle(fontSize: 13)),
+        ],
+      ),
+    );
+  }
+
+  Widget _estFailureCard() {
+    final est = _estController.text.trim();
+    return _greenCard(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: const [
+            Icon(Icons.error_outline, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('Establishment Not Found',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          ]),
+          const SizedBox(height: 8),
+          Text(
+              'No data found for EST. $est. This establishment may not be in our database yet, or the number may be incorrect.',
+              style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: 10),
+          GestureDetector(
+            onTap: () => _openUrl(
+                'https://farmanimaltransparency.com/processor-lookup/?est=$est'),
+            child: const Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(Icons.public, size: 16, color: Colors.blue),
+              SizedBox(width: 6),
+              Text('Search on FAT Website',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue)),
+            ]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Meat brand card ───────────────────────────────────────────────────
+  Widget _meatBrandCard(MeatBrandResult b) {
+    final locations = b.keyPlantLocations.take(8).toList();
+    final extra = b.keyPlantLocations.length - locations.length;
+    return _greenCard(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(b.brandName,
+              style:
+                  const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 6),
+          Text.rich(TextSpan(children: [
+            TextSpan(
+                text: '${b.parentCountry}  ',
+                style: const TextStyle(fontSize: 16)),
+            TextSpan(
+                text: b.corporateParent,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold)),
+          ])),
+          if (b.isForeignOwned) ...[
+            const SizedBox(height: 8),
+            _foreignWarning(b.parentCountry),
+          ],
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [for (final s in b.species) _speciesTag(s)],
+          ),
+          _cardDivider(),
+          Text(b.marketPosition,
+              style:
+                  const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 10),
+          Row(children: [
+            const Icon(Icons.apartment, size: 14, color: FATTheme.scanGreen),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text('Facilities: ${b.plantCount}',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black.withValues(alpha: 0.65))),
+            ),
+          ]),
+          const SizedBox(height: 4),
+          for (final loc in locations)
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 2),
+              child: Text('• $loc',
+                  style: const TextStyle(
+                      fontSize: 12, fontWeight: FontWeight.w600)),
+            ),
+          if (extra > 0)
+            Padding(
+              padding: const EdgeInsets.only(left: 20, top: 2),
+              child: Text('+ $extra more locations',
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black.withValues(alpha: 0.55))),
+            ),
+          if (b.relatedBrands.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Row(children: [
+              const Icon(Icons.sell, size: 14, color: FATTheme.scanGreen),
+              const SizedBox(width: 6),
+              Text('Related Brands',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black.withValues(alpha: 0.65))),
+            ]),
+            const SizedBox(height: 2),
+            Text(b.relatedBrands.join(', '),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ],
+          _cardDivider(),
+          Text(b.ownershipNotes,
+              style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black.withValues(alpha: 0.7))),
+          if (b.regulatoryNotes != null) ...[
+            const SizedBox(height: 10),
+            _regulatoryBox(b.regulatoryNotes!),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ── Seafood brand card ────────────────────────────────────────────────
+  Widget _seafoodBrandCard(SeafoodBrandResult b) {
+    return _greenCard(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(b.brandName,
+              style:
+                  const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 6),
+          Text.rich(TextSpan(children: [
+            TextSpan(
+                text: '${b.parentCountry}  ',
+                style: const TextStyle(fontSize: 16)),
+            TextSpan(
+                text: b.corporateParent,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold)),
+          ])),
+          if (b.isForeignOwned) ...[
+            const SizedBox(height: 8),
+            _foreignWarning(b.parentCountry),
+          ],
+          _cardDivider(),
+          if (b.certifications.isEmpty)
+            Row(children: [
+              Icon(Icons.info_outline,
+                  size: 14, color: Colors.black.withValues(alpha: 0.5)),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                    'No third-party sustainability certifications identified',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black.withValues(alpha: 0.6))),
+              ),
+            ])
+          else ...[
+            _label('Certifications'),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                for (final c in b.certifications) _certTag(c),
+              ],
+            ),
+          ],
+          const SizedBox(height: 10),
+          _label('Primary Species'),
+          const SizedBox(height: 2),
+          Text(b.primarySpecies.join(', '),
+              style:
+                  const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+          if (b.plantLocations.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            _iconLabel(Icons.apartment, 'Processing Plants'),
+            for (final p in b.plantLocations)
+              Padding(
+                padding: const EdgeInsets.only(left: 20, top: 2),
+                child: Text('• $p',
+                    style: const TextStyle(
+                        fontSize: 13, fontWeight: FontWeight.w600)),
+              ),
+          ],
+          if (b.fleetInfo != null) ...[
+            const SizedBox(height: 10),
+            _iconLabel(Icons.directions_boat, 'Fleet / Vessels'),
+            const SizedBox(height: 2),
+            Text(b.fleetInfo!,
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ],
+          if (b.sourcingRegions.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            _iconLabel(Icons.public, 'Sourcing Regions'),
+            const SizedBox(height: 2),
+            Text(b.sourcingRegions.join(' • '),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ],
+          if (b.farmSourcing != null) ...[
+            const SizedBox(height: 10),
+            _iconLabel(Icons.eco, 'Aquaculture / Farm Sourcing'),
+            const SizedBox(height: 2),
+            Text(b.farmSourcing!,
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          ],
+          _cardDivider(),
+          _label('Sourcing Overview'),
+          const SizedBox(height: 2),
+          Text(b.sourcingNotes,
+              style:
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          Text(b.ownershipNotes,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black.withValues(alpha: 0.7))),
+          if (b.regulatoryNotes != null) ...[
+            const SizedBox(height: 10),
+            _regulatoryBox(b.regulatoryNotes!),
+          ],
+          if (b.fdaEnforcementURL != null) ...[
+            const SizedBox(height: 10),
+            GestureDetector(
+              onTap: () => _openUrl(b.fdaEnforcementURL!),
+              child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.public, size: 16, color: Colors.blue),
+                SizedBox(width: 6),
+                Text('View FDA Enforcement History',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue)),
+              ]),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ── Info sections ─────────────────────────────────────────────────────
   Widget _estInfoSection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const Text('About USDA Establishment Numbers',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 14),
         const Text(
-          'About USDA Establishment Numbers',
-          style: TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.w900,
-            height: 1.12,
-          ),
-        ),
-        const SizedBox(height: 18),
+            'Many meat and poultry labels include a USDA establishment number, often shown as "EST. ####" near the inspection legend.',
+            style: TextStyle(fontSize: 16, height: 1.3)),
+        const SizedBox(height: 14),
         const Text(
-          'Many meat and poultry labels include a USDA establishment number, often shown as "EST. ####" near the inspection legend.',
-          style: TextStyle(
-            fontSize: 18,
-            height: 1.24,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 20),
-        const Text(
-          'This number identifies the federally inspected facility where the product was processed, as listed by the U.S. Department of Agriculture\'s Food Safety and Inspection Service (FSIS).',
-          style: TextStyle(
-            fontSize: 18,
-            height: 1.24,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 22),
-        Container(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
-          decoration: BoxDecoration(
-            color: FATTheme.primaryGreen,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'What you can find:',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-              ),
-              SizedBox(height: 18),
-              Text(
-                'Processor name and location',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-              ),
-              SizedBox(height: 18),
-              Text(
-                'Processing activities and size',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-              ),
-              SizedBox(height: 18),
-              Text(
-                'Administrative actions and violations',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-              ),
-              SizedBox(height: 18),
-              Text(
-                'Recall history',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-              ),
-              SizedBox(height: 18),
-              Text(
-                'Pathogen testing results',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
-        ),
+            "This number identifies the federally inspected facility where the product was processed, as listed by the U.S. Department of Agriculture's Food Safety and Inspection Service (FSIS).",
+            style: TextStyle(fontSize: 16, height: 1.3)),
+        const SizedBox(height: 16),
+        _infoBox('What you can find:', const [
+          'Processor name and location',
+          'Processing activities and size',
+          'Administrative actions and violations',
+          'Recall history',
+          'Pathogen testing results',
+        ]),
       ],
     );
   }
 
-  Widget _processorCard(Map<String, dynamic> data) {
-    final name = data['establishmentName'] as String? ?? 'Unknown';
-    final address = data['fullAddress'] as String? ?? '';
-    final species = data['species'] as String? ?? '';
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: FATTheme.primaryGreen,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            name,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-          ),
-          if (address.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text(address, style: const TextStyle(fontSize: 14)),
-          ],
-          if (species.isNotEmpty) ...[
-            const SizedBox(height: 4),
-            Text('Species: $species', style: const TextStyle(fontSize: 14)),
-          ],
-          const SizedBox(height: 8),
-          Text(
-            'EST. ${_estController.text.trim()}',
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: FATTheme.textSecondary,
-            ),
-          ),
-        ],
-      ),
+  Widget _meatInfoSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('About Meat Brand Lookup',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 12),
+        const Text(
+            'Search by brand name or parent company to see corporate ownership, market position, processing plant locations, related brands, and regulatory history for major US meat companies.',
+            style: TextStyle(fontSize: 16, height: 1.3)),
+        const SizedBox(height: 16),
+        _iconInfoBox('What you can find:', const [
+          (Icons.apartment, 'Corporate parent and ownership'),
+          (Icons.public, 'Foreign vs. domestic ownership'),
+          (Icons.place, 'Processing plant locations'),
+          (Icons.sell, 'Related brands and subsidiaries'),
+          (Icons.bar_chart, 'Market position and concentration'),
+          (Icons.warning_amber, 'Regulatory and legal history'),
+        ]),
+        const SizedBox(height: 14),
+        Text(
+            'Four companies (Tyson, JBS, Cargill, National Beef) control approximately 85% of US beef processing. Two of the four — JBS (Brazil) and National Beef (Brazil via Marfrig) — are foreign-owned.',
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                fontStyle: FontStyle.italic,
+                color: Colors.black.withValues(alpha: 0.6))),
+      ],
     );
   }
 
-  Widget _failureCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange.shade200),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.warning_amber_rounded, color: Colors.orange),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              _failureMsg ?? 'Lookup failed.',
-              style: const TextStyle(fontSize: 14),
-            ),
-          ),
-        ],
-      ),
+  Widget _seafoodInfoSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('About Seafood Brand Lookup',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 12),
+        const Text(
+            'Unlike meat and poultry, most retail seafood packaging does not include a federal establishment number. FDA facility registration numbers are internal administrative records and do not appear on consumer labels.',
+            style: TextStyle(fontSize: 16, height: 1.3)),
+        const SizedBox(height: 12),
+        const Text(
+            'Search by brand name to find corporate ownership, sourcing information, and sustainability certifications for major US retail seafood brands.',
+            style: TextStyle(fontSize: 16, height: 1.3)),
+        const SizedBox(height: 16),
+        _iconInfoBox('What you can find:', const [
+          (Icons.apartment, 'Corporate parent company'),
+          (Icons.public, 'Foreign vs. domestic ownership'),
+          (Icons.verified, 'Sustainability certifications (MSC, ASC, BAP)'),
+          (Icons.set_meal, 'Primary species sold'),
+          (Icons.inventory_2, 'Sourcing regions and methods'),
+        ]),
+        const SizedBox(height: 14),
+        Text(
+            'This database covers major US retail seafood brands. FAT does not rate, endorse, or certify any brand or product.',
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                fontStyle: FontStyle.italic,
+                color: Colors.black.withValues(alpha: 0.6))),
+      ],
     );
   }
+
+  // ── Small building blocks ─────────────────────────────────────────────
+  Widget _greenCard(Widget child) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+            color: FATTheme.primaryGreen,
+            borderRadius: BorderRadius.circular(16)),
+        child: child,
+      );
+
+  Widget _cardDivider() => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Container(height: 1, color: Colors.black.withValues(alpha: 0.12)),
+      );
+
+  Widget _label(String t) => Text(t,
+      style: TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          color: Colors.black.withValues(alpha: 0.65)));
+
+  Widget _iconLabel(IconData icon, String t) => Row(children: [
+        Icon(icon, size: 13, color: FATTheme.scanGreen),
+        const SizedBox(width: 6),
+        Text(t,
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.black.withValues(alpha: 0.65))),
+      ]);
+
+  Widget _iconLine(IconData icon, String t) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 18, color: FATTheme.scanGreen),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(t,
+                style: const TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      );
+
+  Widget _speciesTag(String s) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+            color: FATTheme.scanGreen, borderRadius: BorderRadius.circular(20)),
+        child: Text(s,
+            style: const TextStyle(
+                fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white)),
+      );
+
+  Widget _certTag(String s) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+            color: Colors.blue, borderRadius: BorderRadius.circular(20)),
+        child: Text(s,
+            style: const TextStyle(
+                fontSize: 13, fontWeight: FontWeight.bold, color: Colors.white)),
+      );
+
+  Widget _foreignWarning(String country) => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.warning_amber, size: 16, color: Colors.orange),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+                'Foreign-owned: this US brand is ultimately owned by a company headquartered in $country.',
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black.withValues(alpha: 0.7))),
+          ),
+        ],
+      );
+
+  Widget _regulatoryBox(String text) => Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+            color: Colors.orange.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10)),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.error_outline, size: 14, color: Colors.orange),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(text,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black.withValues(alpha: 0.7))),
+            ),
+          ],
+        ),
+      );
+
+  Widget _notFoundCard(String title, String body) => _greenCard(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              const Icon(Icons.search, color: Colors.orange),
+              const SizedBox(width: 8),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold)),
+            ]),
+            const SizedBox(height: 8),
+            Text(body, style: const TextStyle(fontSize: 16)),
+          ],
+        ),
+      );
+
+  Widget _infoBox(String title, List<String> items) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+            color: FATTheme.primaryGreen,
+            borderRadius: BorderRadius.circular(16)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: const TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.w900)),
+            const SizedBox(height: 12),
+            for (final it in items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(it,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600)),
+              ),
+          ],
+        ),
+      );
+
+  Widget _iconInfoBox(String title, List<(IconData, String)> items) =>
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+            color: FATTheme.primaryGreen,
+            borderRadius: BorderRadius.circular(16)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: const TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            for (final it in items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(children: [
+                  Icon(it.$1, size: 18, color: Colors.black),
+                  const SizedBox(width: 10),
+                  Expanded(
+                      child: Text(it.$2,
+                          style: const TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.w600))),
+                ]),
+              ),
+          ],
+        ),
+      );
 
   @override
   void dispose() {
     _estController.dispose();
-    _brandController.dispose();
+    _meatController.dispose();
+    _seafoodController.dispose();
     super.dispose();
   }
 }
