@@ -7,8 +7,19 @@ import '../data/meat_brand_database.dart';
 import '../data/seafood_brand_database.dart';
 import '../data/pork_owner_database.dart';
 
+/// A lookup request handed from the Home "Quick Lookup" card to the Lookup tab.
+class LookupRequest {
+  final int tab; // 0=EST, 1=Meat Brand, 2=Seafood Brand
+  final String query;
+  const LookupRequest(this.tab, this.query);
+}
+
 class LookupScreen extends StatefulWidget {
-  const LookupScreen({super.key});
+  /// Optional cross-tab request from the Home screen. When set, the Lookup tab
+  /// adopts the tab + query, runs the search, then calls [onConsumed].
+  final LookupRequest? pending;
+  final VoidCallback? onConsumed;
+  const LookupScreen({super.key, this.pending, this.onConsumed});
 
   @override
   State<LookupScreen> createState() => _LookupScreenState();
@@ -85,6 +96,44 @@ class _LookupScreenState extends State<LookupScreen> {
     FocusScope.of(context).unfocus();
     setState(() =>
         _seafoodResults = SeafoodBrandDatabase.search(_seafoodController.text));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.pending != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _consumePending());
+    }
+  }
+
+  @override
+  void didUpdateWidget(LookupScreen old) {
+    super.didUpdateWidget(old);
+    if (widget.pending != null && !identical(widget.pending, old.pending)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _consumePending());
+    }
+  }
+
+  /// Adopt a Home "Quick Lookup" request: switch tab, fill the field, run it.
+  void _consumePending() {
+    final req = widget.pending;
+    if (req == null || !mounted) return;
+    final q = req.query.trim();
+    setState(() => _selectedTab = req.tab);
+    switch (req.tab) {
+      case 1:
+        _meatController.text = q;
+        if (q.isNotEmpty) _searchMeat();
+        break;
+      case 2:
+        _seafoodController.text = q;
+        if (q.isNotEmpty) _searchSeafood();
+        break;
+      default:
+        _estController.text = q;
+        if (q.isNotEmpty) _lookupEst();
+    }
+    widget.onConsumed?.call();
   }
 
   @override

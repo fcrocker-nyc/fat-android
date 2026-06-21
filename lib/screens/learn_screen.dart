@@ -1560,6 +1560,85 @@ final List<_LearnSection> _sections = <_LearnSection>[
               italic: true),
         ],
       ),
+      // 3.6 — Service-Case Capture Schema (companion to Seafood Paper No. 5)
+      _LearnTopic(
+        title: 'Service-Case Capture Schema',
+        subtitle:
+            'Loose seafood at the counter — placard, identity, confidence, and tiered resolution',
+        body: [
+          const _Para(
+              'Loose seafood at the full-service counter has no package to scan — it is governed by a USDA AMS placard, not an FDA package label, and whether any disclosure exists depends on the venue. This is the field schema FAT uses to capture it: what to read off the sign, how each field is normalized, and how confidence is assigned so the App never confirms more than a photo can prove.'),
+          const _Para(
+              'Try it: on the Scan tab, tap "Loose seafood at a counter?" to photograph a placard and see it resolved live.',
+              size: 14,
+              italic: true),
+          const _Head('Design principles'),
+          const _Bullets([
+            'Capture the sign, not the fish — species identity carries an unverified state no image can upgrade.',
+            'The venue gate runs first — establishment type decides whether a missing placard is a compliance finding or a non-event.',
+            'One displayed name, captured verbatim, then resolved against the FDA Seafood List.',
+            'Two facts are mandated (origin, method), one is not (species) — the schema encodes that asymmetry.',
+          ]),
+          const _Rule(),
+          _Box(
+            heading: 'Confidence vocabulary',
+            children: const [
+              _TierRow(
+                  icon: Icons.check_circle,
+                  color: FATTheme.successGreen,
+                  title: 'known',
+                  description:
+                      'A legally mandated fact captured legibly from the placard, or a hard key resolved to a record. Applies to origin, method, shellfish cert.'),
+              _TierRow(
+                  icon: Icons.adjust,
+                  color: FATTheme.fatAmber,
+                  title: 'partial',
+                  description:
+                      'Captured but ambiguous, or a named value that cannot be verified beyond the sign. Applies to the Seafood List name match.'),
+              _TierRow(
+                  icon: Icons.help_outline,
+                  color: FATTheme.fatRed,
+                  title: 'unverified',
+                  description:
+                      'A claim a photo categorically cannot confirm; distinct from partial, never auto-upgraded. Applies to species identity.'),
+              _TierRow(
+                  icon: Icons.report_gmailerrorred,
+                  color: FATTheme.textSecondary,
+                  title: 'missing',
+                  description:
+                      'A fact required in this venue but absent — a compliance signal. Applies to origin/method at a covered retailer.'),
+              _TierRow(
+                  icon: Icons.do_not_disturb_on,
+                  color: FATTheme.usdaApprovedBlue,
+                  title: 'not_applicable',
+                  description:
+                      'The venue (or a processed item) is exempt, so absence is not a finding. Applies to fish markets, butcher shops, food service, and value-added items.'),
+            ],
+          ),
+          const _Rule(),
+          _Box(
+            heading: 'Resolution flow',
+            children: const [
+              _Bullets([
+                'Gate — exempt venue or processed item → not_applicable (capture name + advisory, no finding).',
+                'Tier 1 Direct — a hard key (shellfish cert → ICSSL, or FSIS estab. # for Siluriformes) → known direct match.',
+                'Tier 1 Disclosure — origin + method posted → known; required but absent → missing.',
+                'Tier 2 Species name — Seafood List match → partial (name maps, fish unverified).',
+                'Tier 3 Advisory — species = unverified + substitution-risk note.',
+                'Lanes — AMS COOL · FDA integrity · (NOAA SIMP if imported).',
+              ]),
+            ],
+          ),
+          const _Para(
+              'The one rule that protects the model: a record may state "this counter discloses farm-raised, Product of Chile" with confidence — but it may never state "this is Atlantic salmon" as fact. The displayed name is reported as displayed; species stays unverified with a substitution-risk note.'),
+          const _Label('Source'),
+          const _Para(
+              'FAT Engineering Note — Service-Case Seafood Capture Schema (companion to Seafood Research Series, Paper No. 5). farmanimaltransparency.com/fat-research/',
+              size: 13,
+              opacity: 0.6,
+              italic: true),
+        ],
+      ),
     ],
   ),
 ];

@@ -3,10 +3,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import '../models/fat_models.dart';
 import '../interpreter/label_interpreter.dart';
+import '../interpreter/seafood_interpreter.dart';
 import '../theme/fat_theme.dart';
 import '../services/scan_store.dart';
 import 'results_screen.dart';
 import 'seafood_results_screen.dart';
+import 'service_case_capture_screen.dart';
 
 class ScanScreen extends StatefulWidget {
   final bool autoLaunch;
@@ -50,14 +52,6 @@ class _ScanScreenState extends State<ScanScreen> {
     await _pickAndScan(ImageSource.camera);
   }
 
-  /// Whether a scan result should route to the seafood screen.
-  ///
-  /// The current FATResult model exposes no seafood signal (no productType /
-  /// isSeafood / seafoodCategories field), so this always returns false and
-  /// every scan routes to the meat ResultsScreen. Replace the body once the
-  /// model or interpreter surfaces a seafood indicator.
-  bool _detectSeafood(FATResult result) => false;
-
   Future<void> _pickAndScan(ImageSource source) async {
     setState(() {
       _isProcessing = true;
@@ -85,30 +79,39 @@ class _ScanScreenState extends State<ScanScreen> {
         return;
       }
 
-      final categories = LabelInterpreter.interpret(scannedText);
-      final estNumber = LabelInterpreter.extractEstablishmentNumber(
-        scannedText.toLowerCase(),
-      );
-      final isMeat =
-          categories[FATCategory.species]?.status == DisclosureStatus.known;
-
-      final fatResult = FATResult(
-        scannedText: scannedText,
-        categories: categories,
-        detectedEstablishmentNumber: estNumber,
-        estMissing: isMeat && estNumber == null,
-      );
+      // Route by product type: seafood labels go to the seafood pipeline,
+      // everything else to the meat pipeline.
+      final bool isSeafood = SeafoodInterpreter.isSeafood(scannedText);
+      final FATResult fatResult;
+      if (isSeafood) {
+        final si = SeafoodInterpreter.interpret(scannedText);
+        fatResult = FATResult(
+          scannedText: scannedText,
+          categories: const {},
+          productType: ProductType.seafood,
+          seafoodCategories: si.categories,
+          isSiluriformes: si.isSiluriformes,
+          productionMethod: si.productionMethod,
+          detectedEstablishmentNumber: si.detectedEstablishmentNumber,
+        );
+      } else {
+        final categories = LabelInterpreter.interpret(scannedText);
+        final estNumber = LabelInterpreter.extractEstablishmentNumber(
+          scannedText.toLowerCase(),
+        );
+        final isMeat =
+            categories[FATCategory.species]?.status == DisclosureStatus.known;
+        fatResult = FATResult(
+          scannedText: scannedText,
+          categories: categories,
+          detectedEstablishmentNumber: estNumber,
+          estMissing: isMeat && estNumber == null,
+        );
+      }
 
       await ScanStore.instance.saveResult(fatResult);
 
       if (!mounted) return;
-      // TODO(seafood-routing): FATResult has no seafood signal (no productType /
-      // isSeafood / seafoodCategories field on the current model). When the model
-      // or interpreter exposes one, set isSeafood from it to route to
-      // SeafoodResultsScreen. For now all scans route to the meat ResultsScreen
-      // to preserve the existing flow. SeafoodResultsScreen is referenced below
-      // so the routing wiring stays compile-checked and ready.
-      final bool isSeafood = _detectSeafood(fatResult);
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -180,6 +183,28 @@ class _ScanScreenState extends State<ScanScreen> {
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ServiceCaseCaptureScreen(),
+                    ),
+                  ),
+                  icon: const Icon(Icons.storefront_outlined, size: 20),
+                  label: const Text(
+                    'Loose seafood at a counter?',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: FATTheme.scanGreen,
+                    side: const BorderSide(color: FATTheme.scanGreen),
+                    minimumSize: const Size.fromHeight(52),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                 ),

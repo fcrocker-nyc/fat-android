@@ -5,7 +5,12 @@ import 'about_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onScanTap;
-  const HomeScreen({super.key, required this.onScanTap});
+  final void Function(int tab, String query) onQuickLookup;
+  const HomeScreen({
+    super.key,
+    required this.onScanTap,
+    required this.onQuickLookup,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -13,6 +18,14 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _showMore = false;
+  int _qlTab = 0; // 0=EST, 1=Meat Brand, 2=Seafood Brand
+  final TextEditingController _qlController = TextEditingController();
+
+  @override
+  void dispose() {
+    _qlController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     _independenceBadge(),
                     const SizedBox(height: 20),
                     _scanCTA(),
+                    const SizedBox(height: 20),
+                    // QUICK LOOKUP — compact, directly under the scan CTA so a
+                    // lookup can be started from Home without opening the tab.
+                    _quickLookupCard(),
                     const SizedBox(height: 20),
                     const Divider(
                       color: FATTheme.primaryGreen,
@@ -344,6 +361,131 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white)),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // ── Quick Lookup card (compact) ─────────────────────────────────────────
+
+  void _runQuickLookup() {
+    final q = _qlController.text.trim();
+    if (q.isEmpty) return;
+    FocusScope.of(context).unfocus();
+    widget.onQuickLookup(_qlTab, q);
+    _qlController.clear();
+  }
+
+  Widget _quickLookupCard() {
+    const labels = ['EST', 'Meat Brand', 'Seafood Brand'];
+    const hints = ['e.g. 969', 'e.g. Tyson, Smithfield', "e.g. Gorton's, StarKist"];
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: FATTheme.scanGreen.withValues(alpha: 0.25)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(Icons.search, size: 16, color: FATTheme.scanGreen),
+                SizedBox(width: 8),
+                Text('Quick Lookup',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            // Segmented control
+            Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEDEDED),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Row(
+                children: List.generate(labels.length, (i) {
+                  final sel = _qlTab == i;
+                  return Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => setState(() => _qlTab = i),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: sel ? Colors.white : Colors.transparent,
+                          borderRadius: BorderRadius.circular(7),
+                          boxShadow: sel
+                              ? const [
+                                  BoxShadow(color: Color(0x22000000), blurRadius: 2)
+                                ]
+                              : null,
+                        ),
+                        child: Text(
+                          labels[i],
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            fontWeight: sel ? FontWeight.w800 : FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _qlController,
+                    keyboardType:
+                        _qlTab == 0 ? TextInputType.number : TextInputType.text,
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (_) => _runQuickLookup(),
+                    decoration: InputDecoration(
+                      hintText: hints[_qlTab],
+                      isDense: true,
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: _runQuickLookup,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+                    decoration: BoxDecoration(
+                      color: FATTheme.scanGreen,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Text('Look Up',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

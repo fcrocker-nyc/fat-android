@@ -6,10 +6,14 @@ import 'screens/scan_screen.dart';
 import 'screens/history_screen.dart';
 import 'screens/learn_screen.dart';
 import 'screens/lookup_screen.dart';
+import 'data/brand_resolver.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  // Load the brand-data feed (crosswalk + aliases + enforcement). Bundled
+  // snapshot loads first; remote refresh rolls forward in the background.
+  BrandResolver.instance.init();
   runApp(const FATApp());
 }
 
@@ -37,6 +41,7 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _selectedIndex = 0;
   bool _autoLaunchCamera = false;
+  LookupRequest? _pendingLookup;
 
   void _onScanTap() {
     setState(() {
@@ -49,15 +54,27 @@ class _MainShellState extends State<MainShell> {
     setState(() => _autoLaunchCamera = false);
   }
 
+  /// Home "Quick Lookup" → switch to the Lookup tab with a pending request.
+  void _onQuickLookup(int tab, String query) {
+    setState(() {
+      _autoLaunchCamera = false;
+      _pendingLookup = LookupRequest(tab, query);
+      _selectedIndex = 2;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screens = <Widget>[
-      HomeScreen(onScanTap: _onScanTap),
+      HomeScreen(onScanTap: _onScanTap, onQuickLookup: _onQuickLookup),
       ScanScreen(
         autoLaunch: _autoLaunchCamera,
         onAutoLaunchConsumed: _clearAutoLaunch,
       ),
-      const LookupScreen(),
+      LookupScreen(
+        pending: _pendingLookup,
+        onConsumed: () => setState(() => _pendingLookup = null),
+      ),
       const HistoryScreen(),
       const LearnScreen(),
     ];

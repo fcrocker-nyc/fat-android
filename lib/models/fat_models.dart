@@ -144,6 +144,77 @@ enum FATCategory {
 }
 
 // ─────────────────────────────────────────────
+// MARK: - Seafood — product type, production method, categories
+// ─────────────────────────────────────────────
+
+enum ProductType { meat, seafood }
+
+enum SeafoodProductionMethod {
+  wildCaught,
+  farmRaised;
+
+  String get displayName {
+    switch (this) {
+      case wildCaught: return 'Wild-Caught';
+      case farmRaised: return 'Farm-Raised';
+    }
+  }
+}
+
+/// 16 FAT seafood transparency categories (port of iOS SeafoodCategory).
+enum SeafoodCategory {
+  regulatoryRequiredLanguage,
+  speciesIdentity,
+  strainVariety,
+  countryOrigin,
+  farmVesselFishery,
+  processor,
+  productionMethodFeed,
+  animalWelfare,
+  qualityHandling,
+  dietaryAttributesAdditives,
+  medicineAntibioticsChemicals,
+  ageAtHarvest,
+  enforcementCompliance,
+  supplyChainIntermediary,
+  environmentalImpact,
+  economicConcentration;
+
+  String get displayName {
+    switch (this) {
+      case regulatoryRequiredLanguage:   return 'Regulatory Required Language';
+      case speciesIdentity:              return 'Species Identity';
+      case strainVariety:                return 'Strain / Variety';
+      case countryOrigin:                return 'Country / Origin';
+      case farmVesselFishery:            return 'Farm / Vessel / Fishery';
+      case processor:                    return 'Processor';
+      case productionMethodFeed:         return 'Production Method & Feed';
+      case animalWelfare:                return 'Fish Welfare';
+      case qualityHandling:              return 'Quality & Handling';
+      case dietaryAttributesAdditives:   return 'Dietary Attributes & Additives';
+      case medicineAntibioticsChemicals: return 'Medicine / Antibiotics / Chemicals';
+      case ageAtHarvest:                 return 'Age / Grow-Out Period';
+      case enforcementCompliance:        return 'Enforcement & Compliance';
+      case supplyChainIntermediary:      return 'Supply-Chain Intermediaries';
+      case environmentalImpact:          return 'Environmental Impact';
+      case economicConcentration:        return 'Economic Concentration / Foreign Ownership';
+    }
+  }
+
+  /// Whether the category is app-scored (vs website-only / hidden).
+  bool get isAppSupported {
+    switch (this) {
+      case environmentalImpact:
+      case economicConcentration:
+      case ageAtHarvest:
+        return false;
+      default:
+        return true;
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
 // MARK: - FATResult
 // ─────────────────────────────────────────────
 
@@ -158,6 +229,12 @@ class FATResult {
   final String? estSpeciesMismatchNote;
   final String? speciesClaimMisuseNote;
 
+  // ── Seafood (populated when productType == seafood) ──
+  final ProductType productType;
+  final Map<SeafoodCategory, FATCategoryResult> seafoodCategories;
+  final bool isSiluriformes;
+  final SeafoodProductionMethod? productionMethod;
+
   FATResult({
     String? id,
     required this.scannedText,
@@ -168,12 +245,21 @@ class FATResult {
     this.estSpeciesMismatch = false,
     this.estSpeciesMismatchNote,
     this.speciesClaimMisuseNote,
+    this.productType = ProductType.meat,
+    this.seafoodCategories = const {},
+    this.isSiluriformes = false,
+    this.productionMethod,
   })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
         scannedAt = scannedAt ?? DateTime.now();
 
-  int get knownCount   => categories.values.where((r) => r.status == DisclosureStatus.known).length;
-  int get partialCount => categories.values.where((r) => r.status == DisclosureStatus.partial).length;
-  int get missingCount => categories.values.where((r) => r.status == DisclosureStatus.missing).length;
+  bool get isSeafood => productType == ProductType.seafood;
+
+  Iterable<FATCategoryResult> get _activeValues =>
+      isSeafood ? seafoodCategories.values : categories.values;
+
+  int get knownCount   => _activeValues.where((r) => r.status == DisclosureStatus.known).length;
+  int get partialCount => _activeValues.where((r) => r.status == DisclosureStatus.partial).length;
+  int get missingCount => _activeValues.where((r) => r.status == DisclosureStatus.missing).length;
 
   bool get regulatoryPassed =>
       categories[FATCategory.usdaFsisRequiredLanguage]?.status == DisclosureStatus.known;
@@ -220,6 +306,67 @@ class FATResult {
 
   Color get gradeColor {
     switch (grade) {
+      case 'A': return const Color(0xFF34A853);
+      case 'B': return const Color(0xFF64B446);
+      case 'C': return const Color(0xFFFBC02D);
+      case 'D': return const Color(0xFFEA8600);
+      default:  return const Color(0xFFDC2626);
+    }
+  }
+
+  // ── Seafood FAT Score (mirrors iOS SeafoodScore) ──
+  // 70 pts disclosure + 30 pts credibility, scored ONLY over app-supported
+  // seafood categories. `.notRequired` excluded from both numerator and
+  // denominator. strainVariety capped at 2 pts (mirrors meat breed).
+
+  double get seafoodDisclosurePercent => _seafoodPillars().$1;
+  double get seafoodCredibilityPercent => _seafoodPillars().$2;
+
+  (double, double, double) _seafoodPillars() {
+    final scored =
+        SeafoodCategory.values.where((c) => c.isAppSupported).toList();
+    double maxPossible = 0, earned = 0;
+    for (final cat in scored) {
+      final w = cat == SeafoodCategory.strainVariety ? 2.0 : 5.0;
+      switch (seafoodCategories[cat]?.status ?? DisclosureStatus.missing) {
+        case DisclosureStatus.known:    maxPossible += w; earned += w; break;
+        case DisclosureStatus.partial:  maxPossible += w; earned += w * 0.4; break;
+        case DisclosureStatus.missing:  maxPossible += w; break;
+        case DisclosureStatus.notRequired: break;
+      }
+    }
+    final disclosurePct = maxPossible > 0 ? (earned / maxPossible).clamp(0, 1).toDouble() : 0.0;
+
+    final disclosed = scored
+        .map((c) => seafoodCategories[c])
+        .whereType<FATCategoryResult>()
+        .where((r) => r.status == DisclosureStatus.known || r.status == DisclosureStatus.partial)
+        .toList();
+    double credPct = 0;
+    if (disclosed.isNotEmpty) {
+      double sum = 0;
+      for (final d in disclosed) {
+        sum += d.credibility?.scoreWeight ?? 0.5;
+      }
+      credPct = (sum / disclosed.length).clamp(0, 1).toDouble();
+    }
+    final total = (disclosurePct * 70 + credPct * 30).clamp(0, 100).toDouble();
+    return (disclosurePct, credPct, total);
+  }
+
+  int get seafoodFatScore => _seafoodPillars().$3.round();
+
+  String get seafoodGrade {
+    final s = seafoodFatScore;
+    if (s >= 80) return 'A';
+    if (s >= 65) return 'B';
+    if (s >= 50) return 'C';
+    if (s >= 35) return 'D';
+    return 'F';
+  }
+
+  Color get seafoodGradeColor {
+    switch (seafoodGrade) {
       case 'A': return const Color(0xFF34A853);
       case 'B': return const Color(0xFF64B446);
       case 'C': return const Color(0xFFFBC02D);

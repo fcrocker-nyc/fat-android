@@ -82,6 +82,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
             children: _withSpacing(18, [
               _header(),
               _productTypeBanner(),
+              _scoreCard(),
               _disclosureSummary(),
               _categorySection(),
               _actions(context),
@@ -139,18 +140,20 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
                     style:
                         TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 2),
-                // Model has no isSiluriformes flag — default to FDA regulation
-                // wording, the common case for retail seafood.
-                const Text('FDA regulated',
-                    style: TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
                 Text(
-                    'Production method (wild-caught / farm-raised) and catfish / siluriformes status are not available from the current scan model.',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black.withValues(alpha: 0.6))),
+                    result.isSiluriformes
+                        ? 'Catfish / Siluriformes — USDA/FSIS regulated'
+                        : 'FDA regulated',
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600)),
+                if (result.productionMethod != null) ...[
+                  const SizedBox(height: 2),
+                  Text(result.productionMethod!.displayName,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: _disclosureGreen)),
+                ],
               ],
             ),
           ),
@@ -159,16 +162,117 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     );
   }
 
+  // ── B3b. FAT Transparency Score ────────────────────────────────────────
+  Widget _scoreCard() {
+    final grade = result.seafoodGrade;
+    final color = result.seafoodGradeColor;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _fatGreen,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('FAT Transparency Score',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              SizedBox(
+                width: 88,
+                height: 88,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 88,
+                      height: 88,
+                      child: CircularProgressIndicator(
+                        value: 1,
+                        strokeWidth: 8,
+                        valueColor: AlwaysStoppedAnimation(color.withValues(alpha: 0.25)),
+                      ),
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(grade,
+                            style: TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w900,
+                                color: color)),
+                        Text('${result.seafoodFatScore}/100',
+                            style: const TextStyle(
+                                fontSize: 13, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  children: [
+                    _scoreBar('Disclosure', result.seafoodDisclosurePercent,
+                        _disclosureGreen),
+                    const SizedBox(height: 10),
+                    _scoreBar('Credibility', result.seafoodCredibilityPercent,
+                        _seafoodUsdaBlue),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Measures label disclosure completeness and claim credibility for app-scored categories. Not a safety, quality, or endorsement rating.',
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _scoreBar(String label, double pct, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(label,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+            const Spacer(),
+            Text('${(pct * 100).round()}%',
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        const SizedBox(height: 3),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: pct.clamp(0, 1).toDouble(),
+            minHeight: 8,
+            backgroundColor: Colors.black.withValues(alpha: 0.1),
+            valueColor: AlwaysStoppedAnimation(color),
+          ),
+        ),
+      ],
+    );
+  }
+
   // ── B4. Disclosure Summary (3 credibility tiers) ───────────────────────
   Widget _disclosureSummary() {
     final tierCounts = <ClaimCredibility, int>{};
-    for (final r in result.categories.values) {
+    for (final r in result.seafoodCategories.values) {
       final c = r.credibility;
       if (c == null) continue;
       tierCounts[c] = (tierCounts[c] ?? 0) + 1;
     }
     final hasDisclosed = result.knownCount + result.partialCount > 0;
-    final notRequiredCount = result.categories.values
+    final notRequiredCount = result.seafoodCategories.values
         .where((r) => r.status == DisclosureStatus.notRequired)
         .length;
 
@@ -260,19 +364,70 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
 
   // ── B6. Category Section ───────────────────────────────────────────────
   Widget _categorySection() {
+    final appCats =
+        SeafoodCategory.values.where((c) => c.isAppSupported).toList();
+    final websiteCats =
+        SeafoodCategory.values.where((c) => !c.isAppSupported).toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Transparency Categories',
             style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900)),
         const SizedBox(height: 14),
-        ..._withSpacing(14, FATCategory.values.map(_categoryCard).toList()),
+        ..._withSpacing(14, appCats.map(_categoryCard).toList()),
+        if (websiteCats.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          const Text('Website Only',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 14),
+          ..._withSpacing(14, websiteCats.map(_websiteOnlyCard).toList()),
+        ],
       ],
     );
   }
 
-  Widget _categoryCard(FATCategory category) {
-    final value = result.categories[category];
+  Widget _websiteOnlyCard(SeafoodCategory category) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _fatGreen,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(category.displayName,
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold)),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: Colors.grey,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: const Text('Website',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Text('Visit farmanimaltransparency.com for this category.',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+
+  Widget _categoryCard(SeafoodCategory category) {
+    final value = result.seafoodCategories[category];
     final status = value?.status ?? DisclosureStatus.missing;
 
     String statusText;
@@ -287,11 +442,11 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
         statusText = '${category.displayName} not disclosed.';
         break;
       case DisclosureStatus.notRequired:
-        statusText = 'Not required by federal law.';
+        statusText = value?.value ?? 'Not required by federal law.';
         break;
     }
 
-    final isRegulatory = category == FATCategory.usdaFsisRequiredLanguage;
+    final isRegulatory = category == SeafoodCategory.regulatoryRequiredLanguage;
     Color subtitleColor;
     if (status == DisclosureStatus.notRequired) {
       subtitleColor = Colors.blue;
@@ -452,10 +607,11 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
       'Date: ${_formattedDate(result.scannedAt)}',
       '',
     ];
-    for (final cat in FATCategory.values) {
-      final r = result.categories[cat] ?? FATCategoryResult.missing;
+    for (final cat in SeafoodCategory.values) {
+      final r = result.seafoodCategories[cat] ?? FATCategoryResult.missing;
       var line = '${cat.displayName}: ${r.status.name.toUpperCase()}';
       if (r.credibility != null) line += ' [${r.credibility!.displayName}]';
+      if (!cat.isAppSupported) line += ' (website only)';
       lines.add(line);
     }
     lines.add('');
