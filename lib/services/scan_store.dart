@@ -10,6 +10,13 @@ class ScanStore {
 
   static const _key = 'fat_scan_history';
 
+  /// In-memory mirror of the saved-scan count, kept live so callers can read
+  /// it synchronously (matches iOS, where `ScanStore.records.count` is always
+  /// current). Primed by [loadAll] and kept current by [saveResult] /
+  /// [deleteAll]. -1 until first primed.
+  int _cachedCount = -1;
+  int get cachedCount => _cachedCount < 0 ? 0 : _cachedCount;
+
   Future<void> saveResult(FATResult result) async {
     final prefs = await SharedPreferences.getInstance();
     final existing = prefs.getStringList(_key) ?? [];
@@ -18,23 +25,27 @@ class ScanStore {
     // Keep last 200
     if (existing.length > 200) existing.removeRange(200, existing.length);
     await prefs.setStringList(_key, existing);
+    _cachedCount = existing.length;
   }
 
   Future<List<FATResult>> loadAll() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getStringList(_key) ?? [];
-    return raw
+    final results = raw
         .map((s) {
           try { return _resultFromMap(jsonDecode(s) as Map<String, dynamic>); }
           catch (_) { return null; }
         })
         .whereType<FATResult>()
         .toList();
+    _cachedCount = results.length;
+    return results;
   }
 
   Future<void> deleteAll() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
+    _cachedCount = 0;
   }
 
   // ── Serialization ────────────────────────────────────────────────────────
