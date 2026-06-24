@@ -187,7 +187,7 @@ class _ScanScreenState extends State<ScanScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                OutlinedButton.icon(
+                ElevatedButton.icon(
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -199,9 +199,10 @@ class _ScanScreenState extends State<ScanScreen> {
                     'Loose seafood at a counter?',
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: FATTheme.scanGreen,
-                    side: const BorderSide(color: FATTheme.scanGreen),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: FATTheme.primaryGreen,
+                    foregroundColor: Colors.black,
+                    elevation: 0,
                     minimumSize: const Size.fromHeight(52),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
