@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/fat_theme.dart';
+import 'scoring_explanation_screen.dart';
+import 'seafood_scoring_explanation_screen.dart';
 
 /// Mirrors iOS AboutView — opened from the info button on the Home hero.
 class AboutScreen extends StatelessWidget {
@@ -71,7 +73,7 @@ class AboutScreen extends StatelessWidget {
             _sectionCard('Farm Animal Transparency',
                 'Farm Animal Transparency (FAT) exists to improve consumer understanding of meat and seafood labels.\n\nRather than focusing on marketing language, FAT focuses on what labels actually disclose — and what they omit.'),
             const SizedBox(height: 18),
-            _howFATScoresCard(),
+            _howFATScoresCard(context),
             const SizedBox(height: 18),
             _sectionCard('Our Approach',
                 'FAT explains transparency — not safety, quality, or morality.\n\nLack of disclosure is treated as lack of information, not wrongdoing.'),
@@ -108,7 +110,7 @@ class AboutScreen extends StatelessWidget {
     );
   }
 
-  Widget _howFATScoresCard() {
+  Widget _howFATScoresCard(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -127,24 +129,44 @@ class AboutScreen extends StatelessWidget {
             style: TextStyle(fontSize: 15),
           ),
           const SizedBox(height: 14),
-          _scoringLinkRow(Icons.list_alt, 'How FAT Scores Meat Labels',
-              'Meat, poultry, lamb, turkey, bison · 16 categories · A–F grade'),
+          _scoringLinkRow(
+            Icons.list_alt,
+            'How FAT Scores Meat Labels',
+            'Meat, poultry, lamb, turkey, bison · 16 categories · A–F grade',
+            () => Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (_) => const ScoringExplanationScreen()),
+            ),
+          ),
           const SizedBox(height: 10),
-          _scoringLinkRow(Icons.set_meal, 'How FAT Scores Seafood Labels',
-              'Wild · farmed · catfish · FDA vs FSIS fork · 16 categories · A–F grade'),
+          _scoringLinkRow(
+            Icons.set_meal,
+            'How FAT Scores Seafood Labels',
+            'Wild · farmed · catfish · FDA vs FSIS fork · 16 categories · A–F grade',
+            () => Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (_) => const SeafoodScoringExplanationScreen()),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _scoringLinkRow(IconData icon, String title, String subtitle) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.85),
+  Widget _scoringLinkRow(
+      IconData icon, String title, String subtitle, VoidCallback onTap) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.85),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
         children: [
           SizedBox(width: 28, child: Icon(icon, size: 18, color: Colors.black)),
           const SizedBox(width: 12),
@@ -164,6 +186,8 @@ class AboutScreen extends StatelessWidget {
           ),
           Icon(Icons.chevron_right, size: 18, color: Colors.black.withAlpha(150)),
         ],
+          ),
+        ),
       ),
     );
   }

@@ -4,6 +4,7 @@ import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
 import '../services/scan_store.dart';
+import 'certification_result_cards.dart';
 
 /// Meat / poultry scan result screen — Flutter port of iOS ResultsView.
 /// Mirrors the spec section-by-section (A1–A11), constrained to the fields
@@ -147,6 +148,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
               _disclosureSummary(),
               if (result.detectedEstablishmentNumber != null) _processorSection(),
               _categorySection(),
+              // Certification result cards (grass-fed / welfare cert / pasture /
+              // regenerative) — each renders only when detected on the label.
+              ...[
+                CertificationResultCard.maybeFrom(result, result.scannedText),
+                GrassFedResultCard.maybeFrom(result, result.scannedText),
+                PastureResultCard.maybeFrom(result, result.scannedText),
+                RegenerativeResultCard.maybeFrom(result, result.scannedText),
+              ].whereType<Widget>(),
               _actions(context),
             ]),
           ),
