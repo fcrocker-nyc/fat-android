@@ -15,6 +15,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   List<FATResult> _results = [];
   bool _loading = true;
   String _search = '';
+  ProductType? _typeFilter; // null = All
   final _searchController = TextEditingController();
 
   static const _months = [
@@ -46,8 +47,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   List<FATResult> get _filtered {
     final needle = _search.trim().toLowerCase();
-    if (needle.isEmpty) return _results;
     return _results.where((r) {
+      if (_typeFilter != null && r.productType != _typeFilter) return false;
+      if (needle.isEmpty) return true;
       final est = (r.detectedEstablishmentNumber ?? '').toLowerCase();
       final text = r.scannedText.toLowerCase();
       return est.contains(needle) || text.contains(needle);
@@ -67,7 +69,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 children: [
                   _headerRow(),
                   _searchBar(),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 10),
+                  if (_results.isNotEmpty) ...[
+                    _filterChips(),
+                    const SizedBox(height: 10),
+                    _aggregateCard(),
+                    const SizedBox(height: 4),
+                  ],
                   Expanded(child: _list()),
                 ],
               ),
@@ -132,6 +140,92 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 child: const Icon(Icons.cancel,
                     color: Colors.black38, size: 18),
               ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Product-type filter chips (All / Meat / Seafood) — mirrors iOS HistoryFilter.
+  Widget _filterChips() {
+    Widget chip(String label, ProductType? type) {
+      final selected = _typeFilter == type;
+      return Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: GestureDetector(
+          onTap: () => setState(() => _typeFilter = type),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+            decoration: BoxDecoration(
+              color: selected
+                  ? FATTheme.primaryGreen
+                  : FATTheme.primaryGreen.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: FATTheme.primaryGreen),
+            ),
+            child: Text(label,
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: selected ? Colors.black : Colors.black54)),
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          chip('All', null),
+          chip('Meat', ProductType.meat),
+          chip('Seafood', ProductType.seafood),
+        ],
+      ),
+    );
+  }
+
+  // Aggregate summary over the filtered records — mirrors iOS HistoryAggregateCard.
+  Widget _aggregateCard() {
+    final recs = _filtered;
+    final total = recs.length;
+    final metCount = recs.where((r) => r.regulatoryPassed).length;
+    final pctMet = total > 0 ? '${(metCount / total * 100).round()}%' : '—';
+    final ids = <String>{};
+    for (final r in recs) {
+      final est = r.detectedEstablishmentNumber;
+      if (est != null && est.isNotEmpty) ids.add('est:$est');
+    }
+    Widget stat(String value, String label) => Expanded(
+          child: Column(
+            children: [
+              Text(value,
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.w900)),
+              const SizedBox(height: 2),
+              Text(label,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54)),
+            ],
+          ),
+        );
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: FATTheme.primaryGreen.withValues(alpha: 0.18),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: FATTheme.primaryGreen),
+        ),
+        child: Row(
+          children: [
+            stat('$total', 'Scans'),
+            stat(pctMet, 'Regulatory Met'),
+            stat('${ids.length}', 'Brands / EST'),
           ],
         ),
       ),
