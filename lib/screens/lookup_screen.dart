@@ -6,6 +6,7 @@ import '../theme/fat_theme.dart';
 import '../data/meat_brand_database.dart';
 import '../data/seafood_brand_database.dart';
 import '../data/pork_owner_database.dart';
+import '../data/seafood_enforcement_database.dart';
 
 /// A lookup request handed from the Home "Quick Lookup" card to the Lookup tab.
 class LookupRequest {
@@ -43,7 +44,11 @@ class _LookupScreenState extends State<LookupScreen> {
   List<MeatBrandResult>? _meatResults;
   List<SeafoodBrandResult>? _seafoodResults;
 
-  static const _tabs = ['EST', 'Meat Brand', 'Seafood Brand'];
+  // Seafood FDA enforcement
+  final _enforcementController = TextEditingController();
+  List<SeafoodEnforcementEntity>? _enforcementResults;
+
+  static const _tabs = ['EST', 'Meat Brand', 'Seafood Brand', 'Seafood FDA'];
 
   Future<void> _openUrl(String url) async {
     final uri = Uri.tryParse(url);
@@ -96,6 +101,12 @@ class _LookupScreenState extends State<LookupScreen> {
     FocusScope.of(context).unfocus();
     setState(() =>
         _seafoodResults = SeafoodBrandDatabase.search(_seafoodController.text));
+  }
+
+  void _searchEnforcement() {
+    FocusScope.of(context).unfocus();
+    setState(() => _enforcementResults =
+        SeafoodEnforcementDatabase.search(_enforcementController.text));
   }
 
   @override
@@ -219,8 +230,10 @@ class _LookupScreenState extends State<LookupScreen> {
                   child: Center(
                     child: Text(_tabs[i],
                         maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: selected ? Colors.black : Colors.black54)),
                   ),
@@ -239,6 +252,8 @@ class _LookupScreenState extends State<LookupScreen> {
         return _meatTab();
       case 2:
         return _seafoodTab();
+      case 3:
+        return _seafoodFdaTab();
       default:
         return _estTab();
     }
@@ -332,6 +347,234 @@ class _LookupScreenState extends State<LookupScreen> {
             _seafoodInfoSection(),
         ],
       ),
+    );
+  }
+
+  // ── Seafood FDA enforcement tab ───────────────────────────────────────
+  Widget _seafoodFdaTab() {
+    final results = _enforcementResults;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('Search FDA Seafood Enforcement',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+          const SizedBox(height: 12),
+          _searchField(_enforcementController,
+              'Entity, country, product, or alert #',
+              onSubmit: _searchEnforcement),
+          const SizedBox(height: 14),
+          _actionButton('Search', _searchEnforcement),
+          const SizedBox(height: 20),
+          if (results != null) ...[
+            if (results.isEmpty)
+              _notFoundCard('No Match in the Public Record',
+                  'No FDA seafood enforcement entity matched "${_enforcementController.text}". This registry covers public 2023–2025 warning letters, import alerts, and refusals tracked by FAT. Absence here does not mean a firm is clean — the FDA public record is incomplete, especially for foreign firms.')
+            else ...[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12, left: 2),
+                child: Text(
+                    '${results.length} ${results.length == 1 ? 'entity' : 'entities'} in the public FDA record',
+                    style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black.withValues(alpha: 0.6))),
+              ),
+              for (final e in results) ...[
+                _enforcementCard(e),
+                const SizedBox(height: 14),
+              ],
+            ],
+          ] else
+            _seafoodFdaInfoSection(),
+        ],
+      ),
+    );
+  }
+
+  Widget _enforcementCard(SeafoodEnforcementEntity e) {
+    final stage = e.publicLifecycle ?? e.visibleStage;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFC8C8C8)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(e.entity,
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(Icons.public,
+                  size: 14, color: Colors.black.withValues(alpha: 0.7)),
+              const SizedBox(width: 6),
+              Text(e.country.isEmpty ? 'United States (domestic)' : e.country,
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.bold)),
+              if (e.hasImportAlert) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFFC83C3C),
+                      borderRadius: BorderRadius.circular(20)),
+                  child: const Text('IMPORT ALERT',
+                      style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white)),
+                ),
+              ],
+            ],
+          ),
+          if (stage != null) ...[
+            const SizedBox(height: 8),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.arrow_circle_right,
+                    size: 14, color: FATTheme.primaryGreen),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(stage,
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          ],
+          _cardDivider(),
+          if (e.firstWarningDate != null)
+            _enfRow('FDA warning letter',
+                '${e.firstWarningDate}${e.warningYear != null ? ' (${e.warningYear})' : ''}'),
+          if (e.warningIssue != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 4),
+              child: Text(e.warningIssue!,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black.withValues(alpha: 0.6))),
+            ),
+          if (e.firstFollowupType != null && e.firstFollowupDate != null)
+            _enfRow('First visible follow-up',
+                '${e.firstFollowupType} — ${e.firstFollowupDate}'),
+          if (e.latestActionType != null && e.latestActionDate != null)
+            _enfRow('Latest public action',
+                '${e.latestActionType} — ${e.latestActionDate}'),
+          if (e.hasImportAlert) ...[
+            _cardDivider(),
+            if (e.importAlertNumber != null && e.importAlertDate != null)
+              _enfRow('Import Alert',
+                  '${e.importAlertNumber} — ${e.importAlertDate}'),
+            if (e.importAlertProduct != null)
+              _enfRow('Product focus', e.importAlertProduct!),
+            if (e.hazardPrimary != null)
+              _enfRow('Primary hazard', e.hazardPrimary!),
+            if (e.laterRefusalDate != null)
+              _enfRow('Later import refusal', e.laterRefusalDate!),
+            if (e.lifecycleBucket != null)
+              _enfRow('Lifecycle speed', e.lifecycleBucket!),
+          ],
+          if (e.noaaImportValueUSD != null)
+            _enfRow('NOAA 2024 edible import value',
+                _formatUsd(e.noaaImportValueUSD!)),
+          const SizedBox(height: 8),
+          Text(
+              'Public FDA record only. Absence of further action is not equivalent to a clean record. This is entity-level enforcement, not a verdict on any specific consumer brand.',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontStyle: FontStyle.italic,
+                  color: Colors.black.withValues(alpha: 0.55))),
+          if (e.warningSourceURL != null) ...[
+            const SizedBox(height: 10),
+            _sourceLink('FDA warning letter', e.warningSourceURL!),
+          ],
+          if (e.hasImportAlert && e.alertSourceURL != null) ...[
+            const SizedBox(height: 8),
+            _sourceLink('FDA import alert', e.alertSourceURL!),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _enfRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 3),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black.withValues(alpha: 0.6))),
+            const SizedBox(height: 1),
+            Text(value,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          ],
+        ),
+      );
+
+  Widget _sourceLink(String label, String url) => GestureDetector(
+        onTap: () => _openUrl(url),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          const Icon(Icons.public, size: 16, color: Colors.blue),
+          const SizedBox(width: 6),
+          Text(label,
+              style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue)),
+        ]),
+      );
+
+  String _formatUsd(int v) {
+    final s = v.toString();
+    final b = StringBuffer();
+    for (int i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
+      b.write(s[i]);
+    }
+    return '\$$b';
+  }
+
+  Widget _seafoodFdaInfoSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('About Seafood FDA Enforcement',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 12),
+        const Text(
+            'Roughly 80% of the seafood Americans eat is imported, and the public enforcement record is organized by regulated firm — not by the brand on the package. This registry surfaces FDA-visible seafood enforcement entities from the 2023–2025 public record: warning letters, import alerts, and import refusals, with their lifecycle timing and NOAA trade context.',
+            style: TextStyle(fontSize: 16, height: 1.3)),
+        const SizedBox(height: 16),
+        _iconInfoBox('What you can find:', const [
+          (Icons.description, 'FDA warning letters and the issue cited'),
+          (Icons.report, 'Import alerts and import refusals'),
+          (Icons.schedule, 'Lifecycle timing: warning → alert → refusal'),
+          (Icons.public, 'Country and NOAA edible-import value'),
+          (Icons.link, 'Direct links to the FDA source pages'),
+        ]),
+        const SizedBox(height: 14),
+        Text(
+            'Source: FAT FDA Seafood Reporting Package v2 (June 17, 2026), built from FDA warning letters, import alerts, and NOAA Foreign Fishery Trade Data. The public record is incomplete, especially for foreign firms; this is enforcement context, not a verdict on any consumer brand.',
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                fontStyle: FontStyle.italic,
+                color: Colors.black.withValues(alpha: 0.6))),
+      ],
     );
   }
 
@@ -988,6 +1231,7 @@ class _LookupScreenState extends State<LookupScreen> {
     _estController.dispose();
     _meatController.dispose();
     _seafoodController.dispose();
+    _enforcementController.dispose();
     super.dispose();
   }
 }
