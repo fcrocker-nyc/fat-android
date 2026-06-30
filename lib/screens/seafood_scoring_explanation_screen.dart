@@ -337,13 +337,13 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
             color: _green,
             label: 'Green',
             detail:
-                'Fully disclosed and independently verified, or confirmed by a government program (e.g. MSC certification audited; USDA FSIS catfish inspection mark; FDA establishment found with no recent import alerts).'),
+                'Fully disclosed and independently verified by an accredited third-party certifier (e.g. MSC, ASC, or BAP certification with a documented audit).'),
         const SizedBox(height: 10),
         _colorRow(
             color: _amber,
             label: 'Amber',
             detail:
-                'Partially disclosed, or government-reviewed but not independently audited (e.g. COOL-compliant origin without farm or vessel named; "wild-caught" without fishery).'),
+                'Partially disclosed, or government-reviewed but not independently audited — including a USDA Process Verified Program, the USDA FSIS catfish inspection mark, or COOL-compliant origin without farm or vessel named.'),
         const SizedBox(height: 10),
         _colorRow(
             color: _red,

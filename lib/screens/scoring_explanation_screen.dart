@@ -404,13 +404,13 @@ class ScoringExplanationScreen extends StatelessWidget {
             color: _green,
             label: 'Green',
             detail:
-                'Fully disclosed and independently verified, or confirmed by a government program.'),
+                'Fully disclosed and independently verified by an accredited third-party certifier (USDA Organic, GAP, Certified Humane, AWA).'),
         const SizedBox(height: 10),
         _colorRow(
             color: _amber,
             label: 'Amber',
             detail:
-                'Partially disclosed, or government-reviewed but not independently audited.'),
+                'Partially disclosed, or government-reviewed but not independently audited — including a USDA Process Verified Program (PVP).'),
         const SizedBox(height: 10),
         _colorRow(
             color: _red,
