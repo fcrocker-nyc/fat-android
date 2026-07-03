@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../theme/fat_theme.dart';
 import '../data/lookup_router.dart';
 import 'about_screen.dart';
+import 'learn_screen.dart';
+import 'service_case_capture_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onScanTap;
@@ -47,6 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     _independenceBadge(),
                     const SizedBox(height: 20),
                     _scanCTA(),
+                    const SizedBox(height: 12),
+                    // LOOSE FISH — service-case scan, directly under the main
+                    // scan pill and styled with the same forest-green fill.
+                    _looseFishCTA(context),
                     const SizedBox(height: 20),
                     // QUICK LOOKUP — compact, directly under the scan CTA so a
                     // lookup can be started from Home without opening the tab.
@@ -359,6 +365,78 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
                       color: Colors.white)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Loose fish CTA (service-case scan) ──────────────────────────────────
+
+  Widget _looseFishCTA(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ServiceCaseCaptureScreen()),
+        ),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          decoration: BoxDecoration(
+            color: FATTheme.scanGreen,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.storefront, color: Colors.white, size: 24),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text('Scan Loose Fish at a Counter',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '“Loose fish” is seafood sold from a full-service case with no '
+                'package to scan. FAT reads the counter placard instead — the '
+                'USDA AMS sign that shows country of origin and wild vs. farmed.',
+                style: TextStyle(
+                    fontSize: 14,
+                    height: 1.3,
+                    color: Colors.white.withValues(alpha: 0.92)),
+              ),
+              const SizedBox(height: 12),
+              // Learn link — own hit target so it doesn't trigger the scan.
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => openServiceCaseLearnTopic(context),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.menu_book, color: Colors.white, size: 16),
+                    SizedBox(width: 6),
+                    Flexible(
+                      child: Text('How FAT reads a counter placard — Learn more',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              decoration: TextDecoration.underline,
+                              decorationColor: Colors.white)),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

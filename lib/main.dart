@@ -7,7 +7,6 @@ import 'screens/history_screen.dart';
 import 'screens/learn_screen.dart';
 import 'screens/lookup_screen.dart';
 import 'data/brand_resolver.dart';
-import 'services/scan_store.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,24 +39,9 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
-  // After this many saved scans, the user is treated as experienced: tapping
-  // the Scan tab jumps straight to the camera instead of the intro screen.
-  static const _experiencedThreshold = 3;
-
   int _selectedIndex = 0;
   bool _autoLaunchCamera = false;
   LookupRequest? _pendingLookup;
-
-  @override
-  void initState() {
-    super.initState();
-    // Prime ScanStore's in-memory count so the experienced check (read live on
-    // each Scan-tab tap) is accurate from the first interaction.
-    ScanStore.instance.loadAll();
-  }
-
-  bool get _experienced =>
-      ScanStore.instance.cachedCount >= _experiencedThreshold;
 
   void _onScanTap() {
     setState(() {
@@ -100,20 +84,8 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: _FloatingFATTabBar(
         selectedIndex: _selectedIndex,
         onTap: (i) {
-          if (i == 1) {
-            // Scan tab: experienced users go straight to the camera; new users
-            // see the intro screen (with the loose-seafood option) first. Only
-            // auto-launch when actually switching TO Scan — re-tapping while
-            // already on Scan does nothing, matching iOS's onChange behavior.
-            final switching = _selectedIndex != 1;
-            setState(() {
-              _autoLaunchCamera = switching && _experienced;
-              _selectedIndex = 1;
-            });
-          } else {
-            _clearAutoLaunch();
-            setState(() => _selectedIndex = i);
-          }
+          if (i != 1) _clearAutoLaunch();
+          setState(() => _selectedIndex = i);
         },
       ),
     );

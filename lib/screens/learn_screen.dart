@@ -1643,6 +1643,20 @@ final List<_LearnSection> _sections = <_LearnSection>[
   ),
 ];
 
+// ─── Deep links ──────────────────────────────────────────────────────────────
+
+/// Opens the Learn "Service-Case Capture Schema" topic (loose seafood at a
+/// counter) directly. Used by the Home loose-fish scan pill's "Learn more" link.
+void openServiceCaseLearnTopic(BuildContext context) {
+  final topic = _sections
+      .expand((s) => s.topics)
+      .firstWhere((t) => t.title == 'Service-Case Capture Schema');
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => _LearnDetailScreen(topic: topic)),
+  );
+}
+
 // ─── Main Learn Screen ───────────────────────────────────────────────────────
 
 class LearnScreen extends StatelessWidget {
