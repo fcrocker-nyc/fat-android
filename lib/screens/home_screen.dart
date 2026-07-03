@@ -281,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       color: Colors.orange,
                       child: const Text(
-                        'NOW Seafood, Turkey, Lamb',
+                        'Now Scanning Loose Fish',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 13,

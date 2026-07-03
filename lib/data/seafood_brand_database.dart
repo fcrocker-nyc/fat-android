@@ -236,7 +236,7 @@ class SeafoodBrandDatabase {
       sourcingNotes:
           "Shrimp sourced primarily from Asia and Latin America. Some products carry BAP certification.",
       ownershipNotes:
-          "Based in St. Simons Island, Georgia. Subsidiary of Rich Products Corporation, a privately held US food company in Buffalo, NY with \$4B+ annual revenue.",
+          "Based in St. Simons Island, Georgia. Subsidiary of Rich Products Corporation, a privately held US food company with \$4B+ annual revenue.",
       plantLocations: ["St. Simons Island, Georgia", "Brownsville, Texas"],
       fleetInfo:
           "No company-owned fleet. Sources from contracted farms and fisheries globally.",
