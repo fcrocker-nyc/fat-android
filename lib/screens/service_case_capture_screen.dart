@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../models/service_case_schema.dart';
+import '../models/species_visual_classifier.dart';
 import '../theme/fat_theme.dart';
 
 /// Service-Case Seafood Capture flow. The venue gate runs first (the user picks
@@ -39,16 +40,26 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
       final result = await recognizer.processImage(InputImage.fromFilePath(xFile.path));
       await recognizer.close();
 
+      // Read the placard text (OCR) AND the whole fish itself (on-device visual pass), same frame.
+      final visual = await SpeciesVisualClassifier.classify(xFile.path);
       final text = result.text;
+
       if (text.trim().isEmpty) {
+        final rec = ServiceCaseParser.parse('', _venue);
+        ServiceCaseParser.applyVisual(visual, rec);
         setState(() {
+          _record = rec;
           _processing = false;
-          _error = 'No text detected on the placard. Try again with better lighting.';
+          _error = visual == null
+              ? 'No placard text and no whole fish detected. Frame the whole fish (not a fillet) and its sign, in good light.'
+              : 'No placard text detected — showing the whole-fish visual read only.';
         });
         return;
       }
+      final rec = ServiceCaseParser.parse(text, _venue);
+      ServiceCaseParser.applyVisual(visual, rec);
       setState(() {
-        _record = ServiceCaseParser.parse(text, _venue);
+        _record = rec;
         _processing = false;
       });
     } catch (e) {
@@ -220,6 +231,16 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
               r.seafoodListMatch?.acceptableMarketName ?? '—',
               r.seafoodListMatch?.confidence ?? ConfidenceState.missing),
           _fieldRow('Species identity', 'held open', r.speciesIdentityConfidence),
+          _fieldRow(
+            'Whole-fish visual read',
+            r.visualObservation == null
+                ? 'no whole fish detected'
+                : (r.visualConfidence == null
+                    ? r.visualObservation!
+                    : '${r.visualObservation} (${(r.visualConfidence! * 100).round()}%)'),
+            ConfidenceState.unverified,
+          ),
+          if (r.visualCrossCheck != null) _plainRow('Sign vs. camera', r.visualVerdict),
           if (r.shellfishCertNumber != null)
             _fieldRow('Shellfish cert', r.shellfishCertNumber!, ConfidenceState.known),
           if (r.previouslyFrozen != PreviouslyFrozen.unknown)

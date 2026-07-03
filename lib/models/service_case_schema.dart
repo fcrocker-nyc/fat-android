@@ -144,6 +144,14 @@ class ServiceCaseRecord {
   String? substitutionRiskBand; // high / moderate / low
   String? productForm;
 
+  // Cluster B — on-device visual cross-check. A LOW-CONFIDENCE camera cue (ML Kit image
+  // labeling), used only to corroborate or flag-mismatch the placard name — never to assert species.
+  String? placardBroadType;
+  bool placardIsSalmonid = false;
+  String? visualObservation; // coarse label from the camera, e.g. "fish", "crab"
+  double? visualConfidence; // 0..1
+  String? visualCrossCheck; // corroborates / conflict / inconclusive / noFish / noPlacard
+
   // Cluster C — hard keys & context
   String? shellfishCertNumber;
   String? fsisEstablishmentNumber;
@@ -173,6 +181,26 @@ class ServiceCaseRecord {
 
   /// Species identity is the one field a photo can never confirm.
   ConfidenceState get speciesIdentityConfidence => ConfidenceState.unverified;
+
+  /// Plain-language verdict for the sign-vs-camera cross-check.
+  String get visualVerdict {
+    switch (visualCrossCheck) {
+      case 'corroborates':
+        return 'Whole-fish view is consistent with the sign.';
+      case 'conflict':
+        return '⚠️ Whole-fish view does not match the sign — possible mislabeling.';
+      case 'inconclusive':
+        return 'Whole-fish view is inconclusive (low confidence).';
+      case 'notWhole':
+        return 'Whole fish only — this looks like a fillet or cut, so the visual check does not apply.';
+      case 'noFish':
+        return 'No whole fish detected — point the camera at the whole fish (not a fillet).';
+      case 'noPlacard':
+        return 'Visual read only — no market name read from the sign.';
+      default:
+        return '—';
+    }
+  }
 
   ConfidenceState _disclosureConfidence({required bool legible, required bool present}) {
     if (!disclosureRequired) return ConfidenceState.notApplicable;
@@ -254,34 +282,146 @@ class ServiceCaseParser {
   // Common market-name → (acceptable name, scientific name, specific?) map.
   // Specific=false marks non-specific / fraud-prone names (bare "sea bass",
   // bare "snapper") that resolve to a partial, non-acceptable match.
+  // FDA Seafood List resolution table (displayed placard name -> [acceptable market name,
+  // scientific name, specific?]). Curated to common U.S. counter species; scientific names given
+  // only where confidently known. TODO: reconcile against the official FDA Seafood List before ship.
   static const Map<String, List<dynamic>> _seafoodList = {
-    'red snapper': ['snapper, red', 'Lutjanus campechanus', true],
-    'snapper': ['snapper', '', false],
+    // Salmonids
     'atlantic salmon': ['salmon, Atlantic', 'Salmo salar', true],
     'sockeye salmon': ['salmon, sockeye', 'Oncorhynchus nerka', true],
+    'coho salmon': ['salmon, coho', 'Oncorhynchus kisutch', true],
+    'king salmon': ['salmon, Chinook', 'Oncorhynchus tshawytscha', true],
+    'chinook salmon': ['salmon, Chinook', 'Oncorhynchus tshawytscha', true],
+    'pink salmon': ['salmon, pink', 'Oncorhynchus gorbuscha', true],
+    'chum salmon': ['salmon, chum', 'Oncorhynchus keta', true],
     'salmon': ['salmon', '', false],
-    'ahi tuna': ['tuna, yellowfin', 'Thunnus albacares', true],
-    'tuna': ['tuna', '', false],
-    'sea bass': ['sea bass', '', false],
-    'chilean sea bass': ['seabass, Patagonian toothfish', 'Dissostichus eleginoides', true],
-    'grouper': ['grouper', '', false],
-    'cod': ['cod', '', false],
-    'tilapia': ['tilapia', 'Oreochromis', true],
-    'halibut': ['halibut', '', false],
-    'mahi': ['mahimahi', 'Coryphaena hippurus', true],
-    'mahi mahi': ['mahimahi', 'Coryphaena hippurus', true],
+    'steelhead': ['trout, rainbow', 'Oncorhynchus mykiss', true],
+    'rainbow trout': ['trout, rainbow', 'Oncorhynchus mykiss', true],
     'trout': ['trout', '', false],
+    'arctic char': ['char, Arctic', 'Salvelinus alpinus', true],
+    'whitefish': ['whitefish, lake', 'Coregonus clupeaformis', true],
+    // Tunas & mackerels
+    'yellowfin tuna': ['tuna, yellowfin', 'Thunnus albacares', true],
+    'ahi tuna': ['tuna, yellowfin', 'Thunnus albacares', true],
+    'ahi': ['tuna, yellowfin', 'Thunnus albacares', true],
+    'bigeye tuna': ['tuna, bigeye', 'Thunnus obesus', true],
+    'bluefin tuna': ['tuna, bluefin', 'Thunnus thynnus', true],
+    'albacore': ['tuna, albacore', 'Thunnus alalunga', true],
+    'skipjack': ['tuna, skipjack', 'Katsuwonus pelamis', true],
+    'tuna': ['tuna', '', false],
+    'escolar': ['escolar', 'Lepidocybium flavobrunneum', true],
+    'mackerel': ['mackerel', '', false],
+    'atlantic mackerel': ['mackerel, Atlantic', 'Scomber scombrus', true],
+    'spanish mackerel': ['mackerel, Spanish', 'Scomberomorus maculatus', true],
+    'king mackerel': ['mackerel, king', 'Scomberomorus cavalla', true],
+    'wahoo': ['wahoo', 'Acanthocybium solandri', true],
+    // Cods, pollock & relatives
+    'atlantic cod': ['cod, Atlantic', 'Gadus morhua', true],
+    'pacific cod': ['cod, Pacific', 'Gadus macrocephalus', true],
+    'cod': ['cod', '', false],
+    'black cod': ['sablefish', 'Anoplopoma fimbria', true],
+    'sablefish': ['sablefish', 'Anoplopoma fimbria', true],
+    'lingcod': ['lingcod', 'Ophiodon elongatus', true],
+    'haddock': ['haddock', 'Melanogrammus aeglefinus', true],
+    'alaska pollock': ['pollock, Alaska', 'Gadus chalcogrammus', true],
+    'pollock': ['pollock, Alaska', 'Gadus chalcogrammus', true],
+    'whiting': ['whiting', '', false],
+    'hake': ['hake', 'Merluccius', true],
+    'monkfish': ['monkfish', 'Lophius americanus', true],
+    'tilefish': ['tilefish', 'Lopholatilus chamaeleonticeps', true],
+    'orange roughy': ['roughy, orange', 'Hoplostethus atlanticus', true],
+    // Flatfish
+    'pacific halibut': ['halibut, Pacific', 'Hippoglossus stenolepis', true],
+    'atlantic halibut': ['halibut, Atlantic', 'Hippoglossus hippoglossus', true],
+    'halibut': ['halibut', '', false],
+    'petrale sole': ['sole, petrale', 'Eopsetta jordani', true],
+    'dover sole': ['sole, Dover', '', false],
+    'sole': ['sole', '', false],
+    'flounder': ['flounder', '', false],
+    'turbot': ['turbot', '', false],
+    'plaice': ['plaice', '', false],
+    // Snapper, grouper, bass, drum
+    'red snapper': ['snapper, red', 'Lutjanus campechanus', true],
+    'yellowtail snapper': ['snapper, yellowtail', 'Ocyurus chrysurus', true],
+    'snapper': ['snapper', '', false],
+    'red grouper': ['grouper, red', 'Epinephelus morio', true],
+    'black grouper': ['grouper, black', 'Mycteroperca bonaci', true],
+    'grouper': ['grouper', '', false],
+    'black sea bass': ['sea bass, black', 'Centropristis striata', true],
+    'chilean sea bass': ['seabass, Patagonian toothfish', 'Dissostichus eleginoides', true],
+    'striped bass': ['bass, striped', 'Morone saxatilis', true],
+    'branzino': ['bass, European', 'Dicentrarchus labrax', true],
+    'sea bass': ['sea bass', '', false],
+    'barramundi': ['barramundi', 'Lates calcarifer', true],
+    'red drum': ['drum, red', 'Sciaenops ocellatus', true],
+    'redfish': ['drum, red', 'Sciaenops ocellatus', true],
+    'drum': ['drum', '', false],
+    'croaker': ['croaker', '', false],
+    'scup': ['scup', 'Stenotomus chrysops', true],
+    'porgy': ['porgy', '', false],
+    'rockfish': ['rockfish', 'Sebastes', true],
+    'ocean perch': ['ocean perch', 'Sebastes', true],
+    'yellow perch': ['perch, yellow', 'Perca flavescens', true],
+    'perch': ['perch', '', false],
+    'walleye': ['walleye', 'Sander vitreus', true],
+    // Other finfish
+    'mahi mahi': ['mahimahi', 'Coryphaena hippurus', true],
+    'mahi-mahi': ['mahimahi', 'Coryphaena hippurus', true],
+    'mahi': ['mahimahi', 'Coryphaena hippurus', true],
+    'swordfish': ['swordfish', 'Xiphias gladius', true],
+    'hamachi': ['yellowtail, Japanese', 'Seriola quinqueradiata', true],
+    'yellowtail': ['yellowtail', 'Seriola', true],
+    'amberjack': ['amberjack', 'Seriola', true],
+    'pompano': ['pompano, Florida', 'Trachinotus carolinus', true],
+    'bluefish': ['bluefish', 'Pomatomus saltatrix', true],
+    'sardine': ['sardine', '', false],
+    'anchovy': ['anchovy', 'Engraulis', true],
+    'herring': ['herring', 'Clupea harengus', true],
+    'smelt': ['smelt', '', false],
+    'skate': ['skate', 'Raja', true],
+    'tilapia': ['tilapia', 'Oreochromis', true],
+    // Siluriformes (FSIS-regulated)
+    'channel catfish': ['catfish, channel', 'Ictalurus punctatus', true],
     'catfish': ['catfish', 'Ictalurus', true],
     'basa': ['basa', 'Pangasius bocourti', true],
     'swai': ['swai', 'Pangasianodon hypophthalmus', true],
+    'tra': ['tra', 'Pangasianodon hypophthalmus', true],
+    'pangasius': ['pangasius', 'Pangasius', true],
+    // Crustaceans
+    'white shrimp': ['shrimp, white', 'Litopenaeus setiferus', true],
+    'tiger shrimp': ['shrimp, tiger', 'Penaeus monodon', true],
     'shrimp': ['shrimp', '', false],
+    'prawns': ['prawn', '', false],
+    'prawn': ['prawn', '', false],
+    'blue crab': ['crab, blue', 'Callinectes sapidus', true],
+    'dungeness crab': ['crab, Dungeness', 'Metacarcinus magister', true],
+    'king crab': ['crab, king', 'Paralithodes camtschaticus', true],
+    'snow crab': ['crab, snow', 'Chionoecetes opilio', true],
+    'crab': ['crab', '', false],
+    'maine lobster': ['lobster, American', 'Homarus americanus', true],
+    'spiny lobster': ['lobster, spiny', 'Panulirus', true],
+    'lobster': ['lobster', '', false],
+    'crawfish': ['crawfish', 'Procambarus clarkii', true],
+    'crayfish': ['crayfish', 'Procambarus clarkii', true],
+    // Molluscs
+    'eastern oyster': ['oyster, Eastern', 'Crassostrea virginica', true],
+    'pacific oyster': ['oyster, Pacific', 'Magallana gigas', true],
     'oyster': ['oyster', '', false],
+    'littleneck clam': ['clam, littleneck', 'Mercenaria mercenaria', true],
+    'quahog': ['clam, quahog', 'Mercenaria mercenaria', true],
     'clam': ['clam', '', false],
+    'blue mussel': ['mussel, blue', 'Mytilus edulis', true],
     'mussel': ['mussel', '', false],
+    'sea scallop': ['scallop, sea', 'Placopecten magellanicus', true],
+    'bay scallop': ['scallop, bay', 'Argopecten irradians', true],
+    'scallop': ['scallop', '', false],
+    'calamari': ['squid', '', false],
+    'squid': ['squid', '', false],
+    'octopus': ['octopus', 'Octopus vulgaris', true],
   };
 
   static const List<String> _siluriformes = ['catfish', 'basa', 'swai', 'tra', 'pangasius'];
-  static const List<String> _shellfish = ['oyster', 'clam', 'mussel'];
+  static const List<String> _shellfish = ['oyster', 'clam', 'mussel', 'scallop', 'quahog'];
   static const List<String> _processedWords = [
     'breaded', 'marinated', 'seasoned', 'crab cake', 'stuffed', 'teriyaki', 'tempura', 'battered'
   ];
@@ -353,9 +493,14 @@ class ServiceCaseParser {
       } else {
         r.categoryLane = CategoryLane.fda;
       }
-      // Substitution-risk prior (category-level).
-      const high = ['snapper', 'tuna', 'sea bass', 'grouper', 'cod'];
+      // Substitution-risk prior (documented mislabeling-prone groups — Oceana studies, FDA RPM).
+      const high = ['snapper', 'tuna', 'escolar', 'grouper', 'sea bass', 'cod', 'halibut',
+                    'sole', 'salmon', 'yellowtail', 'tilefish', 'wahoo', 'mahi', 'king mackerel',
+                    'white tuna'];
       r.substitutionRiskBand = high.any(matchedKey.contains) ? 'high' : 'moderate';
+      r.placardBroadType = _coarseType(matchedKey);
+      r.placardIsSalmonid =
+          ['salmon', 'trout', 'char', 'steelhead'].any(matchedKey.contains);
     }
 
     // Product form.
@@ -387,4 +532,71 @@ class ServiceCaseParser {
 
   static String _titleCase(String s) =>
       s.split(' ').map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1)}').join(' ');
+
+  // Coarse animal type a phone camera can plausibly discriminate (finfish vs the shellfish
+  // types). Deliberately NOT species-level — the visual pass is a mislabeling cross-check.
+  static String coarseType(String key) {
+    final k = key.toLowerCase();
+    if (['oyster', 'clam', 'mussel', 'scallop', 'quahog'].any(k.contains)) return 'mollusk';
+    if (k.contains('crab')) return 'crab';
+    if (k.contains('lobster')) return 'lobster';
+    if (['shrimp', 'prawn', 'crawfish', 'crayfish'].any(k.contains)) return 'shrimp';
+    if (['squid', 'calamari', 'octopus', 'cuttlefish'].any(k.contains)) return 'cephalopod';
+    return 'finfish';
+  }
+
+  static String _coarseType(String key) => coarseType(key);
+
+  /// Merge the on-device visual read into a parsed record and cross-check it against the resolved
+  /// placard name. The visual read is a LOW-CONFIDENCE cue: it can flag a broad-type mismatch
+  /// (sign says "crab", camera sees a finfish) but never asserts a species.
+  static void applyVisual(VisualRead? v, ServiceCaseRecord r) {
+    if (v == null) {
+      r.visualCrossCheck = 'noFish';
+      return;
+    }
+    r.visualObservation = v.display;
+    r.visualConfidence = v.confidence;
+    // Whole fish only: a fillet, steak, or cut cannot be visually cross-checked.
+    if (v.broadType == 'cut') {
+      r.visualCrossCheck = 'notWhole';
+      return;
+    }
+    final placard = r.placardBroadType;
+    if (placard == null) {
+      r.visualCrossCheck = 'noPlacard';
+      return;
+    }
+    final strong = v.confidence >= 0.45;
+    final sameBroad = v.broadType == placard ||
+        (['crab', 'lobster', 'shrimp'].contains(v.broadType) &&
+            ['crab', 'lobster', 'shrimp'].contains(placard) &&
+            !strong);
+    if (!sameBroad) {
+      if (strong) {
+        r.visualCrossCheck = 'conflict';
+        r.substitutionRiskBand = 'high';
+      } else {
+        r.visualCrossCheck = 'inconclusive';
+      }
+    } else if (v.fineTag == 'salmon' &&
+        r.placardIsSalmonid == false &&
+        strong &&
+        (r.seafoodListMatch?.isAcceptableName ?? false)) {
+      r.visualCrossCheck = 'conflict';
+      r.substitutionRiskBand = 'high';
+    } else {
+      r.visualCrossCheck = 'corroborates';
+    }
+  }
+}
+
+/// Low-confidence on-device visual read of a WHOLE fish (ML Kit image labeling).
+/// broadType: finfish / crab / lobster / shrimp / cephalopod / mollusk / cut.
+class VisualRead {
+  final String display; // human label, e.g. "fish", "crab", "salmon"
+  final String broadType;
+  final String? fineTag; // "salmon" when discriminable; else null
+  final double confidence; // 0..1
+  const VisualRead(this.display, this.broadType, this.fineTag, this.confidence);
 }
