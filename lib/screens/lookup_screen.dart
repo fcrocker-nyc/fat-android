@@ -36,6 +36,7 @@ class _LookupScreenState extends State<LookupScreen> {
 
   // EST
   Map<String, dynamic>? _processorData;
+  Map<String, dynamic>? _workerSafety; // OSHA worker-safety (fat/v1/osha)
   PorkOwnerResult? _porkOwner;
   bool _estSearched = false;
   bool _lookupFailed = false;
@@ -64,6 +65,7 @@ class _LookupScreenState extends State<LookupScreen> {
     setState(() {
       _isLoading = true;
       _processorData = null;
+      _workerSafety = null;
       _porkOwner = null;
       _estSearched = true;
       _lookupFailed = false;
@@ -83,6 +85,19 @@ class _LookupScreenState extends State<LookupScreen> {
       } else {
         _lookupFailed = true;
       }
+      // OSHA worker-safety (separate REST endpoint, keyed by the same EST digits)
+      try {
+        final oshaResp = await http
+            .get(Uri.parse(
+                'https://farmanimaltransparency.com/wp-json/fat/v1/osha/$est'))
+            .timeout(const Duration(seconds: 10));
+        if (oshaResp.statusCode == 200) {
+          final od = jsonDecode(oshaResp.body);
+          if (od is Map && od['found'] == true) {
+            _workerSafety = Map<String, dynamic>.from(od);
+          }
+        }
+      } catch (_) {}
     } catch (_) {
       _lookupFailed = true;
     } finally {
@@ -276,6 +291,10 @@ class _LookupScreenState extends State<LookupScreen> {
           const SizedBox(height: 20),
           if (_estSearched && _processorData != null)
             _processorCard(_processorData!),
+          if (_estSearched && _workerSafety != null && _oshaHasData(_workerSafety!)) ...[
+            const SizedBox(height: 14),
+            _oshaCard(_workerSafety!),
+          ],
           if (_porkOwner != null) ...[
             const SizedBox(height: 14),
             _porkOwnerCard(_porkOwner!),
@@ -635,6 +654,135 @@ class _LookupScreenState extends State<LookupScreen> {
   }
 
   // ── EST processor card ────────────────────────────────────────────────
+  // ── OSHA Worker-Safety card ───────────────────────────────────────────
+  bool _oshaHasData(Map<String, dynamic> d) {
+    final s = d['summary'];
+    return d['found'] == true &&
+        s is Map &&
+        (((s['inspection_count'] ?? 0) as num).toInt() > 0);
+  }
+
+  String _money(num n) {
+    final digits = n.round().toString();
+    final buf = StringBuffer();
+    for (int i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) buf.write(',');
+      buf.write(digits[i]);
+    }
+    return '\$$buf';
+  }
+
+  Widget _oshaStat(String value, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(7)),
+      child: Column(children: [
+        Text(value,
+            style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFB45309))),
+        Text(label,
+            style: const TextStyle(
+                fontSize: 9, fontWeight: FontWeight.w600, color: Colors.grey)),
+      ]),
+    );
+  }
+
+  Widget _oshaCard(Map<String, dynamic> d) {
+    const amber = Color(0xFFB45309);
+    final s = (d['summary'] as Map?) ?? {};
+    int gi(String k) => ((s[k] ?? 0) as num).toInt();
+    final penalties = ((s['current_penalties'] ?? 0) as num).toDouble();
+    final possible = (d['match_confidence'] ?? 'high') != 'high';
+    final fatal = s['fatality_or_severe'] == true;
+
+    final Map<String, int> hc = {};
+    for (final v in (d['violations'] as List? ?? const [])) {
+      final h = (v is Map) ? v['hazard_category'] as String? : null;
+      if (h != null && h.isNotEmpty) hc[h] = (hc[h] ?? 0) + 1;
+    }
+    final top = (hc.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value)))
+        .take(3)
+        .map((e) => e.key)
+        .toList();
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8F0),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: amber, width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            const Icon(Icons.shield_outlined, color: amber, size: 18),
+            const SizedBox(width: 6),
+            const Expanded(
+              child: Text('OSHA — Worker Safety',
+                  style: TextStyle(
+                      color: amber, fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+            if (fatal)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                    color: const Color(0xFFFDE68A),
+                    borderRadius: BorderRadius.circular(10)),
+                child: const Text('Fatality / severe injury',
+                    style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF7C2D12))),
+              ),
+          ]),
+          const SizedBox(height: 6),
+          const Text(
+              'Workplace-safety enforcement, separate from food-safety records — conditions for plant workers, not product safety.',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF7C5410))),
+          if (possible) ...[
+            const SizedBox(height: 4),
+            const Text(
+                'Possible match — shares this plant\'s company name but is not address-confirmed to this specific facility.',
+                style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF7C5410))),
+          ],
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            _oshaStat('${gi('inspection_count')}', 'Inspections'),
+            _oshaStat('${gi('total_violations')}', 'Violations'),
+            _oshaStat('${gi('serious')}', 'Serious'),
+            _oshaStat('${gi('willful')}', 'Willful'),
+            _oshaStat('${gi('repeat')}', 'Repeat'),
+            _oshaStat(_money(penalties), 'Current \$'),
+          ]),
+          if (top.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text('Top hazards: ${top.join(' · ')}',
+                style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black)),
+          ],
+          const SizedBox(height: 8),
+          const Text(
+              'Worker injury/illness reports are not violations unless OSHA issued a citation. Figures can change after contests or settlements. Source: OSHA / U.S. DOL.',
+              style: TextStyle(fontSize: 10, color: Color(0xFF7C5410))),
+        ],
+      ),
+    );
+  }
+
   Widget _processorCard(Map<String, dynamic> data) {
     final name = data['establishmentName'] as String? ?? 'Unknown';
     final address = data['fullAddress'] as String? ?? '';
