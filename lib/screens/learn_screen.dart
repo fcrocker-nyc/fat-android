@@ -936,6 +936,23 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Enforcement data reflects regulatory compliance history, not current product safety. An establishment with enforcement actions on record may have fully resolved those issues. Conversely, the absence of enforcement data does not guarantee perfect performance — it simply means no public enforcement actions were taken during the reporting period.\n\n'
             'FAT presents this information for transparency. You decide how it factors into your purchasing decisions.'),
       ),
+      _LearnTopic(
+        title: 'OSHA Worker-Safety Enforcement',
+        subtitle: 'The plant\'s record for the people who work there',
+        body: _text(
+            'Meat and poultry plants are among the most dangerous workplaces in U.S. manufacturing — injury and illness rates run well above the manufacturing average, driven by fast line speeds, sharp equipment, cold and wet conditions, and repetitive motion.\n\n'
+            'The Occupational Safety and Health Administration (OSHA), part of the U.S. Department of Labor, inspects these plants and issues citations when it finds hazards. Common ones in slaughter and processing include lockout/tagout (hazardous-energy) failures, unguarded machinery, and process-safety violations on the anhydrous-ammonia refrigeration systems these plants rely on.\n\n'
+            'What FAT shows for a plant\'s OSHA record:\n'
+            '• Inspections — how many times OSHA has been on site\n'
+            '• Citations classified Serious, Willful, Repeat, or Other-than-serious\n'
+            '• Initial and current penalties (these often differ after employer contests and settlements)\n'
+            '• Any fatality or severe-injury event on record\n\n'
+            'A separate axis from food safety:\n'
+            'Worker safety is kept deliberately distinct from the food-safety record above (recalls, residue, humane handling) and is never blended into one number. An OSHA citation says nothing about whether the meat is safe to eat, and a food-safety recall says nothing about how the plant treats its workers — they are two different questions.\n\n'
+            'How the match works:\n'
+            'OSHA records carry no FSIS establishment number, so FAT matches them to the plant by name and address. A name-and-address (or ZIP) confirmed match is shown as the plant\'s record; a name-only match is labeled a "possible" match, not confirmed. Worker injury or illness reports are not violations unless OSHA issued a citation, and figures can change after employer contests or settlements.\n\n'
+            'Source: OSHA Enforcement data, U.S. Department of Labor.'),
+      ),
       // 2.11
       _LearnTopic(
         title: 'Product Recalls',
