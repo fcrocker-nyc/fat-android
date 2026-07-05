@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
 import '../services/scan_store.dart';
+import '../services/epa_service.dart';
 
 /// Seafood scan result screen — Flutter port of iOS SeafoodResultsView.
 ///
@@ -29,6 +30,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   // relevant to catfish/Siluriformes, the only seafood with an OSHA-linkable
   // FSIS establishment. Set true after a high-confidence match with violations.
   bool _oshaViolation = false;
+  bool _epaViolation = false; // EPA environmental-enforcement penalty (Cat 7)
 
   FATResult get result => widget.result;
 
@@ -36,6 +38,12 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   void initState() {
     super.initState();
     _loadOshaPenalty();
+    _loadEpaPenalty();
+  }
+
+  Future<void> _loadEpaPenalty() async {
+    final v = await EpaService.hasViolation(result.detectedEstablishmentNumber);
+    if (v && mounted) setState(() => _epaViolation = true);
   }
 
   Future<void> _loadOshaPenalty() async {
@@ -200,7 +208,8 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
 
   // ── B3b. FAT Transparency Score ────────────────────────────────────────
   Widget _scoreCard() {
-    final score = result.seafoodFatScoreWith(oshaViolation: _oshaViolation);
+    final score = result.seafoodFatScoreWith(
+        oshaViolation: _oshaViolation, epaViolation: _epaViolation);
     final grade = FATResult.gradeFor(score.toDouble());
     final color = FATResult.gradeColorFor(score.toDouble());
     return Container(

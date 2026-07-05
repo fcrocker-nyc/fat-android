@@ -6,6 +6,7 @@ import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
 import '../services/scan_store.dart';
+import '../services/epa_service.dart';
 import 'certification_result_cards.dart';
 
 /// Meat / poultry scan result screen — Flutter port of iOS ResultsView.
@@ -25,11 +26,19 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // Set true after the live OSHA fetch confirms a high-confidence match with
   // violations on record; the score/grade then recompute with −2 applied.
   bool _oshaViolation = false;
+  // EPA environmental-enforcement penalty (Cat 7), set after the jsDelivr fetch.
+  bool _epaViolation = false;
 
   @override
   void initState() {
     super.initState();
     _loadOshaPenalty();
+    _loadEpaPenalty();
+  }
+
+  Future<void> _loadEpaPenalty() async {
+    final v = await EpaService.hasViolation(result.detectedEstablishmentNumber);
+    if (v && mounted) setState(() => _epaViolation = true);
   }
 
   Future<void> _loadOshaPenalty() async {
@@ -57,8 +66,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
     }
   }
 
-  double get _penalizedScore =>
-      result.fatScoreWith(oshaViolation: _oshaViolation);
+  double get _penalizedScore => result.fatScoreWith(
+      oshaViolation: _oshaViolation, epaViolation: _epaViolation);
 
   FATResult get result => widget.result;
 
@@ -231,7 +240,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   // ── A4. FAT Score Card ─────────────────────────────────────────────────
   Widget _scoreCard() {
-    final score = result.fatScoreWith(oshaViolation: _oshaViolation);
+    final score = _penalizedScore;
     final grade = FATResult.gradeFor(score);
     final gradeColor = FATResult.gradeColorFor(score);
     final disclosurePct = (_disclosurePillar / 70).clamp(0.0, 1.0);
