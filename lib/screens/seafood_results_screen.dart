@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
@@ -23,8 +25,42 @@ class SeafoodResultsScreen extends StatefulWidget {
 
 class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   bool _didSave = false;
+  // OSHA worker-safety penalty against the Processor (Cat 7) disclosure score —
+  // relevant to catfish/Siluriformes, the only seafood with an OSHA-linkable
+  // FSIS establishment. Set true after a high-confidence match with violations.
+  bool _oshaViolation = false;
 
   FATResult get result => widget.result;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOshaPenalty();
+  }
+
+  Future<void> _loadOshaPenalty() async {
+    final est = result.detectedEstablishmentNumber;
+    if (est == null) return;
+    try {
+      final resp = await http
+          .get(Uri.parse(
+              'https://farmanimaltransparency.com/wp-json/fat/v1/osha/$est'))
+          .timeout(const Duration(seconds: 10));
+      if (resp.statusCode != 200) return;
+      final d = jsonDecode(resp.body);
+      if (d is! Map) return;
+      final s = d['summary'];
+      final hasViolations = d['found'] == true &&
+          d['match_confidence'] == 'high' &&
+          s is Map &&
+          (((s['total_violations'] ?? 0) as num).toInt() > 0);
+      if (hasViolations && mounted) {
+        setState(() => _oshaViolation = true);
+      }
+    } catch (_) {
+      // Fail-open: no penalty on network/parse error.
+    }
+  }
 
   // ── Palette ────────────────────────────────────────────────────────────
   static const _disclosureGreen = Color(0xFF34A853);
@@ -164,8 +200,9 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
 
   // ── B3b. FAT Transparency Score ────────────────────────────────────────
   Widget _scoreCard() {
-    final grade = result.seafoodGrade;
-    final color = result.seafoodGradeColor;
+    final score = result.seafoodFatScoreWith(oshaViolation: _oshaViolation);
+    final grade = FATResult.gradeFor(score.toDouble());
+    final color = FATResult.gradeColorFor(score.toDouble());
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -204,7 +241,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
                                 fontSize: 36,
                                 fontWeight: FontWeight.w900,
                                 color: color)),
-                        Text('${result.seafoodFatScore}/100',
+                        Text('$score/100',
                             style: const TextStyle(
                                 fontSize: 13, fontWeight: FontWeight.bold)),
                       ],
