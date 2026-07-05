@@ -179,6 +179,13 @@ class ScoringExplanationScreen extends StatelessWidget {
             style: TextStyle(fontSize: 14, color: _ink, height: 1.35),
           ),
         ),
+        const Padding(
+          padding: EdgeInsets.only(top: 8),
+          child: Text(
+            'Two disclosures are scored pass/fail rather than graded — the Required Basics the law mandates, and the Processor identifier (the FSIS establishment number, or for FDA seafood the name and place of business). The legally-required element is either present (full credit) or absent (zero); there is no partial. Separately, a plant\'s environmental and worker-safety enforcement record applies as a penalty against the Processor category\'s disclosure score, and the two penalties stack: EPA violations −3, OSHA violations −2 (no record = 0).',
+            style: TextStyle(fontSize: 14, color: _ink, height: 1.35),
+          ),
+        ),
       ],
     );
   }
@@ -310,7 +317,7 @@ class ScoringExplanationScreen extends StatelessWidget {
             color: _green,
             title: 'Processor & Enforcement Record',
             detail:
-                'The processor is identified by FSIS establishment number on the label. Its public enforcement record — recalls, residue violations, humane-handling actions, and FDA import alerts — is tied to that establishment.'),
+                'The processor is identified by FSIS establishment number on the label (or, for FDA seafood, by name and place of business). Its public enforcement record — recalls, residue violations, humane-handling actions, FDA import alerts, plus EPA environmental violations and OSHA worker-safety citations — is tied to that establishment. EPA (−3) and OSHA (−2) violations apply as stacking penalties against the Processor category\'s disclosure score.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '🏢',

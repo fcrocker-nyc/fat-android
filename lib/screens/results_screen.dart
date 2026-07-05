@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
@@ -19,6 +21,44 @@ class ResultsScreen extends StatefulWidget {
 
 class _ResultsScreenState extends State<ResultsScreen> {
   bool _didSave = false;
+  // OSHA worker-safety penalty against the Processor (Cat 7) disclosure score.
+  // Set true after the live OSHA fetch confirms a high-confidence match with
+  // violations on record; the score/grade then recompute with −2 applied.
+  bool _oshaViolation = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOshaPenalty();
+  }
+
+  Future<void> _loadOshaPenalty() async {
+    final est = result.detectedEstablishmentNumber;
+    if (est == null) return;
+    try {
+      final resp = await http
+          .get(Uri.parse(
+              'https://farmanimaltransparency.com/wp-json/fat/v1/osha/$est'))
+          .timeout(const Duration(seconds: 10));
+      if (resp.statusCode != 200) return;
+      final d = jsonDecode(resp.body);
+      if (d is! Map) return;
+      final s = d['summary'];
+      // Penalty fires only on a high-confidence match with actual violations.
+      final hasViolations = d['found'] == true &&
+          d['match_confidence'] == 'high' &&
+          s is Map &&
+          (((s['total_violations'] ?? 0) as num).toInt() > 0);
+      if (hasViolations && mounted) {
+        setState(() => _oshaViolation = true);
+      }
+    } catch (_) {
+      // Network/parse failure → no penalty applied (fail-open).
+    }
+  }
+
+  double get _penalizedScore =>
+      result.fatScoreWith(oshaViolation: _oshaViolation);
 
   FATResult get result => widget.result;
 
@@ -191,9 +231,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   // ── A4. FAT Score Card ─────────────────────────────────────────────────
   Widget _scoreCard() {
-    final score = result.fatScore;
-    final grade = result.grade;
-    final gradeColor = result.gradeColor;
+    final score = result.fatScoreWith(oshaViolation: _oshaViolation);
+    final grade = FATResult.gradeFor(score);
+    final gradeColor = FATResult.gradeColorFor(score);
     final disclosurePct = (_disclosurePillar / 70).clamp(0.0, 1.0);
     final credPct = (_credibilityPillar / 30).clamp(0.0, 1.0);
 
@@ -807,7 +847,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     final lines = <String>[
       'Farm Animal Transparency (FAT) — Label Analysis',
       'Date: ${_formattedDate(result.scannedAt)}',
-      'FAT Score: ${result.fatScore.toStringAsFixed(0)}/100  Grade: ${result.grade}',
+      'FAT Score: ${_penalizedScore.toStringAsFixed(0)}/100  Grade: ${FATResult.gradeFor(_penalizedScore)}',
       '',
     ];
     for (final cat in FATCategory.values) {
@@ -827,7 +867,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   Future<void> _share() async {
     final subject = Uri.encodeComponent(
-        'FAT Label Analysis — Score ${result.fatScore.toStringAsFixed(0)}/100');
+        'FAT Label Analysis — Score ${_penalizedScore.toStringAsFixed(0)}/100');
     final body = Uri.encodeComponent(_summaryText());
     final uri = Uri.parse('mailto:?subject=$subject&body=$body');
     final launched = await _launch(uri);

@@ -264,22 +264,30 @@ class FATResult {
   bool get regulatoryPassed =>
       categories[FATCategory.usdaFsisRequiredLanguage]?.status == DisclosureStatus.known;
 
-  /// 0–100 FAT Score: 70% Disclosure + 30% Credibility
-  double get fatScore {
+  /// 0–100 FAT Score: 70% Disclosure + 30% Credibility.
+  /// Cat 1 (Required Basics) and the Processor identifier are scored pass/fail
+  /// (present = full credit, absent = 0; no partial). `oshaViolation` /
+  /// `epaViolation` apply Cat 7 enforcement penalties against the disclosure
+  /// pillar, stacking: EPA −3, OSHA −2. EPA is data-pending at the call site.
+  double fatScoreWith({bool oshaViolation = false, bool epaViolation = false}) {
     final allCats = FATCategory.values;
     // Pillar 1 — Disclosure (70 pts)
     double disclosurePoints = 0;
     for (final cat in allCats) {
       final r = categories[cat];
       if (r == null) continue;
+      final isPassFail = cat == FATCategory.usdaFsisRequiredLanguage ||
+          cat == FATCategory.processor;
       switch (r.status) {
         case DisclosureStatus.known:    disclosurePoints += 5; break;
-        case DisclosureStatus.partial:  disclosurePoints += 2; break;
+        case DisclosureStatus.partial:  disclosurePoints += isPassFail ? 0 : 2; break;
         default: break;
       }
     }
     final maxDisclosure = allCats.length * 5.0;
-    final disclosurePillar = (disclosurePoints / maxDisclosure) * 70;
+    double disclosurePillar = (disclosurePoints / maxDisclosure) * 70;
+    final penalty = (epaViolation ? 3.0 : 0) + (oshaViolation ? 2.0 : 0);
+    disclosurePillar = (disclosurePillar - penalty).clamp(0, 70).toDouble();
 
     // Pillar 2 — Credibility (30 pts)
     final credWeights = categories.values
@@ -292,11 +300,12 @@ class FATResult {
       credPillar = avg * 30;
     }
 
-    return (disclosurePillar + credPillar).clamp(0, 100);
+    return (disclosurePillar + credPillar).clamp(0, 100).toDouble();
   }
 
-  String get grade {
-    final s = fatScore;
+  double get fatScore => fatScoreWith();
+
+  static String gradeFor(double s) {
     if (s >= 80) return 'A';
     if (s >= 65) return 'B';
     if (s >= 50) return 'C';
@@ -304,8 +313,8 @@ class FATResult {
     return 'F';
   }
 
-  Color get gradeColor {
-    switch (grade) {
+  static Color gradeColorFor(double s) {
+    switch (gradeFor(s)) {
       case 'A': return const Color(0xFF34A853);
       case 'B': return const Color(0xFF64B446);
       case 'C': return const Color(0xFFFBC02D);
@@ -313,6 +322,9 @@ class FATResult {
       default:  return const Color(0xFFDC2626);
     }
   }
+
+  String get grade => gradeFor(fatScore);
+  Color get gradeColor => gradeColorFor(fatScore);
 
   // ── Seafood FAT Score (mirrors iOS SeafoodScore) ──
   // 70 pts disclosure + 30 pts credibility, scored ONLY over app-supported
@@ -322,15 +334,20 @@ class FATResult {
   double get seafoodDisclosurePercent => _seafoodPillars().$1;
   double get seafoodCredibilityPercent => _seafoodPillars().$2;
 
-  (double, double, double) _seafoodPillars() {
+  (double, double, double) _seafoodPillars(
+      {bool oshaViolation = false, bool epaViolation = false}) {
     final scored =
         SeafoodCategory.values.where((c) => c.isAppSupported).toList();
     double maxPossible = 0, earned = 0;
     for (final cat in scored) {
       final w = cat == SeafoodCategory.strainVariety ? 2.0 : 5.0;
+      // Cat 1 (Required Basics) and Processor identifier are pass/fail:
+      // present = full credit, absent = 0; no partial credit.
+      final isPassFail = cat == SeafoodCategory.regulatoryRequiredLanguage ||
+          cat == SeafoodCategory.processor;
       switch (seafoodCategories[cat]?.status ?? DisclosureStatus.missing) {
         case DisclosureStatus.known:    maxPossible += w; earned += w; break;
-        case DisclosureStatus.partial:  maxPossible += w; earned += w * 0.4; break;
+        case DisclosureStatus.partial:  maxPossible += w; earned += isPassFail ? 0 : w * 0.4; break;
         case DisclosureStatus.missing:  maxPossible += w; break;
         case DisclosureStatus.notRequired: break;
       }
@@ -350,11 +367,17 @@ class FATResult {
       }
       credPct = (sum / disclosed.length).clamp(0, 1).toDouble();
     }
-    final total = (disclosurePct * 70 + credPct * 30).clamp(0, 100).toDouble();
+    // Enforcement penalties against the Processor disclosure score, stacking:
+    // EPA −3, OSHA −2. Floored at 0. (disclosurePct stays raw for the bar.)
+    final penalty = (epaViolation ? 3.0 : 0) + (oshaViolation ? 2.0 : 0);
+    final disclosurePillarPts = (disclosurePct * 70 - penalty).clamp(0, 70).toDouble();
+    final total = (disclosurePillarPts + credPct * 30).clamp(0, 100).toDouble();
     return (disclosurePct, credPct, total);
   }
 
   int get seafoodFatScore => _seafoodPillars().$3.round();
+  int seafoodFatScoreWith({bool oshaViolation = false, bool epaViolation = false}) =>
+      _seafoodPillars(oshaViolation: oshaViolation, epaViolation: epaViolation).$3.round();
 
   String get seafoodGrade {
     final s = seafoodFatScore;
