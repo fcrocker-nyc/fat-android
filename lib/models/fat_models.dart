@@ -265,8 +265,9 @@ class FATResult {
       categories[FATCategory.usdaFsisRequiredLanguage]?.status == DisclosureStatus.known;
 
   /// 0–100 FAT Score: 70% Disclosure + 30% Credibility.
-  /// Cat 1 (Required Basics) and the Processor identifier are scored pass/fail
-  /// (present = full credit, absent = 0; no partial). `oshaViolation` /
+  /// Cat 1 (Required Basics), Cat 2 (Species — mandatory common/usual name), and
+  /// the Processor identifier are scored pass/fail (present = full credit,
+  /// absent = 0; no partial). `oshaViolation` /
   /// `epaViolation` apply Cat 7 enforcement penalties against the disclosure
   /// pillar, stacking: EPA −3, OSHA −2. EPA is data-pending at the call site.
   double fatScoreWith({bool oshaViolation = false, bool epaViolation = false}) {
@@ -277,6 +278,7 @@ class FATResult {
       final r = categories[cat];
       if (r == null) continue;
       final isPassFail = cat == FATCategory.usdaFsisRequiredLanguage ||
+          cat == FATCategory.species ||
           cat == FATCategory.processor;
       switch (r.status) {
         case DisclosureStatus.known:    disclosurePoints += 5; break;
@@ -341,9 +343,11 @@ class FATResult {
     double maxPossible = 0, earned = 0;
     for (final cat in scored) {
       final w = cat == SeafoodCategory.strainVariety ? 2.0 : 5.0;
-      // Cat 1 (Required Basics) and Processor identifier are pass/fail:
-      // present = full credit, absent = 0; no partial credit.
+      // Cat 1 (Required Basics), Cat 2 (Species — mandatory statement of
+      // identity), and the Processor identifier are pass/fail: present = full
+      // credit, absent = 0; no partial credit.
       final isPassFail = cat == SeafoodCategory.regulatoryRequiredLanguage ||
+          cat == SeafoodCategory.speciesIdentity ||
           cat == SeafoodCategory.processor;
       switch (seafoodCategories[cat]?.status ?? DisclosureStatus.missing) {
         case DisclosureStatus.known:    maxPossible += w; earned += w; break;

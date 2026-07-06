@@ -182,7 +182,7 @@ class ScoringExplanationScreen extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.only(top: 8),
           child: Text(
-            'Two disclosures are scored pass/fail rather than graded — the Required Basics the law mandates, and the Processor identifier (the FSIS establishment number, or for FDA seafood the name and place of business). The legally-required element is either present (full credit) or absent (zero); there is no partial. Separately, a plant\'s environmental and worker-safety enforcement record applies as a penalty against the Processor category\'s disclosure score, and the two penalties stack: EPA violations −3, OSHA violations −2 (no record = 0).',
+            'Three disclosures are scored pass/fail rather than graded — the Required Basics the law mandates, the Species (the mandatory common or usual product name), and the Processor identifier (the FSIS establishment number, or for FDA seafood the name and place of business). The legally-required element is either present (full credit) or absent (zero); there is no partial. Separately, a plant\'s environmental and worker-safety enforcement record applies as a penalty against the Processor category\'s disclosure score, and the two penalties stack: EPA violations −3, OSHA violations −2 (no record = 0).',
             style: TextStyle(fontSize: 14, color: _ink, height: 1.35),
           ),
         ),
