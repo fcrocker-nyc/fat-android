@@ -953,6 +953,22 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'OSHA records carry no FSIS establishment number, so FAT matches them to the plant by name and address. A name-and-address (or ZIP) confirmed match is shown as the plant\'s record; a name-only match is labeled a "possible" match, not confirmed. Worker injury or illness reports are not violations unless OSHA issued a citation, and figures can change after employer contests or settlements.\n\n'
             'Source: OSHA Enforcement data, U.S. Department of Labor.'),
       ),
+      _LearnTopic(
+        title: 'EPA Environmental Enforcement',
+        subtitle: 'The plant\'s water- and air-pollution record',
+        body: _text(
+            'Slaughter and processing plants use enormous volumes of water and generate heavily loaded wastewater — blood, fats, nitrogen, and phosphorus — plus air emissions from rendering, boilers, and the ammonia refrigeration systems that keep product cold. Federal law regulates those discharges.\n\n'
+            'The Environmental Protection Agency (EPA), with state agencies, oversees the plant under the Clean Water Act (wastewater-discharge permits — the NPDES program, 40 CFR 432 for meat and poultry) and the Clean Air Act. A plant that exceeds its permit limits, fails to monitor or report, or otherwise breaks the rules can be placed in noncompliance and penalized.\n\n'
+            'What FAT shows for a plant\'s EPA record (from EPA\'s ECHO database):\n'
+            '• Whether the facility is a Significant Non-Complier\n'
+            '• How many of the last twelve quarters it spent in noncompliance — Clean Water Act (wastewater) violations are the most common issue at these plants\n'
+            '• Whether formal enforcement actions or penalties are on record\n\n'
+            'How it affects the score:\n'
+            'An EPA record of current noncompliance or penalties applies a penalty to the Processor category — the same category that carries the plant\'s OSHA worker-safety record. Environmental enforcement is kept separate from food safety: a wastewater violation says nothing about whether the meat is safe to eat.\n\n'
+            'How the match works:\n'
+            'FAT matches EPA facilities to the plant by name, city, and ZIP, and applies the penalty only on a high-confidence match with violations on record. Compliance status changes slowly and is refreshed periodically.\n\n'
+            'Source: EPA Enforcement and Compliance History Online (ECHO), U.S. Environmental Protection Agency.'),
+      ),
       // 2.11
       _LearnTopic(
         title: 'Product Recalls',
