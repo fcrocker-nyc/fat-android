@@ -272,21 +272,35 @@ class FATResult {
   /// pillar, stacking: EPA −3, OSHA −2. EPA is data-pending at the call site.
   double fatScoreWith({bool oshaViolation = false, bool epaViolation = false}) {
     final allCats = FATCategory.values;
+    // Per-category max weight: Breed = 3, Farm/Ranch = 6, every other = 5.
+    double weightOf(FATCategory c) =>
+        c == FATCategory.breed ? 3.0 : (c == FATCategory.farmRanch ? 6.0 : 5.0);
+    // All-or-nothing (present-or-absent, no partial credit): the three mandatory
+    // disclosures (Required Basics, Species, Processor) plus Breed, Country of
+    // Origin, Farm/Ranch, and Age at Slaughter — full credit only for a specific
+    // disclosure; vague marketing terms ("family farm", "young") earn 0.
+    bool allOrNothing(FATCategory c) =>
+        c == FATCategory.usdaFsisRequiredLanguage ||
+        c == FATCategory.species ||
+        c == FATCategory.processor ||
+        c == FATCategory.breed ||
+        c == FATCategory.countryOrigin ||
+        c == FATCategory.farmRanch ||
+        c == FATCategory.ageAtSlaughter;
     // Pillar 1 — Disclosure (70 pts)
     double disclosurePoints = 0;
+    double maxDisclosure = 0;
     for (final cat in allCats) {
+      final w = weightOf(cat);
+      maxDisclosure += w;
       final r = categories[cat];
       if (r == null) continue;
-      final isPassFail = cat == FATCategory.usdaFsisRequiredLanguage ||
-          cat == FATCategory.species ||
-          cat == FATCategory.processor;
       switch (r.status) {
-        case DisclosureStatus.known:    disclosurePoints += 5; break;
-        case DisclosureStatus.partial:  disclosurePoints += isPassFail ? 0 : 2; break;
+        case DisclosureStatus.known:    disclosurePoints += w; break;
+        case DisclosureStatus.partial:  disclosurePoints += allOrNothing(cat) ? 0 : w * 0.4; break;
         default: break;
       }
     }
-    final maxDisclosure = allCats.length * 5.0;
     double disclosurePillar = (disclosurePoints / maxDisclosure) * 70;
     final penalty = (epaViolation ? 3.0 : 0) + (oshaViolation ? 2.0 : 0);
     disclosurePillar = (disclosurePillar - penalty).clamp(0, 70).toDouble();
@@ -342,16 +356,24 @@ class FATResult {
         SeafoodCategory.values.where((c) => c.isAppSupported).toList();
     double maxPossible = 0, earned = 0;
     for (final cat in scored) {
-      final w = cat == SeafoodCategory.strainVariety ? 2.0 : 5.0;
-      // Cat 1 (Required Basics), Cat 2 (Species — mandatory statement of
-      // identity), and the Processor identifier are pass/fail: present = full
-      // credit, absent = 0; no partial credit.
-      final isPassFail = cat == SeafoodCategory.regulatoryRequiredLanguage ||
+      // Strain/Variety (breed-equiv) = 3, Farm/Vessel/Fishery (source) = 6,
+      // every other = 5.
+      final w = cat == SeafoodCategory.strainVariety
+          ? 3.0
+          : (cat == SeafoodCategory.farmVesselFishery ? 6.0 : 5.0);
+      // All-or-nothing (present-or-absent, no partial credit): the mandatory
+      // disclosures (Required Basics, Species Identity, Processor) plus Strain/
+      // Variety, Country of Origin, Farm/Vessel/Fishery, and Age/Grow-Out.
+      final allOrNothing = cat == SeafoodCategory.regulatoryRequiredLanguage ||
           cat == SeafoodCategory.speciesIdentity ||
-          cat == SeafoodCategory.processor;
+          cat == SeafoodCategory.processor ||
+          cat == SeafoodCategory.strainVariety ||
+          cat == SeafoodCategory.countryOrigin ||
+          cat == SeafoodCategory.farmVesselFishery ||
+          cat == SeafoodCategory.ageAtHarvest;
       switch (seafoodCategories[cat]?.status ?? DisclosureStatus.missing) {
         case DisclosureStatus.known:    maxPossible += w; earned += w; break;
-        case DisclosureStatus.partial:  maxPossible += w; earned += isPassFail ? 0 : w * 0.4; break;
+        case DisclosureStatus.partial:  maxPossible += w; earned += allOrNothing ? 0 : w * 0.4; break;
         case DisclosureStatus.missing:  maxPossible += w; break;
         case DisclosureStatus.notRequired: break;
       }

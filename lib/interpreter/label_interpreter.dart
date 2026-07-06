@@ -145,15 +145,20 @@ class LabelInterpreter {
   // ── Farm / Ranch ─────────────────────────────────────────────────────────
 
   static FATCategoryResult _detectFarmRanch(String text) {
-    const patterns = ['family farm', 'local farm', 'small farm',
+    // Generic marketing phrases ("family farm", "farm raised", etc.) are NOT a
+    // specific source identity, so they earn Partial — which scores 0 under this
+    // category's all-or-nothing rule. Full credit (Known → 6 pts) is reserved for
+    // a specifically named farm, ranch, or grower group.
+    const genericClaims = ['family farm', 'local farm', 'small farm',
       'ranch', 'pasture raised', 'farm raised'];
-    for (final p in patterns) {
+    for (final p in genericClaims) {
       if (text.contains(p)) {
         return FATCategoryResult(
-          status: DisclosureStatus.known,
+          status: DisclosureStatus.partial,
           value: _capitalize(p),
           credibility: ClaimCredibility.labelClaimOnly,
-          credibilityNote: 'No independent verification identified',
+          credibilityNote:
+              'Generic farm claim — not a specific, named source. No source-identity credit.',
         );
       }
     }

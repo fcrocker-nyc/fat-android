@@ -295,12 +295,14 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _intersperse(
             <Widget>[
-              _categoryRow(1, 'Regulatory Required Language', appScored: true),
-              _categoryRow(2, 'Species Identity', appScored: true),
+              _categoryRow(1, 'Regulatory Required Language',
+                  appScored: true, passFail: true),
+              _categoryRow(2, 'Species Identity',
+                  appScored: true, passFail: true),
               _categoryRow(3, 'Strain / Variety', appScored: true),
               _categoryRow(4, 'Country / Origin', appScored: true),
               _categoryRow(5, 'Farm / Vessel / Fishery', appScored: true),
-              _categoryRow(6, 'Processor', appScored: true),
+              _categoryRow(6, 'Processor', appScored: true, passFail: true),
               _categoryRow(7, 'Production Method & Feed', appScored: true),
               _categoryRow(8, 'Animal Welfare', appScored: true),
               _categoryRow(9, 'Quality & Handling', appScored: true),
@@ -316,6 +318,13 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
                   appScored: false),
             ],
             const SizedBox(height: 6),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.only(top: 4),
+          child: Text(
+            '“Mandatory · pass/fail” marks the legally required disclosures — the Required Basics, Species (the statement of identity / acceptable market name), and the Processor identifier. Those three score present-or-absent, with no partial credit.',
+            style: TextStyle(fontSize: 13, color: _muted, height: 1.35),
           ),
         ),
       ],
@@ -481,7 +490,8 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
     );
   }
 
-  Widget _categoryRow(int n, String name, {required bool appScored}) {
+  Widget _categoryRow(int n, String name,
+      {required bool appScored, bool passFail = false}) {
     return Row(
       children: [
         Container(
@@ -507,6 +517,18 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
                   fontSize: 15, fontWeight: FontWeight.w500, color: _ink)),
         ),
         const SizedBox(width: 4),
+        if (passFail)
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: _ink.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Text('Mandatory · pass/fail',
+                style: TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w600, color: _ink)),
+          ),
         if (!appScored)
           Container(
             padding:

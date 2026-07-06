@@ -175,14 +175,14 @@ class ScoringExplanationScreen extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.only(top: 4),
           child: Text(
-            'Each of the 16 scored disclosure categories contributes up to 5 pts when fully Known, 2 pts when Partial, 0 when Missing — except Breed, which is capped at 2 pts (fully Known) or 1 pt (Partial). Breed disclosure adds consumer value but carries less weight than feed, welfare, or processor transparency. Credibility is averaged across the categories the label actually addressed.',
+            'Each scored disclosure category contributes up to 5 pts when fully Known, 2 pts when Partial, 0 when Missing — with two weight exceptions: Breed is worth 3 pts and Farm / Ranch 6 pts. Credibility is averaged across the categories the label actually addressed.',
             style: TextStyle(fontSize: 14, color: _ink, height: 1.35),
           ),
         ),
         const Padding(
           padding: EdgeInsets.only(top: 8),
           child: Text(
-            'Three disclosures are scored pass/fail rather than graded — the Required Basics the law mandates, the Species (the mandatory common or usual product name), and the Processor identifier (the FSIS establishment number, or for FDA seafood the name and place of business). The legally-required element is either present (full credit) or absent (zero); there is no partial. Separately, a plant\'s environmental and worker-safety enforcement record applies as a penalty against the Processor category\'s disclosure score, and the two penalties stack: EPA violations −3, OSHA violations −2 (no record = 0).',
+            'Seven categories are all-or-nothing — full credit if disclosed, 0 if not, with no partial credit. Three are legally mandatory (pass/fail): the Required Basics, Species (the common or usual product name), and the Processor identifier (the FSIS establishment number, or for FDA seafood the name and place of business). Four more are inherently binary: Breed (3 pts), Country of Origin (5 pts), Farm / Ranch (6 pts), and Age at Slaughter (5 pts) — a specific disclosure earns full credit, while a vague marketing term (a generic “family farm”, an unspecified “young”) earns 0. Separately, a plant\'s environmental and worker-safety enforcement record applies as a penalty against the Processor category\'s disclosure score, and the two penalties stack: EPA violations −3, OSHA violations −2 (no record = 0).',
             style: TextStyle(fontSize: 14, color: _ink, height: 1.35),
           ),
         ),
@@ -365,13 +365,14 @@ class ScoringExplanationScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _intersperse(
             <Widget>[
-              _categoryRow(1, 'USDA / FSIS Required Language', appScored: true),
-              _categoryRow(2, 'Species', appScored: true),
+              _categoryRow(1, 'USDA / FSIS Required Language',
+                  appScored: true, passFail: true),
+              _categoryRow(2, 'Species', appScored: true, passFail: true),
               _categoryRow(3, 'Breed', appScored: true),
               _categoryRow(4, 'Country / Origin', appScored: true),
               _categoryRow(5, 'Farm / Ranch', appScored: true),
               _categoryRow(6, 'Supply-Chain Intermediaries', appScored: true),
-              _categoryRow(7, 'Processor', appScored: true),
+              _categoryRow(7, 'Processor', appScored: true, passFail: true),
               _categoryRow(8, 'Feed', appScored: true),
               _categoryRow(9, 'Animal Welfare', appScored: true),
               _categoryRow(10, 'Quality / Palatability', appScored: true),
@@ -383,6 +384,13 @@ class ScoringExplanationScreen extends StatelessWidget {
               _categoryRow(16, 'FSIS Enforcement Protocols', appScored: true),
             ],
             const SizedBox(height: 6),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.only(top: 4),
+          child: Text(
+            '“Mandatory · pass/fail” marks the legally required disclosures — the Required Basics, Species (the common or usual product name), and the Processor identifier. Those three score present-or-absent, with no partial credit.',
+            style: TextStyle(fontSize: 13, color: _muted, height: 1.35),
           ),
         ),
         const Padding(
@@ -555,7 +563,8 @@ class ScoringExplanationScreen extends StatelessWidget {
     );
   }
 
-  Widget _categoryRow(int n, String name, {required bool appScored}) {
+  Widget _categoryRow(int n, String name,
+      {required bool appScored, bool passFail = false}) {
     return Row(
       children: [
         Container(
@@ -581,6 +590,18 @@ class ScoringExplanationScreen extends StatelessWidget {
                   fontSize: 15, fontWeight: FontWeight.w500, color: _ink)),
         ),
         const SizedBox(width: 4),
+        if (passFail)
+          Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: _ink.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Text('Mandatory · pass/fail',
+                style: TextStyle(
+                    fontSize: 11, fontWeight: FontWeight.w600, color: _ink)),
+          ),
         if (!appScored)
           Container(
             padding:
