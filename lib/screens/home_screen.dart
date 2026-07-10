@@ -5,6 +5,7 @@ import '../data/lookup_router.dart';
 import 'about_screen.dart';
 import 'learn_screen.dart';
 import 'service_case_capture_screen.dart';
+import 'how_fat_works_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onScanTap;
@@ -20,7 +21,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _showMore = false;
   final TextEditingController _qlController = TextEditingController();
 
   @override
@@ -65,139 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       endIndent: 16,
                     ),
                     const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'How FAT Scores a Label',
-                            style: TextStyle(
-                                fontSize: 26, fontWeight: FontWeight.w900),
-                          ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Every FAT score is the result of a three-step analysis. Each step asks a different question about the label.',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          const SizedBox(height: 16),
-                          _stepCard(1, 'What is disclosed?',
-                              'We read the label and check which of 16 transparency categories are addressed — species, brand, processor, feed, welfare, hormones, organic, age at slaughter, country of origin, supply-chain intermediaries, and so on. Each category is marked Disclosed, Partially disclosed, or Not disclosed.'),
-                          const SizedBox(height: 16),
-                          _stepCard(2, 'How credible is the disclosure?',
-                              'A claim can be Third-Party Audited (independent on-farm audit), USDA-Reviewed (Process Verified, USDA grade marks, FSIS catfish inspection), Producer Affidavit (FSIS approved the label language but only an affidavit backs it — no on-farm audit), or Unverified Marketing (no audit and no government label-language approval). The same disclosure can carry very different weight depending on which tier applies.'),
-                          const SizedBox(height: 16),
-                          _stepCard(3, 'Who stands behind the label?',
-                              'The processor and its FSIS / FDA enforcement record (recalls, residue violations, humane-handling actions, FDA import alerts), the brand owner and the corporate parent, foreign-ownership status, and economic concentration / HHI for the supply chain. The label is one source of information; the public record is another.'),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Same model documented at farmanimaltransparency.com/learn-how-to-read-meat-labels/.',
-                            style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black.withAlpha(165),
-                                fontStyle: FontStyle.italic),
-                          ),
-                          const SizedBox(height: 20),
-                          _sectionHeader('How the Score Is Calculated'),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'The 0–100 FAT Score is split 70% Disclosure / 30% Credibility. Step 3 sits alongside the score as public-record context, not as added points.',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                          const SizedBox(height: 14),
-                          _pillarCard('Pillar 1 — Disclosure (70 pts)',
-                              'Each transparency category contributes up to 5 pts when fully Known, 2 pts when Partial, 0 when Missing. Breed is intentionally capped at 5 pts so a single-attribute disclosure cannot dominate the score. Categories share the 70-pt pillar.'),
-                          const SizedBox(height: 10),
-                          _pillarCard('Pillar 2 — Credibility (30 pts)',
-                              'Among the categories that disclosed something, FAT averages the credibility weight: Third-Party Audited 1.0 · USDA-Reviewed 0.7 · Producer Affidavit 0.4 · Unverified Marketing 0.1. The average is multiplied by 30.'),
-                          const SizedBox(height: 10),
-                          _pillarCard(
-                              'Step 3 — Who Stands Behind the Label (context)',
-                              'FSIS / FDA enforcement history, brand owner and corporate parent, foreign-ownership status, and economic concentration / HHI for the supply chain. Surfaced on the results screen as a separate panel — flags a product even when its own label scores high. Not added to the 0–100 number.'),
-                          const SizedBox(height: 20),
-                          _sectionHeader('The Three Lights'),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Every category on the results screen carries one of three colors. The same color always means the same thing.',
-                            style: TextStyle(fontSize: 15),
-                          ),
-                          const SizedBox(height: 8),
-                          _lightRow(const Color(0xFF34A853), 'Green',
-                              'Disclosed and either independently verified or backed by a federal program with audit teeth.'),
-                          _lightRow(const Color(0xFFFBC02D), 'Amber',
-                              'Partially disclosed, or disclosed but backed only by a producer affidavit or a USDA label-language review.'),
-                          _lightRow(Colors.red, 'Red',
-                              'Not disclosed at all — or, for required FSIS / FDA language (the establishment number on meat, the regulatory inspection mark on seafood), the required content is missing entirely.'),
-                          const SizedBox(height: 20),
-                          _sectionHeader('How the A–F Grade Works'),
-                          const SizedBox(height: 10),
-                          _gradeRow('A', '80–100', const Color(0xFF34A853),
-                              'Comprehensive disclosure, strongly backed claims.'),
-                          _gradeRow('B', '65–79', const Color(0xFF64B446),
-                              'Good disclosure with solid credibility.'),
-                          _gradeRow('C', '50–64', const Color(0xFFFBC02D),
-                              'Moderate disclosure or mixed credibility.'),
-                          _gradeRow('D', '35–49', const Color(0xFFEA8600),
-                              'Limited disclosure or weakly backed claims.'),
-                          _gradeRow('F', '0–34', Colors.red,
-                              'Minimal disclosure, little or no verification.'),
-                          const SizedBox(height: 8),
-                          Text(
-                            "A high A means the label tells a complete story and that story is well-backed. An F doesn't mean the product is bad — it means the consumer has very little to go on. Step 3 (above) can flag a product even at high grades.",
-                            style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.black.withAlpha(165),
-                                fontStyle: FontStyle.italic),
-                          ),
-                          const SizedBox(height: 6),
-                          GestureDetector(
-                            onTap: () => setState(() => _showMore = !_showMore),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    _showMore ? 'Show Less' : 'More About FAT',
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: FATTheme.scanGreen),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Icon(
-                                    _showMore
-                                        ? Icons.expand_less
-                                        : Icons.expand_more,
-                                    size: 18,
-                                    color: FATTheme.scanGreen,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          if (_showMore) ...[
-                            _paragraphView(1, 'How It Works',
-                                'Scan a meat, poultry, or seafood label with your phone. FAT runs the three steps automatically and reports a 0–100 score plus an A–F grade.'),
-                            const SizedBox(height: 12),
-                            _paragraphView(2, 'Transparency Categories',
-                                'FAT evaluates species, breed, origin, feed, grazing practices, living conditions, outdoor access, animal welfare, antibiotics, hormones, slaughter practices, and processor information.'),
-                            const SizedBox(height: 12),
-                            _paragraphView(3, 'Processor & Enforcement Data',
-                                'When a USDA establishment number is found on the label, FAT retrieves public FSIS data including recalls, administrative actions, humane handling violations, quarterly enforcement reports, chemical residue violations, and pathogen testing results.'),
-                            const SizedBox(height: 12),
-                            _paragraphView(4, 'Lookup',
-                                'Can\'t scan a label? The Lookup tab lets you search three ways: enter a USDA establishment number to view processor details and enforcement history, search by meat brand to see corporate ownership and market concentration for companies like Tyson, Smithfield, JBS, and Perdue, or search by seafood brand to see corporate ownership, sourcing regions, plant locations, fleet information, and sustainability certifications for brands like Gorton\'s, StarKist, and Bumble Bee.'),
-                            const SizedBox(height: 12),
-                            _paragraphView(5, 'Questions?',
-                                'Have a question about a scan result? Tap the Questions button on any results page to send the details directly to FAT for review.'),
-                            const SizedBox(height: 12),
-                            _paragraphView(6, 'History & Saved Scans',
-                                'Access your saved evaluations anytime in the History tab. For seafood-specific topics — how FAT scores seafood labels, the FSIS-vs-FDA regulatory fork, wild-caught vs farmed, and the parent-company brand database — see the Learn tab.'),
-                          ],
-                        ],
-                      ),
-                    ),
+                    _howFATWorksCard(context),
                   ],
                 ),
               ),
@@ -310,14 +178,30 @@ class _HomeScreenState extends State<HomeScreen> {
         border: Border.all(color: FATTheme.scanGreen.withValues(alpha: 0.35)),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Column(
         children: [
-          _pill(Icons.verified, 'Independent'),
-          _divider(),
-          _pill(Icons.block, 'No Ads'),
-          _divider(),
-          _pill(Icons.money_off, 'No Sponsors'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _pill(Icons.verified, 'Independent'),
+              _divider(),
+              _pill(Icons.block, 'No Ads'),
+              _divider(),
+              _pill(Icons.money_off, 'No Sponsors'),
+            ],
+          ),
+          const SizedBox(height: 6),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              'We score disclosure, not the product — nothing for a brand to buy its way out of.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: FATTheme.scanGreen),
+            ),
+          ),
         ],
       ),
     );
@@ -534,171 +418,48 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Cards & rows ────────────────────────────────────────────────────────
+  // ── How FAT works card (compact entry to the dedicated page) ────────────
 
-  Widget _stepCard(int number, String title, String body) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: FATTheme.primaryGreen,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-                color: FATTheme.scanGreen, shape: BoxShape.circle),
-            child: Text('$number',
-                style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white)),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w900)),
-                const SizedBox(height: 6),
-                Text(body, style: const TextStyle(fontSize: 15)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _pillarCard(String title, String body) {
-    return Container(
-      decoration: BoxDecoration(
-        color: FATTheme.primaryGreen,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(width: 4, color: FATTheme.scanGreen),
-            Expanded(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w900)),
-                    const SizedBox(height: 4),
-                    Text(body, style: const TextStyle(fontSize: 14)),
-                  ],
-                ),
-              ),
-            ),
-          ],
+  Widget _howFATWorksCard(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const HowFATWorksScreen()),
         ),
-      ),
-    );
-  }
-
-  Widget _sectionHeader(String text) => Text(text,
-      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900));
-
-  Widget _lightRow(Color color, String label, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 3),
-            child: CircleAvatar(radius: 9, backgroundColor: color),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: FATTheme.primaryGreen,
+            borderRadius: BorderRadius.circular(14),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
-                Text(text, style: const TextStyle(fontSize: 14)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _gradeRow(String letter, String range, Color color, String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 19,
-            backgroundColor: color,
-            child: Text(letter,
-                style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white)),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(range,
-                    style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'monospace')),
-                Text(text, style: const TextStyle(fontSize: 14)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _paragraphView(int number, String title, String body) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: FATTheme.primaryGreen,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('$number. ',
-                  style: const TextStyle(
-                      fontSize: 20, fontWeight: FontWeight.w900)),
-              Expanded(
-                child: Text(title,
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w900)),
+            children: const [
+              Row(
+                children: [
+                  Icon(Icons.list_alt, size: 22, color: FATTheme.scanGreen),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text('How FAT Works',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w900)),
+                  ),
+                  Icon(Icons.chevron_right,
+                      size: 20, color: FATTheme.scanGreen),
+                ],
+              ),
+              SizedBox(height: 8),
+              Text(
+                'What we read across 16 transparency categories, how claims are '
+                'backed, and how to read a FAT card. We rate the '
+                'disclosure — never the food.',
+                style: TextStyle(fontSize: 14),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(body, style: const TextStyle(fontSize: 16)),
-        ],
+        ),
       ),
     );
   }

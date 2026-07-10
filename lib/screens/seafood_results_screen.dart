@@ -126,7 +126,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
             children: _withSpacing(18, [
               _header(),
               _productTypeBanner(),
-              _scoreCard(),
+              _atAGlanceCard(),
               _disclosureSummary(),
               _categorySection(),
               _actions(context),
@@ -206,106 +206,196 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     );
   }
 
-  // ── B3b. FAT Transparency Score ────────────────────────────────────────
-  Widget _scoreCard() {
-    final score = result.seafoodFatScoreWith(
-        oshaViolation: _oshaViolation, epaViolation: _epaViolation);
-    final grade = FATResult.gradeFor(score.toDouble());
-    final color = FATResult.gradeColorFor(score.toDouble());
+  // ── At-a-glance card ──────────────────────────────────────────────────
+  // Mirrors the meat results screen: FSIS/FDA baseline, a single-color
+  // 16-segment disclosure meter, the disclosed count, what the label is silent
+  // on, and how claims are backed. Reports counts, not a grade.
+
+  int get _seafoodTotal =>
+      SeafoodCategory.values.where((c) => c.isAppSupported).length;
+
+  List<SeafoodCategory> get _silentSeafood => SeafoodCategory.values
+      .where((c) =>
+          c.isAppSupported &&
+          (result.seafoodCategories[c]?.status ?? DisclosureStatus.missing) ==
+              DisclosureStatus.missing)
+      .toList();
+
+  int _credCount(ClaimCredibility tier) =>
+      result.seafoodCategories.values.where((r) => r.credibility == tier).length;
+
+  bool get _hasEnforcement => _oshaViolation || _epaViolation;
+
+  String _seafoodGlanceLabel(SeafoodCategory c) {
+    switch (c) {
+      case SeafoodCategory.regulatoryRequiredLanguage:    return 'required basics';
+      case SeafoodCategory.speciesIdentity:               return 'species';
+      case SeafoodCategory.strainVariety:                 return 'strain';
+      case SeafoodCategory.countryOrigin:                 return 'origin';
+      case SeafoodCategory.farmVesselFishery:             return 'vessel / farm';
+      case SeafoodCategory.ageAtHarvest:                  return 'harvest age';
+      case SeafoodCategory.processor:                     return 'processor';
+      case SeafoodCategory.who:                           return 'owner';
+      case SeafoodCategory.brand:                         return 'brand';
+      case SeafoodCategory.productionMethodFeed:          return 'wild vs farmed';
+      case SeafoodCategory.animalWelfare:                 return 'welfare';
+      case SeafoodCategory.medicineAntibioticsChemicals:  return 'antibiotics';
+      case SeafoodCategory.hormones:                      return 'hormones';
+      case SeafoodCategory.qualityHandling:               return 'quality';
+      case SeafoodCategory.organic:                       return 'organic';
+      case SeafoodCategory.supplyChainIntermediary:       return 'supply chain';
+    }
+  }
+
+  String _seafoodSilentSummary(List<SeafoodCategory> cats) {
+    final labels = cats.map(_seafoodGlanceLabel).toList();
+    final head = labels.take(4).toList();
+    var s = head.join(', ');
+    final rest = labels.length - head.length;
+    if (rest > 0) s += ' — and $rest more';
+    return s;
+  }
+
+  ({String line, IconData icon, Color color}) get _seafoodVerification {
+    if (_credCount(ClaimCredibility.verified) > 0) {
+      return (line: 'Independently verified claims present', icon: Icons.verified, color: _disclosureGreen);
+    }
+    if (_credCount(ClaimCredibility.usdaApproved) > 0) {
+      return (line: 'USDA-reviewed claims present', icon: Icons.verified_user, color: _fatAmber);
+    }
+    if (_credCount(ClaimCredibility.producerAffidavit) > 0) {
+      return (line: 'Producer-affidavit claims only', icon: Icons.info_outline, color: Colors.black54);
+    }
+    if (_credCount(ClaimCredibility.labelClaimOnly) > 0) {
+      return (line: 'Unverified marketing claims only', icon: Icons.info_outline, color: Colors.black54);
+    }
+    return (line: 'No backed claims disclosed', icon: Icons.info_outline, color: Colors.black54);
+  }
+
+  Widget _atAGlanceCard() {
+    final total = _seafoodTotal;
+    final disclosed = result.knownCount;
+    final partial = result.partialCount;
+    final silent = _silentSeafood;
+    final v = _seafoodVerification;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _fatGreen,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _fatGreen, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('FAT Transparency Score',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 12),
           Row(
-            children: [
-              SizedBox(
-                width: 88,
-                height: 88,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 88,
-                      height: 88,
-                      child: CircularProgressIndicator(
-                        value: 1,
-                        strokeWidth: 8,
-                        valueColor: AlwaysStoppedAnimation(color.withValues(alpha: 0.25)),
-                      ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(grade,
-                            style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w900,
-                                color: color)),
-                        Text('$score/100',
-                            style: const TextStyle(
-                                fontSize: 13, fontWeight: FontWeight.bold)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 18),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Icon(Icons.shield_outlined, size: 16, color: _disclosureGreen),
+              SizedBox(width: 8),
               Expanded(
-                child: Column(
-                  children: [
-                    _scoreBar('Disclosure', result.seafoodDisclosurePercent,
-                        _disclosureGreen),
-                    const SizedBox(height: 10),
-                    _scoreBar('Credibility', result.seafoodCredibilityPercent,
-                        _seafoodUsdaBlue),
-                  ],
+                child: Text(
+                  'Meets USDA FSIS minimums — as is required of all federally inspected meat and catfish.',
+                  style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          const Text(
-            'Measures label disclosure completeness and claim credibility for app-scored categories. Not a safety, quality, or endorsement rating.',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          const SizedBox(height: 12),
+          Row(
+            children: List.generate(total, (i) {
+              return Expanded(
+                child: Container(
+                  height: 12,
+                  margin: EdgeInsets.only(right: i == total - 1 ? 0 : 3),
+                  decoration: BoxDecoration(
+                    color: i < disclosed
+                        ? _disclosureGreen
+                        : Colors.black.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              );
+            }),
           ),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text('$disclosed',
+                  style: const TextStyle(
+                      fontSize: 46,
+                      fontWeight: FontWeight.w900,
+                      color: _disclosureGreen,
+                      height: 1.0)),
+              const SizedBox(width: 8),
+              Text('of $total categories disclosed',
+                  style:
+                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          if (partial > 0) ...[
+            const SizedBox(height: 4),
+            Text('$partial more partially disclosed',
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600, color: _fatAmber)),
+          ],
+          if (silent.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text('Silent on: ${_seafoodSilentSummary(silent)}',
+                style: TextStyle(
+                    fontSize: 13.5, color: Colors.black.withValues(alpha: 0.7))),
+          ],
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: v.color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(v.icon, size: 13, color: v.color),
+                const SizedBox(width: 6),
+                Text(v.line,
+                    style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: v.color)),
+              ],
+            ),
+          ),
+          if (_hasEnforcement) ...[
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.gavel, size: 14, color: Color(0xFFB45309)),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Processor has federal enforcement violations on record — see the processor section below.',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFB45309)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 10),
+          Text('A count of what the label discloses — not a rating of the food.',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black.withValues(alpha: 0.55))),
         ],
       ),
-    );
-  }
-
-  Widget _scoreBar(String label, double pct, Color color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(label,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-            const Spacer(),
-            Text('${(pct * 100).round()}%',
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 3),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: pct.clamp(0, 1).toDouble(),
-            minHeight: 8,
-            backgroundColor: Colors.black.withValues(alpha: 0.1),
-            valueColor: AlwaysStoppedAnimation(color),
-          ),
-        ),
-      ],
     );
   }
 

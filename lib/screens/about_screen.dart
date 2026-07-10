@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/fat_theme.dart';
-import 'scoring_explanation_screen.dart';
-import 'seafood_scoring_explanation_screen.dart';
+import 'how_fat_works_screen.dart';
 
 /// Mirrors iOS AboutView — opened from the info button on the Home hero.
 class AboutScreen extends StatelessWidget {
@@ -121,31 +120,21 @@ class AboutScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('How FAT Scores Labels',
+          const Text('How FAT Works',
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
           const SizedBox(height: 14),
           const Text(
-            'Every meat, poultry, and seafood label is evaluated across 16 transparency categories. The 0–100 FAT Score and A–F grade are built from two equal pillars — what the label discloses, and how credible those disclosures are.',
+            'Every meat, poultry, and seafood label is read across 16 transparency categories. FAT reports how many the brand discloses and how credible each disclosure is — a count of what the label tells you, not a grade of the food.',
             style: TextStyle(fontSize: 15),
           ),
           const SizedBox(height: 14),
           _scoringLinkRow(
             Icons.list_alt,
-            'How FAT Scores Meat Labels',
-            'Meat, poultry, lamb, turkey, bison · 16 categories · A–F grade',
+            'How FAT Works',
+            '16 categories · what\'s disclosed · how claims are backed',
             () => Navigator.of(context).push(
               MaterialPageRoute(
-                  builder: (_) => const ScoringExplanationScreen()),
-            ),
-          ),
-          const SizedBox(height: 10),
-          _scoringLinkRow(
-            Icons.set_meal,
-            'How FAT Scores Seafood Labels',
-            'Wild · farmed · catfish · FDA vs FSIS fork · 16 categories · A–F grade',
-            () => Navigator.of(context).push(
-              MaterialPageRoute(
-                  builder: (_) => const SeafoodScoringExplanationScreen()),
+                  builder: (_) => const HowFATWorksScreen()),
             ),
           ),
         ],

@@ -537,30 +537,30 @@ List<_Block> _text(String s) => s
 final List<_LearnSection> _sections = <_LearnSection>[
   // ════════════ SECTION 1 ════════════
   _LearnSection(
-    title: 'How FAT Scores a Label',
+    title: 'How FAT Reads a Label',
     topics: [
       // 1.1
       _LearnTopic(
-        title: 'The Three Steps of a FAT Score',
+        title: 'The Three Steps of a FAT Read',
         subtitle: 'Disclosure → Credibility → Entity Facts',
         body: _text(
-            'A FAT score is built in three steps. Each step asks a different question.\n\n'
+            'A FAT read is built in three steps. Each step asks a different question.\n\n'
             'Step 1 — What was disclosed?\n'
             'We read the label and check which transparency categories are present. For meat, there are 16 categories (species, breed, country of origin, farm/ranch, processor, feed, animal welfare, pasture/outdoor access, regenerative/land use, quality, dietary attributes, medicine, age at slaughter, USDA/FSIS required language, the establishment number, and supply-chain intermediaries). For seafood, there is a partly overlapping set of 16 categories with seafood-specific additions. Each category gets one of three states: Disclosed (green), Partially disclosed (amber), or Not disclosed (red).\n\n'
             'Step 2 — How credible is what was disclosed?\n'
             'Disclosure alone isn\'t proof. A claim can be Third-Party Audited (independently audited on-farm by an organization that is neither the producer nor the regulator), USDA-Reviewed (USDA-administered program with audit teeth — Process Verified, USDA grade marks, FSIS catfish inspection), Producer Affidavit (FSIS approved the label language but only a producer affidavit backs it — no on-farm audit), or Unverified Marketing (the words are on the package with no audit and no government label-language approval). The same disclosure can carry very different weight depending on which of those four credibility tiers applies.\n\n'
             'Step 3 — Who is behind this product, and what does the public record say?\n'
             'The label is one source of information. The processor\'s enforcement history, the parent company\'s ownership and concentration in the category, foreign ownership status, recall history, humane-handling violations, pathogen testing results, and HHI for the relevant supply chain are all relevant facts that don\'t appear on the label but do affect what the consumer is actually buying. FAT surfaces these facts when they are available in public records.\n\n'
-            'The 0–100 FAT Score is built from Step 1 (Disclosure, 50 pts) and Step 2 (Credibility, 50 pts). Step 3 sits alongside the score as public-record context — not as added points. A label with high disclosure but low credibility may still score lower than a label with fewer disclosures that are all third-party audited. And Step 3 can flag a product even when its label scores well: a high-grade label whose processor has a recent recall or whose parent corporation holds an HHI-flagged share of the market is a different consumer story than the same label without that history.'),
+            'FAT reports how many of the 16 categories a label discloses (Step 1) and how credible those disclosures are (Step 2). Step 3 sits alongside as public-record context — not part of the count. It is a count of what the label tells you, not a grade of the food. Step 3 can flag a product even when its label discloses a lot: a well-disclosed label whose processor has a recent recall, or whose parent corporation holds an HHI-flagged share of the market, is a different consumer story than the same label without that history.'),
       ),
       // 1.2 — custom("scoring") → FATScoringExplanationView (not detailed in spec)
       _LearnTopic(
         title: 'Step 1 — What Is Disclosed',
         subtitle:
-            'The 16 categories, the three lights, and the A–F grade · meat & poultry deep-dive',
+            'The 16 categories and the three lights · meat & poultry deep-dive',
         body: [
           const _Para(
-              'Step 1 of the FAT score asks a single question: what did the label actually disclose? FAT reads a meat or poultry label against 16 transparency categories and assigns each a status light.'),
+              'Step 1 of a FAT read asks a single question: what did the label actually disclose? FAT reads a meat or poultry label against 16 transparency categories and assigns each a status light.'),
           const _Head('The 16 meat & poultry categories'),
           const _Bullets([
             'Species',
@@ -586,9 +586,9 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Partially disclosed (amber) — the label touches the category but leaves it incomplete or ambiguous.',
             'Not disclosed (red) — the label says nothing about the category.',
           ]),
-          const _Head('From lights to the A–F grade'),
+          const _Head('From lights to the disclosure read'),
           const _Para(
-              'Disclosure is worth 50 of the 100 points in the FAT score. The mix of green, amber, and red lights across the 16 categories produces the disclosure half of the score, which — combined with the Step 2 credibility half — maps onto an A–F letter grade. A label that discloses many categories but backs them only with marketing language can still land below a sparser label whose few disclosures are all third-party audited.'),
+              'The mix of green, amber, and red lights across the 16 categories is the disclosure read — how many of the 16 the label discloses, and how specifically. Combined with the Step 2 credibility of those claims, it tells you how open the brand chose to be. A label that discloses many categories but backs them only with marketing language is a weaker story than a sparser label whose few disclosures are all third-party audited. FAT reports the count and the backing — it does not grade the food.'),
         ],
       ),
       // 1.3 — custom("credibility")
@@ -598,7 +598,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Third-Party Audited · USDA-Reviewed · Producer Affidavit · Unverified Marketing',
         body: [
           const _Para(
-              'Step 2 of the FAT score asks how credible the disclosed claim is. Disclosure (Step 1) tells you whether the label addressed a topic at all. Credibility tells you how much weight that claim carries.'),
+              'Step 2 of a FAT read asks how credible the disclosed claim is. Disclosure (Step 1) tells you whether the label addressed a topic at all. Credibility tells you how much weight that claim carries.'),
           const _Para(
               'FAT places every disclosed claim into one of four credibility tiers, mirroring the canonical model at farmanimaltransparency.com/learn-how-to-read-meat-labels/. Higher tiers carry more score weight.'),
           const _Rule(),
@@ -642,7 +642,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         subtitle:
             'Processor enforcement · brand owner · parent company · foreign ownership · HHI',
         body: _text(
-            'The label is one source of information. The entities behind the label are another. Step 3 surfaces what the public record says about them — a separate panel on the results screen, not numeric points added to the 0–100 score. Step 3 can flag a product even when its label scores well.\n\n'
+            'The label is one source of information. The entities behind the label are another. Step 3 surfaces what the public record says about them — a separate panel on the results screen, not part of the disclosure count. Step 3 can flag a product even when its label discloses a lot.\n\n'
             'Processor & enforcement record\n'
             'The processor is identified on the label by establishment number (FSIS for meat, poultry, and catfish; FDA for other seafood). FAT pulls the processor\'s public enforcement record from the relevant regulator\'s files: recalls, humane-handling violations, quarterly enforcement actions, Salmonella performance categories, beef pathogen sampling results, chemical-residue findings, and FDA import alerts. A clean record looks different from a record with multiple recent recalls — same brand on the package either way.\n\n'
             'Brand owner & corporate parent\n'
@@ -1312,11 +1312,11 @@ final List<_LearnSection> _sections = <_LearnSection>[
     topics: [
       // 3.1 — custom("seafood_scoring") → FATSeafoodScoringExplanationView (not detailed in spec)
       _LearnTopic(
-        title: 'How FAT Scores Seafood Labels',
+        title: 'How FAT Reads Seafood Labels',
         subtitle: '16 categories, two-question model, FDA vs FSIS regulatory fork',
         body: [
           const _Para(
-              'FAT scores a seafood label with the same two-question model used for meat: what did the label disclose (Step 1), and how credible is that claim (Step 2)? The disclosure statuses — Disclosed, Partial, Not disclosed — and the four credibility tiers work identically. What changes is the category list and one structural fact: the regulatory agency itself.'),
+              'FAT reads a seafood label with the same two-question model used for meat: what did the label disclose (Step 1), and how credible is that claim (Step 2)? The disclosure statuses — Disclosed, Partial, Not disclosed — and the four credibility tiers work identically. What changes is the category list and one structural fact: the regulatory agency itself.'),
           const _Head('The FDA vs FSIS regulatory fork'),
           const _Para(
               'Almost all seafood is regulated by the FDA, which does not put an inspection mark or establishment number on consumer packaging. The single exception is Siluriformes (catfish, basa, swai, pangasius), regulated by USDA\'s FSIS exactly like meat — with an EST. number, inspection mark, and full enforcement pipeline. This fork determines which categories can be scored as Disclosed and which score as Not Required.'),

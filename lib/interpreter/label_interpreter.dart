@@ -1,5 +1,6 @@
 // Label Interpreter — Dart port of LabelInterpreter.swift (v1.1)
 import '../models/fat_models.dart';
+import '../data/brand_resolver.dart';
 
 class LabelInterpreter {
   LabelInterpreter._();
@@ -16,17 +17,42 @@ class LabelInterpreter {
     final farm            = _detectFarmRanch(normalized);
     final intermediary    = _detectSupplyChainIntermediary(normalized);
     final processor       = const FATCategoryResult(status: DisclosureStatus.missing);
-    final feed            = _applyFeedSpeciesGate(_detectFeed(normalized), species.value);
+    var feed              = _applyFeedSpeciesGate(_detectFeed(normalized), species.value);
+    // Fold pasture / regenerative sub-claims into Feed (mirrors iOS): a
+    // "pasture raised" or "regenerative" label still credits the Feed category.
+    if (feed.status == DisclosureStatus.missing) {
+      final pasture = _detectPasture(normalized);
+      final regen = _detectRegenerative(normalized);
+      if (pasture.status == DisclosureStatus.known ||
+          pasture.status == DisclosureStatus.partial) {
+        feed = pasture;
+      } else if (regen.status == DisclosureStatus.known ||
+          regen.status == DisclosureStatus.partial) {
+        feed = regen;
+      }
+    }
     final welfare         = _detectAnimalWelfare(normalized);
-    final pasture         = _detectPasture(normalized);
-    final regen           = _detectRegenerative(normalized);
     final quality         = _detectQualityPalatability(normalized);
-    final dietary         = _detectDietaryAttributes(normalized);
     final medicine        = _detectMedicine(normalized);
     final hormones        = _detectHormones(normalized);
     final age             = _detectAgeAtSlaughter(normalized);
     final organic         = _detectOrganic(normalized);
     final fsis            = _detectUSDAFSIS(normalized);
+
+    // Brand + Who (owner / corporate parent) via the shared resolver — same
+    // engine and data as iOS. Brand is Known when a brand alias matches; Who is
+    // Known when that match carries a responsible company. Both all-or-nothing.
+    final resolution = BrandResolver.instance.resolve(normalized);
+    final brand = resolution != null
+        ? FATCategoryResult(
+            status: DisclosureStatus.known, value: resolution.matchedBrand)
+        : const FATCategoryResult(status: DisclosureStatus.missing);
+    final who = (resolution != null &&
+            resolution.primaryResponsibleCompany.trim().isNotEmpty)
+        ? FATCategoryResult(
+            status: DisclosureStatus.known,
+            value: resolution.primaryResponsibleCompany)
+        : const FATCategoryResult(status: DisclosureStatus.missing);
 
     return {
       FATCategory.usdaFsisRequiredLanguage: fsis,
@@ -34,18 +60,17 @@ class LabelInterpreter {
       FATCategory.breed:                    breed,
       FATCategory.countryOrigin:            country,
       FATCategory.farmRanch:                farm,
-      FATCategory.supplyChainIntermediary:  intermediary,
+      FATCategory.ageAtSlaughter:           age,
       FATCategory.processor:                processor,
+      FATCategory.who:                      who,
+      FATCategory.brand:                    brand,
       FATCategory.feed:                     feed,
       FATCategory.animalWelfare:            welfare,
-      FATCategory.pasture:                  pasture,
-      FATCategory.regenerative:             regen,
-      FATCategory.qualityPalatability:      quality,
-      FATCategory.dietaryAttributes:        dietary,
       FATCategory.medicine:                 medicine,
       FATCategory.hormones:                 hormones,
-      FATCategory.ageAtSlaughter:           age,
+      FATCategory.qualityPalatability:      quality,
       FATCategory.organic:                  organic,
+      FATCategory.supplyChainIntermediary:  intermediary,
     };
   }
 
@@ -442,28 +467,6 @@ class LabelInterpreter {
           credibilityNote: 'USDA quality grade verified by USDA inspection.',
         );
       }
-    }
-    return FATCategoryResult.missing;
-  }
-
-  // ── Dietary Attributes ───────────────────────────────────────────────────
-
-  static FATCategoryResult _detectDietaryAttributes(String text) {
-    if (text.contains('usda organic') || text.contains('certified organic')) {
-      return FATCategoryResult(
-        status: DisclosureStatus.known,
-        value: 'USDA Organic',
-        credibility: ClaimCredibility.verified,
-        credibilityNote: 'USDA Organic certification verified by accredited third-party certifiers.',
-      );
-    }
-    if (text.contains('natural') && !text.contains('no artificial')) {
-      return FATCategoryResult(
-        status: DisclosureStatus.known,
-        value: 'Natural',
-        credibility: ClaimCredibility.labelClaimOnly,
-        credibilityNote: 'FSIS defines natural as minimally processed with no artificial ingredients. No audit required.',
-      );
     }
     return FATCategoryResult.missing;
   }

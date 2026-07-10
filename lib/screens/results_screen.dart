@@ -66,9 +66,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
     }
   }
 
-  double get _penalizedScore => result.fatScoreWith(
-      oshaViolation: _oshaViolation, epaViolation: _epaViolation);
-
   FATResult get result => widget.result;
 
   // ── Palette (spec section D) ───────────────────────────────────────────
@@ -152,34 +149,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
     }
   }
 
-  // ── Score pillars ──────────────────────────────────────────────────────
-  // The model only exposes the combined fatScore. Recompute the two pillars
-  // here using the identical formula from FATResult.fatScore so we can render
-  // the Disclosure (/70) and Credibility (/30) progress bars per spec A4.
-
-  double get _disclosurePillar {
-    final allCats = FATCategory.values;
-    double points = 0;
-    for (final cat in allCats) {
-      final r = result.categories[cat];
-      if (r == null) continue;
-      if (r.status == DisclosureStatus.known) points += 5;
-      if (r.status == DisclosureStatus.partial) points += 2;
-    }
-    final maxDisclosure = allCats.length * 5.0;
-    return (points / maxDisclosure) * 70;
-  }
-
-  double get _credibilityPillar {
-    final weights = result.categories.values
-        .where((r) => r.credibility != null)
-        .map((r) => r.credibility!.scoreWeight)
-        .toList();
-    if (weights.isEmpty) return 0;
-    final avg = weights.reduce((a, b) => a + b) / weights.length;
-    return avg * 30;
-  }
-
   // ── Build ──────────────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
@@ -192,7 +161,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: _withSpacing(18, [
               _header(),
-              _scoreCard(),
+              _atAGlanceCard(),
               ..._estWarnings(),
               _disclosureSummary(),
               if (result.detectedEstablishmentNumber != null) _processorSection(),
@@ -238,117 +207,204 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
-  // ── A4. FAT Score Card ─────────────────────────────────────────────────
-  Widget _scoreCard() {
-    final score = _penalizedScore;
-    final grade = FATResult.gradeFor(score);
-    final gradeColor = FATResult.gradeColorFor(score);
-    final disclosurePct = (_disclosurePillar / 70).clamp(0.0, 1.0);
-    final credPct = (_credibilityPillar / 30).clamp(0.0, 1.0);
+  // ── At-a-glance card ───────────────────────────────────────────────────
+  // The fast, glanceable read leading the results screen: the FSIS baseline
+  // that applies to all federally inspected product, a single-color 16-segment
+  // disclosure meter, the disclosed count, what the label is silent on, and how
+  // the disclosed claims are backed. Reports counts, not a verdict. The full
+  // 0–100 score / A–F grade follows below.
+
+  static const int _totalCategories = 16;
+
+  int _credCount(ClaimCredibility tier) =>
+      result.categories.values.where((r) => r.credibility == tier).length;
+
+  List<FATCategory> get _silentCategories => FATCategory.values
+      .where((c) =>
+          (result.categories[c]?.status ?? DisclosureStatus.missing) ==
+          DisclosureStatus.missing)
+      .toList();
+
+  String _glanceLabel(FATCategory c) {
+    switch (c) {
+      case FATCategory.usdaFsisRequiredLanguage: return 'required basics';
+      case FATCategory.species:                  return 'species';
+      case FATCategory.breed:                    return 'breed';
+      case FATCategory.countryOrigin:            return 'origin';
+      case FATCategory.farmRanch:                return 'farm';
+      case FATCategory.ageAtSlaughter:           return 'age at slaughter';
+      case FATCategory.processor:                return 'processor';
+      case FATCategory.who:                      return 'owner';
+      case FATCategory.brand:                    return 'brand';
+      case FATCategory.feed:                     return 'feed';
+      case FATCategory.animalWelfare:            return 'animal welfare';
+      case FATCategory.medicine:                 return 'antibiotics';
+      case FATCategory.hormones:                 return 'hormones';
+      case FATCategory.qualityPalatability:      return 'quality';
+      case FATCategory.organic:                  return 'organic';
+      case FATCategory.supplyChainIntermediary:  return 'supply chain';
+    }
+  }
+
+  String _silentSummary(List<FATCategory> cats) {
+    final labels = cats.map(_glanceLabel).toList();
+    final head = labels.take(4).toList();
+    var s = head.join(', ');
+    final rest = labels.length - head.length;
+    if (rest > 0) s += ' — and $rest more';
+    return s;
+  }
+
+  ({String line, IconData icon, Color color}) get _verification {
+    if (_credCount(ClaimCredibility.verified) > 0) {
+      return (line: 'Independently verified claims present', icon: Icons.verified, color: _disclosureGreen);
+    }
+    if (_credCount(ClaimCredibility.usdaApproved) > 0) {
+      return (line: 'USDA-reviewed claims present', icon: Icons.verified_user, color: _fatAmber);
+    }
+    if (_credCount(ClaimCredibility.producerAffidavit) > 0) {
+      return (line: 'Producer-affidavit claims only', icon: Icons.info_outline, color: Colors.black54);
+    }
+    if (_credCount(ClaimCredibility.labelClaimOnly) > 0) {
+      return (line: 'Unverified marketing claims only', icon: Icons.info_outline, color: Colors.black54);
+    }
+    return (line: 'No backed claims disclosed', icon: Icons.info_outline, color: Colors.black54);
+  }
+
+  Widget _atAGlanceCard() {
+    final disclosed = result.knownCount;
+    final partial = result.partialCount;
+    final silent = _silentCategories;
+    final v = _verification;
 
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _fatGreen,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _fatGreen, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('FAT Score',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-          const SizedBox(height: 14),
-          // Score number + grade badge
+          // FSIS baseline — the neutrality anchor, stated for every product.
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(score.toStringAsFixed(0),
-                      style: TextStyle(
-                          fontSize: 64,
-                          fontWeight: FontWeight.w900,
-                          color: gradeColor,
-                          height: 1.0)),
-                  const SizedBox(height: 2),
-                  const Text('out of 100',
-                      style: TextStyle(
-                          fontSize: 13, fontWeight: FontWeight.w600)),
-                ],
-              ),
-              const SizedBox(width: 20),
-              Container(
-                width: 72,
-                height: 72,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: gradeColor.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(14),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Icon(Icons.shield_outlined, size: 16, color: _disclosureGreen),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Meets USDA FSIS minimums — as is required of all federally inspected meat and catfish.',
+                  style:
+                      TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
                 ),
-                child: Text(grade,
-                    style: TextStyle(
-                        fontSize: 44,
-                        fontWeight: FontWeight.w900,
-                        color: gradeColor)),
               ),
-              const Spacer(),
             ],
           ),
-          const SizedBox(height: 14),
-          _pillarBar('Disclosure', disclosurePct, gradeColor),
-          const SizedBox(height: 14),
-          _pillarBar('Credibility', credPct, gradeColor),
-          const SizedBox(height: 14),
-          const Text(
-            'Score reflects label disclosure completeness and data credibility — not product quality or nutrition.',
-            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          const SizedBox(height: 12),
+          // 16-segment single-color disclosure meter (fuller = more disclosed).
+          Row(
+            children: List.generate(_totalCategories, (i) {
+              return Expanded(
+                child: Container(
+                  height: 12,
+                  margin: EdgeInsets.only(
+                      right: i == _totalCategories - 1 ? 0 : 3),
+                  decoration: BoxDecoration(
+                    color: i < disclosed
+                        ? _disclosureGreen
+                        : Colors.black.withValues(alpha: 0.10),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              );
+            }),
           ),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text('$disclosed',
+                  style: const TextStyle(
+                      fontSize: 46,
+                      fontWeight: FontWeight.w900,
+                      color: _disclosureGreen,
+                      height: 1.0)),
+              const SizedBox(width: 8),
+              Text('of $_totalCategories categories disclosed',
+                  style:
+                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          if (partial > 0) ...[
+            const SizedBox(height: 4),
+            Text('$partial more partially disclosed',
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: _fatAmber)),
+          ],
+          if (silent.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text('Silent on: ${_silentSummary(silent)}',
+                style: TextStyle(
+                    fontSize: 13.5, color: Colors.black.withValues(alpha: 0.7))),
+          ],
+          const SizedBox(height: 12),
+          // How the disclosed claims are backed — factual, strongest tier shown.
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: v.color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(v.icon, size: 13, color: v.color),
+                const SizedBox(width: 6),
+                Text(v.line,
+                    style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w600,
+                        color: v.color)),
+              ],
+            ),
+          ),
+          if (_hasEnforcement) ...[
+            const SizedBox(height: 10),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.gavel, size: 14, color: Color(0xFFB45309)),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Processor has federal enforcement violations on record — see the processor section below.',
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFB45309)),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 10),
+          Text('A count of what the label discloses — not a rating of the food.',
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black.withValues(alpha: 0.55))),
         ],
       ),
     );
   }
 
-  Widget _pillarBar(String label, double fraction, Color fillColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(label,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-            const Spacer(),
-            Text('${(fraction * 100).round()}%',
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 5),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return Stack(
-              children: [
-                Container(
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-                Container(
-                  height: 12,
-                  width: constraints.maxWidth * fraction,
-                  decoration: BoxDecoration(
-                    color: fillColor,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ],
-    );
-  }
+  bool get _hasEnforcement => _oshaViolation || _epaViolation;
 
   // ── A5. EST Warnings ───────────────────────────────────────────────────
   List<Widget> _estWarnings() {
@@ -856,7 +912,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     final lines = <String>[
       'Farm Animal Transparency (FAT) — Label Analysis',
       'Date: ${_formattedDate(result.scannedAt)}',
-      'FAT Score: ${_penalizedScore.toStringAsFixed(0)}/100  Grade: ${FATResult.gradeFor(_penalizedScore)}',
+      'Discloses ${result.knownCount} of 16 transparency categories (${result.partialCount} partial). A count of what the label discloses — not a rating of the food.',
       '',
     ];
     for (final cat in FATCategory.values) {
@@ -876,7 +932,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   Future<void> _share() async {
     final subject = Uri.encodeComponent(
-        'FAT Label Analysis — Score ${_penalizedScore.toStringAsFixed(0)}/100');
+        'FAT Label Analysis — discloses ${result.knownCount} of 16 categories');
     final body = Uri.encodeComponent(_summaryText());
     final uri = Uri.parse('mailto:?subject=$subject&body=$body');
     final launched = await _launch(uri);

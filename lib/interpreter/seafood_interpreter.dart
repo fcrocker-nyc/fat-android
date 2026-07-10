@@ -30,23 +30,37 @@ class SeafoodInterpreter {
     final method = _detectProductionMethod(text);
     final est = isCatfish ? extractEstablishmentNumber(text) : null;
 
+    // Brand + Who (owner / corporate parent) via the shared resolver — same
+    // engine and data as meat. Both all-or-nothing.
+    final resolution = BrandResolver.instance.resolve(text);
+    final brand = resolution != null
+        ? FATCategoryResult(
+            status: DisclosureStatus.known, value: resolution.matchedBrand)
+        : const FATCategoryResult(status: DisclosureStatus.missing);
+    final who = (resolution != null &&
+            resolution.primaryResponsibleCompany.trim().isNotEmpty)
+        ? FATCategoryResult(
+            status: DisclosureStatus.known,
+            value: resolution.primaryResponsibleCompany)
+        : const FATCategoryResult(status: DisclosureStatus.missing);
+
     final cats = <SeafoodCategory, FATCategoryResult>{
       SeafoodCategory.regulatoryRequiredLanguage: _regulatory(text, isCatfish),
       SeafoodCategory.speciesIdentity: _species(text),
       SeafoodCategory.strainVariety: _strain(text),
       SeafoodCategory.countryOrigin: _country(text),
       SeafoodCategory.farmVesselFishery: _farmVessel(text),
+      SeafoodCategory.ageAtHarvest: _ageAtHarvest(text),
       SeafoodCategory.processor: _processor(isCatfish, est),
+      SeafoodCategory.who: who,
+      SeafoodCategory.brand: brand,
       SeafoodCategory.productionMethodFeed: _methodFeed(text, method),
       SeafoodCategory.animalWelfare: _welfare(text),
-      SeafoodCategory.qualityHandling: _quality(text),
-      SeafoodCategory.dietaryAttributesAdditives: _dietary(text),
       SeafoodCategory.medicineAntibioticsChemicals: _medicine(text),
-      SeafoodCategory.ageAtHarvest: const FATCategoryResult(status: DisclosureStatus.missing),
-      SeafoodCategory.enforcementCompliance: _enforcement(scannedText, isCatfish),
+      SeafoodCategory.hormones: _hormones(text),
+      SeafoodCategory.qualityHandling: _quality(text),
+      SeafoodCategory.organic: _organic(text),
       SeafoodCategory.supplyChainIntermediary: _supplyChain(text),
-      SeafoodCategory.environmentalImpact: const FATCategoryResult(status: DisclosureStatus.missing),
-      SeafoodCategory.economicConcentration: const FATCategoryResult(status: DisclosureStatus.missing),
     };
 
     return SeafoodInterpretation(
@@ -298,25 +312,62 @@ class SeafoodInterpreter {
     return FATCategoryResult(status: DisclosureStatus.known, value: found.join(', '));
   }
 
-  static FATCategoryResult _dietary(String t) {
-    final factual = <String>[];
-    final marketing = <String>[];
-    if (t.contains('sodium tripolyphosphate') || t.contains('stpp')) factual.add('STPP (phosphate glaze)');
-    if (t.contains('added water')) factual.add('Added Water');
-    if (t.contains('no artificial')) marketing.add('No Artificial Ingredients');
-    if (t.contains('no preservative')) marketing.add('No Preservatives');
-    if (t.contains('gluten free') || t.contains('gluten-free')) marketing.add('Gluten Free');
-    final all = [...factual, ...marketing];
-    if (all.isEmpty) return const FATCategoryResult(status: DisclosureStatus.missing);
-    if (marketing.isEmpty) {
-      return FATCategoryResult(status: DisclosureStatus.known, value: all.join(', '));
+  // 6. Harvest Timing / Age — all-or-nothing; rarely disclosed on retail labels.
+  static FATCategoryResult _ageAtHarvest(String t) {
+    const patterns = [
+      'harvest date', 'harvested on', 'grow-out', 'grow out',
+      'production cycle', 'days to harvest', 'months to harvest'
+    ];
+    for (final p in patterns) {
+      if (t.contains(p)) {
+        return const FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Harvest timing / grow-out disclosed',
+        );
+      }
     }
-    return FATCategoryResult(
-      status: DisclosureStatus.known,
-      value: all.join(', '),
-      credibility: ClaimCredibility.labelClaimOnly,
-      credibilityNote: 'Label claim — no independent verification identified',
+    return const FATCategoryResult(status: DisclosureStatus.missing);
+  }
+
+  // 13. Hormones — not approved for use in seafood in the US; N/A by default so
+  //     the category is excluded from both numerator and denominator.
+  static FATCategoryResult _hormones(String t) {
+    if (t.contains('no hormones') ||
+        t.contains('hormone free') ||
+        t.contains('hormone-free')) {
+      return const FATCategoryResult(
+        status: DisclosureStatus.known,
+        value: 'No Hormones (not approved for use in seafood)',
+        credibility: ClaimCredibility.labelClaimOnly,
+        credibilityNote:
+            'Hormones are not approved for fish in the US; the claim is not a differentiator.',
+      );
+    }
+    return const FATCategoryResult(
+      status: DisclosureStatus.notRequired,
+      value: 'Hormones are not approved for use in seafood — not applicable.',
     );
+  }
+
+  // 15. Organic / Certification Status
+  static FATCategoryResult _organic(String t) {
+    if (t.contains('usda organic') || t.contains('certified organic')) {
+      return const FATCategoryResult(
+        status: DisclosureStatus.known,
+        value: 'Certified Organic',
+        credibility: ClaimCredibility.verified,
+        credibilityNote: 'Certification claim.',
+      );
+    }
+    if (t.contains('organic')) {
+      return const FATCategoryResult(
+        status: DisclosureStatus.partial,
+        value: '"Organic" stated without a named certifier',
+        credibility: ClaimCredibility.labelClaimOnly,
+        credibilityNote: 'No named certifier identified.',
+      );
+    }
+    return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
   static FATCategoryResult _medicine(String t) {
@@ -337,45 +388,6 @@ class SeafoodInterpreter {
       }
     }
     return const FATCategoryResult(status: DisclosureStatus.missing);
-  }
-
-  // 13. Enforcement & Compliance — graded by event type + recency from the feed.
-  static FATCategoryResult _enforcement(String scannedText, bool isCatfish) {
-    if (isCatfish) {
-      // FSIS — handled by the EST processor lookup.
-      return const FATCategoryResult(status: DisclosureStatus.missing);
-    }
-    final resolution = BrandResolver.instance.resolve(scannedText);
-    if (resolution == null) {
-      return const FATCategoryResult(
-        status: DisclosureStatus.notRequired,
-        value:
-            'SIMP (Seafood Import Monitoring Program) requires harvest and chain-of-custody records for 13 specific high-risk imported species. It does not apply to domestic seafood or most imported species. No equivalent federal traceability program exists for most retail seafood.',
-      );
-    }
-    if (resolution.shouldSuppressFdaLookup) {
-      return FATCategoryResult(
-        status: DisclosureStatus.missing,
-        value:
-            'No public FDA enforcement bridge for ${resolution.matchedBrand} (responsible company: ${resolution.primaryResponsibleCompany}). Absence of a public match is not evidence of a clean record.',
-      );
-    }
-    final summary = BrandResolver.instance.enforcementSummary(resolution);
-    if (summary == null) {
-      return FATCategoryResult(
-        status: DisclosureStatus.partial,
-        value:
-            'Public FDA enforcement bridge exists for ${resolution.primaryResponsibleCompany}, but no enforcement actions appear in the current 2023–2026 dataset. Older actions may exist outside this window.',
-        credibility: ClaimCredibility.usdaApproved,
-        credibilityNote: 'FAT brand→FDA bridge; no in-window public events.',
-      );
-    }
-    return FATCategoryResult(
-      status: summary.hasHighSeverity ? DisclosureStatus.known : DisclosureStatus.partial,
-      value: summary.displayText,
-      credibility: ClaimCredibility.usdaApproved,
-      credibilityNote: summary.recencyNote,
-    );
   }
 
   static FATCategoryResult _supplyChain(String t) {

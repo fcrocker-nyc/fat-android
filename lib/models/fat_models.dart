@@ -102,23 +102,23 @@ class FATCategoryResult {
 // ─────────────────────────────────────────────
 
 enum FATCategory {
-  usdaFsisRequiredLanguage,
-  species,
-  breed,
-  countryOrigin,
-  farmRanch,
-  supplyChainIntermediary,
-  processor,
-  feed,
-  animalWelfare,
-  pasture,
-  regenerative,
-  qualityPalatability,
-  dietaryAttributes,
-  medicine,
-  hormones,
-  ageAtSlaughter,
-  organic;
+  // The 16 canonical categories (website order 1–16), identical to iOS.
+  usdaFsisRequiredLanguage, // 1
+  species,                  // 2
+  breed,                    // 3
+  countryOrigin,            // 4
+  farmRanch,                // 5
+  ageAtSlaughter,           // 6
+  processor,                // 7
+  who,                      // 8  Owner / corporate parent
+  brand,                    // 9  Consumer-facing brand
+  feed,                     // 10 grass-fed, grain-fed, pasture, regenerative as sub-claims
+  animalWelfare,            // 11
+  medicine,                 // 12
+  hormones,                 // 13
+  qualityPalatability,      // 14
+  organic,                  // 15
+  supplyChainIntermediary;  // 16
 
   String get displayName {
     switch (this) {
@@ -127,18 +127,17 @@ enum FATCategory {
       case breed:                    return 'Breed';
       case countryOrigin:            return 'Country / Origin';
       case farmRanch:                return 'Farm / Ranch';
-      case supplyChainIntermediary:  return 'Feedlot / Contract Grower';
+      case ageAtSlaughter:           return 'Age at Slaughter';
       case processor:                return 'Processor';
+      case who:                      return 'Who (Owner / Parent)';
+      case brand:                    return 'Brand';
       case feed:                     return 'Feed';
       case animalWelfare:            return 'Animal Welfare';
-      case pasture:                  return 'Pasture / Outdoor Access';
-      case regenerative:             return 'Regenerative / Land Use';
-      case qualityPalatability:      return 'Quality / Palatability';
-      case dietaryAttributes:        return 'Dietary Attributes';
       case medicine:                 return 'Medicine / Antibiotics';
       case hormones:                 return 'Hormones';
-      case ageAtSlaughter:           return 'Age at Slaughter';
+      case qualityPalatability:      return 'Quality / Palatability';
       case organic:                  return 'Organic (USDA NOP)';
+      case supplyChainIntermediary:  return 'Supply-Chain Intermediaries';
     }
   }
 }
@@ -163,22 +162,23 @@ enum SeafoodProductionMethod {
 
 /// 16 FAT seafood transparency categories (port of iOS SeafoodCategory).
 enum SeafoodCategory {
-  regulatoryRequiredLanguage,
-  speciesIdentity,
-  strainVariety,
-  countryOrigin,
-  farmVesselFishery,
-  processor,
-  productionMethodFeed,
-  animalWelfare,
-  qualityHandling,
-  dietaryAttributesAdditives,
-  medicineAntibioticsChemicals,
-  ageAtHarvest,
-  enforcementCompliance,
-  supplyChainIntermediary,
-  environmentalImpact,
-  economicConcentration;
+  // The 16 canonical seafood categories (website order 1–16), identical to iOS.
+  regulatoryRequiredLanguage,   // 1
+  speciesIdentity,              // 2
+  strainVariety,                // 3
+  countryOrigin,                // 4
+  farmVesselFishery,            // 5
+  ageAtHarvest,                 // 6  Harvest Timing / Age
+  processor,                    // 7
+  who,                          // 8  Owner / corporate parent
+  brand,                        // 9  Consumer-facing brand
+  productionMethodFeed,         // 10 Feed / Production Method
+  animalWelfare,                // 11 Fish Welfare
+  medicineAntibioticsChemicals, // 12
+  hormones,                     // 13
+  qualityHandling,              // 14
+  organic,                      // 15 Organic / Certification
+  supplyChainIntermediary;      // 16
 
   String get displayName {
     switch (this) {
@@ -187,31 +187,22 @@ enum SeafoodCategory {
       case strainVariety:                return 'Strain / Variety';
       case countryOrigin:                return 'Country / Origin';
       case farmVesselFishery:            return 'Farm / Vessel / Fishery';
+      case ageAtHarvest:                 return 'Harvest Timing / Age';
       case processor:                    return 'Processor';
-      case productionMethodFeed:         return 'Production Method & Feed';
+      case who:                          return 'Who (Owner / Parent)';
+      case brand:                        return 'Brand';
+      case productionMethodFeed:         return 'Feed / Production Method';
       case animalWelfare:                return 'Fish Welfare';
-      case qualityHandling:              return 'Quality & Handling';
-      case dietaryAttributesAdditives:   return 'Dietary Attributes & Additives';
       case medicineAntibioticsChemicals: return 'Medicine / Antibiotics / Chemicals';
-      case ageAtHarvest:                 return 'Age / Grow-Out Period';
-      case enforcementCompliance:        return 'Enforcement & Compliance';
+      case hormones:                     return 'Hormones';
+      case qualityHandling:              return 'Quality & Handling';
+      case organic:                      return 'Organic / Certification';
       case supplyChainIntermediary:      return 'Supply-Chain Intermediaries';
-      case environmentalImpact:          return 'Environmental Impact';
-      case economicConcentration:        return 'Economic Concentration / Foreign Ownership';
     }
   }
 
-  /// Whether the category is app-scored (vs website-only / hidden).
-  bool get isAppSupported {
-    switch (this) {
-      case environmentalImpact:
-      case economicConcentration:
-      case ageAtHarvest:
-        return false;
-      default:
-        return true;
-    }
-  }
+  /// All 16 seafood categories are app-scored, mirroring meat.
+  bool get isAppSupported => true;
 }
 
 // ─────────────────────────────────────────────
@@ -272,9 +263,15 @@ class FATResult {
   /// pillar, stacking: EPA −3, OSHA −2. EPA is data-pending at the call site.
   double fatScoreWith({bool oshaViolation = false, bool epaViolation = false}) {
     final allCats = FATCategory.values;
-    // Per-category max weight: Breed = 3, Farm/Ranch = 6, every other = 5.
+    // Absolute points; the 16 canonical weights sum to exactly 70 (the disclosure
+    // pillar). Credibility is the other 30 → 100. Identical to iOS.
     double weightOf(FATCategory c) =>
-        c == FATCategory.breed ? 3.0 : (c == FATCategory.farmRanch ? 6.0 : 5.0);
+        c == FATCategory.animalWelfare ? 8.0
+        : (c == FATCategory.feed || c == FATCategory.organic) ? 6.0
+        : (c == FATCategory.farmRanch || c == FATCategory.medicine) ? 5.0
+        : (c == FATCategory.breed || c == FATCategory.brand) ? 3.0
+        : c == FATCategory.supplyChainIntermediary ? 2.0
+        : 4.0; // Required, Species, Country, Age, Processor, Who, Hormones, Quality
     // All-or-nothing (present-or-absent, no partial credit): the three mandatory
     // disclosures (Required Basics, Species, Processor) plus Breed, Country of
     // Origin, Farm/Ranch, and Age at Slaughter — full credit only for a specific
@@ -286,7 +283,9 @@ class FATResult {
         c == FATCategory.breed ||
         c == FATCategory.countryOrigin ||
         c == FATCategory.farmRanch ||
-        c == FATCategory.ageAtSlaughter;
+        c == FATCategory.ageAtSlaughter ||
+        c == FATCategory.who ||
+        c == FATCategory.brand;
     // Pillar 1 — Disclosure (70 pts)
     double disclosurePoints = 0;
     double maxDisclosure = 0;
@@ -356,11 +355,20 @@ class FATResult {
         SeafoodCategory.values.where((c) => c.isAppSupported).toList();
     double maxPossible = 0, earned = 0;
     for (final cat in scored) {
-      // Strain/Variety (breed-equiv) = 3, Farm/Vessel/Fishery (source) = 6,
-      // every other = 5.
-      final w = cat == SeafoodCategory.strainVariety
-          ? 3.0
-          : (cat == SeafoodCategory.farmVesselFishery ? 6.0 : 5.0);
+      // Absolute points; the 16 seafood weights sum to exactly 70 (the disclosure
+      // pillar), identical to iOS and to the meat model.
+      final w = cat == SeafoodCategory.animalWelfare ? 8.0
+          : (cat == SeafoodCategory.productionMethodFeed ||
+                  cat == SeafoodCategory.organic)
+              ? 6.0
+          : (cat == SeafoodCategory.farmVesselFishery ||
+                  cat == SeafoodCategory.medicineAntibioticsChemicals)
+              ? 5.0
+          : (cat == SeafoodCategory.strainVariety ||
+                  cat == SeafoodCategory.brand)
+              ? 3.0
+          : cat == SeafoodCategory.supplyChainIntermediary ? 2.0
+          : 4.0;
       // All-or-nothing (present-or-absent, no partial credit): the mandatory
       // disclosures (Required Basics, Species Identity, Processor) plus Strain/
       // Variety, Country of Origin, Farm/Vessel/Fishery, and Age/Grow-Out.
@@ -370,7 +378,9 @@ class FATResult {
           cat == SeafoodCategory.strainVariety ||
           cat == SeafoodCategory.countryOrigin ||
           cat == SeafoodCategory.farmVesselFishery ||
-          cat == SeafoodCategory.ageAtHarvest;
+          cat == SeafoodCategory.ageAtHarvest ||
+          cat == SeafoodCategory.who ||
+          cat == SeafoodCategory.brand;
       switch (seafoodCategories[cat]?.status ?? DisclosureStatus.missing) {
         case DisclosureStatus.known:    maxPossible += w; earned += w; break;
         case DisclosureStatus.partial:  maxPossible += w; earned += allOrNothing ? 0 : w * 0.4; break;
