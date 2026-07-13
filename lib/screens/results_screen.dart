@@ -211,8 +211,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // The fast, glanceable read leading the results screen: the FSIS baseline
   // that applies to all federally inspected product, a single-color 16-segment
   // disclosure meter, the disclosed count, what the label is silent on, and how
-  // the disclosed claims are backed. Reports counts, not a verdict. The full
-  // 0–100 score / A–F grade follows below.
+  // the disclosed claims are backed. Reports counts, not a verdict — no letter
+  // grade is shown. The weighted 0–100 index remains behind the scenes only.
 
   static const int _totalCategories = 16;
 

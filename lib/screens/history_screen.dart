@@ -284,14 +284,27 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         child: Row(
           children: [
+            // Disclosure-count badge (count model — not a letter grade).
             CircleAvatar(
               radius: 24,
-              backgroundColor: r.gradeColor,
-              child: Text(r.grade,
-                  style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white)),
+              backgroundColor: const Color(0xFF34A853), // disclosure green
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('${r.knownCount}',
+                      style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          height: 1.0)),
+                  const Text('of 16',
+                      style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          height: 1.15)),
+                ],
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
