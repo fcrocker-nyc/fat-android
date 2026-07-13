@@ -29,13 +29,15 @@ class HowFATWorksScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _introCard(),
+              _independenceCard(),
+              const SizedBox(height: 12),
+              _disclosureCard(),
               const SizedBox(height: 20),
 
               _sectionHeader('How FAT Reads a Label'),
               const SizedBox(height: 10),
               const Text(
-                'Every FAT read is the result of a three-step analysis. Each step asks a different question about the label.',
+                'Every FAT read runs the same three steps below — each asks a different question about the label:',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
@@ -108,7 +110,7 @@ class HowFATWorksScreen extends StatelessWidget {
                   'Have a question about a scan result? Tap the Questions button on any results page to send the details directly to FAT for review.'),
               const SizedBox(height: 12),
               _paragraphView(6, 'History & Saved Scans',
-                  'Access your saved evaluations anytime in the History tab. For seafood-specific topics — how FAT scores seafood labels, the FSIS-vs-FDA regulatory fork, wild-caught vs farmed, and the parent-company brand database — see the Learn tab.'),
+                  'Access your saved evaluations anytime in the History tab. For seafood-specific topics — how FAT reads seafood labels, the FSIS-vs-FDA regulatory fork, wild-caught vs farmed, and the parent-company brand database — see the Learn tab.'),
             ],
           ),
         ),
@@ -116,44 +118,60 @@ class HowFATWorksScreen extends StatelessWidget {
     );
   }
 
-  // ── Intro card (disclosure-first frame + independence) ────────────────────
+  // ── Independence card (its own pill, above the explainer) ─────────────────
 
-  Widget _introCard() {
+  Widget _independenceCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: FATTheme.primaryGreen,
         borderRadius: BorderRadius.circular(14),
       ),
-      child: Column(
+      child: const Text(
+        'Independent · No ads · No sponsors. FAT reports disclosure, not the product — so there is nothing for a brand to buy its way out of.',
+        style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: FATTheme.scanGreen),
+      ),
+    );
+  }
+
+  // ── Disclosure-first explainer card ───────────────────────────────────────
+
+  Widget _disclosureCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: FATTheme.primaryGreen,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Text(
+            'FAT reports what a label discloses across 16 transparency categories, and how well each claim is backed. It is not a rating of the food — it tells you how much the brand chose to tell you.',
+            style: TextStyle(fontSize: 15),
+          ),
+          SizedBox(height: 10),
+          // The FSIS-baseline line now earns its place: it is the reason a low
+          // disclosure count is never a safety concern.
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.shield_outlined, size: 18, color: FATTheme.scanGreen),
+              Padding(
+                padding: EdgeInsets.only(top: 1),
+                child: Icon(Icons.shield_outlined,
+                    size: 18, color: FATTheme.scanGreen),
+              ),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Meets USDA FSIS minimums — as is required of all federally inspected meat and catfish.',
-                  style:
-                      TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  'A low count is never a safety flag: every federally inspected meat and catfish product already meets USDA FSIS minimums — inspection, safe handling, and a truthful name. FAT only reads what the brand adds above that floor.',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'FAT reports what a label discloses across 16 transparency categories, and how well each claim is backed. It is not a rating of the food — a low disclosure count is not a safety flag. It tells you how much the brand chose to tell you.',
-            style: TextStyle(fontSize: 15),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            'Independent · No ads · No sponsors. FAT scores disclosure, not the product — so there is nothing for a brand to buy its way out of.',
-            style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: FATTheme.scanGreen),
           ),
         ],
       ),
