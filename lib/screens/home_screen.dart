@@ -345,28 +345,30 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: FATTheme.scanGreen.withValues(alpha: 0.25)),
+          color: FATTheme.scanGreen,
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Row(
               children: [
-                Icon(Icons.search, size: 16, color: FATTheme.scanGreen),
+                Icon(Icons.search, size: 16, color: Colors.white),
                 SizedBox(width: 8),
                 Text('Quick Lookup',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900)),
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white)),
               ],
             ),
             const SizedBox(height: 4),
             Text(
               'EST number, meat brand, or seafood brand — we detect which.',
               style: TextStyle(
-                  fontSize: 12.5, color: Colors.black.withValues(alpha: 0.55)),
+                  fontSize: 12.5, color: Colors.white.withValues(alpha: 0.92)),
             ),
             const SizedBox(height: 10),
             Row(
@@ -380,6 +382,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: InputDecoration(
                       hintText: "e.g. 969, Tyson, Gorton's",
                       isDense: true,
+                      filled: true,
+                      fillColor: Colors.white,
                       contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 12),
                       border: OutlineInputBorder(
@@ -400,14 +404,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
                     decoration: BoxDecoration(
-                      color: FATTheme.scanGreen,
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Text('Look Up',
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white)),
+                            color: FATTheme.scanGreen)),
                   ),
                 ),
               ],
