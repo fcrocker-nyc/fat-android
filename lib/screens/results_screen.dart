@@ -248,14 +248,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: widget.imagePaths.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (_, i) => ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image.file(
             File(widget.imagePaths[i]),
             height: 200,
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+            errorBuilder: (_, _, _) => const SizedBox.shrink(),
           ),
         ),
       ),

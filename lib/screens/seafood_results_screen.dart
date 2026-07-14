@@ -7,6 +7,7 @@ import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
+import '../services/processor_service.dart';
 
 /// Seafood scan result screen — Flutter port of iOS SeafoodResultsView.
 ///
@@ -35,6 +36,9 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   // FSIS establishment. Set true after a high-confidence match with violations.
   bool _oshaViolation = false;
   bool _epaViolation = false; // EPA environmental-enforcement penalty (Cat 7)
+  // FSIS record — only catfish / Siluriformes seafood has an FSIS establishment;
+  // for FDA-regulated seafood the fetch simply 404s and nothing renders.
+  ProcessorRecord? _processor;
 
   FATResult get result => widget.result;
 
@@ -43,6 +47,13 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     super.initState();
     _loadOshaPenalty();
     _loadEpaPenalty();
+    _loadProcessorRecord();
+  }
+
+  Future<void> _loadProcessorRecord() async {
+    final rec =
+        await ProcessorService.fetch(result.detectedEstablishmentNumber);
+    if (rec != null && mounted) setState(() => _processor = rec);
   }
 
   Future<void> _loadEpaPenalty() async {
@@ -133,6 +144,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
               _productTypeBanner(),
               _atAGlanceCard(),
               _disclosureSummary(),
+              if (_processor != null) _fsisRecordSection(),
               _categorySection(),
               _actions(context),
             ]),
@@ -152,19 +164,83 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   }
 
   // ── B1. Header ─────────────────────────────────────────────────────────
+  /// FSIS public record for catfish/Siluriformes plants (USDA-inspected seafood).
+  /// Mirrors the meat Results enforcement block.
+  Widget _fsisRecordSection() {
+    final p = _processor!;
+    final asOf = p.generatedDate != null ? ' (as of ${p.generatedDate})' : '';
+    final rows = <Widget>[];
+    Widget line(IconData ic, Color c, String label, String detail) => Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(padding: const EdgeInsets.only(top: 1), child: Icon(ic, size: 16, color: c)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 13.5, color: Colors.black),
+                  children: [
+                    TextSpan(text: '$label  ', style: const TextStyle(fontWeight: FontWeight.w800)),
+                    TextSpan(text: detail),
+                  ],
+                ),
+              ),
+            ),
+          ]),
+        );
+    if (p.hasRecalls) {
+      rows.add(line(Icons.warning_amber_rounded, const Color(0xFFC0392B), 'Recalls', '${p.recallCount} on record'));
+    }
+    final hh = p.humaneHandling;
+    if (hh.isNotEmpty) {
+      rows.add(line(Icons.pets, const Color(0xFFEF8A2B), 'Humane handling', '${hh.length} noncompliance record(s)'));
+    }
+    if (p.hasResidues) {
+      rows.add(line(Icons.biotech_outlined, const Color(0xFFC0392B), 'Chemical residue', '${p.residueCount} violation(s) on record'));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('FSIS Public Record',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(color: FATTheme.primaryGreen, borderRadius: BorderRadius.circular(16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('USDA-inspected (catfish / Siluriformes) — EST. ${p.estNumber}',
+                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
+              if (rows.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text('Clean record — no recalls, humane-handling actions, or residue violations on file$asOf.',
+                      style: const TextStyle(fontSize: 13.5)),
+                )
+              else
+                ...rows,
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _imageCarousel() {
     return SizedBox(
       height: 200,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: widget.imagePaths.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (_, i) => ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image.file(File(widget.imagePaths[i]),
               height: 200,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+              errorBuilder: (_, _, _) => const SizedBox.shrink()),
         ),
       ),
     );
