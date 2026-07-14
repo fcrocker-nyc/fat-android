@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/fat_theme.dart';
+import 'service_case_schema_screen.dart';
 
 // ─── Content block model ─────────────────────────────────────────────────────
 //
@@ -512,10 +513,16 @@ class _LearnTopic {
   final String title;
   final String subtitle;
   final List<_Block> body;
+
+  /// When set, tapping this topic opens a dedicated custom screen instead of
+  /// the generic block-rendered [_LearnDetailScreen]. Used by the Service-Case
+  /// Capture Schema topic to reach its verbatim iOS-ported explainer.
+  final WidgetBuilder? screenBuilder;
   const _LearnTopic({
     required this.title,
     required this.subtitle,
     required this.body,
+    this.screenBuilder,
   });
 }
 
@@ -1598,6 +1605,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         title: 'Service-Case Capture Schema',
         subtitle:
             'Loose seafood at the counter — placard, identity, confidence, and tiered resolution',
+        screenBuilder: (_) => const ServiceCaseSchemaScreen(),
         body: [
           const _Para(
               'Loose seafood at the full-service counter has no package to scan — it is governed by a USDA AMS placard, not an FDA package label, and whether any disclosure exists depends on the venue. This is the field schema FAT uses to capture it: what to read off the sign, how each field is normalized, and how confidence is assigned so the App never confirms more than a photo can prove.'),
@@ -1686,7 +1694,9 @@ void openServiceCaseLearnTopic(BuildContext context) {
       .firstWhere((t) => t.title == 'Service-Case Capture Schema');
   Navigator.push(
     context,
-    MaterialPageRoute(builder: (_) => _LearnDetailScreen(topic: topic)),
+    MaterialPageRoute(
+      builder: topic.screenBuilder ?? (_) => _LearnDetailScreen(topic: topic),
+    ),
   );
 }
 
@@ -1833,7 +1843,10 @@ class LearnScreen extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => _LearnDetailScreen(topic: topic)),
+          MaterialPageRoute(
+            builder:
+                topic.screenBuilder ?? (_) => _LearnDetailScreen(topic: topic),
+          ),
         );
       },
       child: Padding(

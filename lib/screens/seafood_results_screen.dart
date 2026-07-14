@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../widgets/label_image_viewer.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,7 @@ import '../theme/fat_theme.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
 import '../services/processor_service.dart';
+import '../widgets/share_card_renderer.dart';
 
 /// Seafood scan result screen — Flutter port of iOS SeafoodResultsView.
 ///
@@ -238,12 +240,16 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
         scrollDirection: Axis.horizontal,
         itemCount: _panelPaths.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (_, i) => ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.file(File(_panelPaths[i]),
-              height: 200,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const SizedBox.shrink()),
+        itemBuilder: (_, i) => GestureDetector(
+          onTap: () =>
+              LabelImageViewer.open(context, _panelPaths, initialIndex: i),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(File(_panelPaths[i]),
+                height: 200,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => const SizedBox.shrink()),
+          ),
         ),
       ),
     );
@@ -858,6 +864,16 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   }
 
   Future<void> _share() async {
+    // Primary path: render the disclosure card to a PNG and share the image.
+    final shared = await shareDisclosureCard(
+      context,
+      result,
+      shareText:
+          'FAT Seafood Evaluation — discloses ${result.knownCount} of $_seafoodTotal transparency categories. farmanimaltransparency.com',
+    );
+    if (shared) return;
+
+    // Fallback: the original text / mailto share when image rendering fails.
     final subject =
         Uri.encodeComponent('FAT Seafood Evaluation');
     final body = Uri.encodeComponent(_summaryText());

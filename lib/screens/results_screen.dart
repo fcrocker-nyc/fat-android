@@ -10,7 +10,9 @@ import '../services/scan_store.dart';
 import '../services/epa_service.dart';
 import '../services/processor_service.dart';
 import '../services/feedlot_proximity_service.dart';
+import '../widgets/share_card_renderer.dart';
 import 'certification_result_cards.dart';
+import '../widgets/label_image_viewer.dart';
 
 /// Meat / poultry scan result screen — Flutter port of iOS ResultsView.
 /// Mirrors the spec section-by-section (A1–A11), constrained to the fields
@@ -254,13 +256,17 @@ class _ResultsScreenState extends State<ResultsScreen> {
         scrollDirection: Axis.horizontal,
         itemCount: _panelPaths.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
-        itemBuilder: (_, i) => ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image.file(
-            File(_panelPaths[i]),
-            height: 200,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => const SizedBox.shrink(),
+        itemBuilder: (_, i) => GestureDetector(
+          onTap: () => LabelImageViewer.open(context, _panelPaths,
+              initialIndex: i),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.file(
+              File(_panelPaths[i]),
+              height: 200,
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => const SizedBox.shrink(),
+            ),
           ),
         ),
       ),
@@ -1237,6 +1243,16 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Future<void> _share() async {
+    // Primary path: render the disclosure card to a PNG and share the image.
+    final shared = await shareDisclosureCard(
+      context,
+      result,
+      shareText:
+          'FAT Label Analysis — discloses ${result.knownCount} of 16 transparency categories. farmanimaltransparency.com',
+    );
+    if (shared) return;
+
+    // Fallback: the original text / mailto share when image rendering fails.
     final subject = Uri.encodeComponent(
         'FAT Label Analysis — discloses ${result.knownCount} of 16 categories');
     final body = Uri.encodeComponent(_summaryText());

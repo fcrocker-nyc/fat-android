@@ -98,8 +98,8 @@ class _FloatingFATTabBar extends StatelessWidget {
 
   const _FloatingFATTabBar({required this.selectedIndex, required this.onTap});
 
-  // Mirrors iOS ContentView TabView — standard bottom tab bar, filled icons,
-  // green accent on the selected tab.
+  // Floating rounded tab bar — matches the iOS 26 system TabView, which
+  // renders as a floating capsule above the home indicator (not a flat bar).
   static const _items = [
     (Icons.home_filled, 'Home'),
     (Icons.camera_alt, 'Scan'),
@@ -110,43 +110,51 @@ class _FloatingFATTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        border: Border(top: BorderSide(color: Color(0xFFE0E0E0), width: 0.5)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 56,
-          child: Row(
-            children: List.generate(_items.length, (index) {
-              final selected = selectedIndex == index;
-              final item = _items[index];
-              final color =
-                  selected ? FATTheme.scanGreen : const Color(0xFF8E8E93);
-              return Expanded(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onTap: () => onTap(index),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(item.$1, size: 26, color: color),
-                      const SizedBox(height: 2),
-                      Text(
-                        item.$2,
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: color),
-                      ),
-                    ],
-                  ),
+    return SafeArea(
+      top: false,
+      child: Container(
+        height: 64,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.94),
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: const Color(0x11000000)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.10),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          children: List.generate(_items.length, (index) {
+            final selected = selectedIndex == index;
+            final item = _items[index];
+            final color =
+                selected ? FATTheme.scanGreen : const Color(0xFF8E8E93);
+            return Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => onTap(index),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(item.$1, size: 25, color: color),
+                    const SizedBox(height: 2),
+                    Text(
+                      item.$2,
+                      style: TextStyle(
+                          fontSize: 10,
+                          fontWeight:
+                              selected ? FontWeight.w700 : FontWeight.w500,
+                          color: color),
+                    ),
+                  ],
                 ),
-              );
-            }),
-          ),
+              ),
+            );
+          }),
         ),
       ),
     );
