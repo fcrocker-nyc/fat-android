@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import '../models/fat_models.dart';
 import '../interpreter/label_interpreter.dart';
@@ -79,6 +81,10 @@ class _ScanScreenState extends State<ScanScreen> {
         return;
       }
 
+      // Copy the photo out of the picker's temp cache into app documents so it
+      // survives to History (falls back to the temp path if the copy fails).
+      final imgPath = await _persistImage(xFile.path);
+
       // Route by product type: seafood labels go to the seafood pipeline,
       // everything else to the meat pipeline.
       final bool isSeafood = SeafoodInterpreter.isSeafood(scannedText);
@@ -93,6 +99,7 @@ class _ScanScreenState extends State<ScanScreen> {
           isSiluriformes: si.isSiluriformes,
           productionMethod: si.productionMethod,
           detectedEstablishmentNumber: si.detectedEstablishmentNumber,
+          imagePaths: [imgPath],
         );
       } else {
         final categories = LabelInterpreter.interpret(scannedText);
@@ -106,6 +113,7 @@ class _ScanScreenState extends State<ScanScreen> {
           categories: categories,
           detectedEstablishmentNumber: estNumber,
           estMissing: isMeat && estNumber == null,
+          imagePaths: [imgPath],
         );
       }
 
@@ -116,14 +124,32 @@ class _ScanScreenState extends State<ScanScreen> {
         context,
         MaterialPageRoute(
           builder: (_) => isSeafood
-              ? SeafoodResultsScreen(result: fatResult, imagePaths: [xFile.path])
-              : ResultsScreen(result: fatResult, imagePaths: [xFile.path]),
+              ? SeafoodResultsScreen(result: fatResult)
+              : ResultsScreen(result: fatResult),
         ),
       );
     } catch (e) {
       setState(() => _errorMessage = 'Error processing image: $e');
     } finally {
       if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
+  /// Copy a picker temp file into the app's documents dir (scans/) so the
+  /// thumbnail survives after the OS clears the image cache. Returns the new
+  /// path, or the original temp path if the copy fails (still works in-session).
+  Future<String> _persistImage(String tempPath) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final scans = Directory('${dir.path}/scans');
+      if (!await scans.exists()) await scans.create(recursive: true);
+      final ext = tempPath.contains('.') ? tempPath.split('.').last : 'jpg';
+      final dest =
+          '${scans.path}/${DateTime.now().millisecondsSinceEpoch}.$ext';
+      await File(tempPath).copy(dest);
+      return dest;
+    } catch (_) {
+      return tempPath;
     }
   }
 

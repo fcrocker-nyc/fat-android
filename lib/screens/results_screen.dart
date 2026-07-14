@@ -115,6 +115,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   FATResult get result => widget.result;
 
+  /// Panel image paths to show: the ones passed in this session if present,
+  /// else the paths persisted on the result (History re-open).
+  List<String> get _panelPaths =>
+      widget.imagePaths.isNotEmpty ? widget.imagePaths : widget.result.imagePaths;
+
   // ── Palette (spec section D) ───────────────────────────────────────────
   static const _disclosureGreen = Color(0xFF34A853); // ✓ disclosed
   static const _fatAmber = FATTheme.fatAmber; //         ⚠ partial / USDA-reviewed
@@ -208,7 +213,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: _withSpacing(18, [
               _header(),
-              if (widget.imagePaths.isNotEmpty) _imageCarousel(),
+              if (_panelPaths.isNotEmpty) _imageCarousel(),
               _atAGlanceCard(),
               ..._estWarnings(),
               _disclosureSummary(),
@@ -247,12 +252,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
       height: 200,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: widget.imagePaths.length,
+        itemCount: _panelPaths.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (_, i) => ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Image.file(
-            File(widget.imagePaths[i]),
+            File(_panelPaths[i]),
             height: 200,
             fit: BoxFit.cover,
             errorBuilder: (_, _, _) => const SizedBox.shrink(),

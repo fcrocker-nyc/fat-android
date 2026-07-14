@@ -226,6 +226,10 @@ class FATResult {
   final bool isSiluriformes;
   final SeafoodProductionMethod? productionMethod;
 
+  /// Persisted file paths of the photographed label panels (app documents dir),
+  /// so a scan re-opened from History still shows its images. Empty when none.
+  final List<String> imagePaths;
+
   FATResult({
     String? id,
     required this.scannedText,
@@ -240,6 +244,7 @@ class FATResult {
     this.seafoodCategories = const {},
     this.isSiluriformes = false,
     this.productionMethod,
+    this.imagePaths = const [],
   })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
         scannedAt = scannedAt ?? DateTime.now();
 

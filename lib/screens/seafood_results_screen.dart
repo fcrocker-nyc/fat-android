@@ -42,6 +42,9 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
 
   FATResult get result => widget.result;
 
+  List<String> get _panelPaths =>
+      widget.imagePaths.isNotEmpty ? widget.imagePaths : widget.result.imagePaths;
+
   @override
   void initState() {
     super.initState();
@@ -140,7 +143,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: _withSpacing(18, [
               _header(),
-              if (widget.imagePaths.isNotEmpty) _imageCarousel(),
+              if (_panelPaths.isNotEmpty) _imageCarousel(),
               _productTypeBanner(),
               _atAGlanceCard(),
               _disclosureSummary(),
@@ -233,11 +236,11 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
       height: 200,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: widget.imagePaths.length,
+        itemCount: _panelPaths.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (_, i) => ClipRRect(
           borderRadius: BorderRadius.circular(12),
-          child: Image.file(File(widget.imagePaths[i]),
+          child: Image.file(File(_panelPaths[i]),
               height: 200,
               fit: BoxFit.cover,
               errorBuilder: (_, _, _) => const SizedBox.shrink()),
