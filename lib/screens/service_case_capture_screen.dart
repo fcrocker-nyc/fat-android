@@ -168,8 +168,8 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
                   label: const Text('Capture Placard',
                       style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: FATTheme.primaryGreen,
-                    foregroundColor: Colors.black,
+                    backgroundColor: FATTheme.scanGreen,
+                    foregroundColor: Colors.white,
                     minimumSize: const Size.fromHeight(58),
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),

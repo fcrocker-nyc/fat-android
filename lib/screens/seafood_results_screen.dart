@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -18,7 +19,10 @@ import '../services/epa_service.dart';
 /// method / siluriformes data is unavailable from the current model.
 class SeafoodResultsScreen extends StatefulWidget {
   final FATResult result;
-  const SeafoodResultsScreen({super.key, required this.result});
+  /// Photographed label panels for this session (shown as a top carousel).
+  final List<String> imagePaths;
+  const SeafoodResultsScreen(
+      {super.key, required this.result, this.imagePaths = const []});
 
   @override
   State<SeafoodResultsScreen> createState() => _SeafoodResultsScreenState();
@@ -125,6 +129,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: _withSpacing(18, [
               _header(),
+              if (widget.imagePaths.isNotEmpty) _imageCarousel(),
               _productTypeBanner(),
               _atAGlanceCard(),
               _disclosureSummary(),
@@ -147,6 +152,24 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   }
 
   // ── B1. Header ─────────────────────────────────────────────────────────
+  Widget _imageCarousel() {
+    return SizedBox(
+      height: 200,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: widget.imagePaths.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (_, i) => ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.file(File(widget.imagePaths[i]),
+              height: 200,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => const SizedBox.shrink()),
+        ),
+      ),
+    );
+  }
+
   Widget _header() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

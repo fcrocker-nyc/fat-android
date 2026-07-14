@@ -194,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 12),
             child: Text(
-              'We score disclosure, not the product — nothing for a brand to buy its way out of.',
+              'We report disclosure, not the product — nothing for a brand to buy its way out of.',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 12,

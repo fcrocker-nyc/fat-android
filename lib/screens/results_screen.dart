@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -7,6 +8,8 @@ import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
+import '../services/processor_service.dart';
+import '../services/feedlot_proximity_service.dart';
 import 'certification_result_cards.dart';
 
 /// Meat / poultry scan result screen — Flutter port of iOS ResultsView.
@@ -14,7 +17,12 @@ import 'certification_result_cards.dart';
 /// that actually exist on FATResult / FATCategoryResult.
 class ResultsScreen extends StatefulWidget {
   final FATResult result;
-  const ResultsScreen({super.key, required this.result});
+  /// File paths of the label panels the user photographed this session. Shown
+  /// as a carousel at the top, matching iOS. Empty when opened from History
+  /// (images are not persisted across sessions).
+  final List<String> imagePaths;
+  const ResultsScreen(
+      {super.key, required this.result, this.imagePaths = const []});
 
   @override
   State<ResultsScreen> createState() => _ResultsScreenState();
@@ -28,12 +36,51 @@ class _ResultsScreenState extends State<ResultsScreen> {
   bool _oshaViolation = false;
   // EPA environmental-enforcement penalty (Cat 7), set after the jsDelivr fetch.
   bool _epaViolation = false;
+  // FSIS public enforcement record fetched from the FAT backend (recalls,
+  // humane-handling, Salmonella category, residues). Null until it loads.
+  ProcessorRecord? _processor;
+  bool _processorLoading = true;
+  // Nearby EPA-ECHO CAFO/feedlot violators (beef → feedlots 50mi; pork → hog
+  // CAFOs 75mi). Fetched once the processor record supplies coordinates.
+  ProximityResult? _proximity;
+  String _proximityKind = ''; // 'feedlot' | 'hog CAFO'
 
   @override
   void initState() {
     super.initState();
     _loadOshaPenalty();
     _loadEpaPenalty();
+    _loadProcessorRecord();
+  }
+
+  Future<void> _loadProcessorRecord() async {
+    final rec =
+        await ProcessorService.fetch(result.detectedEstablishmentNumber);
+    if (mounted) {
+      setState(() {
+        _processor = rec;
+        _processorLoading = false;
+      });
+    }
+    // Chain the environmental-proximity lookup off the processor's coordinates.
+    if (rec?.lat != null && rec?.lon != null) {
+      final sp = rec!.primarySpecies.toLowerCase();
+      ProximityResult? prox;
+      String kind = '';
+      if (sp.contains('beef') || sp.contains('cattle')) {
+        prox = await FeedlotProximityService.feedlot(rec.lat!, rec.lon!);
+        kind = 'feedlot';
+      } else if (sp.contains('pork') || sp.contains('hog') || sp.contains('swine')) {
+        prox = await FeedlotProximityService.hog(rec.lat!, rec.lon!);
+        kind = 'hog CAFO';
+      }
+      if (prox != null && mounted) {
+        setState(() {
+          _proximity = prox;
+          _proximityKind = kind;
+        });
+      }
+    }
   }
 
   Future<void> _loadEpaPenalty() async {
@@ -161,10 +208,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: _withSpacing(18, [
               _header(),
+              if (widget.imagePaths.isNotEmpty) _imageCarousel(),
               _atAGlanceCard(),
               ..._estWarnings(),
               _disclosureSummary(),
               if (result.detectedEstablishmentNumber != null) _processorSection(),
+              if (_proximity != null) _proximitySection(),
               _categorySection(),
               // Certification result cards (grass-fed / welfare cert / pasture /
               // regenerative) — each renders only when detected on the label.
@@ -190,6 +239,27 @@ class _ResultsScreenState extends State<ResultsScreen> {
       if (i != children.length - 1) out.add(SizedBox(height: gap));
     }
     return out;
+  }
+
+  /// Scanned label panels, horizontally scrollable (mirrors iOS imageSection).
+  Widget _imageCarousel() {
+    return SizedBox(
+      height: 200,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: widget.imagePaths.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (_, i) => ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image.file(
+            File(widget.imagePaths[i]),
+            height: 200,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          ),
+        ),
+      ),
+    );
   }
 
   // ── A1. Header ─────────────────────────────────────────────────────────
@@ -619,6 +689,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
                 ),
               ],
+              _enforcementBlock(),
               const SizedBox(height: 12),
               GestureDetector(
                 onTap: () => _openUrl(
@@ -639,6 +710,236 @@ class _ResultsScreenState extends State<ResultsScreen> {
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  /// Nearby feedlot / hog-CAFO environmental compliance (EPA ECHO). Mirrors iOS
+  /// feedlotProximitySection / hogProximitySection.
+  Widget _proximitySection() {
+    final p = _proximity!;
+    final title = _proximityKind == 'hog CAFO'
+        ? 'Nearby Hog Farm Compliance'
+        : 'Nearby Feedlot Compliance';
+    final mapUrl = _proximityKind == 'hog CAFO'
+        ? 'https://farmanimaltransparency.com/pork-supply-chain/pork-enforcement-map/'
+        : 'https://farmanimaltransparency.com/beef-supply-chain/feedlot-enforcement-map/';
+    Color tierColor(String t) => switch (t) {
+          'red' => const Color(0xFFDC2626),
+          'orange' => const Color(0xFFEA580C),
+          _ => const Color(0xFFCA8A04),
+        };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+              color: _fatGreen, borderRadius: BorderRadius.circular(16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!p.hasNearby)
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Padding(
+                      padding: EdgeInsets.only(top: 1),
+                      child: Icon(Icons.verified_outlined,
+                          size: 16, color: FATTheme.scanGreen)),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                        'No EPA-flagged $_proximityKind operations with environmental violations within ${p.radiusMiles} miles of this plant.',
+                        style: const TextStyle(fontSize: 13.5)),
+                  ),
+                ])
+              else ...[
+                Text(
+                    '${p.total} $_proximityKind operation${p.total > 1 ? 's' : ''} with environmental violations within ${p.radiusMiles} miles:',
+                    style: const TextStyle(
+                        fontSize: 13.5, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
+                Row(children: [
+                  _tierPill('${p.red} formal', tierColor('red')),
+                  const SizedBox(width: 6),
+                  _tierPill('${p.orange} significant', tierColor('orange')),
+                  const SizedBox(width: 6),
+                  _tierPill('${p.yellow} other', tierColor('yellow')),
+                ]),
+                for (final v in p.violators.take(5)) ...[
+                  const SizedBox(height: 10),
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                                color: tierColor(v.tier),
+                                shape: BoxShape.circle))),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                                '${v.name.isEmpty ? v.permitId : v.name} · ${v.distanceMiles.toStringAsFixed(1)} mi',
+                                style: const TextStyle(
+                                    fontSize: 13.5,
+                                    fontWeight: FontWeight.w800)),
+                            Text('${v.tierLabel} — ${v.violationSummary}',
+                                style: const TextStyle(fontSize: 12.5)),
+                          ]),
+                    ),
+                  ]),
+                ],
+              ],
+              const SizedBox(height: 12),
+              GestureDetector(
+                onTap: () => _openUrl(mapUrl),
+                child: const Row(mainAxisSize: MainAxisSize.min, children: [
+                  Icon(Icons.map_outlined, size: 16, color: Colors.blue),
+                  SizedBox(width: 6),
+                  Text('View the enforcement map on FAT website',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue)),
+                ]),
+              ),
+              if (p.dataDate.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 6),
+                  child: Text('${p.dataSource} · ${p.dataDate}',
+                      style: TextStyle(
+                          fontSize: 11, color: Colors.black.withValues(alpha: 0.55))),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _tierPill(String label, Color color) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration:
+            BoxDecoration(color: color, borderRadius: BorderRadius.circular(20)),
+        child: Text(label,
+            style: const TextStyle(
+                fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
+      );
+
+  /// FSIS public enforcement record (recalls, humane-handling, Salmonella
+  /// category, residues) fetched from the FAT backend. Food-safety public
+  /// record — kept distinct from the OSHA worker-safety axis.
+  Widget _enforcementBlock() {
+    if (_processorLoading) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 12),
+        child: Row(children: [
+          SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(
+                  strokeWidth: 2, color: FATTheme.scanGreen)),
+          SizedBox(width: 8),
+          Text('Checking FSIS public record…',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+        ]),
+      );
+    }
+    final p = _processor;
+    if (p == null) return const SizedBox.shrink();
+
+    final asOf = p.generatedDate != null ? ' (as of ${p.generatedDate})' : '';
+    final rows = <Widget>[];
+
+    Widget line(IconData icon, Color color, String label, String detail) =>
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Icon(icon, size: 16, color: color)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  style: const TextStyle(fontSize: 13.5, color: Colors.black),
+                  children: [
+                    TextSpan(
+                        text: '$label  ',
+                        style: const TextStyle(fontWeight: FontWeight.w800)),
+                    TextSpan(text: detail),
+                  ],
+                ),
+              ),
+            ),
+          ]),
+        );
+
+    if (p.hasRecalls) {
+      rows.add(line(Icons.warning_amber_rounded, const Color(0xFFC0392B),
+          'Recalls', '${p.recallCount} on record'));
+    }
+    final hh = p.humaneHandling;
+    if (hh.isNotEmpty) {
+      final top = hh.first;
+      final detail = top.taskName.isNotEmpty
+          ? '${hh.length} noncompliance record(s) — e.g. ${top.taskName}${top.regs.isNotEmpty ? ' (9 CFR ${top.regs})' : ''}'
+          : '${hh.length} noncompliance record(s)';
+      rows.add(line(Icons.pets, const Color(0xFFEF8A2B), 'Humane handling',
+          detail));
+    }
+    if (p.salmonellaCategory != null) {
+      rows.add(line(Icons.science_outlined, const Color(0xFFEF8A2B),
+          'Salmonella category', p.salmonellaCategory!));
+    }
+    if (p.hasResidues) {
+      rows.add(line(Icons.biotech_outlined, const Color(0xFFC0392B),
+          'Chemical residue', '${p.residueCount} violation(s) on record'));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 14),
+        const Divider(height: 1, color: Colors.black26),
+        const SizedBox(height: 10),
+        const Text('FSIS Public Record',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+        if (rows.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Padding(
+                  padding: EdgeInsets.only(top: 1),
+                  child: Icon(Icons.verified_outlined,
+                      size: 16, color: FATTheme.scanGreen)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Clean record — no recalls, humane-handling actions, or residue violations on file$asOf.',
+                  style: const TextStyle(fontSize: 13.5),
+                ),
+              ),
+            ]),
+          )
+        else ...[
+          ...rows,
+          if (asOf.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text('FSIS data$asOf.',
+                  style: TextStyle(
+                      fontSize: 11.5, color: Colors.black.withValues(alpha: 0.55))),
+            ),
+        ],
       ],
     );
   }

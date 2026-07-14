@@ -634,7 +634,7 @@ class _LookupScreenState extends State<LookupScreen> {
           height: 52,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: FATTheme.primaryGreen,
+            color: FATTheme.scanGreen,
             borderRadius: BorderRadius.circular(12),
           ),
           child: _isLoading
@@ -642,12 +642,12 @@ class _LookupScreenState extends State<LookupScreen> {
                   width: 22,
                   height: 22,
                   child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.black))
+                      strokeWidth: 2, color: Colors.white))
               : Text(label,
                   style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black)),
+                      color: Colors.white)),
         ),
       ),
     );

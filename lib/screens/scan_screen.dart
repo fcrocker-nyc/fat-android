@@ -116,8 +116,8 @@ class _ScanScreenState extends State<ScanScreen> {
         context,
         MaterialPageRoute(
           builder: (_) => isSeafood
-              ? SeafoodResultsScreen(result: fatResult)
-              : ResultsScreen(result: fatResult),
+              ? SeafoodResultsScreen(result: fatResult, imagePaths: [xFile.path])
+              : ResultsScreen(result: fatResult, imagePaths: [xFile.path]),
         ),
       );
     } catch (e) {
@@ -177,8 +177,8 @@ class _ScanScreenState extends State<ScanScreen> {
                     style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: FATTheme.primaryGreen,
-                    foregroundColor: Colors.black,
+                    backgroundColor: FATTheme.scanGreen,
+                    foregroundColor: Colors.white,
                     minimumSize: const Size.fromHeight(66),
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -200,8 +200,8 @@ class _ScanScreenState extends State<ScanScreen> {
                     style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: FATTheme.primaryGreen,
-                    foregroundColor: Colors.black,
+                    backgroundColor: FATTheme.scanGreen,
+                    foregroundColor: Colors.white,
                     elevation: 0,
                     minimumSize: const Size.fromHeight(52),
                     shape: RoundedRectangleBorder(
