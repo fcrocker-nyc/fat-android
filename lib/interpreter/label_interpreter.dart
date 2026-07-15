@@ -552,8 +552,76 @@ class LabelInterpreter {
 
   // ── Age at Slaughter ─────────────────────────────────────────────────────
 
+  // USDA 9 CFR 381.170 poultry class terms set a legal age ceiling and are
+  // the only age-linked fact on most chicken labels. Credibility is usdaApproved.
+  // Typical commercial broiler slaughter: ~47 days (NCC 2024 Broiler Performance Report).
   static FATCategoryResult _detectAgeAtSlaughter(String text) {
-    for (final k in ['young', 'mature', 'veal', 'lamb']) {
+    final hasChickenContext = text.contains('chicken') || text.contains('broiler') ||
+        text.contains('fryer') || text.contains('roaster') || text.contains('roasting') ||
+        text.contains('capon') || text.contains('stewing hen') || text.contains('fowl') ||
+        text.contains('cornish') || text.contains('baking hen');
+
+    if (hasChickenContext) {
+      if (text.contains('cornish game hen') || text.contains('cornish hen')) {
+        return FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Cornish Game Hen — < 5 weeks old (9 CFR 381.170)',
+          credibility: ClaimCredibility.usdaApproved,
+          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Class name sets a legal ceiling on age.',
+        );
+      }
+      if (text.contains('stewing hen') || text.contains('stewing chicken') ||
+          text.contains('baking hen') || text.contains('baking chicken')) {
+        return FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Stewing Hen / Fowl — ≥ 10 months old (9 CFR 381.170)',
+          credibility: ClaimCredibility.usdaApproved,
+          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Indicates a spent laying hen, typically 12–18 months at slaughter.',
+        );
+      }
+      if (text.contains('fowl')) {
+        return FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Fowl — ≥ 10 months old (9 CFR 381.170)',
+          credibility: ClaimCredibility.usdaApproved,
+          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Mature poultry; indicates a spent laying hen.',
+        );
+      }
+      if (text.contains('capon')) {
+        return FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Capon — < 4 months old (9 CFR 381.170)',
+          credibility: ClaimCredibility.usdaApproved,
+          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Surgically unsexed male chicken, under 4 months at slaughter.',
+        );
+      }
+      if (text.contains('roaster') || text.contains('roasting chicken')) {
+        return FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Roaster — < 12 weeks old (9 CFR 381.170)',
+          credibility: ClaimCredibility.usdaApproved,
+          credibilityNote: 'USDA standard of identity — 9 CFR 381.170, as amended 81 FR 21709 (2016). Typical commercial roaster slaughter: 8–10 weeks.',
+        );
+      }
+      if (text.contains('broiler') || text.contains('fryer')) {
+        return FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Broiler / Fryer — < 10 weeks old (9 CFR 381.170)',
+          credibility: ClaimCredibility.usdaApproved,
+          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Typical commercial slaughter age is ~47 days (NCC 2024 Broiler Performance Report).',
+        );
+      }
+      return FATCategoryResult.missing;
+    }
+
+    // Non-poultry
+    if (text.contains('veal')) {
+      return FATCategoryResult(status: DisclosureStatus.partial, value: 'Veal (bovine calf, typically < 6 months)');
+    }
+    if (text.contains('lamb')) {
+      return FATCategoryResult(status: DisclosureStatus.partial, value: 'Lamb (< 1 year)');
+    }
+    for (final k in ['young', 'mature']) {
       if (text.contains(k)) {
         return FATCategoryResult(status: DisclosureStatus.partial, value: _capitalize(k));
       }
