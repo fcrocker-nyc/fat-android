@@ -848,6 +848,25 @@ final List<_LearnSection> _sections = <_LearnSection>[
       ),
       // 2.5
       _LearnTopic(
+        title: 'Chicken Age at Slaughter: What the Label Actually Tells You',
+        subtitle: 'USDA poultry class names, 9 CFR 381.170, and the 47-day reality',
+        body: _text(
+            'The class name on a chicken label — Broiler, Fryer, Roaster, Cornish Game Hen — is the only age-linked fact on most packages that is backed by a federal standard of identity. But it sets a ceiling, not a floor.\n\n'
+            'USDA 9 CFR 381.170 defines each class:\n\n'
+            '• Cornish Game Hen — less than 5 weeks old, or less than 2 lb ready-to-cook weight\n'
+            '• Broiler or Fryer — less than 10 weeks old\n'
+            '• Roaster — less than 12 weeks old (weight standard removed, 2016)\n'
+            '• Capon — less than 4 months old; surgically unsexed male\n'
+            '• Stewing Hen, Fowl, or Baking Hen — 10 months or older (a spent laying hen)\n\n'
+            'The ceiling is real federal law. The actual slaughter age is not disclosed.\n\n'
+            'In practice, the gap matters a lot. The National Chicken Council\'s annual Broiler Performance Report shows that average commercial slaughter age has fallen from 112 days in 1925 to 47.4 days in 2024. A label saying "Broiler" legally means "under 70 days" — the typical bird is closer to 47. The compression is driven by selective breeding for growth rate, not feed or management alone: a 2014 University of Alberta study (Zuidhof et al., Poultry Science 93:12) found that the modern broiler strain grows to market weight more than 400% faster than the 1957 strain raised under identical conditions.\n\n'
+            'The Stewing Hen class is a different supply chain entirely. These birds are not raised for meat — they are egg-production hens removed from laying flocks when output declines, typically at 12 to 18 months.\n\n'
+            'How FAT reads it:\n'
+            'FAT scores a class-name disclosure as Known under the USDA-Reviewed credibility tier. The term is a standard of identity enforced by FSIS — the ceiling is legally binding. But the result card states explicitly that the class name is a ceiling, not the actual age, and displays the NCC 47-day industry benchmark. A label bearing only "chicken breast" or "chicken thighs" with no class term scores Missing on Category 6.\n\n'
+            'Source: 9 CFR 381.170; 76 FR 68064 (final rule, eff. Jan 1, 2014); 81 FR 21709 (2016 amendment); NCC 2024 Broiler Performance Report; Zuidhof et al. 2014, Poultry Science 93(12):2970–2982.'),
+      ),
+      // 2.6 (was 2.5)
+      _LearnTopic(
         title: 'Country of Origin Claims',
         subtitle: 'Born, raised, and processed distinctions',
         body: _text(
