@@ -980,14 +980,16 @@ class _ResultsScreenState extends State<ResultsScreen> {
       children: [
         _epaViolation
             ? row(Icons.warning_amber_rounded, const Color(0xFFEA580C),
-                'EPA (ECHO) environmental violations on record')
+                'EPA (ECHO) environmental violations in the last 3 years (12 quarters)')
             : row(Icons.verified_user_outlined, FATTheme.scanGreen,
-                'No EPA (ECHO) environmental violations on file'),
+                'No EPA (ECHO) environmental violations in the last 3 years (12 quarters)'),
+        // OSHA data is the plant's full matched DOL enforcement history (not a
+        // fixed rolling window) — say "full record on file," not "last N years."
         _oshaViolation
             ? row(Icons.warning_amber_rounded, const Color(0xFFEA580C),
                 'OSHA worker-safety violations on record')
             : row(Icons.verified_user_outlined, FATTheme.scanGreen,
-                'No OSHA worker-safety violations on file'),
+                'No OSHA worker-safety violations in the full record on file'),
       ],
     );
   }
