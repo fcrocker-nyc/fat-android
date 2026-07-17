@@ -16,7 +16,14 @@ class LabelInterpreter {
     final country         = _detectCountryOrigin(normalized);
     final farm            = _detectFarmRanch(normalized);
     final intermediary    = _detectSupplyChainIntermediary(normalized);
-    final processor       = const FATCategoryResult(status: DisclosureStatus.missing);
+    // Processor is Known when an establishment number is present on the label —
+    // the EST number IS the disclosure of the federally inspected plant
+    // (mirrors iOS LabelInterpreter.detectProcessor).
+    final processor       = extractEstablishmentNumber(normalized) != null
+        ? const FATCategoryResult(
+            status: DisclosureStatus.known,
+            value: 'Establishment number disclosed on label')
+        : const FATCategoryResult(status: DisclosureStatus.missing);
     var feed              = _applyFeedSpeciesGate(_detectFeed(normalized), species.value);
     // Fold pasture / regenerative sub-claims into Feed (mirrors iOS): a
     // "pasture raised" or "regenerative" label still credits the Feed category.

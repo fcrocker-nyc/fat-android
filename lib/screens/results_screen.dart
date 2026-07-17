@@ -701,6 +701,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 ),
               ],
               _enforcementBlock(),
+              _regulatorStatusRows(),
               const SizedBox(height: 12),
               GestureDetector(
                 onTap: () => _openUrl(
@@ -951,6 +952,42 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       fontSize: 11.5, color: Colors.black.withValues(alpha: 0.55))),
             ),
         ],
+      ],
+    );
+  }
+
+  /// Always-visible EPA (ECHO) + OSHA status for the plant. Separate regulatory
+  /// axes from FSIS food-safety enforcement — each is stated explicitly so a
+  /// clean plant reads "no violations on file" rather than an ambiguous blank
+  /// (mirrors iOS ResultsView.regulatorStatusRows).
+  Widget _regulatorStatusRows() {
+    Widget row(IconData icon, Color color, String text) => Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Icon(icon, size: 16, color: color)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(text,
+                  style: const TextStyle(
+                      fontSize: 13.5, fontWeight: FontWeight.w600)),
+            ),
+          ]),
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _epaViolation
+            ? row(Icons.warning_amber_rounded, const Color(0xFFEA580C),
+                'EPA (ECHO) environmental violations on record')
+            : row(Icons.verified_user_outlined, FATTheme.scanGreen,
+                'No EPA (ECHO) environmental violations on file'),
+        _oshaViolation
+            ? row(Icons.warning_amber_rounded, const Color(0xFFEA580C),
+                'OSHA worker-safety violations on record')
+            : row(Icons.verified_user_outlined, FATTheme.scanGreen,
+                'No OSHA worker-safety violations on file'),
       ],
     );
   }
