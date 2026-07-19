@@ -27,15 +27,36 @@ class LabelInterpreter {
     var feed              = _applyFeedSpeciesGate(_detectFeed(normalized), species.value);
     // Fold pasture / regenerative sub-claims into Feed (mirrors iOS): a
     // "pasture raised" or "regenerative" label still credits the Feed category.
-    if (feed.status == DisclosureStatus.missing) {
+    // Also fold when feed is `partial`: an unqualified "grass-fed" earns no
+    // credit, but a pasture / regenerative claim on the same label can still earn
+    // the category on its own. When that happens, keep the reason the grass claim
+    // was uncredited so the explanation isn't lost. Mirrors iOS buildFeedResult.
+    if (feed.status == DisclosureStatus.missing ||
+        feed.status == DisclosureStatus.partial) {
+      final uncreditedWhy =
+          feed.status == DisclosureStatus.partial ? feed.credibilityNote : null;
       final pasture = _detectPasture(normalized);
       final regen = _detectRegenerative(normalized);
+      FATCategoryResult? earned;
       if (pasture.status == DisclosureStatus.known ||
           pasture.status == DisclosureStatus.partial) {
-        feed = pasture;
+        earned = pasture;
       } else if (regen.status == DisclosureStatus.known ||
           regen.status == DisclosureStatus.partial) {
-        feed = regen;
+        earned = regen;
+      }
+      if (earned != null) {
+        feed = uncreditedWhy == null
+            ? earned
+            : FATCategoryResult(
+                status: earned.status,
+                value: earned.value,
+                credibility: earned.credibility,
+                credibilityNote: [
+                  if (earned.credibilityNote != null) earned.credibilityNote!,
+                  uncreditedWhy,
+                ].join(' | '),
+              );
       }
     }
     final welfare         = _detectAnimalWelfare(normalized);
@@ -342,9 +363,82 @@ class LabelInterpreter {
 
   // ── Feed ─────────────────────────────────────────────────────────────────
 
+  /// FAT's grass rule: **"grass-fed" alone earns no credit.**
+  ///
+  /// Nearly every US beef animal is grass-fed for most of its life and then
+  /// finished on grain — conventional beef IS "grass-fed, grain-finished" — so an
+  /// unqualified "grass-fed" describes the default production system rather than
+  /// distinguishing the product. It is recognized and explained, but returned as
+  /// `partial`, which is excluded from the disclosure meter's known count.
+  /// Credit requires **100% grass-fed** or **grass-fed AND grass-finished**.
+  /// Mirrors iOS LabelInterpreter.detectFeed.
   static FATCategoryResult _detectFeed(String text) {
+    final hasGrass = text.contains('grass fed') || text.contains('grassfed');
+    final hasFinished =
+        text.contains('grass finished') || text.contains('grassfinished');
+    final has100 = const [
+      '100% grass fed', '100 percent grass fed',
+      '100% grassfed', '100 percent grassfed',
+    ].any(text.contains);
+    final hasGrain = text.contains('grain fed') ||
+        text.contains('grain finished') ||
+        text.contains('corn fed');
+
+    if (hasGrass || hasFinished) {
+      if (hasGrain && !has100) {
+        return const FATCategoryResult(
+          status: DisclosureStatus.partial,
+          value: 'Grass-fed with grain in the diet — no credit',
+          credibility: ClaimCredibility.labelClaimOnly,
+          credibilityNote:
+              'The label also discloses grain. FAT credits the feed category only '
+              'for 100% grass-fed, or grass-fed and grass-finished with no grain.',
+        );
+      }
+      if (has100) {
+        return const FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: '100% Grass-Fed',
+          credibility: ClaimCredibility.labelClaimOnly,
+          credibilityNote:
+              'Distinguishing claim: no grain at any stage. FSIS-approved on a '
+              'producer affidavit unless a third-party certifier (e.g. AGA, AGW) is shown.',
+        );
+      }
+      if (hasGrass && hasFinished) {
+        return const FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Grass-Fed & Grass-Finished',
+          credibility: ClaimCredibility.labelClaimOnly,
+          credibilityNote:
+              'Distinguishing claim: finished on forage, not grain. FSIS-approved '
+              'on a producer affidavit unless a third-party certifier is shown.',
+        );
+      }
+      if (hasFinished) {
+        return const FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Grass-Finished',
+          credibility: ClaimCredibility.labelClaimOnly,
+          credibilityNote:
+              'Distinguishing claim: finished on forage, not grain. FSIS-approved '
+              'on a producer affidavit unless a third-party certifier is shown.',
+        );
+      }
+      return const FATCategoryResult(
+        status: DisclosureStatus.partial,
+        value: 'Grass-Fed only — no credit',
+        credibility: ClaimCredibility.labelClaimOnly,
+        credibilityNote:
+            '"Grass-fed" alone does not distinguish this product: nearly all US '
+            'cattle are grass-fed before being grain-finished, so conventional beef '
+            'is also grass-fed. FAT credits this category only for "100% grass-fed" '
+            'or grass-fed AND grass-finished. The label does not say how the animal '
+            'was finished.',
+      );
+    }
+
     const patterns = <String, (String, ClaimCredibility, String)>{
-      'grass fed':      ('Grass Fed',      ClaimCredibility.labelClaimOnly,   'May require FSIS approval; verify documentation'),
       'grain fed':      ('Grain Fed',      ClaimCredibility.labelClaimOnly,   'No independent verification identified'),
       'vegetarian fed': ('Vegetarian Fed', ClaimCredibility.labelClaimOnly,   'No independent verification identified'),
       'corn fed':       ('Corn Fed',       ClaimCredibility.labelClaimOnly,   'No independent verification identified'),
@@ -359,13 +453,18 @@ class LabelInterpreter {
   }
 
   static FATCategoryResult _applyFeedSpeciesGate(FATCategoryResult feed, String? species) {
-    if (feed.status != DisclosureStatus.known) return feed;
+    // Accept partial too: an unqualified "grass-fed" is now partial (no credit),
+    // and the species-misuse warning must still fire for pork/poultry.
+    if (feed.status != DisclosureStatus.known &&
+        feed.status != DisclosureStatus.partial) {
+      return feed;
+    }
     final v = feed.value?.toLowerCase() ?? '';
     if (!v.contains('grass')) return feed;
     final s = species?.toLowerCase() ?? '';
     if (['pork', 'chicken', 'turkey'].contains(s)) {
       return FATCategoryResult(
-        status: DisclosureStatus.known,
+        status: feed.status,
         value: feed.value,
         credibility: ClaimCredibility.labelClaimOnly,
         credibilityNote: '"Grass-fed" is not an appropriate frame for $s. '
