@@ -333,6 +333,11 @@ List<_GrassFedClaimMatch> _detectGrassFed(String text) {
     final m = RegExp(pattern).firstMatch(text);
     if (m != null) {
       final pct = int.tryParse(m.group(1) ?? '') ?? 0;
+      // "100% grass fed" is the STRONGEST grass claim, not a partial one. Fall
+      // through so the generic detector classifies it as grassFed100; otherwise
+      // a 100% label reads as a "Partial Claim" telling the user the animal
+      // received grain — the opposite of what the label says.
+      if (pct >= 100) continue;
       claims.add(_GrassFedClaimMatch(
         claimType: _GrassFedClaimType.partialGrassFed,
         credibility: _GrassFedCredibility.partialClaim,
