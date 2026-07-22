@@ -363,78 +363,88 @@ class LabelInterpreter {
 
   // ── Feed ─────────────────────────────────────────────────────────────────
 
-  /// FAT's grass rule: **"grass-fed" alone earns no credit.**
+  /// Grass claims, per **FSIS Guideline FSIS-GD-2024-0006 (Aug 2024), "Diet Claims."**
+  /// Mirrors iOS LabelInterpreter.detectFeed — see that file for the full citation.
   ///
-  /// Nearly every US beef animal is grass-fed for most of its life and then
-  /// finished on grain — conventional beef IS "grass-fed, grain-finished" — so an
-  /// unqualified "grass-fed" describes the default production system rather than
-  /// distinguishing the product. It is recognized and explained, but returned as
-  /// `partial`, which is excluded from the disclosure meter's known count.
-  /// Credit requires **100% grass-fed** or **grass-fed AND grass-finished**.
-  /// Mirrors iOS LabelInterpreter.detectFeed.
+  /// • "Grass Fed, Grassfed, Grass-Fed and 100% Grass-Fed" are SYNONYMOUS to FSIS →
+  ///   one tier, never ranked against each other.
+  /// • Grass Fed = only (100%) forage after weaning, "never confined to a feedlot",
+  ///   continuous pasture access until slaughter → earns credit.
+  /// • "Grass Finished … is not synonymous with Grass Fed. Animals that are Grass
+  ///   Finished can be fed grain." → grass-finished alone earns nothing.
+  /// • Under-100% partial claims and mixed diets earn nothing.
+  ///
+  /// The weakness of an uncertified grass claim is verification (documentary review
+  /// at label approval, not an on-farm audit) — carried in the credibility tier.
   static FATCategoryResult _detectFeed(String text) {
-    final hasGrass = text.contains('grass fed') || text.contains('grassfed');
+    final hasGrassFed = text.contains('grass fed') || text.contains('grassfed');
     final hasFinished =
         text.contains('grass finished') || text.contains('grassfinished');
-    final has100 = const [
-      '100% grass fed', '100 percent grass fed',
-      '100% grassfed', '100 percent grassfed',
-    ].any(text.contains);
     final hasGrain = text.contains('grain fed') ||
         text.contains('grain finished') ||
+        text.contains('grain finish') ||
         text.contains('corn fed');
 
-    if (hasGrass || hasFinished) {
-      if (hasGrain && !has100) {
+    int? partialPercent;
+    for (final p in const [
+      r'(\d{1,3})\s*%\s*grass\s*fed',
+      r'(\d{1,3})\s*percent\s*grass\s*fed',
+      r'(\d{1,3})\s*%\s*grassfed',
+      r'(\d{1,3})\s*percent\s*grassfed',
+    ]) {
+      final m = RegExp(p).firstMatch(text);
+      final v = m == null ? null : int.tryParse(m.group(1) ?? '');
+      if (v != null && v < 100) {
+        partialPercent = v;
+        break;
+      }
+    }
+
+    if (hasGrassFed || hasFinished) {
+      if (partialPercent != null) {
+        return FATCategoryResult(
+          status: DisclosureStatus.partial,
+          value: '$partialPercent% grass fed — partial claim, no credit',
+          credibility: ClaimCredibility.labelClaimOnly,
+          credibilityNote:
+              'FSIS treats a diet under 100% forage as a partial Grass Fed claim that '
+              'must reflect the actual circumstances of raising. The animal ate grain, '
+              'so this does not earn the feed category.',
+        );
+      }
+      if (hasGrain) {
         return const FATCategoryResult(
           status: DisclosureStatus.partial,
-          value: 'Grass-fed with grain in the diet — no credit',
+          value: 'Mixed diet (grass + grain) — no credit',
           credibility: ClaimCredibility.labelClaimOnly,
           credibilityNote:
-              'The label also discloses grain. FAT credits the feed category only '
-              'for 100% grass-fed, or grass-fed and grass-finished with no grain.',
+              "The label also discloses grain. Under FSIS's Mixed Diet and Partially "
+              'Grass Fed guidance this is not a Grass Fed claim, so it does not earn '
+              'the feed category.',
         );
       }
-      if (has100) {
+      if (hasGrassFed) {
         return const FATCategoryResult(
           status: DisclosureStatus.known,
-          value: '100% Grass-Fed',
+          value: 'Grass Fed (100% forage)',
           credibility: ClaimCredibility.labelClaimOnly,
           credibilityNote:
-              'Distinguishing claim: no grain at any stage. FSIS-approved on a '
-              'producer affidavit unless a third-party certifier (e.g. AGA, AGW) is shown.',
-        );
-      }
-      if (hasGrass && hasFinished) {
-        return const FATCategoryResult(
-          status: DisclosureStatus.known,
-          value: 'Grass-Fed & Grass-Finished',
-          credibility: ClaimCredibility.labelClaimOnly,
-          credibilityNote:
-              'Distinguishing claim: finished on forage, not grain. FSIS-approved '
-              'on a producer affidavit unless a third-party certifier is shown.',
-        );
-      }
-      if (hasFinished) {
-        return const FATCategoryResult(
-          status: DisclosureStatus.known,
-          value: 'Grass-Finished',
-          credibility: ClaimCredibility.labelClaimOnly,
-          credibilityNote:
-              'Distinguishing claim: finished on forage, not grain. FSIS-approved '
-              'on a producer affidavit unless a third-party certifier is shown.',
+              'FSIS: "Grass Fed, Grassfed, Grass-Fed and 100% Grass-Fed" are synonymous '
+              '— cattle fed only forage after weaning, never confined to a feedlot, with '
+              'continuous pasture access until slaughter. Substantiated by documentation '
+              'at label approval, not an on-farm audit, unless a third-party certifier '
+              '(e.g. AGA, AGW) appears on the label.',
         );
       }
       return const FATCategoryResult(
         status: DisclosureStatus.partial,
-        value: 'Grass-Fed only — no credit',
+        value: 'Grass Finished only — no credit',
         credibility: ClaimCredibility.labelClaimOnly,
         credibilityNote:
-            '"Grass-fed" alone does not distinguish this product: nearly all US '
-            'cattle are grass-fed before being grain-finished, so conventional beef '
-            'is also grass-fed. FAT credits this category only for "100% grass-fed" '
-            'or grass-fed AND grass-finished. The label does not say how the animal '
-            'was finished.',
+            'FSIS: "Grass Finished … is not synonymous with Grass Fed. Animals that are '
+            'Grass Finished can be fed grain." Because grain is permitted earlier in '
+            'life, this claim does not earn the feed category. "Grass Fed" is the '
+            'stronger term.',
       );
     }
 
