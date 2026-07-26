@@ -596,6 +596,9 @@ class LabelInterpreter {
       'never ever antibiotics':    'Never Ever Antibiotics',
       'antibiotic free':           'Antibiotic Free',
       'no antibiotics':            'No Antibiotics',
+      'no added medications':      'No Added Medications',
+      'no medications':            'No Medications',
+      'medication free':           'Medication Free',
     };
     for (final entry in patterns.entries) {
       if (text.contains(entry.key)) {
