@@ -621,6 +621,7 @@ class LabelInterpreter {
       'no added hormones':        'No Added Hormones',
       'hormone free':             'Hormone Free',
       'raised without hormones':  'Raised Without Hormones',
+      'never ever hormones':      'Never Ever Hormones',
     };
     for (final entry in patterns.entries) {
       if (text.contains(entry.key)) {
