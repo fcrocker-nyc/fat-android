@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/fat_models.dart';
+import '../models/lookup_record.dart';
 
 /// Lightweight persistence for scan history — mirrors iOS ScanStore.
 /// Stores results as JSON in SharedPreferences.
@@ -9,6 +10,7 @@ class ScanStore {
   static final ScanStore instance = ScanStore._();
 
   static const _key = 'fat_scan_history';
+  static const _lookupKey = 'fat_lookup_history';
 
   Future<void> saveResult(FATResult result) async {
     final prefs = await SharedPreferences.getInstance();
@@ -35,6 +37,57 @@ class ScanStore {
   Future<void> deleteAll() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
+  }
+
+  // ── Lookup history ─────────────────────────────────────────────────────────
+
+  /// Records a lookup event to History. Newest first. Deduplicates against an
+  /// identical back-to-back search (same category + query + result) so
+  /// re-tapping Search without changing anything doesn't stack duplicates.
+  Future<void> saveLookup(LookupRecord record) async {
+    final prefs = await SharedPreferences.getInstance();
+    final existing = prefs.getStringList(_lookupKey) ?? [];
+    if (existing.isNotEmpty) {
+      try {
+        final last = LookupRecord.fromMap(
+            jsonDecode(existing.first) as Map<String, dynamic>);
+        if (last.category == record.category &&
+            last.query.toLowerCase() == record.query.toLowerCase() &&
+            last.resultTitle == record.resultTitle) {
+          return;
+        }
+      } catch (_) {}
+    }
+    existing.insert(0, jsonEncode(record.toMap()));
+    if (existing.length > 200) existing.removeRange(200, existing.length);
+    await prefs.setStringList(_lookupKey, existing);
+  }
+
+  Future<List<LookupRecord>> loadLookups() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList(_lookupKey) ?? [];
+    return raw
+        .map((s) {
+          try { return LookupRecord.fromMap(jsonDecode(s) as Map<String, dynamic>); }
+          catch (_) { return null; }
+        })
+        .whereType<LookupRecord>()
+        .toList();
+  }
+
+  Future<void> deleteLookup(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList(_lookupKey) ?? [];
+    raw.removeWhere((s) {
+      try { return (jsonDecode(s) as Map<String, dynamic>)['id'] == id; }
+      catch (_) { return false; }
+    });
+    await prefs.setStringList(_lookupKey, raw);
+  }
+
+  Future<void> deleteAllLookups() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_lookupKey);
   }
 
   // ── Serialization ────────────────────────────────────────────────────────

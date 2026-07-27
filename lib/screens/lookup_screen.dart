@@ -7,6 +7,8 @@ import '../data/meat_brand_database.dart';
 import '../data/seafood_brand_database.dart';
 import '../data/pork_owner_database.dart';
 import '../data/seafood_enforcement_database.dart';
+import '../models/lookup_record.dart';
+import '../services/scan_store.dart';
 
 /// A lookup request handed from the Home "Quick Lookup" card to the Lookup tab.
 class LookupRequest {
@@ -104,24 +106,83 @@ class _LookupScreenState extends State<LookupScreen> {
       _porkOwner =
           PorkOwnerDatabase.detectOwnerAnySpeciesForEstablishment(est);
       if (mounted) setState(() => _isLoading = false);
+      _recordEstLookup(est);
     }
+  }
+
+  void _recordEstLookup(String est) {
+    final pd = _processorData;
+    String? subtitle;
+    if (pd != null) {
+      final addr = pd['fullAddress'] as String? ?? '';
+      subtitle = addr.isEmpty ? 'EST. $est' : 'EST. $est · $addr';
+    }
+    ScanStore.instance.saveLookup(LookupRecord(
+      id: '${DateTime.now().microsecondsSinceEpoch}-est',
+      date: DateTime.now(),
+      category: LookupCategory.establishment,
+      query: est,
+      resultTitle: pd?['establishmentName'] as String? ?? 'No establishment found',
+      resultSubtitle: subtitle,
+      matchCount: pd != null ? 1 : 0,
+      flagged: _workerSafety != null,
+    ));
   }
 
   void _searchMeat() {
     FocusScope.of(context).unfocus();
-    setState(() => _meatResults = MeatBrandDatabase.search(_meatController.text));
+    final query = _meatController.text.trim();
+    final results = MeatBrandDatabase.search(_meatController.text);
+    setState(() => _meatResults = results);
+    final top = results.isNotEmpty ? results.first : null;
+    ScanStore.instance.saveLookup(LookupRecord(
+      id: '${DateTime.now().microsecondsSinceEpoch}-meat',
+      date: DateTime.now(),
+      category: LookupCategory.meatBrand,
+      query: query,
+      resultTitle: top?.brandName ?? 'No brand found',
+      resultSubtitle: top?.corporateParent,
+      matchCount: results.length,
+      flagged: results.any((b) => b.isForeignOwned || b.regulatoryNotes != null),
+    ));
   }
 
   void _searchSeafood() {
     FocusScope.of(context).unfocus();
-    setState(() =>
-        _seafoodResults = SeafoodBrandDatabase.search(_seafoodController.text));
+    final query = _seafoodController.text.trim();
+    final results = SeafoodBrandDatabase.search(_seafoodController.text);
+    setState(() => _seafoodResults = results);
+    final top = results.isNotEmpty ? results.first : null;
+    ScanStore.instance.saveLookup(LookupRecord(
+      id: '${DateTime.now().microsecondsSinceEpoch}-seafood',
+      date: DateTime.now(),
+      category: LookupCategory.seafoodBrand,
+      query: query,
+      resultTitle: top?.brandName ?? 'No brand found',
+      resultSubtitle: top?.corporateParent,
+      matchCount: results.length,
+      flagged: results.any((b) => b.isForeignOwned || b.regulatoryNotes != null),
+    ));
   }
 
   void _searchEnforcement() {
     FocusScope.of(context).unfocus();
-    setState(() => _enforcementResults =
-        SeafoodEnforcementDatabase.search(_enforcementController.text));
+    final query = _enforcementController.text.trim();
+    final results = SeafoodEnforcementDatabase.search(_enforcementController.text);
+    setState(() => _enforcementResults = results);
+    final top = results.isNotEmpty ? results.first : null;
+    ScanStore.instance.saveLookup(LookupRecord(
+      id: '${DateTime.now().microsecondsSinceEpoch}-fda',
+      date: DateTime.now(),
+      category: LookupCategory.seafoodFDA,
+      query: query,
+      resultTitle: top?.entity ?? 'No match in the public record',
+      resultSubtitle: top == null
+          ? null
+          : (top.country.isEmpty ? 'United States (domestic)' : top.country),
+      matchCount: results.length,
+      flagged: results.any((e) => e.hasImportAlert),
+    ));
   }
 
   @override

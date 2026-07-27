@@ -43,3 +43,6 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# release APK artifacts (distributed via GitHub Releases, not the repo)
+*.apk

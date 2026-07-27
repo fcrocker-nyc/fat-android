@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/fat_models.dart';
+import '../models/lookup_record.dart';
 import '../services/scan_store.dart';
 import '../theme/fat_theme.dart';
 import 'results_screen.dart';
@@ -34,6 +35,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
   bool _loading = true;
   String _search = '';
 
+  /// Which history stream is showing — scanned labels or recorded lookups.
+  bool _showLookups = false;
+
+  // ── Lookup history state ──
+  List<LookupRecord> _lookups = [];
+  String _lookupSearch = '';
+  LookupCategory? _lookupCategoryFilter; // null == All
+  final _lookupSearchController = TextEditingController();
+
   // ── Filter state (mirrors iOS HistoryFilter) ──
   _ProductTypeFilter _typeFilter = _ProductTypeFilter.all;
   DateTime? _dateFrom; // start-of-day, filters r.scannedAt >= this
@@ -67,17 +77,34 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _lookupSearchController.dispose();
     super.dispose();
   }
 
   Future<void> _load() async {
     final results = await ScanStore.instance.loadAll();
+    final lookups = await ScanStore.instance.loadLookups();
     if (mounted) {
       setState(() {
         _results = results;
+        _lookups = lookups;
         _loading = false;
       });
     }
+  }
+
+  List<LookupRecord> get _filteredLookups {
+    final needle = _lookupSearch.trim().toLowerCase();
+    return _lookups.where((r) {
+      if (_lookupCategoryFilter != null &&
+          r.category != _lookupCategoryFilter) {
+        return false;
+      }
+      if (needle.isEmpty) return true;
+      final hay =
+          '${r.query} ${r.resultTitle} ${r.resultSubtitle ?? ''}'.toLowerCase();
+      return hay.contains(needle);
+    }).toList();
   }
 
   List<FATResult> get _filtered {
@@ -127,13 +154,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _headerRow(),
-                  _searchBar(),
+                  _sectionToggle(),
                   const SizedBox(height: 10),
-                  if (_results.isNotEmpty) ...[
-                    _aggregateCard(),
-                    const SizedBox(height: 4),
-                  ],
-                  Expanded(child: _list()),
+                  Expanded(
+                    child: _showLookups ? _lookupsBody() : _scansBody(),
+                  ),
                 ],
               ),
       ),
@@ -148,7 +173,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           const Text('History',
               style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900)),
           const Spacer(),
-          if (_results.isNotEmpty) ...[
+          if (!_showLookups && _results.isNotEmpty) ...[
             _filterButton(),
             const SizedBox(width: 14),
             GestureDetector(
@@ -160,7 +185,70 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       color: Colors.red)),
             ),
           ],
+          if (_showLookups && _lookups.isNotEmpty)
+            GestureDetector(
+              onTap: _confirmClearLookups,
+              child: const Text('Clear All',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red)),
+            ),
         ],
+      ),
+    );
+  }
+
+  // ── Section toggle (Scans | Lookups) ──
+  Widget _sectionToggle() {
+    Widget seg(String label, bool selected, VoidCallback onTap) => Expanded(
+          child: GestureDetector(
+            onTap: onTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: selected ? Colors.white : Colors.transparent,
+                borderRadius: BorderRadius.circular(9),
+                boxShadow: selected
+                    ? [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.12),
+                          blurRadius: 4,
+                          offset: const Offset(0, 1),
+                        )
+                      ]
+                    : null,
+              ),
+              alignment: Alignment.center,
+              child: Text(label,
+                  style: TextStyle(
+                      fontSize: 15,
+                      fontWeight:
+                          selected ? FontWeight.w700 : FontWeight.w600,
+                      color: Colors.black87)),
+            ),
+          ),
+        );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE9E9EB),
+          borderRadius: BorderRadius.circular(11),
+        ),
+        child: Row(
+          children: [
+            seg('Scans', !_showLookups, () {
+              setState(() => _showLookups = false);
+            }),
+            seg('Lookups', _showLookups, () {
+              setState(() => _showLookups = true);
+              _load(); // pick up any lookups run since this screen was built
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -204,6 +292,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
+  // ── Scans section body ──
+  Widget _scansBody() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _searchBar(),
+        const SizedBox(height: 10),
+        if (_results.isNotEmpty) ...[
+          _aggregateCard(),
+          const SizedBox(height: 4),
+        ],
+        Expanded(child: _list()),
+      ],
+    );
+  }
+
   Widget _searchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -243,6 +347,271 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
       ),
     );
+  }
+
+  // ── Lookups section body ──────────────────────────────────────────────────
+  Widget _lookupsBody() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _lookupSearchBar(),
+        const SizedBox(height: 10),
+        _categoryChips(),
+        const SizedBox(height: 8),
+        Expanded(child: _lookupList()),
+      ],
+    );
+  }
+
+  Widget _lookupSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF2F2F2),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.search, color: Colors.black54, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: _lookupSearchController,
+                onChanged: (v) => setState(() => _lookupSearch = v),
+                textInputAction: TextInputAction.search,
+                decoration: const InputDecoration(
+                  hintText: 'Search lookups',
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
+            ),
+            if (_lookupSearch.isNotEmpty)
+              GestureDetector(
+                onTap: () {
+                  _lookupSearchController.clear();
+                  setState(() => _lookupSearch = '');
+                },
+                child: const Icon(Icons.cancel,
+                    color: Colors.black38, size: 18),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Horizontal category chips: All + the four lookup categories.
+  Widget _categoryChips() {
+    Widget chip(String label, IconData? icon, bool selected,
+        VoidCallback onTap) {
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(right: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+          decoration: BoxDecoration(
+            color: selected
+                ? FATTheme.scanGreen
+                : FATTheme.primaryGreen.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon,
+                    size: 14,
+                    color: selected ? Colors.white : Colors.black87),
+                const SizedBox(width: 5),
+              ],
+              Text(label,
+                  style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: selected ? Colors.white : Colors.black87)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SizedBox(
+      height: 36,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          chip('All', null, _lookupCategoryFilter == null,
+              () => setState(() => _lookupCategoryFilter = null)),
+          ...LookupCategory.values.map((cat) => chip(
+                cat.shortName,
+                cat.icon,
+                _lookupCategoryFilter == cat,
+                () => setState(() => _lookupCategoryFilter =
+                    _lookupCategoryFilter == cat ? null : cat),
+              )),
+        ],
+      ),
+    );
+  }
+
+  Widget _lookupList() {
+    if (_lookups.isEmpty) {
+      return _emptyState(Icons.search,
+          'No lookups yet',
+          subtitle: 'Searches you run on the Lookup tab appear here.');
+    }
+    final filtered = _filteredLookups;
+    if (filtered.isEmpty) {
+      return _emptyState(
+          Icons.filter_list_off, 'No lookups match this filter');
+    }
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.builder(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 20),
+        itemCount: filtered.length,
+        itemBuilder: (_, i) => _lookupCard(filtered[i]),
+      ),
+    );
+  }
+
+  Widget _lookupCard(LookupRecord r) {
+    return Dismissible(
+      key: ValueKey(r.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 24, bottom: 12),
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: FATTheme.errorRed,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      onDismissed: (_) async {
+        await ScanStore.instance.deleteLookup(r.id);
+        setState(() => _lookups.removeWhere((x) => x.id == r.id));
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: FATTheme.primaryGreen.withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: FATTheme.primaryGreen),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 23,
+              backgroundColor: FATTheme.scanGreen.withValues(alpha: 0.15),
+              child: Icon(r.category.icon,
+                  size: 22, color: FATTheme.scanGreen),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: FATTheme.scanGreen,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(r.category.shortName,
+                            style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white)),
+                      ),
+                      if (r.flagged) ...[
+                        const SizedBox(width: 6),
+                        const Icon(Icons.warning_amber_rounded,
+                            size: 16, color: FATTheme.errorRed),
+                      ],
+                      const Spacer(),
+                      Text(_dateStr(r.date),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54)),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text('“${r.query}”',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 2),
+                  Text(r.resultTitle,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: r.hasResults
+                              ? Colors.black87
+                              : FATTheme.errorRed)),
+                  if (r.resultSubtitle != null &&
+                      r.resultSubtitle!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(r.resultSubtitle!,
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54)),
+                  ],
+                  if (r.matchCount > 1) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                        '+${r.matchCount - 1} more result${r.matchCount - 1 == 1 ? '' : 's'}',
+                        style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black54)),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmClearLookups() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Clear All Lookups?'),
+        content: const Text(
+            'This will permanently delete all recorded lookups. This cannot be undone.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                const Text('Delete All', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await ScanStore.instance.deleteAllLookups();
+      setState(() => _lookups = []);
+    }
   }
 
   // ── Filter sheet (mirrors iOS HistoryFilterSheet) ──
@@ -568,7 +937,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _emptyState(IconData icon, String title) {
+  Widget _emptyState(IconData icon, String title, {String? subtitle}) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -580,6 +949,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Colors.black54)),
+          if (subtitle != null) ...[
+            const SizedBox(height: 6),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Text(subtitle,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black45)),
+            ),
+          ],
         ],
       ),
     );
