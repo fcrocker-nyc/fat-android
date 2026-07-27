@@ -1105,6 +1105,15 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       const SizedBox(height: 6),
                       _credibilityBadge(
                           value!.credibility!, value.credibilityNote),
+                    ] else if (value?.credibilityNote != null) ...[
+                      // A clarifying note with no credibility badge (e.g. the
+                      // undisclosed-origin caveat) still renders on its own.
+                      const SizedBox(height: 6),
+                      Text(value!.credibilityNote!,
+                          style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black54)),
                     ],
                     if (category == FATCategory.supplyChainIntermediary &&
                         value?.captivityStatus != null) ...[

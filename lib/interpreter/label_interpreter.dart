@@ -192,7 +192,14 @@ class LabelInterpreter {
     for (final k in ['born in', 'raised in', 'processed in']) {
       if (text.contains(k)) return _known(_capitalize(k));
     }
-    return FATCategoryResult.missing;
+    // Clarify that an absent origin statement is not a claim of origin either
+    // way. Mandatory COOL for beef and pork muscle cuts was repealed in 2015,
+    // so most carry no origin label — the omission does not mean imported.
+    return const FATCategoryResult(
+      status: DisclosureStatus.missing,
+      credibilityNote:
+          'Not disclosed is not a claim of origin — it does not mean the product is imported, or that it is domestic. Mandatory country-of-origin labeling on beef and pork muscle cuts was repealed in 2015, so most carry no origin statement at all.',
+    );
   }
 
   // ── Farm / Ranch ─────────────────────────────────────────────────────────
