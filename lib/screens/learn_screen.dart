@@ -832,6 +832,26 @@ final List<_LearnSection> _sections = <_LearnSection>[
             '• Partial claims display the disclosed percentage\n\n'
             'Source: FAT Research Paper No. 6 — Grass-Fed vs. Grass-Finished: What FSIS Actually Recognizes, and What Consumers Don\'t Know. Full paper available at farmanimaltransparency.org.'),
       ),
+      // 2.2b
+      _LearnTopic(
+        title: 'Air-Chilled vs. Water-Chilled Chicken',
+        subtitle: 'Retained water is regulated; "air-chilled" is marketing',
+        body: _text(
+            'Almost every conventionally processed chicken in the U.S. is treated with an antimicrobial wash before it reaches the package. Two things on the label tell you how, and they carry very different weight.\n\n'
+            'Retained water is the regulated fact.\n'
+            'Under 9 CFR 441.10, a plant may only print a retained-water figure — including "0%" or "no retained water" — if it holds data supporting it. A positive percentage (for example, "up to 4% retained water") means the bird was chilled in a water bath, the step where the wash chemical is added. This is the harder signal, because it is backed by a rule.\n\n'
+            '"Air-chilled" is the softer claim.\n'
+            'It is voluntary marketing, not audited by anyone. It means the bird skipped the water bath. FAT flags it like any self-reported claim. A useful cross-check: if a label says "air-chilled" and also shows a retained-water percentage, the two conflict — a percentage means water immersion.\n\n'
+            'What the evidence says about the wash:\n\n'
+            '• Chlorine is the weakest of these washes — in one published comparison, 50 ppm chlorine performed no better than plain water. Peracetic acid and cetylpyridinium chloride outperform it.\n\n'
+            '• The chemicals can make lab tests understate contamination. When USDA switched to a neutralizing rinse in 2016, measured Salmonella roughly tripled — the bacteria had been there all along; the sanitizer was killing them inside the test sample.\n\n'
+            'Safe to eat.\n'
+            'EFSA (EU), a joint FAO/WHO expert meeting, and a New Zealand government review all put dietary exposure to these chemicals far below safety limits. USDA and the EU find no evidence the wash harms the person eating the chicken. FAT\'s concern is disclosure, not danger.\n\n'
+            'Not an OSHA violation.\n'
+            'Using these sprays is not, in itself, an OSHA violation — there is no OSHA airborne limit for peracetic acid for a plant to break. Worker exposure is real but governed only by a voluntary industry guideline: a gap in the rules, not a citation. A plant\'s actual safety-enforcement record, if any, is shown separately.\n\n'
+            'Two caveats. Every air-chill claim is self-reported and unaudited. And the high end of the retained-water range ("up to 12%") appears in FSIS guidance rather than on any package we could find — which is itself telling.\n\n'
+            'Source: FAT research paper — The Chemistry That Isn\'t on the Label: Antimicrobial Washes in U.S. Broiler Processing. Full paper at farmanimaltransparency.com/fat-research/.'),
+      ),
       // 2.3
       _LearnTopic(
         title: 'Antibiotics and Meat Labels',

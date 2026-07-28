@@ -227,6 +227,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               ...[
                 CertificationResultCard.maybeFrom(result, result.scannedText),
                 GrassFedResultCard.maybeFrom(result, result.scannedText),
+                PoultryChillCard.maybeFrom(result, result.scannedText),
                 PastureResultCard.maybeFrom(result, result.scannedText),
                 RegenerativeResultCard.maybeFrom(result, result.scannedText),
               ].whereType<Widget>(),

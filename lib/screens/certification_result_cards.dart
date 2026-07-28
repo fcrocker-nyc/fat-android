@@ -2646,3 +2646,154 @@ Widget _detailRow(IconData icon, String label, String text) {
     ),
   );
 }
+
+// ══════════════════════════════════════════════════════════════════════════
+// POULTRY CHILL METHOD / RETAINED WATER  (port of iOS PoultryChillView)
+// Retained-water % is a REGULATED statement (9 CFR 441.10); "air-chilled" is a
+// voluntary marketing claim. The card surfaces the paper's findings in plain,
+// non-alarmist language — it does not score the claim.
+// ══════════════════════════════════════════════════════════════════════════
+
+class _ChillBlock {
+  final String title;
+  final String body;
+  final Color accent;
+  final Color bg;
+  const _ChillBlock(this.title, this.body, this.accent, this.bg);
+}
+
+class PoultryChillCard extends StatelessWidget {
+  final List<_ChillBlock> _blocks;
+  const PoultryChillCard._(this._blocks);
+
+  static PoultryChillCard? maybeFrom(FATResult result, String scannedText) {
+    final t = scannedText
+        .toLowerCase()
+        .replaceAll('-', ' ')
+        .replaceAll('\n', ' ');
+
+    // Species gate: birds or unknown; skip red meat.
+    final s = (result.categories[FATCategory.species]?.value ?? '').toLowerCase();
+    for (final rm in ['beef', 'pork', 'lamb', 'bison', 'veal', 'goat']) {
+      if (s.contains(rm)) return null;
+    }
+
+    final airChilled = t.contains('air chilled');
+    final hasRetained = t.contains('retained water');
+    final zeroRetained = t.contains('no retained water') ||
+        t.contains('0% retained water') ||
+        t.contains('0 % retained water') ||
+        t.contains('zero retained water');
+
+    int? pct;
+    bool positive = false;
+    if (hasRetained && !zeroRetained) {
+      for (final p in [
+        r'(\d{1,2})\s*%\s*retained water',
+        r'retained water[^0-9%]{0,20}(\d{1,2})\s*%',
+        r'up to\s*(\d{1,2})\s*%\s*retained water',
+      ]) {
+        final m = RegExp(p).firstMatch(t);
+        if (m != null) {
+          pct = int.tryParse(m.group(1) ?? '');
+          break;
+        }
+      }
+      positive = (pct == null) || (pct > 0);
+    }
+
+    if (!airChilled && !hasRetained) return null;
+
+    final blocks = <_ChillBlock>[];
+    if (positive) {
+      blocks.add(const _ChillBlock(
+        'Water-chilled',
+        'The retained-water number means the bird was chilled in a water bath with an added wash chemical. Chlorine is the weakest of these washes — sometimes no better than plain water — and the chemicals can make lab tests understate contamination.',
+        _CertColors.fatBlue, _CertColors.systemGray6));
+    } else if (zeroRetained) {
+      blocks.add(const _ChillBlock(
+        'No retained water',
+        'The label reports no water added in chilling — consistent with air chilling, and it means the bird was not plumped with water in a chiller bath.',
+        _CertColors.fatBlue, _CertColors.systemGray6));
+    }
+    if (airChilled) {
+      blocks.add(const _ChillBlock(
+        'Air-chilled',
+        'A marketing claim, not independently checked. It means the bird skipped the water bath. A retained-water percentage on the same label would contradict it.',
+        _CertColors.fatOrange, _CertColors.fatOrangeTint));
+    }
+    if (airChilled && positive) {
+      blocks.add(const _ChillBlock(
+        "These two claims don't match",
+        'This label shows both "air-chilled" and a retained-water percentage. A percentage means water immersion, so the two can\'t both describe the same bird.',
+        _CertColors.danger, _CertColors.fatRedTint));
+    }
+    blocks.add(const _ChillBlock(
+      'Safe to eat',
+      "EFSA, FAO/WHO, and a New Zealand review all put these chemicals far below safety limits; USDA and the EU find no harm from eating the chicken. FAT's concern is disclosure, not danger.",
+      _CertColors.successGreen, _CertColors.successGreenSoft));
+    blocks.add(const _ChillBlock(
+      'Not an OSHA violation',
+      "There's no OSHA limit for these sprays to break — worker exposure is a gap in the rules, not a citation. The plant's own safety record is shown separately.",
+      _CertColors.fatDarkBlue, _CertColors.systemGray6));
+
+    return PoultryChillCard._(blocks);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _CertColors.systemGray6,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _CertColors.systemGray4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(children: const [
+              Icon(Icons.ac_unit, size: 18, color: _CertColors.fatBlue),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text('How This Chicken Was Chilled',
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: _CertColors.fatDarkBlue)),
+              ),
+            ]),
+          ),
+          ..._blocks.map((b) => Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: b.bg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: b.accent.withValues(alpha: 0.35)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(b.title,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: b.accent)),
+                      const SizedBox(height: 4),
+                      Text(b.body,
+                          style: const TextStyle(
+                              fontSize: 13.5, color: Colors.black, height: 1.4)),
+                    ],
+                  ),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+}
