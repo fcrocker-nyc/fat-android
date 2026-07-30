@@ -1,0 +1,384 @@
+{
+"updated": "July 22, 2026",
+"count": 41,
+"label": "USDA AMS Verified \u2014 Never Fed Beta Agonists (ractopamine/zilpaterol)",
+"note": "Est-cores with an AMS-verified Never Fed Beta Agonists (ractopamine/zilpaterol) product line. POSITIVE flag only; absence = unverified/undisclosed, NOT 'uses ractopamine'. Product-line scope, not company-wide.",
+"source_url": "https://www.ams.usda.gov/sites/default/files/media/LSOfficialListingNeverFedBetaAgonistsProgram.pdf",
+"cores": {
+"687": {
+"state": "verified_never_fed",
+"entity": "Albert Lea Select Foods",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"17202a": {
+"state": "verified_never_fed",
+"entity": "Americold Logistics, LLC",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": "Seaboard Foods"
+},
+"791c": {
+"state": "verified_never_fed",
+"entity": "Clemens Food Group",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"791n": {
+"state": "verified_never_fed",
+"entity": "Clemens Food Group",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"791": {
+"state": "verified_never_fed",
+"entity": "Clemens Food Group",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"48205": {
+"state": "verified_never_fed",
+"entity": "ColdPoint Logistics Warehouse, LLC",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": "JBS USA, LLC"
+},
+"17626a": {
+"state": "verified_never_fed",
+"entity": "Crystal Distribution Services, Inc.",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": "Tyson Fresh Meats"
+},
+"17626b": {
+"state": "verified_never_fed",
+"entity": "Crystal Distribution Services, Inc.",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": "Tyson Fresh Meats"
+},
+"51340": {
+"state": "verified_never_fed",
+"entity": "Eagle Grove Cooperative",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"199": {
+"state": "verified_never_fed",
+"entity": "Hormel Foods Corporation",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"226": {
+"state": "verified_never_fed",
+"entity": "Independent Meat Company",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"17564": {
+"state": "verified_never_fed",
+"entity": "Indiana Packers Corporation",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"17564f": {
+"state": "verified_never_fed",
+"entity": "Indiana Packers Corporation",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"760": {
+"state": "verified_never_fed",
+"entity": "Kansas City Sausage Company, LLC",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": "Smithfield Foods"
+},
+"20608": {
+"state": "verified_never_fed",
+"entity": "The Pork Company",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"21069": {
+"state": "verified_never_fed",
+"entity": "Premium Iowa Pork, LLC",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"21069l": {
+"state": "verified_never_fed",
+"entity": "Premium Minnesota Pork, LLC",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"13025": {
+"state": "verified_never_fed",
+"entity": "Quality Pork International, Inc.",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"1620": {
+"state": "verified_never_fed",
+"entity": "Quality Pork Processors",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"31690": {
+"state": "verified_never_fed",
+"entity": "Quality Refrigerated Services, Inc.",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": "JBS USA, LLC"
+},
+"35": {
+"state": "verified_never_fed",
+"entity": "Rantoul Foods dba Agar Foods",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"13597": {
+"state": "verified_never_fed",
+"entity": "Seaboard Foods",
+"species": "Pork",
+"markets": [
+"China",
+"Russian Federation"
+],
+"copacker_of": ""
+},
+"46071": {
+"state": "verified_never_fed",
+"entity": "Seaboard Triumph Foods",
+"species": "Pork",
+"markets": [
+"China",
+"Russian Federation"
+],
+"copacker_of": ""
+},
+"413": {
+"state": "verified_never_fed",
+"entity": "Smithfield Fresh Meats Corp.",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"717": {
+"state": "verified_never_fed",
+"entity": "Smithfield Fresh Meats Corp.",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"320m": {
+"state": "verified_never_fed",
+"entity": "Smithfield Fresh Meats Corp.",
+"species": "Pork",
+"markets": [
+"China",
+"Russian Federation"
+],
+"copacker_of": ""
+},
+"717m": {
+"state": "verified_never_fed",
+"entity": "Smithfield Fresh Meats Corp.",
+"species": "Pork",
+"markets": [
+"China",
+"Russian Federation"
+],
+"copacker_of": ""
+},
+"221a": {
+"state": "verified_never_fed",
+"entity": "Smithfield Fresh Meats Corp.",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"18079": {
+"state": "verified_never_fed",
+"entity": "Smithfield Fresh Meats Corp.",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"17d": {
+"state": "verified_never_fed",
+"entity": "Smithfield Packaged Meats Corp.",
+"species": "Pork",
+"markets": [
+"China",
+"Russian Federation"
+],
+"copacker_of": ""
+},
+"85b": {
+"state": "verified_never_fed",
+"entity": "Swift Pork Company",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"995": {
+"state": "verified_never_fed",
+"entity": "Swift Pork Company",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"85o": {
+"state": "verified_never_fed",
+"entity": "Swift Pork Company",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"8934": {
+"state": "verified_never_fed",
+"entity": "Swift Pork Company",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"31965": {
+"state": "verified_never_fed",
+"entity": "Triumph Foods",
+"species": "Pork",
+"markets": [
+"China",
+"Russian Federation"
+],
+"copacker_of": ""
+},
+"244l": {
+"state": "verified_never_fed",
+"entity": "Tyson Fresh Meats",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"244m": {
+"state": "verified_never_fed",
+"entity": "Tyson Fresh Meats",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"244": {
+"state": "verified_never_fed",
+"entity": "Tyson Fresh Meats",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"244w": {
+"state": "verified_never_fed",
+"entity": "Tyson Fresh Meats",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"40375a": {
+"state": "verified_never_fed",
+"entity": "Villari Foods",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+},
+"46491": {
+"state": "verified_never_fed",
+"entity": "Wholestone Farms",
+"species": "Pork",
+"markets": [
+"China"
+],
+"copacker_of": ""
+}
+}
+}

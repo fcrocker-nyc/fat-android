@@ -8,6 +8,7 @@ import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
+import '../services/beta_agonists_service.dart';
 import '../services/processor_service.dart';
 import '../services/feedlot_proximity_service.dart';
 import '../widgets/share_card_renderer.dart';
@@ -38,6 +39,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
   bool _oshaViolation = false;
   // EPA environmental-enforcement penalty (Cat 7), set after the jsDelivr fetch.
   bool _epaViolation = false;
+  // AMS Never Fed Beta Agonists (ractopamine) verified record — POSITIVE, plant-
+  // level disclosure, NOT a score input. Null until the jsDelivr fetch resolves.
+  BetaAgonistsInfo? _betaAgonists;
   // FSIS public enforcement record fetched from the FAT backend (recalls,
   // humane-handling, Salmonella category, residues). Null until it loads.
   ProcessorRecord? _processor;
@@ -52,7 +56,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
     super.initState();
     _loadOshaPenalty();
     _loadEpaPenalty();
+    _loadBetaAgonists();
     _loadProcessorRecord();
+  }
+
+  Future<void> _loadBetaAgonists() async {
+    final info =
+        await BetaAgonistsService.lookup(result.detectedEstablishmentNumber);
+    if (info != null && mounted) setState(() => _betaAgonists = info);
   }
 
   Future<void> _loadProcessorRecord() async {
@@ -991,6 +1002,17 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 'OSHA worker-safety violations on record')
             : row(Icons.verified_user_outlined, FATTheme.scanGreen,
                 'No OSHA worker-safety violations in the full record on file'),
+        // Ractopamine / beta-agonists — POSITIVE disclosure only. Verified "never
+        // fed" line when the plant is on the USDA AMS listing; otherwise state that
+        // FSIS requires no label disclosure — NOT that the plant uses it (no
+        // federal registry of users exists). Product-line scope, not company-wide.
+        if (_betaAgonists != null)
+          row(Icons.verified_outlined, FATTheme.scanGreen,
+              'USDA AMS Verified — Never Fed Beta Agonists (ractopamine): a verified product line at this establishment'
+              '${_betaAgonists!.markets.isEmpty ? '' : ' · verified for ${_betaAgonists!.markets.join(' & ')}'}')
+        else
+          row(Icons.info_outline, const Color(0xFF6B7280),
+              'Ractopamine (beta-agonists): no AMS “never fed” verification on file — FSIS requires no label disclosure of use either way'),
       ],
     );
   }
