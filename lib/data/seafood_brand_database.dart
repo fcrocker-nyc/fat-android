@@ -42,6 +42,21 @@ class SeafoodBrandResult {
   /// Notable regulatory or legal history.
   final String? regulatoryNotes;
 
+  /// Compact record from a scan-crosswalk row (see MeatBrandResult.fromCrosswalk).
+  factory SeafoodBrandResult.fromCrosswalk(Map<String, dynamic> cw) => SeafoodBrandResult(
+        brandName: cw['brand'] as String? ?? '',
+        corporateParent: cw['primary_responsible_company'] as String? ?? '',
+        parentCountry: '',
+        isForeignOwned: false,
+        certifications: const [],
+        primarySpecies: const [],
+        sourcingNotes:
+            'Brand-ownership record. Responsible company shown; scan the label for plant/enforcement detail.',
+        ownershipNotes: cw['evidence_summary'] as String? ?? '',
+        plantLocations: const [],
+        sourcingRegions: const [],
+      );
+
   const SeafoodBrandResult({
     required this.brandName,
     required this.corporateParent,

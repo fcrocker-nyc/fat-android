@@ -254,6 +254,33 @@ class BrandResolver {
     return null;
   }
 
+  /// Lookup-screen brand search over the SAME crosswalk the scanner uses, so the
+  /// Lookup tab and a scan identify the identical brand universe. Case-insensitive
+  /// substring match against brand name, aliases, and responsible company.
+  List<Map<String, dynamic>> searchBrands(String query) {
+    final q = query.toLowerCase().trim();
+    if (q.isEmpty) return const [];
+    final hits = <String>{};
+    _crosswalkByBrand.forEach((brand, cw) {
+      final co = (cw['primary_responsible_company'] as String? ?? '').toLowerCase();
+      final ne = (cw['normalized_entity'] as String? ?? '').toLowerCase();
+      if (brand.toLowerCase().contains(q) || co.contains(q) || ne.contains(q)) {
+        hits.add(brand);
+      }
+    });
+    for (final a in _sortedAliases) {
+      if (a.key.contains(q)) hits.add(a.value);
+    }
+    final rows = hits
+        .map((b) => _crosswalkByBrand[b])
+        .whereType<Map<String, dynamic>>()
+        .toList()
+      ..sort((a, b) => (a['brand'] as String)
+          .toLowerCase()
+          .compareTo((b['brand'] as String).toLowerCase()));
+    return rows;
+  }
+
   /// Public enforcement matched to a resolved brand, graded by type + recency.
   /// Joins on fda_bridge_entities + normalized entity + responsible company.
   BrandEnforcementSummary? enforcementSummary(BrandResolution r) {

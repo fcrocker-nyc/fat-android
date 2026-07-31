@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert';
 import '../theme/fat_theme.dart';
+import '../data/brand_resolver.dart';
 import '../data/meat_brand_database.dart';
 import '../data/seafood_brand_database.dart';
 import '../data/pork_owner_database.dart';
@@ -132,7 +133,13 @@ class _LookupScreenState extends State<LookupScreen> {
   void _searchMeat() {
     FocusScope.of(context).unfocus();
     final query = _meatController.text.trim();
-    final results = MeatBrandDatabase.search(_meatController.text);
+    final results = [...MeatBrandDatabase.search(_meatController.text)];
+    // Unify with the scanner: also search the shared brand crosswalk.
+    final have = results.map((r) => r.brandName.toLowerCase()).toSet();
+    results.addAll(BrandResolver.instance
+        .searchBrands(query)
+        .where((cw) => !have.contains((cw['brand'] as String).toLowerCase()))
+        .map(MeatBrandResult.fromCrosswalk));
     setState(() => _meatResults = results);
     final top = results.isNotEmpty ? results.first : null;
     ScanStore.instance.saveLookup(LookupRecord(
@@ -150,7 +157,13 @@ class _LookupScreenState extends State<LookupScreen> {
   void _searchSeafood() {
     FocusScope.of(context).unfocus();
     final query = _seafoodController.text.trim();
-    final results = SeafoodBrandDatabase.search(_seafoodController.text);
+    final results = [...SeafoodBrandDatabase.search(_seafoodController.text)];
+    // Unify with the scanner (see _searchMeat).
+    final have = results.map((r) => r.brandName.toLowerCase()).toSet();
+    results.addAll(BrandResolver.instance
+        .searchBrands(query)
+        .where((cw) => !have.contains((cw['brand'] as String).toLowerCase()))
+        .map(SeafoodBrandResult.fromCrosswalk));
     setState(() => _seafoodResults = results);
     final top = results.isNotEmpty ? results.first : null;
     ScanStore.instance.saveLookup(LookupRecord(

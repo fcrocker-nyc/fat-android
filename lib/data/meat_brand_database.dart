@@ -13,6 +13,24 @@ class MeatBrandResult {
   final String? regulatoryNotes;
   final List<String> relatedBrands; // Other brands under same parent
 
+  /// Compact record built from a scan-crosswalk row, so the Lookup screen can
+  /// surface every brand the scanner knows (not just the curated deep profiles).
+  factory MeatBrandResult.fromCrosswalk(Map<String, dynamic> cw) => MeatBrandResult(
+        brandName: cw['brand'] as String? ?? '',
+        corporateParent: cw['primary_responsible_company'] as String? ?? '',
+        parentCountry: '',
+        isForeignOwned: false,
+        species: const [],
+        marketPosition:
+            'Brand-ownership record. Responsible company shown; scan the USDA EST number on the package to identify the specific plant.',
+        plantCount: '',
+        keyPlantLocations: const [],
+        knownEstNumbers: const [],
+        ownershipNotes: cw['evidence_summary'] as String? ?? '',
+        regulatoryNotes: null,
+        relatedBrands: const [],
+      );
+
   const MeatBrandResult({
     required this.brandName,
     required this.corporateParent,
