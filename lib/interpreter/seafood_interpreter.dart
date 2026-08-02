@@ -72,21 +72,72 @@ class SeafoodInterpreter {
   }
 
   // ── Routing helper ──
+  /// SCORED meat-vs-seafood decision (mirrors iOS ProductTypeDetector). The old
+  /// version returned true if ANY seafood keyword was a substring — so a hot dog
+  /// scored "seafood" off "sea salt", and short words like "char"/"sole"/"cod"
+  /// matched "charcuterie"/"console"/"code". This weighs meat vs seafood signals
+  /// and treats the USDA/FSIS inspection mark as a definitive meat signal (FDA
+  /// seafood never carries one; catfish is the FSIS-regulated exception).
   static bool isSeafood(String scannedText) {
     final t = scannedText.toLowerCase();
-    const keywords = [
-      'salmon', 'tilapia', 'cod', 'tuna', 'trout', 'bass', 'halibut',
-      'mahi mahi', 'mahi-mahi', 'swordfish', 'snapper', 'grouper', 'pollock',
-      'haddock', 'sole', 'flounder', 'sardine', 'anchovy', 'mackerel',
-      'herring', 'perch', 'walleye', 'pike', 'pangasius', 'swai', 'basa',
-      'catfish', 'branzino', 'barramundi', 'rockfish', 'mahi', 'ahi',
-      'yellowtail', 'amberjack', 'wahoo', 'monkfish', 'orange roughy',
-      'arctic char', 'char', 'shrimp', 'prawns', 'crab', 'lobster', 'clam',
-      'mussel', 'oyster', 'scallop', 'squid', 'calamari', 'octopus',
-      'crawfish', 'crayfish', 'seafood', 'fish fillet', 'fish stick',
-      'fish cake', 'fish portion', 'surimi', 'siluriformes', 'ictalurus',
+    var meat = 0, sea = 0;
+
+    const strongMeat = [
+      'beef', 'steak', 'ground beef', 'chuck', 'sirloin', 'ribeye', 'rib eye',
+      't-bone', 'tenderloin', 'brisket', 'pork', 'pork chop', 'pork loin',
+      'bacon', 'ham', 'chicken breast', 'chicken thigh', 'chicken wing',
+      'turkey breast', 'ground turkey', 'lamb chop', 'lamb shank',
+      'rack of lamb', 'bison', 'venison', 'veal', 'sausage', 'hot dog',
+      'hotdog', 'bratwurst', 'wiener', 'frankfurter', 'bologna', 'salami',
+      'pepperoni', 'kielbasa', 'knockwurst', 'liverwurst', 'mortadella',
+      'capicola', 'pastrami', 'corned beef', 'deli meat', 'cold cut',
+      'luncheon meat', 'summer sausage', 'usda prime', 'usda choice',
+      'usda select', 'angus', 'wagyu', 'berkshire', 'duroc',
     ];
-    return keywords.any(t.contains);
+    const strongSea = [
+      'salmon', 'tuna', 'shrimp', 'prawns', 'lobster', 'crab', 'scallop',
+      'oyster', 'mussel', 'clam', 'cod', 'halibut', 'tilapia', 'mahi',
+      'swordfish', 'snapper', 'grouper', 'trout', 'pollock', 'flounder',
+      'sole', 'perch', 'walleye', 'sardine', 'anchovy', 'mackerel', 'herring',
+      'squid', 'calamari', 'octopus', 'sea bass', 'branzino', 'barramundi',
+      'arctic char', 'rockfish', 'wahoo', 'pompano', 'surimi', 'imitation crab',
+      'wild caught', 'wild-caught', 'farm raised', 'farm-raised',
+      'msc certified', 'asc certified', 'bap certified', 'seafood',
+      'fish fillet', 'fish stick', 'fish cake', 'yellowtail', 'monkfish',
+    ];
+    const weakMeat = [
+      'chicken', 'turkey', 'poultry', 'lamb', 'roast', 'cutlet', 'chop',
+      'ground', 'meat', 'meats', 'deli', 'cured', 'uncured', 'smoked',
+      'provisions',
+    ];
+    // Genuinely seafood-leaning weak signals only — no generic packaging words.
+    const weakSea = [
+      'previously frozen', 'stpp', 'phosphate', 'ocean', 'atlantic',
+      'pacific', 'gulf', 'alaskan', 'norwegian',
+    ];
+
+    for (final k in strongMeat) { if (t.contains(k)) meat += 3; }
+    for (final k in strongSea) { if (t.contains(k)) sea += 3; }
+    for (final k in weakMeat) { if (t.contains(k)) meat += 1; }
+    for (final k in weakSea) { if (t.contains(k)) sea += 1; }
+
+    final catfish = _detectSiluriformes(t);
+    if (catfish) sea += 3;
+
+    final fsisMark = t.contains('inspected and passed') ||
+        t.contains('u.s. inspected') ||
+        t.contains('us inspected') ||
+        t.contains('department of agriculture') ||
+        t.contains('usda');
+    if (fsisMark) {
+      if (catfish) {
+        sea += 2;
+      } else {
+        meat += 3;
+      }
+    }
+
+    return sea >= meat && sea >= 3;
   }
 
   // ── Detection ──
