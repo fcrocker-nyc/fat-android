@@ -1315,11 +1315,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   Future<void> _share() async {
     // Primary path: render the disclosure card to a PNG and share the image.
+    // Send the scanned photo(s) AND the complete written evaluation (not just a
+    // one-line summary) alongside the disclosure-card image.
     final shared = await shareDisclosureCard(
       context,
       result,
-      shareText:
-          'FAT Label Analysis — discloses ${result.knownCount} of 16 transparency categories. farmanimaltransparency.com',
+      shareText: _summaryText(),
+      extraImagePaths: _panelPaths,
     );
     if (shared) return;
 

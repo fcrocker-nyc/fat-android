@@ -1,5 +1,5 @@
 {
-  "version": "2026-07-25",
+  "version": "2026-07-26",
   "crosswalk": [
     {
       "brand": "Portico",
@@ -6535,6 +6535,33 @@
       "how_to_use": "Use when a user searches by brand name or OCR captures the label.",
       "confidence_label": "High",
       "source_url": "https://farmanimaltransparency.com/processor-lookup/"
+    },
+    {
+      "brand": "Walden Local",
+      "normalized_entity": "Walden Local Meat",
+      "alias": "waldenlocalmeat",
+      "alias_type": "consumer-facing brand",
+      "how_to_use": "Use when a user searches by brand name or OCR captures the label or package URL.",
+      "confidence_label": "High",
+      "source_url": "https://www.waldenlocalmeat.com/"
+    },
+    {
+      "brand": "Walden Local",
+      "normalized_entity": "Walden Local Meat",
+      "alias": "walden local meats",
+      "alias_type": "consumer-facing brand",
+      "how_to_use": "Use when a user searches by brand name or OCR captures the label or package URL.",
+      "confidence_label": "High",
+      "source_url": "https://www.waldenlocalmeat.com/"
+    },
+    {
+      "brand": "Walden Local",
+      "normalized_entity": "Walden Local Meat",
+      "alias": "walden local meat co.",
+      "alias_type": "consumer-facing brand",
+      "how_to_use": "Use when a user searches by brand name or OCR captures the label or package URL.",
+      "confidence_label": "High",
+      "source_url": "https://www.waldenlocalmeat.com/"
     }
   ],
   "enforcement_meta": {

@@ -21,6 +21,7 @@ Future<bool> shareDisclosureCard(
   BuildContext context,
   FATResult result, {
   String? shareText,
+  List<String> extraImagePaths = const [],
 }) async {
   OverlayEntry? entry;
   try {
@@ -74,8 +75,15 @@ Future<bool> shareDisclosureCard(
         '${dir.path}/fat_disclosure_card_${DateTime.now().millisecondsSinceEpoch}.png');
     await file.writeAsBytes(bytes, flush: true);
 
+    // Share the scanned label photo(s) too, plus the card image, with the full
+    // evaluation as the accompanying text.
+    final files = <XFile>[
+      for (final p in extraImagePaths)
+        if (File(p).existsSync()) XFile(p, mimeType: 'image/jpeg'),
+      XFile(file.path, mimeType: 'image/png'),
+    ];
     await Share.shareXFiles(
-      [XFile(file.path, mimeType: 'image/png')],
+      files,
       text: shareText,
       subject: 'FAT Label Analysis',
     );

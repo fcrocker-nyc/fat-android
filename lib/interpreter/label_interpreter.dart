@@ -106,15 +106,19 @@ class LabelInterpreter {
 
   static FATCategoryResult _detectSpecies(String text) {
     // Product-type keywords (highest priority)
-    const porkKeywords = ['ham', 'bacon', 'prosciutto', 'pancetta', 'sow', 'pork loin',
+    const porkKeywords = ['ham', 'bacon', 'prosciutto', 'pancetta', 'sow',
+      'pork tenderloin', 'pork loin', 'pork sirloin',
       'pork chop', 'pork belly', 'spare rib', 'bratwurst', 'chorizo', 'kielbasa',
       'andouille', 'mortadella', 'salami', 'pepperoni', 'pulled pork', 'carnitas'];
     for (final k in porkKeywords) {
       if (text.contains(k)) return _known('Pork');
     }
 
-    const beefKeywords = ['brisket', 'ribeye', 'rib eye', 'sirloin', 'filet mignon',
-      'tenderloin', 'flank steak', 'chuck roast', 'ground beef', 'beef patty',
+    // Beef-UNIQUE cuts only. Ambiguous cuts ("tenderloin", "sirloin") shared
+    // across species are a last resort (Tier 3) AFTER the bare-animal-word check,
+    // so a "Pork Tenderloin" label is not mislabeled Beef.
+    const beefKeywords = ['brisket', 'ribeye', 'rib eye', 'filet mignon',
+      'beef tenderloin', 'flank steak', 'chuck roast', 'ground beef', 'beef patty',
       'beef short rib', 'corned beef', 'pastrami', 'beef jerky', 'veal', 't-bone',
       'porterhouse', 'new york strip', 'tri tip'];
     for (final k in beefKeywords) {
@@ -160,6 +164,12 @@ class LabelInterpreter {
       for (final k in entry.key) {
         if (text.contains(k)) return _known(entry.value);
       }
+    }
+
+    // Tier 3: genuinely ambiguous cuts default to beef only as a last resort,
+    // reached ONLY after no explicit species word was found above.
+    for (final k in const ['tenderloin', 'sirloin']) {
+      if (text.contains(k)) return _known('Beef');
     }
 
     return FATCategoryResult.missing;
@@ -517,6 +527,28 @@ class LabelInterpreter {
         credibility: ClaimCredibility.labelClaimOnly,
         credibilityNote: 'FSIS defines cage free as not confined to a cage — birds may still be in crowded indoor barns with no outdoor access.',
       );
+    }
+    // Outdoor / pasture / woodland RAISING is a welfare disclosure (how the animal
+    // lived), distinct from Feed. Unverified without a cert, but a meaningful
+    // positive versus cage/indoor confinement — earns the category at the
+    // label-claim tier, like "cage free" (and a stronger claim than it).
+    const outdoor = [
+      'raised outdoors', 'raised outside', 'pasture raised', 'pasture-raised',
+      'raised on pasture', 'pasture access', 'outdoor access',
+      'free range', 'free-range', 'free roaming', 'free-roaming',
+      'pasture or forest', 'pasture or woodland', 'pasture and woodland',
+      'raised on pasture or', 'woodland raised', 'forest raised',
+    ];
+    for (final c in outdoor) {
+      if (text.contains(c)) {
+        return const FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Raised Outdoors / Pasture Access',
+          credibility: ClaimCredibility.labelClaimOnly,
+          credibilityNote:
+              'The label claims the animal was raised outdoors with pasture (or woodland) access — a meaningful welfare positive versus cage or indoor confinement. No third-party welfare certification (e.g. Certified Humane, Animal Welfare Approved, Global Animal Partnership) or audit was found, so it is an unverified marketing claim.',
+        );
+      }
     }
     return FATCategoryResult.missing;
   }
