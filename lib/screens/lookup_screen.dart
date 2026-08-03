@@ -7,6 +7,7 @@ import '../data/brand_resolver.dart';
 import '../data/meat_brand_database.dart';
 import '../data/seafood_brand_database.dart';
 import '../data/pork_owner_database.dart';
+import '../data/montana_origin.dart';
 import '../data/seafood_enforcement_database.dart';
 import '../models/lookup_record.dart';
 import '../services/scan_store.dart';
@@ -365,6 +366,11 @@ class _LookupScreenState extends State<LookupScreen> {
           const SizedBox(height: 20),
           if (_estSearched && _processorData != null)
             _processorCard(_processorData!),
+          // Montana call-out — fires when this establishment is located in MT.
+          if (_estSearched && _processorData != null)
+            ...[
+              MontanaOriginCard.maybeFrom(_montanaFromMap(_processorData!)),
+            ].whereType<Widget>().expand((w) => [const SizedBox(height: 14), w]),
           if (_estSearched && _workerSafety != null && _oshaHasData(_workerSafety!)) ...[
             const SizedBox(height: 14),
             _oshaCard(_workerSafety!),
@@ -854,6 +860,21 @@ class _LookupScreenState extends State<LookupScreen> {
               style: TextStyle(fontSize: 10, color: Color(0xFF7C5410))),
         ],
       ),
+    );
+  }
+
+  MontanaOriginResult _montanaFromMap(Map<String, dynamic> data) {
+    final rawState = (data['state'] as String?)?.trim() ?? '';
+    final addr = (data['fullAddress'] as String?) ?? '';
+    final state = rawState.isNotEmpty
+        ? rawState
+        : (MontanaOrigin.stateFromAddress(addr) ?? '');
+    return MontanaOrigin.detect(
+      state: state,
+      establishmentName: data['establishmentName'] as String?,
+      city: data['city'] as String?,
+      establishmentNumber: _estController.text.trim(),
+      ocrText: '',
     );
   }
 

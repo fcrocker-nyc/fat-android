@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
+import '../data/montana_origin.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
 import '../services/beta_agonists_service.dart';
@@ -228,6 +229,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
               _header(),
               if (_panelPaths.isNotEmpty) _imageCarousel(),
               _atAGlanceCard(),
+              // Montana call-out — processed-in-MT and/or Abundant Montana brand.
+              ...[MontanaOriginCard.maybeFrom(_montanaResult())].whereType<Widget>(),
               ..._estWarnings(),
               _disclosureSummary(),
               if (result.detectedEstablishmentNumber != null) _processorSection(),
@@ -668,6 +671,19 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   // ── A7. Processor / "Who Stands Behind the Label" ──────────────────────
+  /// Montana call-out: processed-in-MT (from the resolved FSIS record) and/or a
+  /// brand match in the Abundant Montana directory. Recomputes as _processor loads.
+  MontanaOriginResult _montanaResult() {
+    final p = _processor;
+    return MontanaOrigin.detect(
+      state: p?.state,
+      establishmentName: p?.name,
+      city: p?.city,
+      establishmentNumber: result.detectedEstablishmentNumber,
+      ocrText: result.scannedText,
+    );
+  }
+
   Widget _processorSection() {
     final est = result.detectedEstablishmentNumber!;
     final owner = PorkOwnerDatabase.detectOwnerAnySpeciesForEstablishment(est);
