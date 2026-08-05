@@ -1355,6 +1355,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Future<void> _questions() async {
+    // Attach the color disclosure card + scanned photo(s) so the question
+    // reaches FAT with the full color evaluation — not a plain-text mailto,
+    // which can't carry attachments on Android either.
+    final questionText =
+        'I have a question about this FAT App evaluation:\n\n'
+        '[Please describe your question here]\n\n'
+        'Please email FAT at dirkadams@farmanimaltransparency.com\n\n'
+        '---\n${_summaryText()}';
+    final shared = await shareDisclosureCard(
+      context,
+      result,
+      shareText: questionText,
+      extraImagePaths: _panelPaths,
+    );
+    if (shared) return;
+
+    // Fallback: plain-text mailto when image rendering fails.
     final subject = Uri.encodeComponent('FAT App — Question about a label');
     final body = Uri.encodeComponent('\n\n---\n${_summaryText()}');
     final uri = Uri.parse(
