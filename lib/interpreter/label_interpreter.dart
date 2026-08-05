@@ -104,6 +104,18 @@ class LabelInterpreter {
 
   // ── Species ──────────────────────────────────────────────────────────────
 
+  /// Whole-word / whole-phrase match. Short species keywords ('ham', 'cow',
+  /// 'hen', 'pig', 'sow', 'tra') were matching as bare substrings — 'ham'
+  /// inside 'hamburger' (and inside address/brand strings like 'Framingham',
+  /// 'Graham') mislabeled beef as Pork. Anchoring on word boundaries fixes that
+  /// while still matching multi-word phrases like 'ground beef'.
+  static final Map<String, RegExp> _wordRe = {};
+  static bool _containsWord(String keyword, String text) {
+    final re = _wordRe.putIfAbsent(
+        keyword, () => RegExp('\\b${RegExp.escape(keyword)}\\b', caseSensitive: false));
+    return re.hasMatch(text);
+  }
+
   static FATCategoryResult _detectSpecies(String text) {
     // Product-type keywords (highest priority)
     const porkKeywords = ['ham', 'bacon', 'prosciutto', 'pancetta', 'sow',
@@ -111,44 +123,46 @@ class LabelInterpreter {
       'pork chop', 'pork belly', 'spare rib', 'bratwurst', 'chorizo', 'kielbasa',
       'andouille', 'mortadella', 'salami', 'pepperoni', 'pulled pork', 'carnitas'];
     for (final k in porkKeywords) {
-      if (text.contains(k)) return _known('Pork');
+      if (_containsWord(k, text)) return _known('Pork');
     }
 
     // Beef-UNIQUE cuts only. Ambiguous cuts ("tenderloin", "sirloin") shared
     // across species are a last resort (Tier 3) AFTER the bare-animal-word check,
     // so a "Pork Tenderloin" label is not mislabeled Beef.
+    // "hamburger" is beef by regulation (9 CFR 319.15).
     const beefKeywords = ['brisket', 'ribeye', 'rib eye', 'filet mignon',
       'beef tenderloin', 'flank steak', 'chuck roast', 'ground beef', 'beef patty',
+      'beef burger', 'hamburger',
       'beef short rib', 'corned beef', 'pastrami', 'beef jerky', 'veal', 't-bone',
       'porterhouse', 'new york strip', 'tri tip'];
     for (final k in beefKeywords) {
-      if (text.contains(k)) return _known('Beef');
+      if (_containsWord(k, text)) return _known('Beef');
     }
 
     const chickenKeywords = ['chicken breast', 'chicken thigh', 'chicken wing',
       'chicken leg', 'chicken drumstick', 'chicken nugget', 'chicken tender',
       'whole chicken', 'rotisserie chicken', 'broiler chicken', 'chicken fillet'];
     for (final k in chickenKeywords) {
-      if (text.contains(k)) return _known('Chicken');
+      if (_containsWord(k, text)) return _known('Chicken');
     }
 
     const turkeyKeywords = ['turkey breast', 'turkey thigh', 'turkey wing', 'turkey leg',
       'turkey burger', 'turkey bacon', 'turkey sausage', 'whole turkey'];
     for (final k in turkeyKeywords) {
-      if (text.contains(k)) return _known('Turkey');
+      if (_containsWord(k, text)) return _known('Turkey');
     }
 
     const lambKeywords = ['lamb chop', 'lamb rack', 'lamb shank', 'lamb loin',
       'leg of lamb', 'mutton chop'];
     for (final k in lambKeywords) {
-      if (text.contains(k)) return _known('Lamb');
+      if (_containsWord(k, text)) return _known('Lamb');
     }
 
     // Catfish — 4th FSIS-regulated species per FAT DSA v1.1
     const catfishKeywords = ['channel catfish', 'blue catfish', 'flathead catfish',
       'catfish fillet', 'catfish nugget', 'pangasius', 'swai', 'basa', 'tra'];
     for (final k in catfishKeywords) {
-      if (text.contains(k)) return _known('Catfish (Siluriformes)');
+      if (_containsWord(k, text)) return _known('Catfish (Siluriformes)');
     }
 
     // Generic species keywords
@@ -162,14 +176,14 @@ class LabelInterpreter {
     };
     for (final entry in speciesMap.entries) {
       for (final k in entry.key) {
-        if (text.contains(k)) return _known(entry.value);
+        if (_containsWord(k, text)) return _known(entry.value);
       }
     }
 
     // Tier 3: genuinely ambiguous cuts default to beef only as a last resort,
     // reached ONLY after no explicit species word was found above.
     for (final k in const ['tenderloin', 'sirloin']) {
-      if (text.contains(k)) return _known('Beef');
+      if (_containsWord(k, text)) return _known('Beef');
     }
 
     return FATCategoryResult.missing;
