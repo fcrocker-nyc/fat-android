@@ -1,6 +1,7 @@
 // Label Interpreter — Dart port of LabelInterpreter.swift (v1.1)
 import '../models/fat_models.dart';
 import '../data/brand_resolver.dart';
+import 'retail_exemption.dart';
 
 class LabelInterpreter {
   LabelInterpreter._();
@@ -82,7 +83,7 @@ class LabelInterpreter {
             value: resolution.primaryResponsibleCompany)
         : const FATCategoryResult(status: DisclosureStatus.missing);
 
-    return {
+    final map = <FATCategory, FATCategoryResult>{
       FATCategory.usdaFsisRequiredLanguage: fsis,
       FATCategory.species:                  species,
       FATCategory.breed:                    breed,
@@ -100,6 +101,51 @@ class LabelInterpreter {
       FATCategory.organic:                  organic,
       FATCategory.supplyChainIntermediary:  intermediary,
     };
+
+    // USDA retail-store exemption (9 CFR 303.1(d)). When a store-cut / store-ground
+    // package is detected (no EST number + positive in-store evidence), the
+    // establishment-dependent categories are structurally unanswerable — report
+    // them `notRequired` (a regulatory gap, not a store failure) rather than
+    // `missing`. Only categories currently `missing` are re-labeled; a genuine
+    // disclosure is never downgraded. Mirrors iOS LabelInterpreter.
+    final exemption = RetailExemptionDetector.detect(
+      normalized,
+      estFound: extractEstablishmentNumber(normalized) != null,
+      isMeat: species.status == DisclosureStatus.known,
+    );
+    if (exemption.isExempt) {
+      const exemptCats = [
+        FATCategory.processor,
+        FATCategory.usdaFsisRequiredLanguage,
+        FATCategory.supplyChainIntermediary,
+      ];
+      for (final cat in exemptCats) {
+        if ((map[cat]?.status ?? DisclosureStatus.missing) ==
+            DisclosureStatus.missing) {
+          map[cat] = const FATCategoryResult(
+            status: DisclosureStatus.notRequired,
+            value: RetailExemption.categoryNote,
+          );
+        }
+      }
+    }
+
+    return map;
+  }
+
+  /// Detects the USDA retail-store exemption for a scanned label. Pure and cheap;
+  /// call sites use it to set the `retailExempt` flag on the FATResult (and to
+  /// suppress the "no establishment number" compliance warning).
+  static RetailExemption detectRetailExemption(String scannedText) {
+    final normalized = scannedText
+        .toLowerCase()
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+    return RetailExemptionDetector.detect(
+      normalized,
+      estFound: extractEstablishmentNumber(normalized) != null,
+      isMeat: _detectSpecies(normalized).status == DisclosureStatus.known,
+    );
   }
 
   // ── Species ──────────────────────────────────────────────────────────────

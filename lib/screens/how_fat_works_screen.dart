@@ -90,6 +90,8 @@ class HowFATWorksScreen extends StatelessWidget {
                   'Partially disclosed, or disclosed but backed only by a producer affidavit or a USDA label-language review.'),
               _lightRow(Colors.red, 'Red',
                   'Not disclosed at all — or, for required FSIS / FDA language (the establishment number on meat, the regulatory inspection mark on seafood), the required content is missing entirely.'),
+              _lightRow(const Color(0xFF2563EB), 'Blue',
+                  'Not applicable — the disclosure isn\'t required to reach this package. This is how a store-cut or store-ground item under the USDA retail exemption is marked: no establishment number is required in-store, so the missing processor identity is a regulatory gap, not a store failure. Blue categories are set aside from the disclosed count, never scored as failures.'),
 
               const SizedBox(height: 20),
               _sectionHeader('More About FAT'),
@@ -111,6 +113,9 @@ class HowFATWorksScreen extends StatelessWidget {
               const SizedBox(height: 12),
               _paragraphView(6, 'History & Saved Scans',
                   'Access your saved evaluations anytime in the History tab. For seafood-specific topics — how FAT reads seafood labels, the FSIS-vs-FDA regulatory fork, wild-caught vs farmed, and the parent-company brand database — see the Learn tab.'),
+              const SizedBox(height: 12),
+              _paragraphView(7, 'The Retail Exemption',
+                  'When meat is cut, ground, or repackaged behind the counter at a grocery store, USDA\'s retail store exemption (21 U.S.C. 661(c)(2); 9 CFR 303.1(d)) applies: the store is not an official establishment and has no establishment number to print, so its scale label legitimately carries none. FAT detects the in-store scale label and marks the establishment-dependent categories — Processor, the FSIS legend, and Supply-Chain Intermediaries — “not applicable” in blue rather than “not disclosed” in red. Scoring a store-packaged tray the same as a national-brand package it controls would misattribute the gap: it belongs to the regulatory design, not to the store. For ground beef, the store must still keep its supplier\'s establishment numbers in a grinder\'s log (9 CFR 320.1) — so the answer exists at the counter even when it isn\'t on the label.'),
             ],
           ),
         ),

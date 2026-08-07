@@ -108,11 +108,17 @@ class _ScanScreenState extends State<ScanScreen> {
         );
         final isMeat =
             categories[FATCategory.species]?.status == DisclosureStatus.known;
+        // USDA retail-store exemption (9 CFR 303.1(d)): a store-cut/ground item
+        // legitimately carries no establishment number, so it is NOT a compliance
+        // concern — estMissing stays false when the exemption applies.
+        final exemption = LabelInterpreter.detectRetailExemption(scannedText);
         fatResult = FATResult(
           scannedText: scannedText,
           categories: categories,
           detectedEstablishmentNumber: estNumber,
-          estMissing: isMeat && estNumber == null,
+          estMissing: isMeat && estNumber == null && !exemption.isExempt,
+          retailExempt: exemption.isExempt,
+          retailExemptStoreName: exemption.storeName,
           imagePaths: [imgPath],
         );
       }

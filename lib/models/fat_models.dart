@@ -216,6 +216,18 @@ class FATResult {
   final Map<FATCategory, FATCategoryResult> categories;
   final String? detectedEstablishmentNumber;
   final bool estMissing;
+
+  /// True when the product falls under the USDA retail store exemption
+  /// (9 CFR 303.1(d)) — cut, ground, or packed in-store, so no establishment
+  /// number is required on the package. When true, [estMissing] is false and the
+  /// EST-dependent categories (Processor, FSIS required language, Supply-Chain
+  /// Intermediary) are reported `notRequired` rather than `missing`.
+  final bool retailExempt;
+
+  /// Recognized retailer name, when detected. Null when the exemption was inferred
+  /// from in-store preparation language without a named store.
+  final String? retailExemptStoreName;
+
   final bool estSpeciesMismatch;
   final String? estSpeciesMismatchNote;
   final String? speciesClaimMisuseNote;
@@ -237,6 +249,8 @@ class FATResult {
     required this.categories,
     this.detectedEstablishmentNumber,
     this.estMissing = false,
+    this.retailExempt = false,
+    this.retailExemptStoreName,
     this.estSpeciesMismatch = false,
     this.estSpeciesMismatchNote,
     this.speciesClaimMisuseNote,
@@ -296,8 +310,13 @@ class FATResult {
     double maxDisclosure = 0;
     for (final cat in allCats) {
       final w = weightOf(cat);
-      maxDisclosure += w;
       final r = categories[cat];
+      // `notRequired` (e.g. a category made structurally unanswerable by the
+      // retail exemption) is excluded from BOTH numerator and denominator — the
+      // information was never required to travel to the label, so its absence is
+      // not a failure. Mirrors seafood scoring and iOS.
+      if (r != null && r.status == DisclosureStatus.notRequired) continue;
+      maxDisclosure += w;
       if (r == null) continue;
       switch (r.status) {
         case DisclosureStatus.known:    disclosurePoints += w; break;
@@ -305,7 +324,8 @@ class FATResult {
         default: break;
       }
     }
-    double disclosurePillar = (disclosurePoints / maxDisclosure) * 70;
+    double disclosurePillar =
+        maxDisclosure > 0 ? (disclosurePoints / maxDisclosure) * 70 : 0;
     final penalty = (epaViolation ? 3.0 : 0) + (oshaViolation ? 2.0 : 0);
     disclosurePillar = (disclosurePillar - penalty).clamp(0, 70).toDouble();
 

@@ -98,6 +98,8 @@ class ScanStore {
     'scannedAt':    r.scannedAt.toIso8601String(),
     'estNumber':    r.detectedEstablishmentNumber,
     'estMissing':   r.estMissing,
+    'retailExempt': r.retailExempt,
+    'retailExemptStoreName': r.retailExemptStoreName,
     'imagePaths':   r.imagePaths,
     'categories':   r.categories.map((k, v) => MapEntry(k.name, _catResultToMap(v))),
   };
@@ -125,6 +127,8 @@ class ScanStore {
       categories:                 categories,
       detectedEstablishmentNumber: m['estNumber'] as String?,
       estMissing:                 m['estMissing'] as bool? ?? false,
+      retailExempt:               m['retailExempt'] as bool? ?? false,
+      retailExemptStoreName:      m['retailExemptStoreName'] as String?,
       imagePaths:                 (m['imagePaths'] as List?)?.cast<String>() ?? const [],
     );
   }

@@ -136,6 +136,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   // ── Palette (spec section D) ───────────────────────────────────────────
   static const _disclosureGreen = Color(0xFF34A853); // ✓ disclosed
+  static const _disclosureBlue = Color(0xFF2563EB); //  ⓘ not applicable (exemption)
   static const _fatAmber = FATTheme.fatAmber; //         ⚠ partial / USDA-reviewed
   static const _fatRed = FATTheme.fatRed; //             ✗ missing
   static const _fatGreen = FATTheme.primaryGreen; //     sage card BG
@@ -159,7 +160,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
       case DisclosureStatus.missing:
         return _fatRed;
       case DisclosureStatus.notRequired:
-        return _disclosureGreen;
+        // Neutral blue — not applicable under an exemption, never a failure.
+        return _disclosureBlue;
     }
   }
 
@@ -367,9 +369,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
     return (line: 'No backed claims disclosed', icon: Icons.info_outline, color: Colors.black54);
   }
 
+  int get _notApplicableCount => result.categories.values
+      .where((r) => r.status == DisclosureStatus.notRequired)
+      .length;
+
   Widget _atAGlanceCard() {
     final disclosed = result.knownCount;
     final partial = result.partialCount;
+    final notApplicable = _notApplicableCount;
     final silent = _silentCategories;
     final v = _verification;
 
@@ -400,18 +407,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          // 16-segment single-color disclosure meter (fuller = more disclosed).
+          // 16-segment disclosure meter. Green = disclosed; neutral blue = not
+          // applicable under an exemption (a regulatory gap, not a failure);
+          // faint gray = silent/missing.
           Row(
             children: List.generate(_totalCategories, (i) {
+              final Color segColor = i < disclosed
+                  ? _disclosureGreen
+                  : (i < disclosed + notApplicable
+                      ? _disclosureBlue.withValues(alpha: 0.35)
+                      : Colors.black.withValues(alpha: 0.10));
               return Expanded(
                 child: Container(
                   height: 12,
                   margin: EdgeInsets.only(
                       right: i == _totalCategories - 1 ? 0 : 3),
                   decoration: BoxDecoration(
-                    color: i < disclosed
-                        ? _disclosureGreen
-                        : Colors.black.withValues(alpha: 0.10),
+                    color: segColor,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -430,11 +442,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       color: _disclosureGreen,
                       height: 1.0)),
               const SizedBox(width: 8),
-              Text('of $_totalCategories categories disclosed',
+              Text(
+                  notApplicable > 0
+                      ? 'of ${_totalCategories - notApplicable} applicable categories disclosed'
+                      : 'of $_totalCategories categories disclosed',
                   style:
                       const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ],
           ),
+          if (notApplicable > 0) ...[
+            const SizedBox(height: 4),
+            Text(
+                '$notApplicable not applicable — retail exemption (no establishment number is required on an in-store cut)',
+                style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: _disclosureBlue)),
+          ],
           if (partial > 0) ...[
             const SizedBox(height: 4),
             Text('$partial more partially disclosed',
@@ -515,6 +539,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
         titleColor: _fatRed,
         body:
             'This label does not show a USDA establishment (EST.) number. FSIS requires one on all federally inspected meat and poultry products, so its absence may indicate an incomplete label, an exempt product, or imported product handled differently.',
+      ));
+    }
+    // Retail exemption — a NEUTRAL note (not a violation) when the item was
+    // cut/ground/packed in-store under 9 CFR 303.1(d). Mutually exclusive with the
+    // red banner above (estMissing is false when the exemption applies).
+    if (result.retailExempt) {
+      widgets.add(_warningBanner(
+        icon: Icons.storefront_outlined,
+        iconColor: _disclosureBlue,
+        bgColor: _disclosureBlue.withValues(alpha: 0.07),
+        borderColor: _disclosureBlue.withValues(alpha: 0.45),
+        title: result.retailExemptStoreName != null
+            ? 'Retail Exemption — ${result.retailExemptStoreName}'
+            : 'Retail Exemption',
+        titleColor: _disclosureBlue,
+        body:
+            'This item appears to have been cut, ground, or packed in-store. Under the USDA retail store exemption (21 U.S.C. 661(c)(2); 9 CFR 303.1(d)), a store doing traditional retail cutting and grinding is not an official establishment and has no establishment number to display — so the missing EST number is not a compliance failure. The Processor, USDA/FSIS legend, and Supply-Chain categories are marked “not applicable” rather than “not disclosed”: the information was never required to travel from the source plant to the store scale label. For ground beef, the store must still keep the supplier establishment numbers in its grinder’s log (9 CFR 320.1) — ask at the counter.',
       ));
     }
     if (result.estSpeciesMismatch && result.estSpeciesMismatchNote != null) {
