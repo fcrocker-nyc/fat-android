@@ -852,6 +852,22 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Two caveats. Every air-chill claim is self-reported and unaudited. And the high end of the retained-water range ("up to 12%") appears in FSIS guidance rather than on any package we could find — which is itself telling.\n\n'
             'Source: FAT research paper — The Chemistry That Isn\'t on the Label: Antimicrobial Washes in U.S. Broiler Processing. Full paper at farmanimaltransparency.com/fat-research/.'),
       ),
+      // 2.2c
+      _LearnTopic(
+        title: 'The Retail Exemption',
+        subtitle: 'Why a store-cut steak has no establishment number',
+        body: _text(
+            'A boxed subprimal arrives at a supermarket carrying the USDA mark of inspection and the establishment number of the plant that fabricated it. A store butcher opens the box, cuts it into steaks or grinds it, wraps the result on a scale, and prints a label — with a price, a weight, and a sell-by date, but no establishment number. No federal rule requires one.\n\n'
+            'Why the number disappears.\n'
+            'The retail store exemption — 21 U.S.C. 661(c)(2), spelled out at 9 CFR 303.1(d) — covers the ordinary work of a retail meat counter: cutting a wholesale cut into retail cuts, and grinding. A store doing that work is not an "official establishment," so it has no establishment number of its own, and nothing obliges it to carry forward the number of the plant that supplied the box.\n\n'
+            'What FAT does with it.\n'
+            'When FAT detects a store-cut or store-ground package — an in-store scale label, a store-grind statement, a random-weight barcode, and no EST number — it does not flag the missing number as a violation. It marks the establishment-dependent categories — Processor, the FSIS legend, and Supply-Chain Intermediaries — "not applicable" (shown in blue) rather than "not disclosed" (red), and sets them aside from the disclosed count. The information was never required to travel to the store scale label, so its absence says nothing about the store. Scoring it like a national-brand package the company controls would blame the store for a gap that belongs to the regulation.\n\n'
+            'The one thing the store must keep.\n'
+            'For ground beef, a 2015 rule (9 CFR 320.1) requires the store to record its supplier establishment numbers, lot numbers, and grind dates in a grinder\'s log, kept for one year. So even when the number isn\'t on the tray, the answer exists behind the counter — it is fair to ask for it.\n\n'
+            'Not a safety flag.\n'
+            'A store-cut tray still meets every USDA FSIS minimum. The retail exemption is about who has to print an identifier, not about whether the meat was inspected.\n\n'
+            'Source: FAT research paper — The Retail Exemption. Full paper at farmanimaltransparency.com/fat-research/.'),
+      ),
       // 2.3
       _LearnTopic(
         title: 'Antibiotics and Meat Labels',
