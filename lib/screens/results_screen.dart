@@ -67,6 +67,52 @@ class _ResultsScreenState extends State<ResultsScreen> {
     if (info != null && mounted) setState(() => _betaAgonists = info);
   }
 
+  /// Establishment's registered owner/parent from the FSIS directory record.
+  /// The DBA field lists doing-business-as / parent entities (e.g. "JBS USA
+  /// Food Company; Swift Beef Company"); the first entry differing from the
+  /// plant name is the parent. With no distinct parent, the operating company
+  /// (the establishment name) is the owner the record discloses.
+  String? _ownerFromDirectory(ProcessorRecord p) {
+    final name = p.name.trim();
+    final dba = p.dba;
+    if (dba != null && dba.trim().isNotEmpty) {
+      final parts = dba
+          .split(';')
+          .map((s) => s.trim())
+          .where((s) => s.isNotEmpty)
+          .toList();
+      final parent = parts.firstWhere(
+          (s) => s.toLowerCase() != name.toLowerCase(),
+          orElse: () => '');
+      if (parent.isNotEmpty) return parent;
+    }
+    return name.isEmpty ? null : name;
+  }
+
+  /// Overlay the FSIS-directory owner onto Who/Owner when the label didn't
+  /// already disclose a brand owner. The EST number on the label makes this a
+  /// public-record disclosure, so it counts toward the 16 (USDA-Reviewed) —
+  /// consistent with how Processor counts from the EST number. Mutates the
+  /// (modifiable) categories map in place; caller wraps this in setState.
+  void _applyDirectoryOwner(ProcessorRecord rec) {
+    if (result.isSeafood) return;
+    if (result.categories[FATCategory.who]?.status == DisclosureStatus.known) {
+      return;
+    }
+    final owner = _ownerFromDirectory(rec);
+    if (owner == null) return;
+    final est = result.detectedEstablishmentNumber ?? rec.estNumber;
+    result.categories[FATCategory.who] = FATCategoryResult(
+      status: DisclosureStatus.known,
+      value: owner,
+      credibility: ClaimCredibility.usdaApproved,
+      credibilityNote:
+          'Owner/operator on record in the USDA/FSIS establishment directory '
+          'for EST $est. Identified from the establishment number printed on '
+          'the label.',
+    );
+  }
+
   Future<void> _loadProcessorRecord() async {
     final rec =
         await ProcessorService.fetch(result.detectedEstablishmentNumber);
@@ -74,6 +120,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
       setState(() {
         _processor = rec;
         _processorLoading = false;
+        if (rec != null) _applyDirectoryOwner(rec);
       });
     }
     // Chain the environmental-proximity lookup off the processor's coordinates.
@@ -767,6 +814,21 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 const Text(
                   'No corporate-owner record matched this establishment number. The processing facility is federally inspected under this EST number.',
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                ),
+              ],
+              // Honest "not found" — the number is on the label but no such
+              // establishment exists in the FSIS directory (e.g. an OCR
+              // misread of the inspection legend). Don't leave it blank.
+              if (_processor == null && !_processorLoading) ...[
+                const SizedBox(height: 10),
+                Text(
+                  'EST $est isn’t in the current USDA/FSIS directory — the '
+                  'number may have been misread. Re-scan the inspection legend '
+                  '(“USDA / P. …” or “EST. …”) for a cleaner read.',
+                  style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black54),
                 ),
               ],
               _enforcementBlock(),
