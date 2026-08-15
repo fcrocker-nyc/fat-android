@@ -847,11 +847,13 @@ class LabelInterpreter {
       }
       // Chicken label with no class term — age not disclosed. State the likely
       // reality alongside (mirrors iOS): undisclosed retail chicken is almost
-      // always broiler/fryer class, the youngest slaughter class.
+      // always the USDA broiler/fryer class, the youngest slaughter class.
+      // Class taxonomy is USDA's (9 CFR 381.170); the six-week fact is
+      // ASPCA-documented; ~47-day average is NCC.
       return const FATCategoryResult(
         status: DisclosureStatus.missing,
         credibilityNote:
-            'Undisclosed retail chicken is almost always broiler/fryer class — slaughtered at about six weeks old, the youngest of the major farmed animals (ASPCA ShopKind; NCC reports a ~47-day industry average).',
+            'Undisclosed retail chicken is almost always the USDA “broiler/fryer” class (9 CFR 381.170, under 10 weeks) — in practice slaughtered at about six weeks old, still a juvenile and the youngest of the major farmed animals (ASPCA; NCC reports a ~47-day industry average).',
       );
     }
 
