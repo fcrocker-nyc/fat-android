@@ -102,6 +102,21 @@ class LabelInterpreter {
       FATCategory.supplyChainIntermediary:  intermediary,
     };
 
+    // Poultry has no finishing-phase intermediary stage (no feedlot /
+    // backgrounder / sale barn) — birds move directly from the growing farm to
+    // the processor. Silence on this category is therefore structural, not a
+    // disclosure gap: report notRequired instead of missing. Mirrors iOS.
+    if ((species.value == 'Chicken' || species.value == 'Turkey') &&
+        (map[FATCategory.supplyChainIntermediary]?.status ??
+                DisclosureStatus.missing) ==
+            DisclosureStatus.missing) {
+      map[FATCategory.supplyChainIntermediary] = const FATCategoryResult(
+        status: DisclosureStatus.notRequired,
+        value:
+            'Intermediaries are not used in poultry — birds move directly from the farm to the processor.',
+      );
+    }
+
     // USDA retail-store exemption (9 CFR 303.1(d)). When a store-cut / store-ground
     // package is detected (no EST number + positive in-store evidence), the
     // establishment-dependent categories are structurally unanswerable — report
@@ -830,7 +845,14 @@ class LabelInterpreter {
           credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Typical commercial slaughter age is ~47 days (NCC 2024 Broiler Performance Report).',
         );
       }
-      return FATCategoryResult.missing;
+      // Chicken label with no class term — age not disclosed. State the likely
+      // reality alongside (mirrors iOS): undisclosed retail chicken is almost
+      // always broiler/fryer class, the youngest slaughter class.
+      return const FATCategoryResult(
+        status: DisclosureStatus.missing,
+        credibilityNote:
+            'Undisclosed retail chicken is almost always broiler/fryer class — slaughtered at about six weeks old, the youngest of the major farmed animals (ASPCA ShopKind; NCC reports a ~47-day industry average).',
+      );
     }
 
     // Non-poultry

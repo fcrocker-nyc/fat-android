@@ -1122,17 +1122,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 'OSHA worker-safety violations on record')
             : row(Icons.verified_user_outlined, FATTheme.scanGreen,
                 'No OSHA worker-safety violations in the full record on file'),
-        // Ractopamine / beta-agonists — POSITIVE disclosure only. Verified "never
-        // fed" line when the plant is on the USDA AMS listing; otherwise state that
+        // Ractopamine / beta-agonists — POSITIVE disclosure only, and PORK ONLY:
+        // the question is only relevant where the drug is actually used in the
+        // supply chain, so the line is noise on chicken, turkey, lamb, and beef
+        // labels (user directive 2026-08-15; mirrors iOS). Verified "never fed"
+        // line when the plant is on the USDA AMS listing; otherwise state that
         // FSIS requires no label disclosure — NOT that the plant uses it (no
         // federal registry of users exists). Product-line scope, not company-wide.
-        if (_betaAgonists != null)
-          row(Icons.verified_outlined, FATTheme.scanGreen,
-              'USDA AMS Verified — Never Fed Beta Agonists (ractopamine): a verified product line at this establishment'
-              '${_betaAgonists!.markets.isEmpty ? '' : ' · verified for ${_betaAgonists!.markets.join(' & ')}'}')
-        else
-          row(Icons.info_outline, const Color(0xFF6B7280),
-              'Ractopamine (beta-agonists): no AMS “never fed” verification on file — FSIS requires no label disclosure of use either way'),
+        if (result.categories[FATCategory.species]?.value == 'Pork') ...[
+          if (_betaAgonists != null)
+            row(Icons.verified_outlined, FATTheme.scanGreen,
+                'USDA AMS Verified — Never Fed Beta Agonists (ractopamine): a verified product line at this establishment'
+                '${_betaAgonists!.markets.isEmpty ? '' : ' · verified for ${_betaAgonists!.markets.join(' & ')}'}')
+          else
+            row(Icons.info_outline, const Color(0xFF6B7280),
+                'Ractopamine (beta-agonists): no AMS “never fed” verification on file — FSIS requires no label disclosure of use either way'),
+        ],
       ],
     );
   }
@@ -1201,7 +1206,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
         statusText = '${category.displayName} not disclosed.';
         break;
       case DisclosureStatus.notRequired:
-        statusText = 'Not required by federal law.';
+        // A structural explanation (e.g. "intermediaries are not used in
+        // poultry") beats the generic line when one was provided.
+        statusText = value?.value ?? 'Not required by federal law.';
         break;
     }
 
