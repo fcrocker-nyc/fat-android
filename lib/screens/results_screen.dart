@@ -34,6 +34,7 @@ class ResultsScreen extends StatefulWidget {
 
 class _ResultsScreenState extends State<ResultsScreen> {
   bool _didSave = false;
+  bool _saving = false;
   // OSHA worker-safety penalty against the Processor (Cat 7) disclosure score.
   // Set true after the live OSHA fetch confirms a high-confidence match with
   // violations on record; the score/grade then recompute with −2 applied.
@@ -1332,8 +1333,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
           children: [
             Expanded(
               child: _primaryButton(
-                _didSave ? 'Saved' : 'Save',
-                _didSave ? null : _save,
+                _didSave ? 'Saved' : (_saving ? 'Saving…' : 'Save'),
+                (_didSave || _saving) ? null : _save,
               ),
             ),
             const SizedBox(width: 14),
@@ -1372,7 +1373,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: FATTheme.scanGreen)),
+                  color: Colors.black)),
         ),
       ],
     );
@@ -1402,9 +1403,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   // ── Actions logic ──────────────────────────────────────────────────────
   Future<void> _save() async {
+    if (_saving || _didSave) return;
+    setState(() => _saving = true);
     await ScanStore.instance.saveResult(result);
     if (!mounted) return;
-    setState(() => _didSave = true);
+    setState(() {
+      _saving = false;
+      _didSave = true;
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Saved to scan history.')),
     );

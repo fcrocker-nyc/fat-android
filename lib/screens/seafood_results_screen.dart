@@ -33,6 +33,7 @@ class SeafoodResultsScreen extends StatefulWidget {
 
 class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   bool _didSave = false;
+  bool _saving = false;
   // OSHA worker-safety penalty against the Processor (Cat 7) disclosure score —
   // relevant to catfish/Siluriformes, the only seafood with an OSHA-linkable
   // FSIS establishment. Set true after a high-confidence match with violations.
@@ -767,8 +768,8 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
           children: [
             Expanded(
               child: _primaryButton(
-                _didSave ? 'Saved' : 'Save',
-                _didSave ? null : _save,
+                _didSave ? 'Saved' : (_saving ? 'Saving…' : 'Save'),
+                (_didSave || _saving) ? null : _save,
               ),
             ),
             const SizedBox(width: 14),
@@ -807,7 +808,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: FATTheme.scanGreen)),
+                  color: Colors.black)),
         ),
       ],
     );
@@ -837,9 +838,14 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
 
   // ── Actions logic ──────────────────────────────────────────────────────
   Future<void> _save() async {
+    if (_saving || _didSave) return;
+    setState(() => _saving = true);
     await ScanStore.instance.saveResult(result);
     if (!mounted) return;
-    setState(() => _didSave = true);
+    setState(() {
+      _saving = false;
+      _didSave = true;
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Saved to scan history.')),
     );

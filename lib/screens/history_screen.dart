@@ -4,6 +4,7 @@ import '../models/lookup_record.dart';
 import '../services/scan_store.dart';
 import '../theme/fat_theme.dart';
 import 'results_screen.dart';
+import 'seafood_results_screen.dart';
 
 /// Product-type dimension for the History filter sheet — mirrors iOS
 /// HistoryFilter.ProductTypeFilter (all / meat / seafood / siluriformes).
@@ -72,10 +73,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
   void initState() {
     super.initState();
     _load();
+    // This screen lives in an IndexedStack, so initState runs once at app
+    // launch — without this listener a scan saved mid-session never appeared
+    // in History until the app restarted.
+    ScanStore.instance.addListener(_load);
   }
 
   @override
   void dispose() {
+    ScanStore.instance.removeListener(_load);
     _searchController.dispose();
     _lookupSearchController.dispose();
     super.dispose();
@@ -970,8 +976,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final regMet = r.regulatoryPassed;
     final est = r.detectedEstablishmentNumber;
     return GestureDetector(
-      onTap: () => Navigator.push(context,
-          MaterialPageRoute(builder: (_) => ResultsScreen(result: r))),
+      // Route by product type — a seafood record opened in the meat results
+      // screen rendered from the (empty) meat categories.
+      onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) => r.isSeafood
+                  ? SeafoodResultsScreen(result: r)
+                  : ResultsScreen(result: r))),
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(14),
@@ -1026,26 +1038,32 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               fontSize: 16, fontWeight: FontWeight.bold)),
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: regMet
-                          ? FATTheme.primaryGreen
-                          : FATTheme.errorBGTint,
-                      borderRadius: BorderRadius.circular(20),
+                  // Only surface the regulatory badge for FSIS-regulated
+                  // products (meat / Siluriformes). FDA seafood has no
+                  // consumer-label disclosure requirement, so "not detected"
+                  // is expected and not a compliance gap. Mirrors iOS.
+                  if (!r.isSeafood || r.isSiluriformes) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: regMet
+                            ? FATTheme.primaryGreen
+                            : FATTheme.errorBGTint,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        regMet
+                            ? 'USDA / FSIS disclosure detected'
+                            : 'USDA / FSIS disclosure not detected',
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: regMet ? Colors.black : FATTheme.errorRed),
+                      ),
                     ),
-                    child: Text(
-                      regMet
-                          ? 'USDA / FSIS disclosure detected'
-                          : 'USDA / FSIS disclosure not detected',
-                      style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: regMet ? Colors.black : FATTheme.errorRed),
-                    ),
-                  ),
+                  ],
                   if (est != null) ...[
                     const SizedBox(height: 4),
                     Text('EST. $est',

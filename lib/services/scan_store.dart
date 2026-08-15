@@ -1,11 +1,16 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/fat_models.dart';
 import '../models/lookup_record.dart';
 
 /// Lightweight persistence for scan history — mirrors iOS ScanStore.
 /// Stores results as JSON in SharedPreferences.
-class ScanStore {
+///
+/// A [ChangeNotifier] so live screens can react to writes: the tab bar keeps
+/// every screen alive in an IndexedStack, and History only loaded in
+/// initState — a scan saved mid-session never appeared until app restart.
+class ScanStore extends ChangeNotifier {
   ScanStore._();
   static final ScanStore instance = ScanStore._();
 
@@ -15,11 +20,18 @@ class ScanStore {
   Future<void> saveResult(FATResult result) async {
     final prefs = await SharedPreferences.getInstance();
     final existing = prefs.getStringList(_key) ?? [];
+    // Upsert by id: scans are auto-saved at evaluate time, so the results
+    // screen's Save button re-saving the same result must not duplicate it.
+    existing.removeWhere((s) {
+      try { return (jsonDecode(s) as Map<String, dynamic>)['id'] == result.id; }
+      catch (_) { return false; }
+    });
     final encoded = jsonEncode(_resultToMap(result));
     existing.insert(0, encoded);
     // Keep last 200
     if (existing.length > 200) existing.removeRange(200, existing.length);
     await prefs.setStringList(_key, existing);
+    notifyListeners();
   }
 
   Future<List<FATResult>> loadAll() async {
@@ -37,6 +49,7 @@ class ScanStore {
   Future<void> deleteAll() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
+    notifyListeners();
   }
 
   // ── Lookup history ─────────────────────────────────────────────────────────
@@ -61,6 +74,7 @@ class ScanStore {
     existing.insert(0, jsonEncode(record.toMap()));
     if (existing.length > 200) existing.removeRange(200, existing.length);
     await prefs.setStringList(_lookupKey, existing);
+    notifyListeners();
   }
 
   Future<List<LookupRecord>> loadLookups() async {
@@ -83,11 +97,13 @@ class ScanStore {
       catch (_) { return false; }
     });
     await prefs.setStringList(_lookupKey, raw);
+    notifyListeners();
   }
 
   Future<void> deleteAllLookups() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_lookupKey);
+    notifyListeners();
   }
 
   // ── Serialization ────────────────────────────────────────────────────────
@@ -102,6 +118,15 @@ class ScanStore {
     'retailExemptStoreName': r.retailExemptStoreName,
     'imagePaths':   r.imagePaths,
     'categories':   r.categories.map((k, v) => MapEntry(k.name, _catResultToMap(v))),
+    // Seafood identity — without these a saved seafood scan silently
+    // round-tripped as a meat record with zero categories in History.
+    'productType':      r.productType.name,
+    'seafoodCategories': r.seafoodCategories.map((k, v) => MapEntry(k.name, _catResultToMap(v))),
+    'isSiluriformes':   r.isSiluriformes,
+    'productionMethod': r.productionMethod?.name,
+    'estSpeciesMismatch':     r.estSpeciesMismatch,
+    'estSpeciesMismatchNote': r.estSpeciesMismatchNote,
+    'speciesClaimMisuseNote': r.speciesClaimMisuseNote,
   };
 
   Map<String, dynamic> _catResultToMap(FATCategoryResult r) => {
@@ -120,6 +145,15 @@ class ScanStore {
           orElse: () => FATCategory.species);
       categories[cat] = _catResultFromMap(entry.value as Map<String, dynamic>);
     }
+    final seaRaw = m['seafoodCategories'] as Map<String, dynamic>? ?? {};
+    final seafoodCategories = <SeafoodCategory, FATCategoryResult>{};
+    for (final entry in seaRaw.entries) {
+      final cat = SeafoodCategory.values.firstWhere((c) => c.name == entry.key,
+          orElse: () => SeafoodCategory.speciesIdentity);
+      seafoodCategories[cat] = _catResultFromMap(entry.value as Map<String, dynamic>);
+    }
+    final typeStr = m['productType'] as String?;
+    final methodStr = m['productionMethod'] as String?;
     return FATResult(
       id:                         m['id'] as String?,
       scannedText:                m['scannedText'] as String? ?? '',
@@ -129,6 +163,17 @@ class ScanStore {
       estMissing:                 m['estMissing'] as bool? ?? false,
       retailExempt:               m['retailExempt'] as bool? ?? false,
       retailExemptStoreName:      m['retailExemptStoreName'] as String?,
+      estSpeciesMismatch:         m['estSpeciesMismatch'] as bool? ?? false,
+      estSpeciesMismatchNote:     m['estSpeciesMismatchNote'] as String?,
+      speciesClaimMisuseNote:     m['speciesClaimMisuseNote'] as String?,
+      productType: ProductType.values.firstWhere((t) => t.name == typeStr,
+          orElse: () => ProductType.meat),
+      seafoodCategories:          seafoodCategories,
+      isSiluriformes:             m['isSiluriformes'] as bool? ?? false,
+      productionMethod: methodStr == null
+          ? null
+          : SeafoodProductionMethod.values.firstWhere((p) => p.name == methodStr,
+              orElse: () => SeafoodProductionMethod.wildCaught),
       imagePaths:                 (m['imagePaths'] as List?)?.cast<String>() ?? const [],
     );
   }
