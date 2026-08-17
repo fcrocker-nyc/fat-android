@@ -243,6 +243,19 @@ class PorkOwnerDatabase {
     BrandKeyword('oscar meyer', 'kraftheinz'),
     BrandKeyword('bar-s', 'sigma'),
     BrandKeyword('bar s foods', 'sigma'),
+    // Expansion 2026-08-18 (verified ownerships)
+    BrandKeyword('pure farmland', 'whgroup'),
+    BrandKeyword('carando', 'whgroup'),
+    BrandKeyword('krakus', 'whgroup'),
+    BrandKeyword('columbus craft', 'hormel'),
+    BrandKeyword('columbus salame', 'hormel'),
+    BrandKeyword("lloyd's", 'hormel'),
+    BrandKeyword('lloyds barbeque', 'hormel'),
+    BrandKeyword('dinty moore', 'hormel'),
+    BrandKeyword('mary kitchen', 'hormel'),
+    BrandKeyword('open prairie', 'tyson'),
+    BrandKeyword("chairman's reserve", 'tyson'),
+    BrandKeyword('chairmans reserve', 'tyson'),
   ];
 
   // ── Pork Establishment Owners ─────────────────────────────────────────────
@@ -375,6 +388,11 @@ class PorkOwnerDatabase {
     BrandKeyword('rumba meats', 'cargill_beef'),
     BrandKeyword('national beef', 'national_beef'),
     BrandKeyword('kansas city steak', 'national_beef'),
+    // Expansion 2026-08-18 (verified ownerships)
+    BrandKeyword('grass run farms', 'jbs_beef'),
+    BrandKeyword('aspen ridge', 'jbs_beef'),
+    BrandKeyword('star ranch angus', 'tyson_beef'),
+    BrandKeyword('open prairie natural angus', 'tyson_beef'),
   ];
 
   static const Map<String, String> beefEstablishmentOwners = {
@@ -499,6 +517,18 @@ class PorkOwnerDatabase {
     BrandKeyword('perdue', 'perdue'),
     BrandKeyword('harvestland', 'perdue'),
     BrandKeyword('perdue airchilled', 'perdue'),
+    // Expansion 2026-08-18 (verified ownerships)
+    BrandKeyword('nature raised farms', 'tyson_chicken'),
+    BrandKeyword('natureraised', 'tyson_chicken'),
+    BrandKeyword("gold'n plump", 'pilgrims'),
+    BrandKeyword('goldn plump', 'pilgrims'),
+    BrandKeyword('gold kist', 'pilgrims'),
+    BrandKeyword('coleman natural', 'perdue'),
+    BrandKeyword('niman ranch', 'perdue'),
+    BrandKeyword('draper valley', 'perdue'),
+    BrandKeyword('petaluma poultry', 'perdue'),
+    BrandKeyword('rocky the range', 'perdue'),
+    BrandKeyword('rosie organic', 'perdue'),
   ];
 
   static const Map<String, String> chickenEstablishmentOwners = {
@@ -762,5 +792,29 @@ class PorkOwnerDatabase {
         detectBeefOwnerForEstablishment(est) ??
         detectChickenOwnerForEstablishment(est) ??
         detectTurkeyOwnerForEstablishment(est);
+  }
+
+  static List<PorkCorporateOwner> get allOwners =>
+      [...owners, ...beefOwners, ...chickenOwners, ...turkeyOwners];
+
+  /// Reverse lookup: every establishment number this database attributes to
+  /// the given owner, across all species tables. Powers the "brand clue" on
+  /// the missing-EST warning — a lead, not an identification (brands
+  /// routinely pack at multiple plants).
+  static List<String> establishmentsForOwner(String ownerID) {
+    final ests = <String>[];
+    for (final m in [
+      establishmentOwners,
+      beefEstablishmentOwners,
+      chickenEstablishmentOwners,
+      turkeyEstablishmentOwners,
+    ]) {
+      m.forEach((est, owner) {
+        if (owner == ownerID) ests.add(est);
+      });
+    }
+    ests.sort((a, b) =>
+        (int.tryParse(a) ?? 1 << 30).compareTo(int.tryParse(b) ?? 1 << 30));
+    return ests;
   }
 }

@@ -575,19 +575,154 @@ class _ResultsScreenState extends State<ResultsScreen> {
   bool get _hasEnforcement => _oshaViolation || _epaViolation;
 
   // ── A5. EST Warnings ───────────────────────────────────────────────────
+
+  /// Small schematic of the round USDA inspection legend — where the
+  /// establishment number officially lives. Drawn, not an asset.
+  Widget _inspectionLegendSchematic() {
+    Widget line(String t, double size, FontWeight w) => Text(t,
+        style: TextStyle(fontSize: size, fontWeight: w, color: Colors.black, height: 1.1));
+    return Column(mainAxisSize: MainAxisSize.min, children: [
+      Container(
+        width: 78,
+        height: 78,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.black, width: 2),
+        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          line('U.S.', 9, FontWeight.w900),
+          line('INSPECTED', 7, FontWeight.w700),
+          line('AND PASSED BY', 5.5, FontWeight.w600),
+          line('DEPARTMENT OF', 5.5, FontWeight.w600),
+          line('AGRICULTURE', 7, FontWeight.w700),
+          line('EST. 38', 8, FontWeight.w900),
+        ]),
+      ),
+      const Text('(schematic)',
+          style: TextStyle(fontSize: 9, fontWeight: FontWeight.w600, color: Colors.black54)),
+    ]);
+  }
+
+  /// Brand clue for the missing-EST card: recognized brand → owning company →
+  /// establishments this database attributes to that company. A lead, never
+  /// an identification.
+  (String, String, List<String>)? _estBrandClue() {
+    final r = PorkOwnerDatabase.detectOwnerAnySpeciesInText(
+        result.scannedText.toLowerCase());
+    if (r != null) {
+      return (r.detectedBrand, r.owner.name,
+          PorkOwnerDatabase.establishmentsForOwner(r.owner.id));
+    }
+    final brand = result.categories[FATCategory.brand]?.value;
+    final company = result.categories[FATCategory.who]?.value;
+    if (brand != null && company != null) {
+      final lc = company.toLowerCase();
+      for (final o in PorkOwnerDatabase.allOwners) {
+        final key = o.name.toLowerCase().split(RegExp(r'[(,]')).first;
+        final token = key
+            .split(' ')
+            .where((t) => t.length > 3 && t != 'the')
+            .toList();
+        if (token.isNotEmpty && lc.contains(token.first)) {
+          return (brand, company, PorkOwnerDatabase.establishmentsForOwner(o.id));
+        }
+      }
+      return (brand, company, const []);
+    }
+    return null;
+  }
+
+  Widget _estMissingCard() {
+    const bodyStyle = TextStyle(
+        fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black, height: 1.25);
+    final clue = _estBrandClue();
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: _fatRed.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _fatRed.withValues(alpha: 0.5)),
+      ),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(Icons.dangerous, color: _fatRed, size: 22),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('No Establishment Number Found',
+                style: TextStyle(
+                    fontSize: 16, fontWeight: FontWeight.bold, color: _fatRed)),
+            const SizedBox(height: 8),
+            const Text(
+                'A USDA establishment number (EST. #) is required on all federally inspected meat and poultry labels under 9 CFR 317.2 and 381.96.',
+                style: bodyStyle),
+            const SizedBox(height: 8),
+            Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Expanded(
+                child: Text(
+                    'The number’s official home is the round USDA inspection seal — “U.S. INSPECTED AND PASSED BY DEPARTMENT OF AGRICULTURE,” with “EST. (number)” for meat or “P-(number)” for poultry in its center.',
+                    style: bodyStyle),
+              ),
+              const SizedBox(width: 10),
+              _inspectionLegendSchematic(),
+            ]),
+            const SizedBox(height: 8),
+            const Text(
+                'If it is not inside the seal, the regulations permit it elsewhere only “in a prominent and legible manner” — for example on a lid, a closure clip, or an insert visible through the packaging, always with the EST prefix (9 CFR 317.2(i); for poultry, 9 CFR 381.123(b)).',
+                style: bodyStyle),
+            const SizedBox(height: 4),
+            GestureDetector(
+              onTap: () => _openUrl('https://www.law.cornell.edu/cfr/text/9/317.2'),
+              child: const Text('(full regulation text — 9 CFR 317.2)',
+                  style: TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.bold, color: Colors.blue)),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+                'In practice, notwithstanding that language, processors often print the bare number somewhere else — on a fold of the packaging, along a seam, or in small print — with no explanation of its significance. FAT is not aware of USDA ever declaring this camouflage practice a violation. It is nonetheless a transparency problem: a number you cannot find makes it harder to check the processor’s USDA enforcement record, its role in economic concentration, its environmental record, or its OSHA worker-safety history.',
+                style: bodyStyle),
+            const SizedBox(height: 8),
+            const Text(
+                'This label may not be in compliance, or the EST number may be present but not visible in the scanned panels. One could examine the package — its folds, seams, sideways and small print — for the EST.',
+                style: bodyStyle),
+            if (clue != null) ...[
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: _orange.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(children: [
+                    Icon(Icons.lightbulb, color: _orange, size: 16),
+                    const SizedBox(width: 6),
+                    const Text('Brand clue',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w900, color: Colors.black)),
+                  ]),
+                  const SizedBox(height: 4),
+                  Text(
+                      clue.$3.isEmpty
+                          ? 'The brand “${clue.$1}” on this label is sold by ${clue.$2}. Brands routinely use multiple plants, so the plant that produced this package can be confirmed only from the number printed on it.'
+                          : 'The brand “${clue.$1}” on this label is sold by ${clue.$2}. Establishments known to pack for ${clue.$2} include ${clue.$3.take(6).map((e) => 'EST. $e').join(', ')}. Brands routinely use multiple plants, so the plant that produced this package can be confirmed only from the number printed on it.',
+                      style: const TextStyle(
+                          fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black, height: 1.25)),
+                ]),
+              ),
+            ],
+          ]),
+        ),
+      ]),
+    );
+  }
+
   List<Widget> _estWarnings() {
     final widgets = <Widget>[];
     if (result.estMissing) {
-      widgets.add(_warningBanner(
-        icon: Icons.dangerous,
-        iconColor: _fatRed,
-        bgColor: _fatRed.withValues(alpha: 0.08),
-        borderColor: _fatRed.withValues(alpha: 0.5),
-        title: 'No Establishment Number Found',
-        titleColor: _fatRed,
-        body:
-            'This label does not show a USDA establishment (EST.) number. FSIS requires one on all federally inspected meat and poultry products, so its absence may indicate an incomplete label, an exempt product, or imported product handled differently.',
-      ));
+      widgets.add(_estMissingCard());
     }
     // Retail exemption — a NEUTRAL note (not a violation) when the item was
     // cut/ground/packed in-store under 9 CFR 303.1(d). Mutually exclusive with the
