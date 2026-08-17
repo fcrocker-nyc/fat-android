@@ -25,8 +25,12 @@ class ResultsScreen extends StatefulWidget {
   /// as a carousel at the top, matching iOS. Empty when opened from History
   /// (images are not persisted across sessions).
   final List<String> imagePaths;
+  /// True only in a live scan session: enables the missing-EST card's
+  /// "add another scan & re-evaluate" link (pops back with a sentinel the
+  /// scan screen acts on). False when opened from History.
+  final bool canAddScan;
   const ResultsScreen(
-      {super.key, required this.result, this.imagePaths = const []});
+      {super.key, required this.result, this.imagePaths = const [], this.canAddScan = false});
 
   @override
   State<ResultsScreen> createState() => _ResultsScreenState();
@@ -346,9 +350,24 @@ class _ResultsScreenState extends State<ResultsScreen> {
         const Text('Label Analysis',
             style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900)),
         const SizedBox(height: 6),
-        Text(_formattedDate(result.scannedAt),
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black)),
+        Row(children: [
+          Text(_formattedDate(result.scannedAt),
+              style: const TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.w600, color: Colors.black)),
+          if (result.isRevised) ...[
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text('REVISED',
+                  style: TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.w900, color: Colors.black)),
+            ),
+          ],
+        ]),
       ],
     );
   }
@@ -686,6 +705,36 @@ class _ResultsScreenState extends State<ResultsScreen> {
             const Text(
                 'This label may not be in compliance, or the EST number may be present but not visible in the scanned panels. One could examine the package — its folds, seams, sideways and small print — for the EST.',
                 style: bodyStyle),
+            if (widget.canAddScan) ...[
+              const SizedBox(height: 8),
+              const Text(
+                  'Found the EST on the package? You can add another scan of that spot — FAT will re-evaluate this label with the establishment number included, and the new evaluation will be marked “Revised” in History.',
+                  style: bodyStyle),
+              const SizedBox(height: 6),
+              GestureDetector(
+                onTap: () => Navigator.pop(context, 'fat_add_scan'),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: FATTheme.scanGreen.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_a_photo, size: 18, color: Colors.black),
+                      SizedBox(width: 6),
+                      Text('Add another scan & re-evaluate',
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             if (clue != null) ...[
               const SizedBox(height: 10),
               Container(

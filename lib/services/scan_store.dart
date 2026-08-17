@@ -127,6 +127,7 @@ class ScanStore extends ChangeNotifier {
     'estSpeciesMismatch':     r.estSpeciesMismatch,
     'estSpeciesMismatchNote': r.estSpeciesMismatchNote,
     'speciesClaimMisuseNote': r.speciesClaimMisuseNote,
+    'isRevised':              r.isRevised,
   };
 
   Map<String, dynamic> _catResultToMap(FATCategoryResult r) => {
@@ -170,6 +171,7 @@ class ScanStore extends ChangeNotifier {
           orElse: () => ProductType.meat),
       seafoodCategories:          seafoodCategories,
       isSiluriformes:             m['isSiluriformes'] as bool? ?? false,
+      isRevised:                  m['isRevised'] as bool? ?? false,
       productionMethod: methodStr == null
           ? null
           : SeafoodProductionMethod.values.firstWhere((p) => p.name == methodStr,

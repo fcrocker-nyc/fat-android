@@ -29,6 +29,12 @@ class ScanScreen extends StatefulWidget {
 class _ScanScreenState extends State<ScanScreen> {
   bool _isProcessing = false;
   String? _errorMessage;
+  // "Found the EST — add another scan" flow: the results screen pops back with
+  // a sentinel; the previous evaluation's text and photos are kept as the base,
+  // the camera reopens for the extra panel, and the combined re-evaluation is
+  // marked Revised.
+  String _pendingBaseText = '';
+  List<String> _pendingBasePaths = const [];
 
   @override
   void didUpdateWidget(ScanScreen old) {
@@ -72,8 +78,8 @@ class _ScanScreenState extends State<ScanScreen> {
       final result = await recognizer.processImage(inputImage);
       await recognizer.close();
 
-      final scannedText = result.text;
-      if (scannedText.trim().isEmpty) {
+      final newText = result.text;
+      if (newText.trim().isEmpty) {
         setState(() {
           _isProcessing = false;
           _errorMessage = 'No text detected. Try again with better lighting.';
@@ -84,6 +90,15 @@ class _ScanScreenState extends State<ScanScreen> {
       // Copy the photo out of the picker's temp cache into app documents so it
       // survives to History (falls back to the temp path if the copy fails).
       final imgPath = await _persistImage(xFile.path);
+
+      // Revision: combine the kept base evaluation's text/photos with the new
+      // panel so the re-evaluation sees everything, including the found EST.
+      final isRevision = _pendingBaseText.isNotEmpty;
+      final scannedText =
+          isRevision ? '$_pendingBaseText\n$newText' : newText;
+      final imagePaths = [..._pendingBasePaths, imgPath];
+      _pendingBaseText = '';
+      _pendingBasePaths = const [];
 
       // Route by product type: seafood labels go to the seafood pipeline,
       // everything else to the meat pipeline.
@@ -99,7 +114,8 @@ class _ScanScreenState extends State<ScanScreen> {
           isSiluriformes: si.isSiluriformes,
           productionMethod: si.productionMethod,
           detectedEstablishmentNumber: si.detectedEstablishmentNumber,
-          imagePaths: [imgPath],
+          isRevised: isRevision,
+          imagePaths: imagePaths,
         );
       } else {
         final categories = LabelInterpreter.interpret(scannedText);
@@ -119,21 +135,29 @@ class _ScanScreenState extends State<ScanScreen> {
           estMissing: isMeat && estNumber == null && !exemption.isExempt,
           retailExempt: exemption.isExempt,
           retailExemptStoreName: exemption.storeName,
-          imagePaths: [imgPath],
+          isRevised: isRevision,
+          imagePaths: imagePaths,
         );
       }
 
       await ScanStore.instance.saveResult(fatResult);
 
       if (!mounted) return;
-      Navigator.push(
+      final ret = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => isSeafood
               ? SeafoodResultsScreen(result: fatResult)
-              : ResultsScreen(result: fatResult),
+              : ResultsScreen(result: fatResult, canAddScan: true),
         ),
       );
+      // The missing-EST card's "add another scan" link: keep this evaluation
+      // as the base and reopen the camera for the panel carrying the EST.
+      if (ret == 'fat_add_scan' && mounted) {
+        _pendingBaseText = fatResult.scannedText;
+        _pendingBasePaths = fatResult.imagePaths;
+        await _pickAndScan(ImageSource.camera);
+      }
     } catch (e) {
       setState(() => _errorMessage = 'Error processing image: $e');
     } finally {

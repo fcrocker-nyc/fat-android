@@ -238,6 +238,11 @@ class FATResult {
   final bool isSiluriformes;
   final SeafoodProductionMethod? productionMethod;
 
+  /// True when this evaluation superseded an earlier one in the same session —
+  /// the user went back (e.g. after finding the EST number on the package)
+  /// and added another scan. History marks such records "Revised".
+  final bool isRevised;
+
   /// Persisted file paths of the photographed label panels (app documents dir),
   /// so a scan re-opened from History still shows its images. Empty when none.
   final List<String> imagePaths;
@@ -258,6 +263,7 @@ class FATResult {
     this.seafoodCategories = const {},
     this.isSiluriformes = false,
     this.productionMethod,
+    this.isRevised = false,
     this.imagePaths = const [],
   })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
         scannedAt = scannedAt ?? DateTime.now();

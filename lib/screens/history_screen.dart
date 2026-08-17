@@ -1036,6 +1036,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       Text(_timeStr(r.scannedAt),
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold)),
+                      if (r.isRevised) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withValues(alpha: 0.35),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text('REVISED',
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.black)),
+                        ),
+                      ],
                     ],
                   ),
                   // Only surface the regulatory badge for FSIS-regulated
