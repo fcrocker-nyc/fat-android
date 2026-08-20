@@ -2,7 +2,7 @@ name: fat_app
 description: "Farm Animal Transparency — meat label scanner"
 publish_to: 'none'
 
-version: 1.14.3+51
+version: 1.14.4+52
 environment:
   sdk: ^3.11.1
 
