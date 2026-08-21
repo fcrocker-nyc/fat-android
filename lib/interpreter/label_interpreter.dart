@@ -698,6 +698,19 @@ class LabelInterpreter {
         );
       }
     }
+    // "All Natural" — FSIS-defined labeling claim: minimally processed, no
+    // artificial ingredients or added color. NOT a raising claim, no audit.
+    // Headline forms only; bare "natural" would false-positive on "natural
+    // flavors" / "natural juices" / "naturally smoked". Mirrors iOS.
+    if (text.contains('all natural') || text.contains('100% natural')) {
+      return const FATCategoryResult(
+        status: DisclosureStatus.partial,
+        value: 'All Natural',
+        credibility: ClaimCredibility.producerAffidavit,
+        credibilityNote:
+            'FSIS “natural” claim: minimally processed, no artificial ingredients or added color. It is NOT a raising claim — it says nothing about feed, welfare, antibiotics, or hormones — and carries no independent audit.',
+      );
+    }
     return FATCategoryResult.missing;
   }
 
