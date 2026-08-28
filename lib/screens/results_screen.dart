@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
+import '../data/ground_beef_blending_registry.dart';
 import '../data/montana_origin.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
@@ -296,6 +297,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 CertificationResultCard.maybeFrom(result, result.scannedText),
                 GrassFedResultCard.maybeFrom(result, result.scannedText),
                 PoultryChillCard.maybeFrom(result, result.scannedText),
+                GroundBeefContextCard.maybeFrom(result, result.scannedText),
                 PastureResultCard.maybeFrom(result, result.scannedText),
                 RegenerativeResultCard.maybeFrom(result, result.scannedText),
               ].whereType<Widget>(),
@@ -1018,6 +1020,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
               ],
               _enforcementBlock(),
               _regulatorStatusRows(),
+              // Ground-beef blending-operator context (roadmap Phase 3): only
+              // for ground beef, and only when this establishment is documented
+              // as a Big Four or named independent/QSR blending operator.
+              ..._blendingOperatorNote(est),
               const SizedBox(height: 12),
               GestureDetector(
                 onTap: () => _openUrl(
@@ -1040,6 +1046,58 @@ class _ResultsScreenState extends State<ResultsScreen> {
         ),
       ],
     );
+  }
+
+  /// Ground-beef blending-operator context card — states documented industry
+  /// operating pattern about the MATCHED PLANT, never a claim about the
+  /// specific package in hand. Mirrors iOS groundBeefBlendingCard.
+  List<Widget> _blendingOperatorNote(String est) {
+    if (!GroundBeefContextCard.isGroundBeef(result, result.scannedText)) {
+      return const [];
+    }
+    final blend = GroundBeefBlendingRegistry.lookup(
+      establishmentNumber: est,
+      establishmentName: _processor?.name,
+      dba: _processor?.dba,
+    );
+    if (blend == null) return const [];
+    return [
+      const SizedBox(height: 10),
+      Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: _fatGreenLight,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              const Icon(Icons.call_split, size: 16, color: Color(0xFF1F2A44)),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text('Documented blending operator: ${blend.operatorLabel}',
+                    style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1F2A44))),
+              ),
+            ]),
+            const SizedBox(height: 4),
+            Text(blend.note,
+                style: const TextStyle(
+                    fontSize: 13.5, color: Colors.black, height: 1.4)),
+            const SizedBox(height: 4),
+            Text(GroundBeefBlendingRegistry.sourceLine,
+                style: const TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black54)),
+          ],
+        ),
+      ),
+    ];
   }
 
   /// Nearby feedlot / hog-CAFO environmental compliance (EPA ECHO). Mirrors iOS

@@ -852,6 +852,58 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Two caveats. Every air-chill claim is self-reported and unaudited. And the high end of the retained-water range ("up to 12%") appears in FSIS guidance rather than on any package we could find — which is itself telling.\n\n'
             'Source: FAT research paper — The Chemistry That Isn\'t on the Label: Antimicrobial Washes in U.S. Broiler Processing. Full paper at farmanimaltransparency.com/fat-research/.'),
       ),
+      // 2.2d — ground beef blending (mirrors iOS "How Ground Beef Is Blended")
+      _LearnTopic(
+        title: 'How Ground Beef Is Blended',
+        subtitle: 'Why a hamburger is a blend, not one animal',
+        body: _text(
+            'Domestic fed cattle — grain-finished steers and heifers — throw off large volumes of fatty trim from carcass fabrication: roughly 50% lean, 50% fat. Retail and foodservice demand runs leaner, typically 80/20 or leaner. Closing that gap takes very lean trim, usually 90% lean or better, which comes disproportionately from mature cull dairy and beef cows rather than from fed cattle at all.\n\n'
+            'The domestic cull-cow supply that would fill that gap is shrinking with the U.S. cattle herd, now at a 75-year low. So a large and growing share of the lean side of the blend is imported — roughly 38.7% of all U.S. ground-beef trim in 2025, versus a ~25% average over the prior two decades — chiefly from Australia, New Zealand, Brazil, Uruguay, and Argentina.\n\n'
+            'A packer or grinder — most often one of the "Big Four" (Tyson, JBS, Cargill, National Beef), which together process roughly 80–85% of U.S. fed cattle, or a specialist grinder — blends the fatty domestic trim with lean domestic or imported trim to hit a precise lean-point target, verified by inline DEXA (X-ray) fat scanning as the trim moves down the line.\n\n'
+            'What this means for a shopper: no public record traces one retail package back to one animal. Ground beef is structurally a blend of many animals, domestic and often imported, mixed to a target ratio — which is exactly why FAT does not attempt to claim otherwise for this product category. What FAT can confirm is the plant that did the blending, shown on the results screen.\n\n'
+            'Source: "Lean Beef in America" research briefing v.4, §§1, 3, 5, 6.'),
+      ),
+      // 2.2e — Product of USA 2026 rule
+      _LearnTopic(
+        title: '"Product of USA": What Changed in 2026',
+        subtitle: 'Why most ground beef now carries no origin claim at all',
+        body: _text(
+            'Mandatory country-of-origin labeling for beef was repealed by Congress in 2015 after Canada and Mexico threatened over \$1 billion in WTO-authorized retaliatory tariffs. Since then, stating a product\'s origin on a U.S. meat label has been entirely voluntary.\n\n'
+            'Effective January 1, 2026, USDA tightened the standard for the voluntary "Product of USA" / "Made in the USA" claim: every animal contributing meat to the product — including any imported trim blended into ground beef — must have been born, raised, slaughtered, and processed entirely in the United States. That closed a loophole that had let imported cattle merely slaughtered or repackaged in the U.S. carry the claim.\n\n'
+            'The catch: the rule only governs companies that choose to make the claim. It does not require anyone to disclose origin. So a blended ground-beef product can simply carry no claim at all and face no additional labeling consequence — which is now the norm for most ground beef, not a gap limited to a few packages.\n\n'
+            'What the silence means: under the 2026 rule, an unlabeled package is one of exactly two things — fully domestic product where the packer skipped the optional paperwork, or a blend containing imported trim that is legally barred from the claim. Current law gives a shopper no way to tell which from the shelf.\n\n'
+            'A bill to reinstate mandatory country-of-origin labeling — the American Beef Labeling Act, S.421 — advanced further than any MCOOL effort since the 2015 repeal when the Senate Agriculture Committee adopted its language into the farm bill markup on a bipartisan 17–6 vote in August 2026, though it still faces a Senate floor fight, a House bill that omits it, and eventual trade-challenge risk.\n\n'
+            'Source: "Lean Beef in America" research briefing v.4, §§1, 6, 7; National Agricultural Law Center — "USDA Finalizes Voluntary \'Product of USA\' Rule"; Congress.gov, S.421.'),
+      ),
+      // 2.2f — LFTB
+      _LearnTopic(
+        title: 'Lean Finely Textured Beef (LFTB)',
+        subtitle: '"Pink slime" — legal, undisclosed, and inside the "100% beef" claim',
+        body: _text(
+            'Lean Finely Textured Beef (LFTB), popularly known as "pink slime," is beef fat and connective tissue that has been centrifuged, warmed, and treated with ammonium hydroxide or citric acid to kill pathogens.\n\n'
+            'In December 2018, USDA reclassified LFTB as "ground beef" itself rather than a separate additive. That means a package can legitimately be labeled "100% beef" while containing up to 15% LFTB, with no separate disclosure required anywhere on the label.\n\n'
+            'Usage collapsed after 2012 media coverage — from roughly 70% of ground beef in March 2012 to about 5% by 2013 — but has partially recovered as beef prices have climbed. BPI, Cargill, and Tyson are the main producers.\n\n'
+            'There is no way to detect LFTB content from a label. FAT surfaces this as a standing disclosure gap on every ground-beef scan, not a finding specific to the package in hand — the same way FAT states the FSIS baseline on every meat scan.\n\n'
+            'Source: "Lean Beef in America" research briefing v.4, §1; USDA 2018 LFTB reclassification.'),
+      ),
+      // 2.2g — GFW Appendix A (mirrors iOS "Harvest Age, Grind, and Primal Names")
+      _LearnTopic(
+        title: 'Harvest Age, Grind, and Primal Names',
+        subtitle: 'Three things ground-beef labels almost never tell you',
+        body: _text(
+            'Three attributes materially change what a ground-beef buyer receives — and almost no producer discloses any of them. In FAT\'s national survey of 724 direct-market operations (August 2026), harvest age appears on 9 producer sites (1.2%), grind specification on 2, and only two of the twelve producers selling named-primal grinds state a lean percentage next to the name.\n\n'
+            'Harvest age — and why 30 months is a hard line.\n'
+            'Grass finishing takes 18 to 30-plus months against roughly 14–18 for grain. A "grass-finished" claim says nothing about where in that range an animal fell, yet a 20-month and a 34-month carcass are different products. Under FSIS rules adopted after BSE (9 CFR 310.22), the specified-risk-material list expands sharply at 30 months to include the brain, skull, eyes, spinal cord, vertebral column, and dorsal root ganglia — all of which must be removed and destroyed.\n\n'
+            'The practical consequence: a T-bone is a vertebra. From a 30-month-or-older animal, T-bone and porterhouse cannot be produced at all; bone-in ribeye and standing rib roast must have the chine bone removed. Ground beef, boneless steaks, and roasts are unaffected (tail vertebrae are excluded, so oxtail survives too).\n\n'
+            'The grade falls as well. USDA maturity is judged physiologically — cartilage ossification along the vertebrae — approximating age as A (≈9–30 months) or B (≈30–42). Select requires A maturity; a Slight-marbling carcass grades Select at A and drops to Standard at B. Slow forage finishing is penalized twice: the loss of premium bone-in cuts, and a grade drop independent of eating quality.\n\n'
+            'By contrast, 15% of surveyed producers advertise dry-aging. A carcass that hung 21 days is disclosed; an animal that lived 32 months is not. Both are "aging." Only one is treated as a selling point.\n\n'
+            'Grind specification — real, unregulated, unmeasured.\n'
+            'Ground-beef texture is set by the grinder-plate hole diameter (from a coarse 3/8" chili grind down to the standard 3/16" commercial hamburger grind) and by single vs. double grinding. Commercial burger is typically double-ground; a coarse single grind produces steakhouse texture. Same meat, materially different product — and it is not a required label element, appears in no USDA reporting, and matters most for lean grass-finished beef, whose fat renders differently.\n\n'
+            '"Ground chuck" and "ground sirloin" — narrower than assumed.\n'
+            'The FSIS rule is real: when a ground product carries a primal name, both the lean and the fat must come only from that primal. What the rule does NOT require is any lean-to-fat ratio — no fat-percentage requirement attaches to the name, only the universal 30%-fat cap. The name guarantees provenance within the carcass, not composition. Surveyed named-primal grinds carried premiums of 6–66% over plain ground from the same animal. Related: "ground beef" may not contain added fat; "hamburger" may. Both cap at 30%.\n\n'
+            'None of this is fraud — it is selective disclosure: producers advertise the attributes that flatter (dry-aging, breed, "100% grass-fed") and stay silent on the ones that carry tradeoffs. Unlike most transparency complaints, this one is directly measurable.\n\n'
+            'Source: FAT research paper — Harvest Age, Grind Specification, and Named-Primal Grinds. Full paper at farmanimaltransparency.com/fat-research/. Regulatory sources: 9 CFR 310.22; USDA AMS grading standards; Texas A&M Meat Science on FSIS primal-name policy.'),
+      ),
       // 2.2c
       _LearnTopic(
         title: 'The Retail Exemption',

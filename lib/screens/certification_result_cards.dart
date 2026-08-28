@@ -2797,3 +2797,177 @@ class PoultryChillCard extends StatelessWidget {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MARK: - Ground Beef / Hamburger Context Card  (mirrors iOS GroundBeefContextView)
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Ground beef is the one product category where FAT's per-package model runs
+// into a hard wall: a retail package is a BLEND (roughly 50%-lean domestic
+// fed-cattle trim cut with 90%+-lean trim from cull cows — a growing share of
+// it imported) and no public record ties a pound of trim back to one animal.
+// This card surfaces what IS real and checkable: the legal meaning of an
+// absent "Product of USA" claim under the 2026 rule, the LFTB disclosure gap,
+// and national import-exposure context (always labeled national, never a
+// claim about this package).
+//
+// Source: "Lean Beef in America" — FAT/Honest Cattle research briefing v.4
+// (Aug 27, 2026), Sections 1, 6, 7, 9.
+
+class GroundBeefContextCard extends StatelessWidget {
+  final List<_ChillBlock> _blocks;
+  const GroundBeefContextCard._(this._blocks);
+
+  static const List<String> _groundBeefKeywords = [
+    'ground beef', 'hamburger', 'beef patty', 'beef patties',
+    'beef burger', 'ground chuck', 'ground sirloin', 'ground round',
+  ];
+
+  /// True when the scanned label reads as retail ground beef. Reused by
+  /// results_screen for the blending-operator note on the processor card.
+  static bool isGroundBeef(FATResult result, String scannedText) {
+    final s = (result.categories[FATCategory.species]?.value ?? '').toLowerCase();
+    if (s != 'beef') return false;
+    final t = scannedText.toLowerCase();
+    if (_groundBeefKeywords.any(t.contains)) return true;
+    return RegExp(r'\b\d{2,3}\s*%\s*lean\b').hasMatch(t);
+  }
+
+  static GroundBeefContextCard? maybeFrom(FATResult result, String scannedText) {
+    if (!isGroundBeef(result, scannedText)) return null;
+
+    final hasOriginClaim =
+        result.categories[FATCategory.countryOrigin]?.status ==
+            DisclosureStatus.known;
+
+    final blocks = <_ChillBlock>[];
+    if (hasOriginClaim) {
+      blocks.add(const _ChillBlock(
+        '"Product of USA" means more than it used to',
+        'Since January 1, 2026, this claim is legally reserved for products where every contributing animal — including any trim blended in — was born, raised, slaughtered, and processed entirely in the U.S. A ground-beef package can no longer carry it if any imported trim is blended in, so this label\'s claim is a stronger signal than it would have been before 2026.',
+        _CertColors.successGreen, _CertColors.successGreenSoft));
+    } else {
+      blocks.add(const _ChillBlock(
+        "No origin claim — here's what that does and doesn't mean",
+        'Most ground beef now carries no "Product of USA" claim at all. Under the 2026 rule, that silence means one of exactly two things: the packer has fully domestic product but skipped the optional paperwork, or the packer blended in imported trim and is legally barred from making the claim. Nothing on the package — or in federal law — tells a shopper which. Mandatory country-of-origin labeling for beef was repealed in 2015 and remains voluntary.',
+        _CertColors.fatOrange, _CertColors.fatOrangeTint));
+    }
+
+    blocks.add(const _ChillBlock(
+      'Ground beef is a blend, not one animal',
+      'Retail ground beef is almost always fed-cattle trim (about 50% lean) cut with much leaner trim (90%+ lean) from cull cows — domestic, and increasingly imported from Australia, New Zealand, Brazil, Uruguay, or Argentina. No public record links a specific package to a specific animal or farm; the establishment shown above is the most specific fact that can actually be confirmed.',
+      _CertColors.fatBlue, _CertColors.systemGray6));
+
+    // GFW Appendix A blocks — named primal, hamburger added-fat, grind spec.
+    final t = scannedText.toLowerCase();
+    const primalTerms = [
+      'ground chuck', 'ground sirloin', 'ground round', 'ground brisket',
+    ];
+    final primal = primalTerms.cast<String?>().firstWhere(
+        (p) => t.contains(p!), orElse: () => null);
+    if (primal != null) {
+      final display = primal.split(' ').map((w) =>
+          w[0].toUpperCase() + w.substring(1)).join(' ');
+      blocks.add(_ChillBlock(
+        '"$display" names the source, not the leanness',
+        'The FSIS rule behind a primal name is real and enforceable: both the lean and the fat must come only from that primal. What the rule does NOT require is any particular lean-to-fat ratio — no fat-percentage requirement attaches to the name, only the general 30%-fat cap on all ground beef. Market convention puts ground chuck near 80–85% lean and ground sirloin leaner, but that is convention, not regulation. In FAT\'s national survey of 724 direct-market producers, named-primal grinds commanded premiums of 6–66% over plain ground from the same animal — and only two of twelve sellers stated a lean percentage alongside the name.',
+        _CertColors.fatAmber, _CertColors.fatAmberTint));
+    }
+
+    if (t.contains('hamburger')) {
+      blocks.add(const _ChillBlock(
+        '"Hamburger" may contain added fat',
+        'Under USDA rules, "ground beef" may not contain added fat — the fat present must come in with the meat. "Hamburger" may have beef fat added. Both cap at 30% fat. The word choice on the label is a real, regulated distinction most shoppers never hear about.',
+        _CertColors.fatBlue, _CertColors.systemGray6));
+    }
+
+    const grindTerms = [
+      'coarse ground', 'coarsely ground', 'coarse grind', 'chili grind',
+      'double ground', 'single grind', 'steakhouse grind', 'medium grind',
+      'fine grind',
+    ];
+    var grindSpec = grindTerms.cast<String?>().firstWhere(
+        (g) => t.contains(g!), orElse: () => null);
+    grindSpec ??= RegExp(r'\b\d\s*/\s*\d{1,2}\s*(?:"|inch|in\.)\s*(?:grind|plate)')
+        .firstMatch(t)?.group(0);
+    if (grindSpec != null) {
+      final display = grindSpec.split(' ').map((w) =>
+          w.isEmpty ? w : w[0].toUpperCase() + w.substring(1)).join(' ');
+      blocks.add(_ChillBlock(
+        'Grind disclosed: $display — a rare transparency',
+        'Grind texture (the grinder-plate size and single vs. double grind) changes how ground beef binds, renders, and eats — yet it is not a required label element, appears in no USDA reporting, and only 2 of 724 surveyed producers mention it at all. This label is one of the few that does.',
+        _CertColors.successGreen, _CertColors.successGreenSoft));
+    }
+
+    blocks.add(const _ChillBlock(
+      'It can legally contain up to 15% LFTB',
+      'Lean Finely Textured Beef ("pink slime") — beef fat and connective tissue processed to remove pathogens — was reclassified by USDA in 2018 as ground beef itself, not a separate additive. A package can be labeled "100% beef" while containing up to 15% LFTB, with no separate disclosure required. There is no way to tell from a label whether it\'s present.',
+      _CertColors.fatAmber, _CertColors.fatAmberTint));
+
+    // National import-exposure context — a NATIONAL, aggregate figure, never a
+    // claim about the scanned package. Refresh quarterly (see roadmap Phase 4).
+    blocks.add(const _ChillBlock(
+      'National context, not this package',
+      '≈38.7% of all U.S. ground-beef trim was imported in 2025 — up from a ~25% average over the prior two decades (Oklahoma State University Extension). This is a national figure, refreshed quarterly — not a claim about this specific package.',
+      _CertColors.fatDarkBlue, _CertColors.systemGray6));
+
+    return GroundBeefContextCard._(blocks);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _CertColors.systemGray6,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _CertColors.systemGray4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(children: const [
+              Icon(Icons.help_outline, size: 18, color: _CertColors.fatBlue),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text("What This Label Can't Tell You",
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: _CertColors.fatDarkBlue)),
+              ),
+            ]),
+          ),
+          ..._blocks.map((b) => Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: b.bg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: b.accent.withValues(alpha: 0.35)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(b.title,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: b.accent)),
+                      const SizedBox(height: 4),
+                      Text(b.body,
+                          style: const TextStyle(
+                              fontSize: 13.5, color: Colors.black, height: 1.4)),
+                    ],
+                  ),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+}

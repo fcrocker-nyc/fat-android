@@ -145,7 +145,85 @@ class LabelInterpreter {
       }
     }
 
+    // Ground beef gets a more specific Country/Origin explanation. Under the
+    // 2026 "Product of USA" rule the absence of an origin claim on a blended
+    // product means one of exactly two things — the missing-state copy should
+    // say so rather than fall back to the generic muscle-cut note. The generic
+    // note stays for whole cuts. Mirrors iOS LabelInterpreter.
+    if (species.value == 'Beef' && _isGroundBeefText(normalized)) {
+      final co = map[FATCategory.countryOrigin];
+      if ((co?.status ?? DisclosureStatus.missing) == DisclosureStatus.missing) {
+        map[FATCategory.countryOrigin] = const FATCategoryResult(
+          status: DisclosureStatus.missing,
+          credibilityNote:
+              'No origin claim on ground beef means one of exactly two things under the 2026 "Product of USA" rule: the packer has fully domestic product but skipped the optional claim paperwork, or the product contains imported trim and is legally barred from the claim. Nothing on the package tells you which — origin labeling has been voluntary since mandatory COOL was repealed in 2015.',
+        );
+      } else if (co != null && co.status == DisclosureStatus.known) {
+        map[FATCategory.countryOrigin] = FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: co.value,
+          credibility: co.credibility,
+          credibilityNote:
+              'Since January 1, 2026, this claim requires every contributing animal — including any trim blended into ground beef — to have been born, raised, slaughtered, and processed entirely in the U.S. On ground beef it is a stronger signal than it was before 2026.',
+          captivityStatus: co.captivityStatus,
+        );
+      }
+    }
+
+    // Beef harvest-age disclosure (Cat 6). A stated age in months — "22–28
+    // months", "harvested at about 30–36 months" — is one of the rarest
+    // disclosures in beef: 9 of 724 surveyed direct-market producers (1.2%)
+    // state it anywhere. Earns Known (a specific disclosure under the
+    // all-or-nothing rule) with the 30-month SRM cliff as context. Beef-gated
+    // so cure-time claims on ham ("aged 12 months") never match. Mirrors iOS.
+    if (species.value == 'Beef' &&
+        (map[FATCategory.ageAtSlaughter]?.status ?? DisclosureStatus.missing) !=
+            DisclosureStatus.known) {
+      final ageText = _detectBeefHarvestAgeMonths(normalized);
+      if (ageText != null) {
+        map[FATCategory.ageAtSlaughter] = FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Harvest age disclosed: $ageText',
+          credibility: ClaimCredibility.labelClaimOnly,
+          credibilityNote:
+              'One of the rarest disclosures in beef — only 9 of 724 direct-market producers surveyed (1.2%) state harvest age anywhere (FAT national producer survey, Aug 2026). Context: 30 months is a regulatory cliff, not a preference — at 30 months the FSIS specified-risk-material list (9 CFR 310.22) expands to include the vertebral column, so T-bone and porterhouse cannot be cut from a 30-month-or-older animal, and USDA maturity grading drops Slight-marbling carcasses from Select to Standard.',
+        );
+      }
+    }
+
     return map;
+  }
+
+  /// Beef harvest-age in months, when stated on the label. Matches a range or
+  /// a harvest-verb-anchored figure; rejects dry-aging phrasing nearby.
+  /// Mirrors iOS detectBeefHarvestAgeMonths.
+  static String? _detectBeefHarvestAgeMonths(String text) {
+    final patterns = [
+      RegExp(r'\b(\d{1,2})\s*(?:[-–—]|to)\s*(\d{1,2})\s*months?\b'),
+      RegExp(
+          r'\b(?:harvested|slaughtered|processed|finished)\s+(?:at\s+)?(?:about\s+|around\s+|approximately\s+|~\s*)?(\d{1,2})\s*\+?\s*months?\b'),
+    ];
+    for (final re in patterns) {
+      final m = re.firstMatch(text);
+      if (m != null) {
+        final start = m.start < 20 ? 0 : m.start - 20;
+        final ctx = text.substring(start, m.start);
+        if (ctx.contains('dry aged') || ctx.contains('dry-aged')) continue;
+        return m.group(0);
+      }
+    }
+    return null;
+  }
+
+  /// Ground-beef text detection shared with the results-screen context card —
+  /// keyword list matches GroundBeefContextCard/_isGroundBeef exactly.
+  static bool _isGroundBeefText(String t) {
+    const kws = [
+      'ground beef', 'hamburger', 'beef patty', 'beef patties',
+      'beef burger', 'ground chuck', 'ground sirloin', 'ground round',
+    ];
+    if (kws.any(t.contains)) return true;
+    return RegExp(r'\b\d{2,3}\s*%\s*lean\b').hasMatch(t);
   }
 
   /// Detects the USDA retail-store exemption for a scanned label. Pure and cheap;
