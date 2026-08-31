@@ -11,6 +11,8 @@ import '../data/montana_origin.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
 import '../services/beta_agonists_service.dart';
+import '../services/environmental_watch_service.dart';
+import '../widgets/environmental_watch_card.dart';
 import '../services/processor_service.dart';
 import '../services/feedlot_proximity_service.dart';
 import '../widgets/share_card_renderer.dart';
@@ -49,6 +51,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // AMS Never Fed Beta Agonists (ractopamine) verified record — POSITIVE, plant-
   // level disclosure, NOT a score input. Null until the jsDelivr fetch resolves.
   BetaAgonistsInfo? _betaAgonists;
+  // Environmental Watch litigation matters — informational, not a score input.
+  List<EnvWatchMatter> _envWatch = const [];
   // FSIS public enforcement record fetched from the FAT backend (recalls,
   // humane-handling, Salmonella category, residues). Null until it loads.
   ProcessorRecord? _processor;
@@ -64,7 +68,18 @@ class _ResultsScreenState extends State<ResultsScreen> {
     _loadOshaPenalty();
     _loadEpaPenalty();
     _loadBetaAgonists();
+    _loadEnvWatch();
     _loadProcessorRecord();
+  }
+
+  Future<void> _loadEnvWatch() async {
+    final m = await EnvironmentalWatchService.matches(
+        result.detectedEstablishmentNumber, [
+      result.scannedText,
+      result.categories[FATCategory.who]?.value,
+      result.categories[FATCategory.brand]?.value,
+    ]);
+    if (m.isNotEmpty && mounted) setState(() => _envWatch = m);
   }
 
   Future<void> _loadBetaAgonists() async {
@@ -301,6 +316,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 PastureResultCard.maybeFrom(result, result.scannedText),
                 RegenerativeResultCard.maybeFrom(result, result.scannedText),
               ].whereType<Widget>(),
+              if (_envWatch.isNotEmpty)
+                EnvironmentalWatchCard(matters: _envWatch),
               _actions(context),
             ]),
           ),

@@ -8,6 +8,8 @@ import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
+import '../services/environmental_watch_service.dart';
+import '../widgets/environmental_watch_card.dart';
 import '../services/processor_service.dart';
 import '../widgets/share_card_renderer.dart';
 
@@ -39,6 +41,8 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   // FSIS establishment. Set true after a high-confidence match with violations.
   bool _oshaViolation = false;
   bool _epaViolation = false; // EPA environmental-enforcement penalty (Cat 7)
+  // Environmental Watch litigation matters — informational, not a score input.
+  List<EnvWatchMatter> _envWatch = const [];
   // FSIS record — only catfish / Siluriformes seafood has an FSIS establishment;
   // for FDA-regulated seafood the fetch simply 404s and nothing renders.
   ProcessorRecord? _processor;
@@ -53,7 +57,14 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     super.initState();
     _loadOshaPenalty();
     _loadEpaPenalty();
+    _loadEnvWatch();
     _loadProcessorRecord();
+  }
+
+  Future<void> _loadEnvWatch() async {
+    final m = await EnvironmentalWatchService.matches(
+        result.detectedEstablishmentNumber, [result.scannedText]);
+    if (m.isNotEmpty && mounted) setState(() => _envWatch = m);
   }
 
   Future<void> _loadProcessorRecord() async {
@@ -152,6 +163,8 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
               _disclosureSummary(),
               if (_processor != null) _fsisRecordSection(),
               _categorySection(),
+              if (_envWatch.isNotEmpty)
+                EnvironmentalWatchCard(matters: _envWatch),
               _actions(context),
             ]),
           ),
