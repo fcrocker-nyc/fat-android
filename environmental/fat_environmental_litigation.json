@@ -1,0 +1,47 @@
+{
+"updated": "2026-08-31",
+"note": "FAT Environmental Watch feed — active environmental litigation and settlement matters keyed to companies and establishments. INFORMATIONAL ONLY, never a score input. Matters classified 'litigation pending' or 'allegations only' are unproven claims, not adjudicated findings; card copy must preserve that distinction. Maintained by the weekly Environmental Watch scan; regenerate from the FAT Environmental Scan tracker doc.",
+"tracker_url": "https://farmanimaltransparency.com/environmental-watch/",
+"matters": [
+{
+"id": "ok-poultry-litter",
+"title": "Oklahoma poultry-litter litigation & settlement (Illinois River watershed)",
+"classification": "Settlement — not final",
+"status": "Federal-court judgment entered Dec. 2025 (stayed on appeal Aug. 18, 2026); $42M settlement signed July 10, 2026, awaiting vacatur and dismissal",
+"summary": "Oklahoma sued poultry companies over decades of poultry-litter application in the Illinois River watershed. A December 2025 judgment against the companies has been stayed while the courts decide whether to release it so a signed settlement — payments, a seven-year step-down of litter application, and an independent compliance monitor — can take effect.",
+"companies": ["tyson", "cargill", "george's farms", "georges farms", "george's inc", "george's, inc", "george's prepared", "peterson farms", "cal-maine", "calmaine", "simmons foods", "simmons prepared"],
+"est_cores": [],
+"url": "https://farmanimaltransparency.com/environmental-watch/oklahoma-poultry-litter-settlement/"
+},
+{
+"id": "ganaderos-borges",
+"title": "United States v. Ganaderos Borges, Inc. (Naguabo, PR slaughterhouse)",
+"classification": "Litigation pending — allegations only",
+"status": "Criminal Clean Water Act indictment (Aug. 2026); not-guilty plea; plant operating under court-ordered environmental-compliance conditions",
+"summary": "A federal grand jury indicted the slaughterhouse, its president, and employees, alleging years of concealed discharges of untreated slaughter waste into a creek reaching the Caribbean Sea. An indictment contains allegations only; all defendants are presumed innocent unless convicted.",
+"companies": ["ganaderos borges"],
+"est_cores": [],
+"url": "https://farmanimaltransparency.com/environmental-watch/"
+},
+{
+"id": "pacific-seafood-cwa",
+"title": "Pacific Seafood Clean Water Act citizen suits (Warrenton, OR & Quilcene, WA)",
+"classification": "Litigation pending — allegations only",
+"status": "Three federal citizen suits filed Jan.–Aug. 2026; no adjudication",
+"summary": "Environmental groups allege thousands of Clean Water Act permit violations at Pacific Seafood's Warrenton, Oregon rendering plant and NPDES temperature-limit violations at its Quilcene, Washington shellfish hatchery. These are the plaintiffs' allegations; no court has adjudicated any violation.",
+"companies": ["pacific seafood", "pacific bio products", "pacific shellfish", "dulcich"],
+"est_cores": [],
+"url": "https://farmanimaltransparency.com/environmental-watch/pacific-seafood-clean-water-act-suits/"
+},
+{
+"id": "jbs-greeley-air",
+"title": "JBS Greeley, CO beef plant air permit (CBD v. Colorado APCD)",
+"classification": "Permit dispute / litigation pending — allegations only",
+"status": "State suit filed Apr. 7, 2026 over a four-year-pending Clean Air Act operating permit; 60-day federal notice served on JBS",
+"summary": "The Center for Biological Diversity alleges Colorado regulators let the JBS Greeley slaughterhouse operate for years without a required air-pollution operating permit while emitting particulates, ammonia, and other pollutants. This matter concerns the Greeley, Colorado plant (EST. 969). These are the plaintiff's allegations; no court has adjudicated any violation.",
+"companies": ["jbs"],
+"est_cores": ["969", "969g"],
+"url": "https://farmanimaltransparency.com/environmental-watch/"
+}
+]
+}
