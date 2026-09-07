@@ -906,7 +906,7 @@ class _LookupScreenState extends State<LookupScreen> {
           const SizedBox(height: 14),
           GestureDetector(
             onTap: () => _openUrl(
-                'https://farmanimaltransparency.com/processor-lookup/?est=$est'),
+                'https://farmanimaltransparency.com/processor/$est'),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -970,7 +970,7 @@ class _LookupScreenState extends State<LookupScreen> {
           const SizedBox(height: 10),
           GestureDetector(
             onTap: () => _openUrl(
-                'https://farmanimaltransparency.com/processor-lookup/?est=$est'),
+                'https://farmanimaltransparency.com/processor/$est'),
             child: const Row(mainAxisSize: MainAxisSize.min, children: [
               Icon(Icons.public, size: 16, color: Colors.blue),
               SizedBox(width: 6),

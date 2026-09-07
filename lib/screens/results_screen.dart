@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
+import '../services/big_four_ownership.dart';
+import '../widgets/corporate_structure_card.dart';
 import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
@@ -56,6 +58,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // FSIS public enforcement record fetched from the FAT backend (recalls,
   // humane-handling, Salmonella category, residues). Null until it loads.
   ProcessorRecord? _processor;
+  /// Who ultimately owns the plant: the site's parent-company database first,
+  /// the on-device crosswalk second. Null when neither can attribute it.
+  OwnershipDisclosure? _ownership;
+  /// True once Who/Owner was written from an ownership resolution rather than
+  /// from the label, so the later API result may replace the earlier local one.
+  bool _whoSetFromOwnership = false;
   bool _processorLoading = true;
   // Nearby EPA-ECHO CAFO/feedlot violators (beef → feedlots 50mi; pork → hog
   // CAFOs 75mi). Fetched once the processor record supplies coordinates.
@@ -117,12 +125,37 @@ class _ResultsScreenState extends State<ResultsScreen> {
   /// (modifiable) categories map in place; caller wraps this in setState.
   void _applyDirectoryOwner(ProcessorRecord rec) {
     if (result.isSeafood) return;
-    if (result.categories[FATCategory.who]?.status == DisclosureStatus.known) {
+    // Never override an owner the label itself disclosed. One we wrote from a
+    // previous (local-crosswalk) resolution may be replaced by the API result.
+    if (result.categories[FATCategory.who]?.status == DisclosureStatus.known &&
+        !_whoSetFromOwnership) {
+      return;
+    }
+    final est = result.detectedEstablishmentNumber ?? rec.estNumber;
+    // Prefer the resolved ultimate parent. The raw DBA heuristic below returns
+    // whichever entity FSIS lists first, which for EST 245 is "IBP, inc." — a
+    // name retired in 2001 — rather than Tyson Foods.
+    final res = _ownership;
+    if (res != null) {
+      var note =
+          'Ultimate parent of the establishment printed on this label. ${res.basis}';
+      final op = res.operatingCompany;
+      if (op != null &&
+          op.isNotEmpty &&
+          op.toLowerCase() != res.parentName.toLowerCase()) {
+        note += ' Operating company on the record: $op.';
+      }
+      result.categories[FATCategory.who] = FATCategoryResult(
+        status: DisclosureStatus.known,
+        value: res.parentName,
+        credibility: ClaimCredibility.usdaApproved,
+        credibilityNote: note,
+      );
+      _whoSetFromOwnership = true;
       return;
     }
     final owner = _ownerFromDirectory(rec);
     if (owner == null) return;
-    final est = result.detectedEstablishmentNumber ?? rec.estNumber;
     result.categories[FATCategory.who] = FATCategoryResult(
       status: DisclosureStatus.known,
       value: owner,
@@ -141,8 +174,32 @@ class _ResultsScreenState extends State<ResultsScreen> {
       setState(() {
         _processor = rec;
         _processorLoading = false;
-        if (rec != null) _applyDirectoryOwner(rec);
+        if (rec != null) {
+          // Local crosswalk first so the card is populated immediately; the
+          // API result replaces it below when one comes back.
+          _ownership = BigFourOwnership.resolveLocal(
+            establishmentNumber: rec.estNumber,
+            name: rec.name,
+            dba: rec.dba,
+            species: BigFourOwnership.speciesFor(
+                rec.primarySpecies, '${rec.name} ${rec.dba ?? ''}'),
+          );
+          _applyDirectoryOwner(rec);
+        }
       });
+    }
+    // Then the site's parent-company database, which is authoritative, covers
+    // parents the crosswalk does not, and can be corrected without an app
+    // release. A miss or a network failure leaves the local result standing.
+    if (rec != null) {
+      final api = await ParentCompanyService.lookup(
+          result.detectedEstablishmentNumber ?? rec.estNumber);
+      if (api != null && mounted) {
+        setState(() {
+          _ownership = api;
+          _applyDirectoryOwner(rec);
+        });
+      }
     }
     // Chain the environmental-proximity lookup off the processor's coordinates.
     if (rec?.lat != null && rec?.lon != null) {
@@ -1035,6 +1092,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       color: Colors.black54),
                 ),
               ],
+              if (_ownership != null) ...[
+                const SizedBox(height: 12),
+                CorporateStructureCard(disclosure: _ownership!),
+              ],
               _enforcementBlock(),
               _regulatorStatusRows(),
               // Ground-beef blending-operator context (roadmap Phase 3): only
@@ -1043,14 +1104,16 @@ class _ResultsScreenState extends State<ResultsScreen> {
               ..._blendingOperatorNote(est),
               const SizedBox(height: 12),
               GestureDetector(
+                // "/processor/est-$est" returned 404 for every establishment;
+                // "/processor/<number>" is the only shape the site serves.
                 onTap: () => _openUrl(
-                    'https://farmanimaltransparency.com/processor/est-$est'),
+                    'https://farmanimaltransparency.com/processor/$est'),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(Icons.public, size: 16, color: Colors.blue),
                     SizedBox(width: 6),
-                    Text('View full profile on FAT website',
+                    Text('Look up this plant on the FAT website',
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

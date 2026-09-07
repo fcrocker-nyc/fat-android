@@ -263,7 +263,6 @@ class PorkOwnerDatabase {
   static const Map<String, String> establishmentOwners = {
     '18079': 'whgroup',
     '6399': 'whgroup',
-    '9400': 'whgroup',
     '5843': 'whgroup',
     '7257': 'whgroup',
     '20414': 'whgroup',
@@ -271,7 +270,6 @@ class PorkOwnerDatabase {
     '21276': 'tyson',
     '44': 'tyson',
     '89': 'tyson',
-    '969': 'tyson',
     '8095': 'tyson',
     '9105': 'tyson',
     '6250': 'jbs',
@@ -279,7 +277,7 @@ class PorkOwnerDatabase {
     '2353': 'jbs',
     '7286': 'jbs',
     '7427': 'jbs',
-    '3': 'hormel',
+    '3': 'whgroup',   // Smithfield Packaged Meats Corp., St Charles IL — not Hormel
     '199': 'hormel',
     '490': 'hormel',
     '1827': 'hormel',
@@ -382,7 +380,7 @@ class PorkOwnerDatabase {
     BrandKeyword('swift premium', 'jbs_beef'),
     BrandKeyword('1855', 'jbs_beef'),
     BrandKeyword('cedar river farms', 'jbs_beef'),
-    BrandKeyword('iowa premium', 'tyson_beef'),
+    BrandKeyword('iowa premium', 'national_beef'), // National Beef acquired Iowa Premium (Tama, IA) in 2019
     BrandKeyword('excel beef', 'cargill_beef'),
     BrandKeyword('sterling silver', 'cargill_beef'),
     BrandKeyword('rumba meats', 'cargill_beef'),
@@ -400,13 +398,11 @@ class PorkOwnerDatabase {
     '267': 'jbs_beef',
     '245': 'tyson_beef',
     '549': 'tyson_beef',
-    '210': 'tyson_beef',
     '86j': 'cargill_beef',
     '13600': 'cargill_beef',
     '2662': 'cargill_beef',
     '1521': 'national_beef',
     '316': 'national_beef',
-    '208': 'national_beef',
   };
 
   static PorkOwnerResult? detectBeefOwnerInText(String text) {

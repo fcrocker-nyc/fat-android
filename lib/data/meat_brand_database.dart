@@ -103,7 +103,7 @@ class MeatBrandDatabase {
         'Sherman, Texas (case-ready)',
         'Council Bluffs, Iowa (case-ready)',
       ],
-      knownEstNumbers: ['245', '969', '337', '795', '13556', '1326', '578A'],
+      knownEstNumbers: ['245', '337', '795', '13556', '1326', '578A', '244', '278'], // audited 2026-09-06: '969' is Swift Beef (JBS); '244' and '278' are Tyson Fresh Meats
       ownershipNotes:
           'Founded 1935 by John W. Tyson in Springdale, Arkansas. Publicly traded (NYSE: TSN). Acquired IBP Inc. (largest beef/pork processor) in 2001 for \$3.2 billion. Three generations of Tyson family leadership. Supplies McDonald\'s, Burger King, Wendy\'s, KFC, Taco Bell, Walmart, and Kroger.',
       regulatoryNotes:
@@ -143,7 +143,7 @@ class MeatBrandDatabase {
         'Beardstown, Illinois (pork)',
         'Louisville, Kentucky (pork)',
       ],
-      knownEstNumbers: ['578', '969G', '7', '312', '244', '864'],
+      knownEstNumbers: ['578', '969G', '7', '312', '864', '969', '562'], // audited 2026-09-06: '244' is Tyson; '969' and '562' are JBS
       ownershipNotes:
           'Founded 1953 by Jose Batista Sobrinho in Goias, Brazil. JBS S.A. is publicly traded in Brazil; approved for NYSE listing in May 2025. Acquired Swift & Company (2007, \$225M), Smithfield Beef Group (2008, \$565M), and 64% of Pilgrim\'s Pride (2009, \$800M). BNDES (Brazilian state development bank) invested \$2.6B+ to fuel JBS\'s global expansion. World\'s largest protein company with 200,000+ employees globally.',
       regulatoryNotes:
@@ -177,7 +177,7 @@ class MeatBrandDatabase {
         'Douglas, Georgia',
         'Athens, Georgia',
       ],
-      knownEstNumbers: ['7851', '538', '17024', '449', '1359', '20728'],
+      knownEstNumbers: ['7851', '538', '17024', '449', '1359', '20728', '177'], // '177' (Gainesville GA) added 2026-09-06
       ownershipNotes:
           'Founded 1946 in Pittsburg, Texas as Bo Pilgrim\'s chicken company. Filed for bankruptcy in 2008. JBS acquired 64% stake in 2009 for \$800M, now owns 75.3%. Publicly traded (NASDAQ: PPC) but controlled by JBS. Second-largest chicken producer in the US.',
       regulatoryNotes:
@@ -204,7 +204,7 @@ class MeatBrandDatabase {
         'Schuyler, Nebraska (beef)',
         'Springdale, Arkansas (turkey — Cargill/Butterball JV)',
       ],
-      knownEstNumbers: ['86R', '86G', '86T', '969H'],
+      knownEstNumbers: ['86R', '86G', '86T'], // audited 2026-09-06: '969H' resolves to Swift Beef (JBS)
       ownershipNotes:
           'Founded 1865. Privately held — owned by the Cargill and MacMillan families. Largest private company in the US. One of the Big Four beef packers alongside Tyson, JBS, and National Beef. Sold its US pork business to JBS in 2015. Exiting some beef operations — sold Fresno plant in 2023.',
       regulatoryNotes:
@@ -226,9 +226,9 @@ class MeatBrandDatabase {
         'Dodge City, Kansas (beef processing)',
         'Liberal, Kansas (beef processing)',
       ],
-      knownEstNumbers: ['208', '208A'],
+      knownEstNumbers: ['208A'], // audited 2026-09-06: '208' is George's Processing (Springdale AR), not National Beef
       ownershipNotes:
-          'National Beef Packing Company LLC is headquartered in Kansas City, Missouri. Brazilian meat giant Marfrig Global Foods acquired a controlling 51% stake. Marfrig is publicly traded in Brazil. DOJ blocked JBS\'s attempted acquisition of National Beef in 2008 on antitrust grounds.',
+          'National Beef Packing Company LLC is headquartered in Kansas City, Missouri. Brazilian meat giant Marfrig Global Foods acquired a controlling stake in 2018 and has since raised it to 81.7%. Marfrig is publicly traded in Brazil. DOJ blocked JBS\'s attempted acquisition of National Beef in 2008 on antitrust grounds.',
       regulatoryNotes:
           'Foreign-owned (Brazil) through Marfrig. Part of the Big Four that collectively control approximately 85% of the US beef market. DOJ and USDA have investigated cattle market competition concerns involving all Big Four packers.',
       relatedBrands: ['Kansas City Steaks', 'National Beef Leathers'],
@@ -258,7 +258,7 @@ class MeatBrandDatabase {
         'Green Bay, Wisconsin (Packerland)',
         'Salt Lake City, Utah',
       ],
-      knownEstNumbers: ['4427', '177', '562', '18076', '3751', '6240'],
+      knownEstNumbers: ['4427', '18076', '3751', '6240'], // audited 2026-09-06: '177' is Pilgrim's Pride (JBS), '562' is JBS Green Bay
       ownershipNotes:
           'Founded 1936 in Smithfield, Virginia. WH Group (formerly Shuanghui International), headquartered in Hong Kong/Henan, China, acquired Smithfield Foods in 2013 for \$7.1 billion — the largest Chinese acquisition of a US company at the time. WH Group is publicly traded on the Hong Kong Stock Exchange.',
       regulatoryNotes:
@@ -409,7 +409,7 @@ class MeatBrandDatabase {
         'Danville, Arkansas',
         'Jack, Alabama',
       ],
-      knownEstNumbers: ['20914', '278', '13024', '14072'],
+      knownEstNumbers: ['20914', '13024', '14072'], // audited 2026-09-06: '278' is Tyson Fresh Meats (Holcomb KS)
       ownershipNotes:
           'Continental Grain Company and Cargill acquired Sanderson Farms in 2022 for \$4.53 billion and merged it with Wayne Farms to create Wayne-Sanderson Farms LLC. Continental Grain (privately held, NYC-based, Fribourg family) holds the majority stake.',
       regulatoryNotes:
