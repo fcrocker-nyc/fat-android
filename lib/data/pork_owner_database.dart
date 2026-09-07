@@ -260,30 +260,26 @@ class PorkOwnerDatabase {
 
   // ── Pork Establishment Owners ─────────────────────────────────────────────
 
+  /// REGENERATED 2026-09-06 from the USDA/FSIS MPI directory
+  /// (mpi_directory.csv, 7,173 establishments), restricted to SLAUGHTER plants —
+  /// the ones whose number appears on a retail label. The previous hand-maintained
+  /// table had 65 of its 108 numbers absent from the FSIS directory entirely, and
+  /// several attributed to the wrong company. Prefer BigFourOwnership /
+  /// ParentCompanyService; this is the offline path.
   static const Map<String, String> establishmentOwners = {
+    '1775': 'whgroup',
+    '17D': 'whgroup',
     '18079': 'whgroup',
-    '6399': 'whgroup',
-    '5843': 'whgroup',
-    '7257': 'whgroup',
-    '20414': 'whgroup',
-    '13217': 'whgroup',
-    '21276': 'tyson',
-    '44': 'tyson',
-    '89': 'tyson',
-    '8095': 'tyson',
-    '9105': 'tyson',
-    '6250': 'jbs',
-    '6199': 'jbs',
-    '2353': 'jbs',
-    '7286': 'jbs',
-    '7427': 'jbs',
-    '3': 'whgroup',   // Smithfield Packaged Meats Corp., St Charles IL — not Hormel
-    '199': 'hormel',
-    '490': 'hormel',
-    '1827': 'hormel',
-    '6328': 'hormel',
-    '4021': 'seaboard',
-    '7893': 'seaboard',
+    '320M': 'whgroup',
+    '3S': 'jbs',
+    '3W': 'jbs',
+    '413': 'whgroup',
+    '717': 'whgroup',
+    '717CR': 'whgroup',
+    '717M': 'whgroup',
+    '85B': 'jbs',
+    '85O': 'jbs',
+    '995': 'jbs',
   };
 
   // ── Pork Lookups ──────────────────────────────────────────────────────────
@@ -393,16 +389,42 @@ class PorkOwnerDatabase {
     BrandKeyword('open prairie natural angus', 'tyson_beef'),
   ];
 
+  /// REGENERATED 2026-09-06 from the USDA/FSIS MPI directory
+  /// (mpi_directory.csv, 7,173 establishments), restricted to SLAUGHTER plants —
+  /// the ones whose number appears on a retail label. The previous hand-maintained
+  /// table had 65 of its 108 numbers absent from the FSIS directory entirely, and
+  /// several attributed to the wrong company. Prefer BigFourOwnership /
+  /// ParentCompanyService; this is the offline path.
   static const Map<String, String> beefEstablishmentOwners = {
-    '672': 'jbs_beef',
+    '1311': 'jbs_beef',
+    '208A': 'national_beef',
+    '244': 'tyson_beef',
+    '244I': 'tyson_beef',
+    '244L': 'tyson_beef',
+    '244M': 'tyson_beef',
+    '244W': 'tyson_beef',
+    '245C': 'tyson_beef',
+    '245E': 'tyson_beef',
+    '245J': 'tyson_beef',
+    '245L': 'tyson_beef',
+    '262': 'national_beef',
     '267': 'jbs_beef',
-    '245': 'tyson_beef',
-    '549': 'tyson_beef',
-    '86j': 'cargill_beef',
-    '13600': 'cargill_beef',
-    '2662': 'cargill_beef',
-    '1521': 'national_beef',
-    '316': 'national_beef',
+    '278': 'tyson_beef',
+    '3D': 'jbs_beef',
+    '532': 'jbs_beef',
+    '562': 'jbs_beef',
+    '562M': 'jbs_beef',
+    '628': 'jbs_beef',
+    '8': 'national_beef',
+    '8080': 'tyson_beef',
+    '86E': 'cargill_beef',
+    '86K': 'cargill_beef',
+    '86M': 'cargill_beef',
+    '86R': 'cargill_beef',
+    '9268': 'tyson_beef',
+    '9400': 'cargill_beef',
+    '969': 'jbs_beef',
+    '969G': 'jbs_beef',
   };
 
   static PorkOwnerResult? detectBeefOwnerInText(String text) {
@@ -527,21 +549,72 @@ class PorkOwnerDatabase {
     BrandKeyword('rosie organic', 'perdue'),
   ];
 
+  /// REGENERATED 2026-09-06 from the USDA/FSIS MPI directory
+  /// (mpi_directory.csv, 7,173 establishments), restricted to SLAUGHTER plants —
+  /// the ones whose number appears on a retail label. The previous hand-maintained
+  /// table had 65 of its 108 numbers absent from the FSIS directory entirely, and
+  /// several attributed to the wrong company. Prefer BigFourOwnership /
+  /// ParentCompanyService; this is the offline path.
   static const Map<String, String> chickenEstablishmentOwners = {
-    '7211': 'tyson_chicken',
-    '8066': 'tyson_chicken',
-    '2459': 'tyson_chicken',
-    '9280': 'tyson_chicken',
-    '7851': 'pilgrims',
-    '7869': 'pilgrims',
-    '8429': 'pilgrims',
-    '1439': 'pilgrims',
-    '9010': 'wayne_sanderson',
-    '9012': 'wayne_sanderson',
-    '8700': 'wayne_sanderson',
-    '2000': 'perdue',
-    '6085': 'perdue',
-    '7756': 'perdue',
+    '1015': 'pilgrims',
+    '112': 'tyson_chicken',
+    '1137': 'tyson_chicken',
+    '1201': 'pilgrims',
+    '1272': 'pilgrims',
+    '1284': 'pilgrims',
+    '1315': 'tyson_chicken',
+    '13456': 'tyson_chicken',
+    '1353': 'pilgrims',
+    '13556': 'tyson_chicken',
+    '164': 'tyson_chicken',
+    '17250': 'tyson_chicken',
+    '17340': 'pilgrims',
+    '17500': 'pilgrims',
+    '177': 'pilgrims',
+    '17980': 'pilgrims',
+    '192': 'pilgrims',
+    '19514': 'tyson_chicken',
+    '19636': 'tyson_chicken',
+    '20245': 'tyson_chicken',
+    '20322': 'tyson_chicken',
+    '206': 'pilgrims',
+    '218': 'pilgrims',
+    '243': 'tyson_chicken',
+    '2632': 'pilgrims',
+    '2686': 'tyson_chicken',
+    '27': 'tyson_chicken',
+    '322A': 'pilgrims',
+    '325': 'tyson_chicken',
+    '40': 'pilgrims',
+    '47579': 'tyson_chicken',
+    '476': 'pilgrims',
+    '481': 'tyson_chicken',
+    '529': 'pilgrims',
+    '559': 'tyson_chicken',
+    '56': 'pilgrims',
+    '5787': 'pilgrims',
+    '584': 'pilgrims',
+    '5842': 'tyson_chicken',
+    '622': 'tyson_chicken',
+    '6638': 'pilgrims',
+    '6651': 'tyson_chicken',
+    '7044': 'tyson_chicken',
+    '705': 'pilgrims',
+    '7085': 'tyson_chicken',
+    '7091': 'pilgrims',
+    '7100': 'tyson_chicken',
+    '7101': 'tyson_chicken',
+    '7156': 'tyson_chicken',
+    '72': 'tyson_chicken',
+    '7478': 'tyson_chicken',
+    '757': 'tyson_chicken',
+    '758': 'tyson_chicken',
+    '768': 'tyson_chicken',
+    '806': 'tyson_chicken',
+    '810': 'pilgrims',
+    '843': 'pilgrims',
+    '855': 'pilgrims',
+    '9977': 'tyson_chicken',
   };
 
   static PorkOwnerResult? detectChickenOwnerInText(String text) {

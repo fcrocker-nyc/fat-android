@@ -103,7 +103,7 @@ class MeatBrandDatabase {
         'Sherman, Texas (case-ready)',
         'Council Bluffs, Iowa (case-ready)',
       ],
-      knownEstNumbers: ['245', '337', '795', '13556', '1326', '578A', '244', '278'], // audited 2026-09-06: '969' is Swift Beef (JBS); '244' and '278' are Tyson Fresh Meats
+      knownEstNumbers: ['112', '1137', '1315', '13456', '13556', '164', '17250', '19514', '19636', '20245', '20322', '243', '244', '244I', '244L', '244M', '244W', '245C', '245E', '245J', '245L', '2508', '2686', '27', '278', '325', '47579', '481', '559', '5842', '622', '6651', '7044', '7085', '7100', '7101', '7156', '72', '7478', '757', '758', '768', '806', '8080', '9268', '9977'], // audited 2026-09-06: '969' is Swift Beef (JBS); '244' and '278' are Tyson Fresh Meats
       ownershipNotes:
           'Founded 1935 by John W. Tyson in Springdale, Arkansas. Publicly traded (NYSE: TSN). Acquired IBP Inc. (largest beef/pork processor) in 2001 for \$3.2 billion. Three generations of Tyson family leadership. Supplies McDonald\'s, Burger King, Wendy\'s, KFC, Taco Bell, Walmart, and Kroger.',
       regulatoryNotes:
@@ -143,7 +143,7 @@ class MeatBrandDatabase {
         'Beardstown, Illinois (pork)',
         'Louisville, Kentucky (pork)',
       ],
-      knownEstNumbers: ['578', '969G', '7', '312', '864', '969', '562'], // audited 2026-09-06: '244' is Tyson; '969' and '562' are JBS
+      knownEstNumbers: ['1311', '267', '3D', '3S', '3W', '532', '562', '562M', '628', '85B', '85O', '969', '969G', '995'], // audited 2026-09-06: '244' is Tyson; '969' and '562' are JBS
       ownershipNotes:
           'Founded 1953 by Jose Batista Sobrinho in Goias, Brazil. JBS S.A. is publicly traded in Brazil; approved for NYSE listing in May 2025. Acquired Swift & Company (2007, \$225M), Smithfield Beef Group (2008, \$565M), and 64% of Pilgrim\'s Pride (2009, \$800M). BNDES (Brazilian state development bank) invested \$2.6B+ to fuel JBS\'s global expansion. World\'s largest protein company with 200,000+ employees globally.',
       regulatoryNotes:
@@ -177,7 +177,7 @@ class MeatBrandDatabase {
         'Douglas, Georgia',
         'Athens, Georgia',
       ],
-      knownEstNumbers: ['7851', '538', '17024', '449', '1359', '20728', '177'], // '177' (Gainesville GA) added 2026-09-06
+      knownEstNumbers: ['1201', '1272', '1284', '1353', '17340', '17500', '177', '17980', '192', '206', '218', '2632', '322A', '40', '476', '529', '56', '5787', '584', '6638', '705', '7091', '810', '843', '855'], // '177' (Gainesville GA) added 2026-09-06
       ownershipNotes:
           'Founded 1946 in Pittsburg, Texas as Bo Pilgrim\'s chicken company. Filed for bankruptcy in 2008. JBS acquired 64% stake in 2009 for \$800M, now owns 75.3%. Publicly traded (NASDAQ: PPC) but controlled by JBS. Second-largest chicken producer in the US.',
       regulatoryNotes:
@@ -204,7 +204,7 @@ class MeatBrandDatabase {
         'Schuyler, Nebraska (beef)',
         'Springdale, Arkansas (turkey — Cargill/Butterball JV)',
       ],
-      knownEstNumbers: ['86R', '86G', '86T'], // audited 2026-09-06: '969H' resolves to Swift Beef (JBS)
+      knownEstNumbers: ['86E', '86K', '86M', '86R', '9400'], // audited 2026-09-06: '969H' resolves to Swift Beef (JBS)
       ownershipNotes:
           'Founded 1865. Privately held — owned by the Cargill and MacMillan families. Largest private company in the US. One of the Big Four beef packers alongside Tyson, JBS, and National Beef. Sold its US pork business to JBS in 2015. Exiting some beef operations — sold Fresno plant in 2023.',
       regulatoryNotes:
@@ -226,7 +226,7 @@ class MeatBrandDatabase {
         'Dodge City, Kansas (beef processing)',
         'Liberal, Kansas (beef processing)',
       ],
-      knownEstNumbers: ['208A'], // audited 2026-09-06: '208' is George's Processing (Springdale AR), not National Beef
+      knownEstNumbers: ['208A', '262', '8'], // audited 2026-09-06: '208' is George's Processing (Springdale AR), not National Beef
       ownershipNotes:
           'National Beef Packing Company LLC is headquartered in Kansas City, Missouri. Brazilian meat giant Marfrig Global Foods acquired a controlling stake in 2018 and has since raised it to 81.7%. Marfrig is publicly traded in Brazil. DOJ blocked JBS\'s attempted acquisition of National Beef in 2008 on antitrust grounds.',
       regulatoryNotes:
@@ -258,7 +258,7 @@ class MeatBrandDatabase {
         'Green Bay, Wisconsin (Packerland)',
         'Salt Lake City, Utah',
       ],
-      knownEstNumbers: ['4427', '18076', '3751', '6240'], // audited 2026-09-06: '177' is Pilgrim's Pride (JBS), '562' is JBS Green Bay
+      knownEstNumbers: ['1775', '17D', '18079', '320M', '413', '717', '717CR', '717M'], // audited 2026-09-06: '177' is Pilgrim's Pride (JBS), '562' is JBS Green Bay
       ownershipNotes:
           'Founded 1936 in Smithfield, Virginia. WH Group (formerly Shuanghui International), headquartered in Hong Kong/Henan, China, acquired Smithfield Foods in 2013 for \$7.1 billion — the largest Chinese acquisition of a US company at the time. WH Group is publicly traded on the Hong Kong Stock Exchange.',
       regulatoryNotes:
@@ -294,7 +294,7 @@ class MeatBrandDatabase {
         'Knoxville, Iowa',
         'Osceola, Iowa',
       ],
-      knownEstNumbers: ['675', '38E', '7516', '1928'],
+      knownEstNumbers: ['1879', '18866', '190', '19299', '199', '199D', '199G', '199O', '199R', '199V', '199W', '27266', '47240', '544', '579', '6002', '7000'],
       ownershipNotes:
           'Founded 1891 in Austin, Minnesota by George A. Hormel. Publicly traded (NYSE: HRL). One of the few major US meat companies that remains domestically owned and publicly traded. Known for SPAM, invented in 1937.',
       regulatoryNotes: null,
@@ -321,7 +321,7 @@ class MeatBrandDatabase {
         'Sioux City, Iowa (JV plant — one of the newest/largest in the US)',
         'St. Joseph, Missouri (Triumph Foods)',
       ],
-      knownEstNumbers: ['6912', '51301'],
+      knownEstNumbers: ['1243', '1318', '18285', '19112', '21234', '2178', '286', '2882', '6058', '764', '7903', '9197'],
       ownershipNotes:
           'Joint venture between Seaboard Corporation (NYSE: SEB, based in Merriam, Kansas) and Triumph Foods (privately held, St. Joseph, Missouri). The Sioux City plant opened in 2017 with capacity for 21,000 hogs per day.',
       regulatoryNotes: null,
@@ -382,7 +382,7 @@ class MeatBrandDatabase {
         'Morton, Mississippi',
         'Fairfield, Ohio',
       ],
-      knownEstNumbers: ['509', '6901', '20197', '7467'],
+      knownEstNumbers: ['1009', '1235', '1317', '170', '18557', '19688', '247', '320', '32182', '34308', '40183', '445', '45910', '46374', '51179', '522', '7264', '7342', '7485', '910', '912'],
       ownershipNotes:
           'Founded 1985 by Joseph Grendys, a first-generation immigrant from Poland. Privately held. One of the largest privately owned chicken companies in the US. No relation to Koch Industries (the Koch brothers\' company).',
       regulatoryNotes:
@@ -438,7 +438,7 @@ class MeatBrandDatabase {
         'Carthage, Missouri (processing)',
         'Huntsville, Arkansas',
       ],
-      knownEstNumbers: ['7071', '18044', '45029', '7355'],
+      knownEstNumbers: ['18866', '544', '579'],
       ownershipNotes:
           'Butterball LLC is a joint venture between Seaboard Corporation (NYSE: SEB) and Maxwell Farms (owned by the Goldsboro Milling Company). Originally part of ConAgra, then purchased by Carolina Turkey in 2006. Seaboard acquired its stake in 2010. The most recognized turkey brand in America.',
       regulatoryNotes:
@@ -463,7 +463,7 @@ class MeatBrandDatabase {
         'Montevideo, Minnesota',
         'Benson, Minnesota',
       ],
-      knownEstNumbers: ['7516', '18076J', '135'],
+      knownEstNumbers: ['13289', '18'],
       ownershipNotes:
           'Jennie-O Turkey Store is a wholly owned subsidiary of Hormel Foods (NYSE: HRL). Created from the 1986 merger of Jennie-O Foods and Turkey Store Company. Named after founder Earl B. Olson\'s daughter. All major operations are in Minnesota.',
       regulatoryNotes:
@@ -525,7 +525,7 @@ class MeatBrandDatabase {
           'Premium natural meat brand. Network of 700+ independent family farmers and ranchers.',
       plantCount: 'Uses Perdue and contract processing facilities',
       keyPlantLocations: ['Alameda, California (brand headquarters)'],
-      knownEstNumbers: [],
+      knownEstNumbers: ['15818A', '1869', '2041', '45508', '537D', '537G', '537H', '537L', '537V', '5850A', '6566', '9070'],
       ownershipNotes:
           'Founded 1970s by Bill Niman in Bolinas, California. Acquired by Perdue Farms in 2015. Operates as a premium brand within Perdue\'s portfolio. Sources from a network of 700+ independent US family farmers and ranchers who follow strict protocols: no antibiotics ever, no hormones, no crates/cages, and pasture-based raising.',
       regulatoryNotes:
