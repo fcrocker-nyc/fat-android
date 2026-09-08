@@ -920,6 +920,21 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'A store-cut tray still meets every USDA FSIS minimum. The retail exemption is about who has to print an identifier, not about whether the meat was inspected.\n\n'
             'Source: FAT research paper — The Retail Exemption. Full paper at farmanimaltransparency.com/fat-research/.'),
       ),
+      // 2.2d
+      _LearnTopic(
+        title: 'Prepared & Multi-Ingredient Foods',
+        subtitle: 'Stew, pizza, soup — when meat is one ingredient among many',
+        body: _text(
+            'A canned beef stew, a frozen pepperoni pizza, or a chicken noodle soup is not a single-animal product. Scoring it against the per-animal questions — what breed, what farm, what age, what feed — would paint a fully legal product as a transparency failure for answers no regulation ever required it to give. So FAT scans these in a separate Prepared / Multi-Ingredient lane.\n\n'
+            'Two regulators, one grocery aisle.\n'
+            'Whether USDA or FDA governs a prepared food depends on how much meat is in it. Products with enough meat or poultry (roughly 3% raw or 2% cooked, under FSIS jurisdiction rules) are USDA/FSIS-regulated: they carry the round inspection legend and an establishment number, like any package of meat. Below those thresholds — many frozen pizzas, soups, and sauces — the product is FDA-regulated and legally carries neither mark. The same shelf holds both, and nothing on the front of the package says which is which.\n\n'
+            'The establishment number names the assembler.\n'
+            'On a prepared food under FSIS jurisdiction, the EST number identifies the plant that assembled the product — the cannery, the pizza plant — not the slaughterhouse of the meat inside. Upstream sourcing is not disclosed on the label, and no rule requires it to be. FAT still runs its processor, OSHA, and EPA lookups against that assembler EST, because the assembler\'s own record is real information.\n\n'
+            'What FAT does with it.\n'
+            'Species is read as a list of every meat, poultry, or seafood ingredient named — "Contains: Beef, Pork" — instead of forcing one animal. The per-animal categories (breed, farm, age at slaughter, feed, welfare, medicine, hormones) are marked "not applicable" in blue and set aside from the disclosed count: the gap belongs to the regulatory design, not the brand. On an FDA-jurisdiction product, the missing legend and EST number are marked as the legal state they are — never a violation. And anything the brand voluntarily discloses ("made with organic chicken") still counts and still earns its credibility tier.\n\n'
+            'The bigger point.\n'
+            'For whole cuts of meat, labeling rules require at least a species name, an inspection legend, and an establishment number. For the meat inside a prepared food, the required disclosure is essentially zero — no breed, no origin, no farm, no age, no feed, no welfare claim, not even which slaughterhouse it came from. The most processed products on the shelf carry the least information about the animals in them. FAT\'s job here is to show that floor accurately — as the regulatory gap it is — rather than blame any single brand for it.'),
+      ),
       // 2.3
       _LearnTopic(
         title: 'Antibiotics and Meat Labels',

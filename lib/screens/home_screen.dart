@@ -146,13 +146,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     angle: -35 * math.pi / 180,
                     child: Container(
                       width: 240,
-                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 24),
                       color: Colors.orange,
                       child: const Text(
-                        'Now Scanning Loose Fish',
+                        'Reads food where meat is just one of the ingredients',
                         textAlign: TextAlign.center,
+                        maxLines: 3,
                         style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 10.5,
+                            height: 1.15,
                             fontWeight: FontWeight.w800,
                             color: Colors.white),
                       ),
@@ -457,8 +460,9 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 8),
               Text(
                 'What we read across 16 transparency categories, how claims are '
-                'backed, and how to read a FAT card. We rate the '
-                'disclosure — never the food.',
+                'backed, and how to read a FAT card — including prepared foods '
+                'like stew, pizza, and soup, where meat is one ingredient among '
+                'many. We rate the disclosure — never the food.',
                 style: TextStyle(fontSize: 14),
               ),
             ],
