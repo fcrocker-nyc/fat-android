@@ -1006,6 +1006,67 @@ class LabelInterpreter {
     return null;
   }
 
+  // ── EST / species mismatch check (port of iOS checkEstSpeciesMismatch) ──
+  // Guards against an OCR-misread establishment number: when the EST on the
+  // label belongs to a known poultry-only plant but the product reads as
+  // red meat (or vice versa), flag it instead of silently reporting the
+  // wrong plant.
+
+  static const Set<String> _poultryOnlyEstNumbers = {
+    '509', // Koch Foods LLC, Morristown TN — Poultry Processing / Slaughter
+    '278', // Wayne Farms, Albertville AL
+    '1913', // Tyson Foods (poultry), Springdale AR
+    '7851', // Pilgrim's Pride, Waco TX
+    '4074', // Perdue Farms, Salisbury MD
+    '6901', // Koch Foods, Fairfield OH
+    '20914', // Sanderson Farms (now Wayne-Sanderson)
+  };
+
+  static const Set<String> _porkOnlyEstNumbers = {
+    '4427', // Smithfield Foods, Smithfield VA
+    '177', // Smithfield Packing, Wilson NC
+    '578', // JBS USA Pork, Worthington MN
+    '969', // Tyson Fresh Meats Pork, Storm Lake IA
+    '6912', // Seaboard Triumph Foods, Sioux City IA
+    '675', // Hormel Foods, Austin MN
+    '3', // Oscar Mayer / Kraft Heinz
+  };
+
+  static (bool, String?) checkEstSpeciesMismatch({
+    required String? estNumber,
+    required FATCategoryResult? speciesResult,
+  }) {
+    if (estNumber == null || speciesResult == null) return (false, null);
+    // EST numbers may carry a letter suffix (e.g. "969A"); the registry sets
+    // are keyed by digits.
+    final est = estNumber.replaceAll(RegExp(r'[^0-9]'), '');
+    final species = speciesResult.value?.toLowerCase() ?? '';
+
+    if (_poultryOnlyEstNumbers.contains(est) &&
+        (species == 'pork' || species == 'beef' || species == 'lamb')) {
+      return (
+        true,
+        'EST. $estNumber is registered by FSIS as a poultry establishment, '
+            'but this product appears to be ${speciesResult.value ?? "a different species"}. '
+            'The establishment number on the label may have been misread by OCR. '
+            'Please verify the EST number manually.'
+      );
+    }
+
+    if (_porkOnlyEstNumbers.contains(est) &&
+        (species == 'chicken' || species == 'turkey')) {
+      return (
+        true,
+        'EST. $estNumber is registered by FSIS as a pork/beef establishment, '
+            'but this product appears to be ${speciesResult.value ?? "poultry"}. '
+            'The establishment number on the label may have been misread by OCR. '
+            'Please verify the EST number manually.'
+      );
+    }
+
+    return (false, null);
+  }
+
   // ── Helpers ──────────────────────────────────────────────────────────────
 
   static FATCategoryResult _known(String value) =>

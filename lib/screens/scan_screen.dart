@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import '../models/fat_models.dart';
 import '../interpreter/label_interpreter.dart';
+import '../interpreter/product_type_detector.dart';
 import '../interpreter/seafood_interpreter.dart';
 import '../theme/fat_theme.dart';
 import '../services/scan_store.dart';
@@ -102,7 +103,8 @@ class _ScanScreenState extends State<ScanScreen> {
 
       // Route by product type: seafood labels go to the seafood pipeline,
       // everything else to the meat pipeline.
-      final bool isSeafood = SeafoodInterpreter.isSeafood(scannedText);
+      final detection = ProductTypeDetector.detect(scannedText);
+      final bool isSeafood = detection.productType == ProductType.seafood;
       final FATResult fatResult;
       if (isSeafood) {
         final si = SeafoodInterpreter.interpret(scannedText);
@@ -128,6 +130,12 @@ class _ScanScreenState extends State<ScanScreen> {
         // legitimately carries no establishment number, so it is NOT a compliance
         // concern — estMissing stays false when the exemption applies.
         final exemption = LabelInterpreter.detectRetailExemption(scannedText);
+        // OCR-misread guard: a known poultry-only EST on a red-meat label (or
+        // vice versa) flags the card instead of reporting the wrong plant.
+        final mismatch = LabelInterpreter.checkEstSpeciesMismatch(
+          estNumber: estNumber,
+          speciesResult: categories[FATCategory.species],
+        );
         fatResult = FATResult(
           scannedText: scannedText,
           categories: categories,
@@ -135,6 +143,8 @@ class _ScanScreenState extends State<ScanScreen> {
           estMissing: isMeat && estNumber == null && !exemption.isExempt,
           retailExempt: exemption.isExempt,
           retailExemptStoreName: exemption.storeName,
+          estSpeciesMismatch: mismatch.$1,
+          estSpeciesMismatchNote: mismatch.$2,
           isRevised: isRevision,
           imagePaths: imagePaths,
         );

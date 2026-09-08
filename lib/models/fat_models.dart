@@ -351,26 +351,9 @@ class FATResult {
 
   double get fatScore => fatScoreWith();
 
-  static String gradeFor(double s) {
-    if (s >= 80) return 'A';
-    if (s >= 65) return 'B';
-    if (s >= 50) return 'C';
-    if (s >= 35) return 'D';
-    return 'F';
-  }
-
-  static Color gradeColorFor(double s) {
-    switch (gradeFor(s)) {
-      case 'A': return const Color(0xFF34A853);
-      case 'B': return const Color(0xFF64B446);
-      case 'C': return const Color(0xFFFBC02D);
-      case 'D': return const Color(0xFFEA8600);
-      default:  return const Color(0xFFDC2626);
-    }
-  }
-
-  String get grade => gradeFor(fatScore);
-  Color get gradeColor => gradeColorFor(fatScore);
+  // A–F letter-grade helpers were removed 2026-09: FAT reports a disclosure
+  // COUNT ("X of 16"), never a letter grade — iOS dropped grades long ago and
+  // nothing in the Android UI called these.
 
   // ── Seafood FAT Score (mirrors iOS SeafoodScore) ──
   // 70 pts disclosure + 30 pts credibility, scored ONLY over app-supported
