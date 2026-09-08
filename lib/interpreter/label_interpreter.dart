@@ -982,20 +982,25 @@ class LabelInterpreter {
 
   // ── EST Number Extraction ────────────────────────────────────────────────
 
+  /// A LETTER SUFFIX is part of the establishment number, not noise. Tyson's
+  /// Lexington NE plant is 245L and its Dakota City plant is 245C; dropping the
+  /// letter yields "245", which matches no establishment in the FSIS directory
+  /// at all. Suffixed numbers are common: 86J, 208A, 717CR, 969G, 18076J.
   static String? extractEstablishmentNumber(String text) {
     final patterns = [
-      RegExp(r'(?:usda\s*)?est\.?\s*(\d{1,6})', caseSensitive: false),
-      RegExp(r'establishment\s*(?:number\s*)?(?:#\s*)?(\d{1,6})', caseSensitive: false),
-      RegExp(r'est#\s*(\d{1,6})', caseSensitive: false),
-      RegExp(r'(?<![a-z])p\s*-\s*(\d{2,6})', caseSensitive: false),
-      RegExp(r'(?<![a-z])p(\d{3,6})(?![a-z0-9])', caseSensitive: false),
+      RegExp(r'(?:usda\s*)?est\.?\s*(\d{1,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
+      RegExp(r'establishment\s*(?:number\s*)?(?:#\s*)?(\d{1,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
+      RegExp(r'est#\s*(\d{1,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
+      RegExp(r'(?<![a-z])p\s*-\s*(\d{2,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
+      RegExp(r'(?<![a-z])p(\d{3,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
     ];
     for (final re in patterns) {
       final m = re.firstMatch(text);
       if (m != null) {
-        final raw = m.group(1)?.replaceAll(' ', '') ?? '';
-        final n = int.tryParse(raw);
-        if (n != null && n > 0 && n < 999999 && raw.length <= 6) return raw;
+        final raw = (m.group(1) ?? '').replaceAll(' ', '').toUpperCase();
+        final digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
+        final n = int.tryParse(digits);
+        if (n != null && n > 0 && n < 999999 && raw.length <= 8) return raw;
       }
     }
     return null;

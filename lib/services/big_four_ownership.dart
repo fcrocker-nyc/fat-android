@@ -437,7 +437,14 @@ class ParentCompanyService {
 
     // The database keys plants as "M969+V969" and resolves a bare number only
     // for some of them, so try the prefixed forms too.
-    for (final candidate in [key, 'M$key', 'P$key']) {
+    final digitsOnly = key.replaceAll(RegExp(r'[^0-9]'), '');
+    final candidates = <String>[
+      key, 'M$key', 'P$key',
+      if (digitsOnly != key && digitsOnly.isNotEmpty) ...[
+        digitsOnly, 'M$digitsOnly', 'P$digitsOnly',
+      ],
+    ];
+    for (final candidate in candidates) {
       try {
         final r = await http
             .get(Uri.parse('$_base/$candidate'))
