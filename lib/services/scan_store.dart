@@ -128,6 +128,8 @@ class ScanStore extends ChangeNotifier {
     'estSpeciesMismatchNote': r.estSpeciesMismatchNote,
     'speciesClaimMisuseNote': r.speciesClaimMisuseNote,
     'isRevised':              r.isRevised,
+    'isPreparedFood':         r.isPreparedFood,
+    'preparedFsisJurisdiction': r.preparedFsisJurisdiction,
   };
 
   Map<String, dynamic> _catResultToMap(FATCategoryResult r) => {
@@ -167,6 +169,8 @@ class ScanStore extends ChangeNotifier {
       estSpeciesMismatch:         m['estSpeciesMismatch'] as bool? ?? false,
       estSpeciesMismatchNote:     m['estSpeciesMismatchNote'] as String?,
       speciesClaimMisuseNote:     m['speciesClaimMisuseNote'] as String?,
+      isPreparedFood:             m['isPreparedFood'] as bool? ?? false,
+      preparedFsisJurisdiction:   m['preparedFsisJurisdiction'] as bool? ?? false,
       productType: ProductType.values.firstWhere((t) => t.name == typeStr,
           orElse: () => ProductType.meat),
       seafoodCategories:          seafoodCategories,

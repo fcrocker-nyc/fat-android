@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import '../models/fat_models.dart';
 import '../interpreter/label_interpreter.dart';
+import '../interpreter/prepared_food.dart';
 import '../interpreter/product_type_detector.dart';
 import '../interpreter/seafood_interpreter.dart';
 import '../theme/fat_theme.dart';
@@ -120,10 +121,26 @@ class _ScanScreenState extends State<ScanScreen> {
           imagePaths: imagePaths,
         );
       } else {
-        final categories = LabelInterpreter.interpret(scannedText);
+        var categories = LabelInterpreter.interpret(scannedText);
         final estNumber = LabelInterpreter.extractEstablishmentNumber(
           scannedText.toLowerCase(),
         );
+        // Prepared / Multi-Ingredient lane: a stew, pizza, or soup is not a
+        // single-animal product — per-animal categories go `.notRequired`,
+        // Species becomes a multi-species list, and an FDA-jurisdiction
+        // product (below the FSIS meat-content thresholds) legally carries no
+        // USDA legend or EST, so the red missing-EST banner must not fire.
+        final prepared = PreparedFoodDetector.detect(scannedText);
+        final preparedFsis = prepared.isPrepared &&
+            (estNumber != null ||
+                PreparedFoodDetector.hasFsisLegend(scannedText));
+        if (prepared.isPrepared) {
+          categories = PreparedFoodDetector.apply(
+            categories,
+            prepared,
+            fsisJurisdiction: preparedFsis,
+          );
+        }
         final isMeat =
             categories[FATCategory.species]?.status == DisclosureStatus.known;
         // USDA retail-store exemption (9 CFR 303.1(d)): a store-cut/ground item
@@ -140,11 +157,16 @@ class _ScanScreenState extends State<ScanScreen> {
           scannedText: scannedText,
           categories: categories,
           detectedEstablishmentNumber: estNumber,
-          estMissing: isMeat && estNumber == null && !exemption.isExempt,
+          estMissing: isMeat &&
+              estNumber == null &&
+              !exemption.isExempt &&
+              !prepared.isPrepared,
           retailExempt: exemption.isExempt,
           retailExemptStoreName: exemption.storeName,
           estSpeciesMismatch: mismatch.$1,
           estSpeciesMismatchNote: mismatch.$2,
+          isPreparedFood: prepared.isPrepared,
+          preparedFsisJurisdiction: preparedFsis,
           isRevised: isRevision,
           imagePaths: imagePaths,
         );

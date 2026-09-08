@@ -232,6 +232,16 @@ class FATResult {
   final String? estSpeciesMismatchNote;
   final String? speciesClaimMisuseNote;
 
+  /// True when the scan routed through the Prepared / Multi-Ingredient lane
+  /// (stew, pizza, soup…). Per-animal categories are `.notRequired` and the
+  /// results screen shows the prepared-food context banner.
+  final bool isPreparedFood;
+
+  /// Prepared lane only: true when a USDA legend or EST places the product
+  /// under FSIS jurisdiction (the EST names the final assembler). False =
+  /// FDA-jurisdiction presumption — no legend or EST is legally required.
+  final bool preparedFsisJurisdiction;
+
   // ── Seafood (populated when productType == seafood) ──
   final ProductType productType;
   final Map<SeafoodCategory, FATCategoryResult> seafoodCategories;
@@ -259,6 +269,8 @@ class FATResult {
     this.estSpeciesMismatch = false,
     this.estSpeciesMismatchNote,
     this.speciesClaimMisuseNote,
+    this.isPreparedFood = false,
+    this.preparedFsisJurisdiction = false,
     this.productType = ProductType.meat,
     this.seafoodCategories = const {},
     this.isSiluriformes = false,

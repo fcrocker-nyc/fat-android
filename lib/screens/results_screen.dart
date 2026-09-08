@@ -866,6 +866,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
             'This item appears to have been cut, ground, or packed in-store. Under the USDA retail store exemption (21 U.S.C. 661(c)(2); 9 CFR 303.1(d)), a store doing traditional retail cutting and grinding is not an official establishment and has no establishment number to display — so the missing EST number is not a compliance failure. The Processor, USDA/FSIS legend, and Supply-Chain categories are marked “not applicable” rather than “not disclosed”: the information was never required to travel from the source plant to the store scale label. For ground beef, the store must still keep the supplier establishment numbers in its grinder’s log (9 CFR 320.1) — ask at the counter.',
       ));
     }
+    // Prepared / Multi-Ingredient lane — a NEUTRAL context banner. The blue
+    // "not applicable" lights and the reduced "of N applicable" meter come
+    // from the notRequired mechanics; this card explains why.
+    if (result.isPreparedFood) {
+      widgets.add(_warningBanner(
+        icon: Icons.ramen_dining_outlined,
+        iconColor: _disclosureBlue,
+        bgColor: _disclosureBlue.withValues(alpha: 0.07),
+        borderColor: _disclosureBlue.withValues(alpha: 0.45),
+        title: 'Prepared / Multi-Ingredient Product',
+        titleColor: _disclosureBlue,
+        body: result.preparedFsisJurisdiction
+            ? 'This looks like a multi-ingredient prepared food under USDA/FSIS jurisdiction (it carries a USDA legend or establishment number). On a prepared food the establishment number identifies the final assembler — the cannery or plant that made the product — not the slaughterhouse of the meat inside. The per-animal categories (breed, farm, age, feed, welfare, medicine, hormones) are marked “not applicable” rather than “not disclosed”: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat — a regulatory gap, not a brand failure. Anything the brand voluntarily discloses (e.g., “made with organic chicken”) still counts and still earns its credibility tier.'
+            : 'This looks like a multi-ingredient prepared food with no USDA legend or establishment number — which is legal: products whose meat or poultry content is below the FSIS thresholds (roughly 3% raw / 2% cooked) are regulated by FDA, not USDA, and are not required to carry either mark. Their absence is not a compliance failure. The per-animal categories (breed, farm, age, feed, welfare, medicine, hormones) are marked “not applicable” rather than “not disclosed”: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat — the disclosure floor for the meat inside prepared foods is essentially zero. Anything the brand voluntarily discloses still counts and still earns its credibility tier.',
+      ));
+    }
     if (result.estSpeciesMismatch && result.estSpeciesMismatchNote != null) {
       widgets.add(_warningBanner(
         icon: Icons.warning_amber_rounded,
