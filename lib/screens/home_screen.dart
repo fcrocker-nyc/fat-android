@@ -6,6 +6,7 @@ import 'about_screen.dart';
 import 'learn_screen.dart';
 import 'service_case_capture_screen.dart';
 import 'how_fat_works_screen.dart';
+import 'fat100_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onScanTap;
@@ -66,6 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 20),
                     _howFATWorksCard(context),
+                    const SizedBox(height: 12),
+                    _fat100Card(context),
                   ],
                 ),
               ),
@@ -426,6 +429,50 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ── How FAT works card (compact entry to the dedicated page) ────────────
+
+  Widget _fat100Card(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GestureDetector(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const Fat100Screen()),
+        ),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: FATTheme.primaryGreen,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: const [
+              Row(
+                children: [
+                  Icon(Icons.checklist, size: 22, color: FATTheme.scanGreen),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text('FAT 100 Field Study',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.w900)),
+                  ),
+                  Icon(Icons.chevron_right,
+                      size: 20, color: FATTheme.scanGreen),
+                ],
+              ),
+              SizedBox(height: 8),
+              Text(
+                'The 100-product processed-meat checklist — deli meats, '
+                'sausage & bacon, nuggets & tenders. Track captures in the '
+                'store and record full study entries.',
+                style: TextStyle(fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   Widget _howFATWorksCard(BuildContext context) {
     return Padding(
