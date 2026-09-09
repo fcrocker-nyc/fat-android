@@ -2855,7 +2855,7 @@ class GroundBeefContextCard extends StatelessWidget {
 
     blocks.add(const _ChillBlock(
       'Ground beef is a blend, not one animal',
-      'Retail ground beef is almost always fed-cattle trim (about 50% lean) cut with much leaner trim (90%+ lean) from cull cows — domestic, and increasingly imported from Australia, New Zealand, Brazil, Uruguay, or Argentina. No public record links a specific package to a specific animal or farm; the establishment shown above is the most specific fact that can actually be confirmed.',
+      'Retail ground beef is almost always fed-cattle trim (about 50% lean) cut with much leaner trim (90%+ lean) from cull cows — domestic, and increasingly imported from Australia, New Zealand, Brazil, Uruguay, or Argentina. No public record links a specific package to a specific animal or farm; the establishment shown above is the most specific fact that can actually be confirmed. And some imported trim enters through trading houses whose domestic resale to grinders leaves no public record at all — the one point in the chain where the paper trail goes dark for structural rather than elective reasons.',
       _CertColors.fatBlue, _CertColors.systemGray6));
 
     // GFW Appendix A blocks — named primal, hamburger added-fat, grind spec.

@@ -1323,6 +1323,26 @@ class _ResultsScreenState extends State<ResultsScreen> {
             Text(blend.note,
                 style: const TextStyle(
                     fontSize: 13.5, color: Colors.black, height: 1.4)),
+            if (blend.importPosture != null) ...[
+              const SizedBox(height: 8),
+              const Row(children: [
+                Icon(Icons.inventory_2_outlined,
+                    size: 15, color: Color(0xFF1F2A44)),
+                SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                      "This company's import record, from public port manifests",
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1F2A44))),
+                ),
+              ]),
+              const SizedBox(height: 4),
+              Text(blend.importPosture!,
+                  style: const TextStyle(
+                      fontSize: 13.5, color: Colors.black, height: 1.4)),
+            ],
             const SizedBox(height: 4),
             Text(GroundBeefBlendingRegistry.sourceLine,
                 style: const TextStyle(
