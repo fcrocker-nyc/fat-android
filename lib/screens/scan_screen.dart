@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import '../models/fat_models.dart';
+import '../interpreter/foreign_establishment.dart';
 import '../interpreter/label_interpreter.dart';
 import '../interpreter/prepared_food.dart';
 import '../interpreter/product_type_detector.dart';
@@ -146,6 +147,39 @@ class _ScanScreenState extends State<ScanScreen> {
         // USDA retail-store exemption (9 CFR 303.1(d)): a store-cut/ground item
         // legitimately carries no establishment number, so it is NOT a compliance
         // concern — estMissing stays false when the exemption applies.
+        // Imported product: the label carries the producing country's
+        // establishment mark (e.g. "IT 1937 L CE") instead of a USDA
+        // establishment number. Only consult it when no domestic EST was read,
+        // so a US label that merely mentions a country is unaffected.
+        final foreign = estNumber == null
+            ? ForeignEstablishmentDetector.detect(scannedText)
+            : null;
+        if (foreign != null) {
+          // The mark DOES disclose the producing establishment — credit the
+          // Processor category and say plainly that FAT's domestic lookup
+          // cannot resolve a foreign number.
+          categories[FATCategory.processor] = FATCategoryResult(
+            status: DisclosureStatus.known,
+            value: 'Foreign establishment ${foreign.display} '
+                '(${foreign.countryName})',
+            credibilityNote: ForeignEstablishmentDetector.processorNote(foreign),
+          );
+          // An establishment mark names the country the product was produced
+          // or packed in — not necessarily where the animal was raised — so it
+          // is partial origin information, not a "Product of" origin claim.
+          if (categories[FATCategory.countryOrigin]?.status ==
+              DisclosureStatus.missing) {
+            categories[FATCategory.countryOrigin] = FATCategoryResult(
+              status: DisclosureStatus.partial,
+              value: 'Establishment mark indicates ${foreign.countryName}',
+              credibilityNote:
+                  'Taken from the inspection mark, which identifies the country '
+                  'of the approved establishment that produced or packed the '
+                  'product. It is not a country-of-origin claim and does not '
+                  'state where the animal was raised or slaughtered.',
+            );
+          }
+        }
         final exemption = LabelInterpreter.detectRetailExemption(scannedText);
         // OCR-misread guard: a known poultry-only EST on a red-meat label (or
         // vice versa) flags the card instead of reporting the wrong plant.
@@ -157,14 +191,20 @@ class _ScanScreenState extends State<ScanScreen> {
           scannedText: scannedText,
           categories: categories,
           detectedEstablishmentNumber: estNumber,
+          // An imported product legally carries no USDA establishment number —
+          // flagging its absence would be a false compliance accusation.
           estMissing: isMeat &&
               estNumber == null &&
               !exemption.isExempt &&
-              !prepared.isPrepared,
+              !prepared.isPrepared &&
+              foreign == null,
           retailExempt: exemption.isExempt,
           retailExemptStoreName: exemption.storeName,
           estSpeciesMismatch: mismatch.$1,
           estSpeciesMismatchNote: mismatch.$2,
+          foreignEstablishment: foreign?.display,
+          foreignEstablishmentToken: foreign?.token,
+          foreignCountry: foreign?.countryName,
           isPreparedFood: prepared.isPrepared,
           preparedFsisJurisdiction: preparedFsis,
           isRevised: isRevision,

@@ -10,6 +10,7 @@ import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
 import '../data/ground_beef_blending_registry.dart';
 import '../data/montana_origin.dart';
+import '../services/recall_service.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
 import '../services/beta_agonists_service.dart';
@@ -78,6 +79,20 @@ class _ResultsScreenState extends State<ResultsScreen> {
     _loadBetaAgonists();
     _loadEnvWatch();
     _loadProcessorRecord();
+    _loadRecalls();
+  }
+
+  /// FSIS recall check, keyed by the domestic establishment number when the
+  /// label has one and by the foreign establishment mark when it does not.
+  /// Purely additive: a lookup failure leaves the card hidden and never
+  /// changes the disclosure count.
+  Future<void> _loadRecalls() async {
+    final token = result.recallLookupToken;
+    if (token == null || token.isEmpty) return;
+    final check = await RecallService.instance.check(token);
+    if (check != null && check.matchCount > 0 && mounted) {
+      setState(() => _recalls = check);
+    }
   }
 
   Future<void> _loadEnvWatch() async {
@@ -261,6 +276,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   // ── Palette (spec section D) ───────────────────────────────────────────
   static const _disclosureGreen = Color(0xFF34A853); // ✓ disclosed
+  RecallCheck? _recalls;
+
   static const _disclosureBlue = Color(0xFF2563EB); //  ⓘ not applicable (exemption)
   static const _fatAmber = FATTheme.fatAmber; //         ⚠ partial / USDA-reviewed
   static const _fatRed = FATTheme.fatRed; //             ✗ missing
@@ -866,6 +883,35 @@ class _ResultsScreenState extends State<ResultsScreen> {
             'This item appears to have been cut, ground, or packed in-store. Under the USDA retail store exemption (21 U.S.C. 661(c)(2); 9 CFR 303.1(d)), a store doing traditional retail cutting and grinding is not an official establishment and has no establishment number to display — so the missing EST number is not a compliance failure. The Processor, USDA/FSIS legend, and Supply-Chain categories are marked “not applicable” rather than “not disclosed”: the information was never required to travel from the source plant to the store scale label. For ground beef, the store must still keep the supplier establishment numbers in its grinder’s log (9 CFR 320.1) — ask at the counter.',
       ));
     }
+    // Imported product — the label carries a foreign establishment mark
+    // instead of a USDA establishment number. NEUTRAL: that is the legal
+    // state for an imported package, not a compliance failure.
+    if (result.isImported) {
+      widgets.add(_warningBanner(
+        icon: Icons.public,
+        iconColor: _disclosureBlue,
+        bgColor: _disclosureBlue.withValues(alpha: 0.07),
+        borderColor: _disclosureBlue.withValues(alpha: 0.45),
+        title: 'Imported — ${result.foreignCountry} Establishment '
+            '${result.foreignEstablishment}',
+        titleColor: _disclosureBlue,
+        body:
+            'This package carries ${result.foreignCountry}’s mark of inspection '
+            '(${result.foreignEstablishment}) rather than a USDA establishment '
+            'number — which is what an imported FSIS-regulated product bears, so '
+            'the absence of a USDA number here is not a compliance failure. FAT’s '
+            'processor lookup decodes domestic establishment numbers from the USDA '
+            'MPI directory and cannot resolve a foreign one; FSIS publishes the '
+            'eligible foreign establishments by country in its Import & Export '
+            'Library. Imported meat is re-inspected by FSIS at the port before it '
+            'enters commerce — that re-inspection is where problems with imported '
+            'product are usually caught.',
+      ));
+    }
+    // FSIS recall / public-health alert matching this establishment.
+    if (_recalls != null && _recalls!.matchCount > 0) {
+      widgets.add(_recallBanner(_recalls!));
+    }
     // Prepared / Multi-Ingredient lane — a NEUTRAL context banner. The blue
     // "not applicable" lights and the reduced "of N applicable" meter come
     // from the notRequired mechanics; this card explains why.
@@ -905,6 +951,99 @@ class _ResultsScreenState extends State<ResultsScreen> {
       ));
     }
     return widgets;
+  }
+
+  /// Recall / public-health-alert card. Red when an ACTIVE notice matches the
+  /// establishment on the label; neutral grey when every match is closed —
+  /// a closed recall is history, not a live warning.
+  Widget _recallBanner(RecallCheck check) {
+    final active = check.activeMatches;
+    final live = active.isNotEmpty;
+    final shown = live ? active : check.matches.take(2).toList();
+    final color = live ? FATTheme.fatRed : Colors.black54;
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: live
+            ? FATTheme.fatRed.withValues(alpha: 0.08)
+            : Colors.black.withValues(alpha: 0.04),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.45)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(live ? Icons.warning_rounded : Icons.history,
+                  size: 20, color: color),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  live
+                      ? (active.length == 1
+                          ? 'Active FSIS recall on this establishment'
+                          : '${active.length} active FSIS recalls on this establishment')
+                      : 'Past FSIS recall on this establishment (closed)',
+                  style: TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.w800, color: color),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          for (final r in shown) ...[
+            Text(
+              [
+                if (r.classification.isNotEmpty) r.classification,
+                if (r.date.isNotEmpty) r.date,
+                if (r.recallNumber.isNotEmpty) 'Recall ${r.recallNumber}',
+              ].join(' · '),
+              style: const TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w700, color: Colors.black87),
+            ),
+            const SizedBox(height: 2),
+            Text(r.title,
+                style: const TextStyle(fontSize: 14, color: Colors.black87)),
+            if (r.reason.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text('Reason: ${r.reason.join(', ')}',
+                    style: const TextStyle(fontSize: 13, color: Colors.black54)),
+              ),
+            if (r.states.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text('Distribution: ${r.states.join(', ')}',
+                    style: const TextStyle(fontSize: 13, color: Colors.black54)),
+              ),
+            if (r.url.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 4, bottom: 8),
+                child: GestureDetector(
+                  onTap: () => _openUrl(r.url),
+                  child: const Text('Read the FSIS recall notice →',
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: FATTheme.scanGreen)),
+                ),
+              ),
+          ],
+          Text(
+            live
+                ? 'Matched on the establishment identifier printed on this label. Check the lot number and use-by date in the FSIS notice against your package — a recall covers specific production lots, not everything the plant makes.'
+                : 'This notice is closed. It is shown as history for the establishment on this label, not a current warning.',
+            style: const TextStyle(fontSize: 12.5, color: Colors.black54),
+          ),
+          const Text(
+            'Source: USDA FSIS Recall & Public Health Alert API.',
+            style: TextStyle(fontSize: 11.5, color: Colors.black45),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _warningBanner({

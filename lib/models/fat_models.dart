@@ -232,6 +232,18 @@ class FATResult {
   final String? estSpeciesMismatchNote;
   final String? speciesClaimMisuseNote;
 
+  /// Foreign (imported) establishment mark read off the label, e.g.
+  /// "IT 1937 L" — an imported product carries the producing country's mark
+  /// instead of a USDA establishment number. When set, [estMissing] is false:
+  /// no USDA number is required on the retail package.
+  final String? foreignEstablishment;
+
+  /// Normalized foreign identifier used for the recall lookup ("IT1937L").
+  final String? foreignEstablishmentToken;
+
+  /// Country of the foreign establishment, e.g. "Italy".
+  final String? foreignCountry;
+
   /// True when the scan routed through the Prepared / Multi-Ingredient lane
   /// (stew, pizza, soup…). Per-animal categories are `.notRequired` and the
   /// results screen shows the prepared-food context banner.
@@ -269,6 +281,9 @@ class FATResult {
     this.estSpeciesMismatch = false,
     this.estSpeciesMismatchNote,
     this.speciesClaimMisuseNote,
+    this.foreignEstablishment,
+    this.foreignEstablishmentToken,
+    this.foreignCountry,
     this.isPreparedFood = false,
     this.preparedFsisJurisdiction = false,
     this.productType = ProductType.meat,
@@ -281,6 +296,15 @@ class FATResult {
         scannedAt = scannedAt ?? DateTime.now();
 
   bool get isSeafood => productType == ProductType.seafood;
+
+  /// True when the label carries a foreign establishment mark — an imported
+  /// FSIS-regulated product rather than a domestically inspected one.
+  bool get isImported => foreignEstablishmentToken != null;
+
+  /// The identifier to run a recall check against: the domestic establishment
+  /// number when there is one, otherwise the foreign mark.
+  String? get recallLookupToken =>
+      detectedEstablishmentNumber ?? foreignEstablishmentToken;
 
   Iterable<FATCategoryResult> get _activeValues =>
       isSeafood ? seafoodCategories.values : categories.values;
