@@ -244,6 +244,10 @@ class FATResult {
   /// Country of the foreign establishment, e.g. "Italy".
   final String? foreignCountry;
 
+  /// Keys to try against FSIS's eligible-foreign-establishment dataset, most
+  /// specific first (the regional form before the region-free one).
+  final List<String> foreignLookupKeys;
+
   /// True when the scan routed through the Prepared / Multi-Ingredient lane
   /// (stew, pizza, soup…). Per-animal categories are `.notRequired` and the
   /// results screen shows the prepared-food context banner.
@@ -284,6 +288,7 @@ class FATResult {
     this.foreignEstablishment,
     this.foreignEstablishmentToken,
     this.foreignCountry,
+    this.foreignLookupKeys = const [],
     this.isPreparedFood = false,
     this.preparedFsisJurisdiction = false,
     this.productType = ProductType.meat,

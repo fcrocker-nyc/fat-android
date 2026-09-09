@@ -10,6 +10,7 @@ import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
 import '../data/ground_beef_blending_registry.dart';
 import '../data/montana_origin.dart';
+import '../services/foreign_establishment_service.dart';
 import '../services/recall_service.dart';
 import '../services/scan_store.dart';
 import '../services/epa_service.dart';
@@ -80,6 +81,16 @@ class _ResultsScreenState extends State<ResultsScreen> {
     _loadEnvWatch();
     _loadProcessorRecord();
     _loadRecalls();
+    _loadForeignEstablishment();
+  }
+
+  /// Resolve a foreign establishment mark to the plant FSIS lists as eligible
+  /// to export to the U.S. Additive only: a miss leaves the card as-is.
+  Future<void> _loadForeignEstablishment() async {
+    if (result.foreignLookupKeys.isEmpty) return;
+    final rec = await ForeignEstablishmentService.instance
+        .resolve(result.foreignLookupKeys);
+    if (rec != null && mounted) setState(() => _foreignPlant = rec);
   }
 
   /// FSIS recall check, keyed by the domestic establishment number when the
@@ -277,6 +288,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // ── Palette (spec section D) ───────────────────────────────────────────
   static const _disclosureGreen = Color(0xFF34A853); // ✓ disclosed
   RecallCheck? _recalls;
+  ForeignEstablishmentRecord? _foreignPlant;
 
   static const _disclosureBlue = Color(0xFF2563EB); //  ⓘ not applicable (exemption)
   static const _fatAmber = FATTheme.fatAmber; //         ⚠ partial / USDA-reviewed
@@ -887,6 +899,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     // instead of a USDA establishment number. NEUTRAL: that is the legal
     // state for an imported package, not a compliance failure.
     if (result.isImported) {
+      final plant = _foreignPlant;
       widgets.add(_warningBanner(
         icon: Icons.public,
         iconColor: _disclosureBlue,
@@ -895,6 +908,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
         title: 'Imported — ${result.foreignCountry} Establishment '
             '${result.foreignEstablishment}',
         titleColor: _disclosureBlue,
+        extra: plant == null
+            ? null
+            : _foreignPlantBlock(plant),
         body:
             'This package carries ${result.foreignCountry}’s mark of inspection '
             '(${result.foreignEstablishment}) rather than a USDA establishment '
@@ -1054,6 +1070,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     required String title,
     required Color titleColor,
     required String body,
+    Widget? extra,
   }) {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -1077,11 +1094,57 @@ class _ResultsScreenState extends State<ResultsScreen> {
                         fontWeight: FontWeight.bold,
                         color: titleColor)),
                 const SizedBox(height: 4),
+                ?extra,
                 Text(body,
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w600)),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// The plant behind a foreign establishment mark, resolved against FSIS's
+  /// eligible-foreign-establishment lists. Shown above the explanatory copy so
+  /// the identity leads.
+  Widget _foreignPlantBlock(ForeignEstablishmentRecord p) {
+    final delisted = !p.eligible;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Identified: ${p.name}',
+              style: const TextStyle(
+                  fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black)),
+          Text(
+            '${p.country} · est ${p.est}'
+            '${p.dateListed.isNotEmpty ? " · FSIS-listed ${p.dateListed}" : ""}',
+            style: const TextStyle(fontSize: 13, color: Colors.black54),
+          ),
+          if (delisted)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                'FSIS DELISTED this establishment'
+                '${p.dateDelisted.isNotEmpty ? " on ${p.dateDelisted}" : ""} and has not '
+                'relisted it — it is not currently eligible to export to the '
+                'United States. Product already in U.S. commerce may predate the '
+                'delisting.',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: FATTheme.fatRed),
+              ),
+            ),
+          const SizedBox(height: 2),
+          Text(
+            delisted
+                ? 'Source: USDA FSIS eligible foreign establishment lists.'
+                : 'Listed by FSIS as eligible to export ${p.scope.toLowerCase()} to the United States. Source: USDA FSIS eligible foreign establishment lists.',
+            style: const TextStyle(fontSize: 11.5, color: Colors.black45),
           ),
         ],
       ),

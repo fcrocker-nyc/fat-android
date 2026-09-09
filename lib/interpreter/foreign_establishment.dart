@@ -31,13 +31,35 @@ class ForeignEstablishment {
   /// Which scheme matched: 'eu', 'sif' (Brazil) or 'tif' (Mexico).
   final String scheme;
 
+  /// Regional block inside some marks (e.g. the "BY" in "DE BY 12345 EG").
+  /// Empty when the mark carries none.
+  final String region;
+
   const ForeignEstablishment({
     required this.token,
     required this.display,
     required this.countryCode,
     required this.countryName,
     required this.scheme,
+    this.region = '',
   });
+
+  /// Keys to try against FSIS's eligible-foreign-establishment dataset, most
+  /// specific first. FSIS lists a German plant as "BW03330", so the regional
+  /// block has to be part of the key — while [token] stays region-free because
+  /// that is the form quoted in recall notices.
+  List<String> get lookupKeys {
+    final keys = <String>[];
+    if (region.isNotEmpty) keys.add('$countryCode$region$numberPart');
+    keys.add(token);
+    if (region.isNotEmpty) keys.add('$region$numberPart');
+    return keys;
+  }
+
+  /// The mark minus the country code — "1937L" for "IT 1937 L".
+  String get numberPart => token.startsWith(countryCode)
+      ? token.substring(countryCode.length)
+      : token;
 }
 
 class ForeignEstablishmentDetector {
@@ -110,6 +132,7 @@ class ForeignEstablishmentDetector {
         countryCode: cc,
         countryName: name,
         scheme: 'eu',
+        region: region ?? '',
       );
     }
 

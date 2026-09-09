@@ -131,6 +131,7 @@ class ScanStore extends ChangeNotifier {
     'foreignEstablishment':      r.foreignEstablishment,
     'foreignEstablishmentToken': r.foreignEstablishmentToken,
     'foreignCountry':            r.foreignCountry,
+    'foreignLookupKeys':         r.foreignLookupKeys,
     'isPreparedFood':         r.isPreparedFood,
     'preparedFsisJurisdiction': r.preparedFsisJurisdiction,
   };
@@ -175,6 +176,7 @@ class ScanStore extends ChangeNotifier {
       foreignEstablishment:       m['foreignEstablishment'] as String?,
       foreignEstablishmentToken:  m['foreignEstablishmentToken'] as String?,
       foreignCountry:             m['foreignCountry'] as String?,
+      foreignLookupKeys:          (m['foreignLookupKeys'] as List?)?.cast<String>() ?? const [],
       isPreparedFood:             m['isPreparedFood'] as bool? ?? false,
       preparedFsisJurisdiction:   m['preparedFsisJurisdiction'] as bool? ?? false,
       productType: ProductType.values.firstWhere((t) => t.name == typeStr,

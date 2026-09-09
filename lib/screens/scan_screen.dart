@@ -205,6 +205,7 @@ class _ScanScreenState extends State<ScanScreen> {
           foreignEstablishment: foreign?.display,
           foreignEstablishmentToken: foreign?.token,
           foreignCountry: foreign?.countryName,
+          foreignLookupKeys: foreign?.lookupKeys ?? const [],
           isPreparedFood: prepared.isPrepared,
           preparedFsisJurisdiction: preparedFsis,
           isRevised: isRevision,
