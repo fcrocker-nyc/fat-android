@@ -1,0 +1,709 @@
+{
+  "schema_version": "1.0",
+  "updated": "2026-09-10",
+  "maintainer": "Farm Animal Transparency (FAT) — farmanimaltransparency.com",
+  "about": "Single source of truth for the FAT pork supply chain maps. Every displayed figure lives here exactly once. Ratios and shares are COMPUTED at render time and must never be typed as literals. Each figure carries a source key resolving to the sources block, an as-of date, and a basis string stating what the number counts.",
+  "editing_rules": [
+    "Never add a derived value (a ratio, percentage or difference) to this file. Add its inputs and let the renderer compute it.",
+    "Every figure needs source, asof and basis. If a figure has no citable source, set needs_source true and it will render with a visible 'source needed' chip.",
+    "Never present a count as 'number of hog farms' without stating the basis — permitted certificates of coverage, active permits, and facilities are three different counts in North Carolina.",
+    "Do not build a cross-state permit-density comparison from EPA ECHO. See permit_regime_warning."
+  ],
+  "sources": {
+    "nass_2026_06": {
+      "label": "USDA NASS, Quarterly Hogs and Pigs, June 25, 2026",
+      "url": "https://www.nass.usda.gov/Publications/Todays_Reports/reports/hgpg0626.pdf",
+      "type": "primary",
+      "asof": "2026-06-01"
+    },
+    "nc_afo_layer": {
+      "label": "NC DEQ Division of Water Resources — Animal Feed Operation Permits (live feature service)",
+      "url": "https://services2.arcgis.com/kCu40SDxsCGcuUWO/arcgis/rest/services/Animal_Feed_Operation_Permits_(View)/FeatureServer/0",
+      "type": "primary",
+      "asof": "2026-09-10",
+      "note": "Self-described as refreshed weekly. Layer editingInfo.lastEditDate is stale (2024-01-04) because this is a view layer; verify currency per build with MAX(PERMIT_EFFECTIVE_DATE)."
+    },
+    "nc_facility_list_2026_04": {
+      "label": "NC DEQ — List of Permitted Animal Facilities, April 23, 2026 (XLSX)",
+      "url": "https://www.deq.nc.gov/listpermittedanimalfacilities20260423xlsx/open",
+      "type": "primary",
+      "asof": "2026-04-23"
+    },
+    "nc_annual_report_fy2324": {
+      "label": "NC DEQ — Annual Report to the General Assembly on Animal Waste Management, FY2023-24",
+      "url": "https://www.ncleg.gov/Files/Library/agency/deq17552.pdf",
+      "type": "primary",
+      "asof": "2024-06-30"
+    },
+    "nc_program_summary": {
+      "label": "NC DEQ — Animal Feeding Operations Program Summary",
+      "url": "https://www.deq.nc.gov/about/divisions/water-resources/water-quality-permitting/animal-feeding-operations/program-summary",
+      "type": "primary",
+      "asof": "2026-09-10"
+    },
+    "icn_complaints_2026_03": {
+      "label": "Inside Climate News — \"North Carolina Created Complaint Systems for Its Industrialized Farms. They Don't Work Very Well.\" March 9, 2026",
+      "url": "https://insideclimatenews.org/news/09032026/north-carolina-cafo-complaint-systems/",
+      "type": "secondary",
+      "asof": "2026-03-09"
+    },
+    "assembly_cafo_complaints": {
+      "label": "The Assembly — N.C.'s System for CAFO Complaints Is Falling Short, Advocates Say",
+      "url": "https://www.theassemblync.com/news/environment/agriculture/nc-cafos-farms-pollution-complaints-deq/",
+      "type": "secondary",
+      "asof": "2026-03-01"
+    },
+    "nc_338pa23": {
+      "label": "N.C. Dep't of Environmental Quality v. N.C. Farm Bureau Federation, Inc., No. 338PA23 (N.C. Oct. 17, 2025)",
+      "url": "https://law.justia.com/cases/north-carolina/supreme-court/2025/338pa23.html",
+      "type": "primary",
+      "asof": "2025-10-17"
+    },
+    "sl_2026_11": {
+      "label": "S.L. 2026-11, s. 4 (S401, N.C. Farm Act of 2025-2026) — repeal of N.C.G.S. 143-215.6E",
+      "url": "https://www.ncleg.gov/EnactedLegislation/SessionLaws/PDF/2025-2026/SL2026-11.pdf",
+      "type": "primary",
+      "asof": "2026-06-22"
+    },
+    "gs_143_215_6e": {
+      "label": "N.C.G.S. 143-215.6E — Violation Points System applicable to swine farms (repealed)",
+      "url": "https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_143/GS_143-215.6E.html",
+      "type": "primary",
+      "asof": "2026-06-22"
+    },
+    "gs_143_215_10i": {
+      "label": "N.C.G.S. 143-215.10I — Performance standards; lagoon and sprayfield systems prohibited",
+      "url": "https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_143/GS_143-215.10I.html",
+      "type": "primary",
+      "asof": "2020-06-01"
+    },
+    "sl_2025_97": {
+      "label": "S.L. 2025-97, s. 4.1 — animal waste general permit extension to September 30, 2028",
+      "url": "https://www.ncleg.gov/EnactedLegislation/SessionLaws/PDF/2025-2026/SL2025-97.pdf",
+      "type": "primary",
+      "asof": "2025-10-22"
+    },
+    "nc_2024_permits": {
+      "label": "NC DEQ — 2024 Animal Feeding Operations General Permits",
+      "url": "https://www.deq.nc.gov/about/divisions/water-resources/permitting/animal-feeding-operations/2024-animal-feeding-operations-general-permits",
+      "type": "primary",
+      "asof": "2026-09-10"
+    },
+    "farm_act_2018": {
+      "label": "Fair Agricultural Reporting Method Act, Title XI of Div. S, Consolidated Appropriations Act 2018, Pub. L. 115-141 (CERCLA 103(e) exemption)",
+      "url": "https://www.congress.gov/bill/115th-congress/house-bill/1625/text",
+      "type": "primary",
+      "asof": "2018-03-23"
+    },
+    "epcra_rule_2019": {
+      "label": "84 Fed. Reg. 27,533 (June 13, 2019) — EPCRA reporting exemption for air emissions from animal waste at farms",
+      "url": "https://www.federalregister.gov/documents/2019/06/13/2019-12411/amendment-to-emergency-release-notification-regulations-on-reporting-exemption-for-air-emissions",
+      "type": "primary",
+      "asof": "2019-06-13"
+    },
+    "reach_v_epa": {
+      "label": "Rural Empowerment Ass'n for Cmty. Help v. EPA, No. 18-2260 (TJK) (D.D.C. Aug. 7, 2025), on appeal D.C. Cir. No. 25-5354",
+      "url": "https://www.courtlistener.com/opinion/10649758/rural-empowerment-association-for-community-help-v-united-states/",
+      "type": "primary",
+      "asof": "2025-08-07"
+    },
+    "epa_title_vi_05rno21r4": {
+      "label": "EPA External Civil Rights Compliance Office, Complaint No. 05RNO-21-R4 (NC DEQ swine digester permits) — accepted Jan. 13, 2022, open",
+      "url": "https://www.epa.gov/system/files/documents/2023-09/2022.1.13-final-recipient-acceptance-ltr.-epa-complaint-no.-05rno-21-r4-ncdeq.pdf",
+      "type": "primary",
+      "asof": "2022-01-13"
+    },
+    "smithfield_10k_fy2025": {
+      "label": "Smithfield Foods, Inc., Form 10-K for fiscal year ended December 28, 2025 (filed March 24, 2026)",
+      "url": "https://investors.smithfieldfoods.com/sec-filings/sec-filings/content/0000091388-26-000014/smf-20251228.htm",
+      "type": "primary",
+      "asof": "2025-12-28"
+    },
+    "smithfield_fy2025_results": {
+      "label": "Smithfield Foods — Record Fiscal 2025 Results",
+      "url": "https://investors.smithfieldfoods.com/news-events/press-releases/detail/1434/smithfield-foods-reports-record-fiscal-2025-results",
+      "type": "primary",
+      "asof": "2026-03-24"
+    },
+    "align_rng": {
+      "label": "Align RNG — project disclosures (Smithfield / Dominion Energy joint venture)",
+      "url": "https://alignrng.com/projects.aspx",
+      "type": "primary",
+      "asof": "2026-09-10"
+    },
+    "carb_dsm_lcfs": {
+      "label": "CARB — Dairy and Swine Manure crediting under the Low Carbon Fuel Standard",
+      "url": "https://ww2.arb.ca.gov/sites/default/files/2020-09/2020_dairy-swine-manure_crediting_faq.pdf",
+      "type": "primary",
+      "asof": "2022-04-01"
+    },
+    "fat_nc_briefing": {
+      "label": "FAT — North Carolina's Hog CAFOs in 2026: A Regulatory Record That Closed, and a Label That Never Opened",
+      "url": "https://farmanimaltransparency.com/nc-hog-cafo-regulatory-record-label-disclosure/",
+      "type": "fat",
+      "asof": "2026-09-10"
+    }
+  },
+  "permit_regime_warning": {
+    "headline": "Permit counts are not comparable across states.",
+    "body": "Large swine operations are permitted under fundamentally different instruments by state. Only Illinois and Oklahoma route most large swine operations through an NPDES permit. In Iowa, North Carolina, Indiana and Nebraska — and in the no-discharge tiers of Minnesota, Missouri and South Dakota — the default instrument is a STATE-only permit that produces no NPDES record and therefore no EPA ECHO entry. Roughly 62 to 74 percent of the national herd sits in those states. A choropleth built on EPA ECHO NPDES data shows Iowa, which holds about a third of all US hogs, as nearly empty. FAT therefore builds the base choropleth on USDA NASS inventory and treats permits as a separate, explicitly labeled categorical layer.",
+    "never_label_echo_as": "permitted hog facilities",
+    "correct_label_for_echo": "facilities holding a federal NPDES CAFO permit"
+  },
+  "national": {
+    "inventory_total": {
+      "value": 73664,
+      "unit": "thousand head",
+      "source": "nass_2026_06",
+      "asof": "2026-06-01",
+      "basis": "All hogs and pigs, United States"
+    },
+    "inventory_market": {
+      "value": 67784,
+      "unit": "thousand head",
+      "source": "nass_2026_06",
+      "asof": "2026-06-01",
+      "basis": "Market hogs"
+    },
+    "inventory_breeding": {
+      "value": 5880,
+      "unit": "thousand head",
+      "source": "nass_2026_06",
+      "asof": "2026-06-01",
+      "basis": "Breeding hogs"
+    },
+    "cr3_packers": {
+      "value": 66,
+      "unit": "percent",
+      "source": null,
+      "needs_source": true,
+      "asof": null,
+      "basis": "Share of US hog slaughter held by the three largest packers. CARRIED FORWARD FROM THE 2026-03 MAP WITHOUT A CITATION. Do not present as verified until sourced — GIPSA/AMS packer concentration data or an academic CR3 series.",
+      "estimated": true,
+      "public_note": "Share of US hog slaughter held by the three largest packers. Carried over from an earlier version of this map without a citation, and shown here flagged rather than silently dropped. Treat as unverified until sourced."
+    }
+  },
+  "states": [
+    {
+      "name": "Iowa",
+      "code": "IA",
+      "inventory": 24700,
+      "breeding": 840,
+      "market": 23860,
+      "permit_regime": "state_only",
+      "permit_program": "Iowa DNR construction permit + Manure Management Plan (IAC 567 Ch. 65); NPDES only where a discharge would be expected",
+      "regime_source": "https://www.iowadnr.gov/environmental-protection/animal-feeding-operations/afo-confinements"
+    },
+    {
+      "name": "Minnesota",
+      "code": "MN",
+      "inventory": 9300,
+      "breeding": 540,
+      "market": 8760,
+      "permit_regime": "both",
+      "permit_program": "SDS general permit MNG450000 required at 1,000+ animal units (state-only); NPDES general MNG440000 only on discharge to WOTUS",
+      "regime_source": "https://www.pca.state.mn.us/business-with-us/npdes-and-sds-feedlot-permits"
+    },
+    {
+      "name": "North Carolina",
+      "code": "NC",
+      "inventory": 7200,
+      "breeding": 750,
+      "market": 6450,
+      "permit_regime": "state_only",
+      "permit_program": "State general permit AWG100000 (swine); NPDES general NCA200000 for the small discharging subset; digesters under state general AWG400000",
+      "regime_source": "https://deq.nc.gov/about/divisions/water-resources/water-resources-permits/wastewater-branch/animal-feeding-operation-permits/permits"
+    },
+    {
+      "name": "Illinois",
+      "code": "IL",
+      "inventory": 5250,
+      "breeding": 600,
+      "market": 4650,
+      "permit_regime": "npdes",
+      "permit_program": "IEPA NPDES general permit ILA01 (on discharge); siting under the Livestock Management Facilities Act carries no discharge permit",
+      "regime_source": "https://epa.illinois.gov/topics/water-quality/watershed-management/cafos.html"
+    },
+    {
+      "name": "Indiana",
+      "code": "IN",
+      "inventory": 4300,
+      "breeding": 260,
+      "market": 4040,
+      "permit_regime": "state_only",
+      "permit_program": "State CFO permit under 327 IAC 19 for non-discharging operations; NPDES CAFO permit only where discharging",
+      "regime_source": "https://www.in.gov/idem/cfo/cfo-permit-requirements/"
+    },
+    {
+      "name": "Nebraska",
+      "code": "NE",
+      "inventory": 3650,
+      "breeding": 410,
+      "market": 3240,
+      "permit_regime": "state_only",
+      "permit_program": "State Construction & Operating Permit for livestock waste control facilities; NPDES only where discharging to waters of the state",
+      "regime_source": "https://dwee.nebraska.gov/land-waste/agriculture/livestock-waste-control-program"
+    },
+    {
+      "name": "Missouri",
+      "code": "MO",
+      "inventory": 3350,
+      "breeding": 405,
+      "market": 2945,
+      "permit_regime": "both",
+      "permit_program": "MOGS10000 State No-Discharge CAFO general permit (default for no-discharge); MOG010000 NPDES CAFO general permit",
+      "regime_source": "https://dnr.mo.gov/water/state-no-discharge-concentrated-animal-feeding-operation-cafo-permit-mogs10000"
+    },
+    {
+      "name": "Ohio",
+      "code": "OH",
+      "inventory": 2800,
+      "breeding": 210,
+      "market": 2590,
+      "permit_regime": "both",
+      "permit_program": "ODA Permit to Install / Permit to Operate (state, universal); Ohio EPA NPDES for CAFOs that discharge or propose to discharge",
+      "regime_source": "https://epa.ohio.gov/divisions-and-offices/surface-water/permitting/concentrated-animal-feeding-operations",
+      "regime_note": "Whether Ohio EPA requires NPDES coverage of all large swine CAFOs or only actual and proposed dischargers is not established."
+    },
+    {
+      "name": "South Dakota",
+      "code": "SD",
+      "inventory": 2210,
+      "breeding": 290,
+      "market": 1920,
+      "permit_regime": "both",
+      "permit_program": "SDG-100000 State General Water Pollution Control Permit (state-only, no-discharge default) and a parallel SDG-100000 NPDES general permit",
+      "regime_source": "https://danr.sd.gov/Agriculture/Livestock/FeedlotPermit/default.aspx"
+    },
+    {
+      "name": "Oklahoma",
+      "code": "OK",
+      "inventory": 2050,
+      "breeding": 430,
+      "market": 1620,
+      "permit_regime": "npdes",
+      "permit_program": "ODAFF AgPDES general permit OKG010000 under EPA-authorized partial NPDES authority (Dec. 20, 2012); plus a separate state swine license under the Oklahoma Swine Feeding Operations Act",
+      "regime_source": "https://ag.ok.gov/divisions/agricultural-environmental-management/"
+    },
+    {
+      "name": "Kansas",
+      "code": "KS",
+      "inventory": 1830,
+      "breeding": 170,
+      "market": 1660,
+      "permit_regime": "both",
+      "permit_program": "KDHE three tiers — registration at 300+ animal units, state permit where no significant pollution potential, federal NPDES for larger operations",
+      "regime_source": "https://www.kdhe.ks.gov/436/Livestock-Waste-Management",
+      "regime_note": "Exact swine head thresholds separating the state permit from NPDES are not published."
+    },
+    {
+      "name": "Pennsylvania",
+      "code": "PA",
+      "inventory": 1350,
+      "breeding": 110,
+      "market": 1240,
+      "permit_regime": "unknown",
+      "permit_program": null,
+      "regime_source": null
+    },
+    {
+      "name": "Michigan",
+      "code": "MI",
+      "inventory": 1300,
+      "breeding": 120,
+      "market": 1180,
+      "permit_regime": "unknown",
+      "permit_program": null,
+      "regime_source": null
+    },
+    {
+      "name": "Texas",
+      "code": "TX",
+      "inventory": 1140,
+      "breeding": 140,
+      "market": 1000,
+      "permit_regime": "both",
+      "permit_program": "TCEQ general permit TXG920000 covers both TPDES (NPDES-delegated) and State-only CAFOs in one instrument",
+      "regime_source": "https://www.tceq.texas.gov/downloads/permitting/wastewater/agriculture/cafo-general/txg920000-factsheet.pdf"
+    }
+  ],
+  "states_not_separately_published": {
+    "inventory": 3234,
+    "unit": "thousand head",
+    "source": "nass_2026_06",
+    "asof": "2026-06-01",
+    "basis": "NASS publishes state detail for 14 states only. The remaining 36 states are aggregated into a single 'Other States' figure and cannot be broken out from this series. Renderers must show those states as 'not separately published', never as zero, and must never distribute this figure across them.",
+    "public_note": "NASS publishes state detail for 14 states only; the remaining 36 are reported as a single combined figure and cannot be broken out from this series."
+  },
+  "nc_facility_counts": {
+    "note": "Four different counts, all current, none reconciling. Show the basis with any number displayed.",
+    "active_swine_permits": {
+      "value": 2146,
+      "source": "nc_afo_layer",
+      "asof": "2026-09-10",
+      "basis": "Records where DESC_ LIKE 'Swine%' AND PERMIT_STATUS='Active' in DEQ's live feature service. Certificates of coverage, not deduplicated facilities.",
+      "label": "Active swine permits"
+    },
+    "all_swine_permits": {
+      "value": 2222,
+      "source": "nc_afo_layer",
+      "asof": "2026-09-10",
+      "basis": "All records where DESC_ LIKE 'Swine%', any status.",
+      "label": "All swine permits"
+    },
+    "all_active_permits": {
+      "value": 2368,
+      "source": "nc_afo_layer",
+      "asof": "2026-09-10",
+      "basis": "All animal types, PERMIT_STATUS='Active'.",
+      "label": "All active permits, every animal type"
+    },
+    "all_permits": {
+      "value": 2479,
+      "source": "nc_afo_layer",
+      "asof": "2026-09-10",
+      "basis": "Every record in the layer, all animal types, any status.",
+      "label": "All permit records"
+    },
+    "deq_reported_swine_facilities": {
+      "value": 2047,
+      "source": "nc_annual_report_fy2324",
+      "asof": "2024-06-30",
+      "basis": "Swine facilities as stated in DEQ's statutory annual report to the General Assembly, FY2023-24.",
+      "label": "DEQ annual report — swine facilities"
+    },
+    "deq_reported_all_operations": {
+      "value": 2202,
+      "source": "nc_annual_report_fy2324",
+      "asof": "2024-06-30",
+      "basis": "All permitted animal operations, DEQ annual report FY2023-24.",
+      "label": "DEQ annual report — all operations"
+    },
+    "digester_permits": {
+      "value": 15,
+      "source": "nc_afo_layer",
+      "asof": "2026-09-10",
+      "basis": "Records where PERMIT_TYPE LIKE '%Digester%'.",
+      "label": "Digester permits"
+    },
+    "reconciliation_gap": {
+      "note": "DEQ's own report count (2,047 swine facilities) and its own GIS layer (2,222 swine records) differ by about 175, and DEQ publishes no reconciliation. Likely causes: superseded certificates retained as rows, digester certificates issued alongside a base certificate for the same farm, and facilities carrying more than one animal-type record. Deduplicate on PERMITNUMBER before publishing any count."
+    }
+  },
+  "nc_enforcement": {
+    "inspectors": {
+      "value": 14,
+      "source": "icn_complaints_2026_03",
+      "asof": "2026-03-09",
+      "basis": "DEQ staff inspecting animal feeding operations. These staff split time across multiple programs, so the full-time-equivalent figure is lower than 14."
+    },
+    "operations_covered": {
+      "value": 2436,
+      "source": "icn_complaints_2026_03",
+      "asof": "2026-03-09",
+      "basis": "All permitted operations those 14 inspectors cover: 2,200 swine CAFOs plus 218 cattle operations plus 18 wet-litter poultry farms. This is the correct denominator for a per-inspector ratio — the earlier 157:1 figure divided swine facilities alone by 14 and therefore understated the load."
+    },
+    "ratio_note": "Compute the ratio at render as operations_covered / inspectors. Do not type it. Depending on which source supplies the denominator the ratio ranges from about 157:1 (DEQ's FY2023-24 all-operations count) to about 177:1 (the layer's active permit count); the displayed figure must state which denominator it used.",
+    "complaints_investigated": {
+      "value": 568,
+      "source": "icn_complaints_2026_03",
+      "asof": "2025-12-31",
+      "basis": "Complaints about CAFOs investigated by NC DEQ, November 2018 through the end of 2025. This is a DEQ complaint count, NOT an EPA ECHO violation count, and it is not comparable to ECHO figures for other states."
+    },
+    "complaint_window": {
+      "start": "2018-11",
+      "end": "2025-12"
+    },
+    "violation_rate": {
+      "value": 0.2,
+      "unit": "fraction",
+      "source": "icn_complaints_2026_03",
+      "asof": "2025-12-31",
+      "basis": "Violations found in approximately one in five investigated complaints."
+    },
+    "response_deadline_days": {
+      "value": 5,
+      "source": "icn_complaints_2026_03",
+      "asof": "2017-01-01",
+      "basis": "Under a 2017 settlement DEQ must visit the CAFO within five days of a complaint unless there is an immediate threat to human health or the environment."
+    },
+    "confidentiality_note": "The substance of complaints remains confidential, and a violation enters the public record only if an inspector independently verifies it. Waste-removal violations are difficult to establish if an inspector arrives after the 15-day legal deadline.",
+    "unpermitted_gap_note": "Poultry operations using dry-litter disposal require no permit and receive no routine inspection, so the true number of animal feeding operations in North Carolina is not knowable from permit data."
+  },
+  "nc_legal_authority": {
+    "headline": "The enforcement gap is legal as well as numerical.",
+    "body": "Three separate disclosure and enforcement mechanisms covering North Carolina swine operations have closed since October 2025. Adding inspectors would not restore any of them: there is no annual operations report to inspect against, no points mechanism escalating to permit revocation, and no federal duty to report air releases of ammonia or hydrogen sulfide.",
+    "mechanisms": [
+      {
+        "name": "Annual operations report",
+        "scope": "All permitted swine facilities",
+        "status": "unenforceable",
+        "date": "2025-10-17",
+        "detail": "A two-page annual summary of animal numbers, lagoons and manure application acreage. Struck as an unpromulgated APA rule.",
+        "source": "nc_338pa23"
+      },
+      {
+        "name": "Phosphorus Loss Assessment Tool analysis",
+        "scope": "About 5 percent of operations",
+        "status": "unenforceable",
+        "date": "2025-10-17",
+        "detail": "PLAT analysis on high-phosphorus fields with mitigation required at specified ratings. Struck on the same grounds.",
+        "source": "nc_338pa23"
+      },
+      {
+        "name": "Floodplain groundwater monitoring wells",
+        "scope": "About 50 to 55 facilities",
+        "status": "unenforceable",
+        "date": "2025-10-17",
+        "detail": "Monitoring wells for waste storage structures sited in the 100-year floodplain. Struck on the same grounds.",
+        "source": "nc_338pa23"
+      },
+      {
+        "name": "Violation points system (N.C.G.S. 143-215.6E)",
+        "scope": "All permitted swine farms",
+        "status": "repealed",
+        "date": "2026-06-22",
+        "detail": "Enacted in 1997. Three significant violations within five years triggered mandatory permit revocation. Repealed outright after 29 years.",
+        "source": "sl_2026_11"
+      },
+      {
+        "name": "CERCLA air-release reporting",
+        "scope": "All animal feeding operations, nationwide",
+        "status": "exempt",
+        "date": "2018-03-23",
+        "detail": "Congress exempted air emissions from animal waste at a farm from CERCLA section 103 reporting.",
+        "source": "farm_act_2018"
+      },
+      {
+        "name": "EPCRA air-release reporting",
+        "scope": "All animal feeding operations, nationwide",
+        "status": "exempt_on_appeal",
+        "date": "2019-06-13",
+        "detail": "EPA extended the exemption to EPCRA section 304. The challenge was decided for EPA on August 7, 2025 and is on appeal in the D.C. Circuit, No. 25-5354.",
+        "source": "epcra_rule_2019"
+      },
+      {
+        "name": "General permit renewal",
+        "scope": "All permitted animal operations",
+        "status": "stalled",
+        "date": "2025-10-22",
+        "detail": "DEQ ran a full 2024 renewal with a comment period and four public hearings but never issued the permits. The General Assembly extended the 2019 and 2022 permits to September 30, 2028. The renewal was the natural vehicle for re-promulgating the struck conditions.",
+        "source": "sl_2025_97"
+      },
+      {
+        "name": "Rulemaking to restore the struck conditions",
+        "scope": "All permitted swine facilities",
+        "status": "not_initiated",
+        "date": "2026-09-10",
+        "detail": "As of September 2026 the Environmental Management Commission's pending-rules docket contains no animal waste, phosphorus or floodplain groundwater rulemaking.",
+        "source": "nc_338pa23"
+      }
+    ],
+    "open_proceeding": {
+      "name": "EPA Title VI Complaint 05RNO-21-R4",
+      "status": "open",
+      "detail": "Challenges DEQ's March 2021 issuance of four swine digester permits in Duplin and Sampson Counties, where populations of color are 54 to 76 percent of residents within one mile. Accepted January 13, 2022, tolled since October 2022, still open with no published finding.",
+      "source": "epa_title_vi_05rno21r4"
+    }
+  },
+  "nc_statutory_structure": {
+    "moratorium": {
+      "statute": "N.C.G.S. 143-215.10I",
+      "source": "gs_143_215_10i",
+      "detail": "Titled 'lagoon and sprayfield systems prohibited', but it bars a permit for such a system only unless the permit does not increase the farm's permitted capacity as measured by annual steady state live weight, or the system meets all five performance standards. The capacity-neutral exception is why existing lagoon farms renew indefinitely. The statute forecloses growth; it does not require replacement."
+    },
+    "performance_standards": [
+      "Eliminate the discharge of animal waste to surface water and groundwater through direct discharge, seepage, or runoff.",
+      "Substantially eliminate atmospheric emission of ammonia.",
+      "Substantially eliminate the emission of odor that is detectable beyond the boundaries of the parcel or tract of land on which the swine farm is located.",
+      "Substantially eliminate the release of disease-transmitting vectors and airborne pathogens.",
+      "Substantially eliminate nutrient and heavy metal contamination of soil and groundwater."
+    ]
+  },
+  "ownership": {
+    "note": "Foreign ownership is tracked as a category distinct from economic concentration.",
+    "smithfield": {
+      "parent": "WH Group Limited",
+      "parent_domicile": "Hong Kong / China",
+      "parent_stake_pct": {
+        "value": 87,
+        "source": "smithfield_fy2025_results",
+        "asof": "2025-09-30",
+        "basis": "Approximate WH Group holding after the September 2025 secondary offering."
+      },
+      "listing": {
+        "exchange": "Nasdaq Global Select Market",
+        "ticker": "SFD",
+        "ipo_date": "2025-01-29",
+        "ipo_price_usd": 20.0,
+        "source": "smithfield_fy2025_results",
+        "basis": "Smithfield returned to US public markets on January 29, 2025. It is now a US-listed public company with a Chinese majority holder — a materially different structure from the wholly-owned subsidiary it was before 2025."
+      },
+      "net_sales_usd_m": {
+        "value": 15500,
+        "source": "smithfield_fy2025_results",
+        "asof": "2025-12-28",
+        "basis": "FY2025 net sales."
+      },
+      "operating_profit_usd_m": {
+        "value": 1292,
+        "source": "smithfield_fy2025_results",
+        "asof": "2025-12-28",
+        "basis": "FY2025 GAAP operating profit."
+      },
+      "hog_production_segment_profit_usd_m": {
+        "value": 176,
+        "source": "smithfield_fy2025_results",
+        "asof": "2025-12-28",
+        "basis": "Hog Production segment operating profit."
+      }
+    },
+    "jbs": {
+      "parent": "JBS S.A.",
+      "parent_domicile": "Brazil",
+      "us_pork_subsidiary": "Swift Pork Company",
+      "note": "Retained from the March 2026 map. Ownership share of US hog slaughter not independently sourced here; see national.cr3_packers needs_source."
+    }
+  },
+  "integration": {
+    "note": "Vertical integration is loosening at the production end. A static 'about 90 percent contract' figure no longer describes the direction of travel.",
+    "smithfield_company_owned_farms": {
+      "value": 240,
+      "qualifier": "more than",
+      "source": "smithfield_10k_fy2025",
+      "asof": "2025-12-28",
+      "basis": "US company-owned farms."
+    },
+    "smithfield_contract_farms": {
+      "value": 1300,
+      "qualifier": "more than",
+      "source": "smithfield_10k_fy2025",
+      "asof": "2025-12-28",
+      "basis": "US contract farms."
+    },
+    "smithfield_internal_production_head_m": {
+      "value": 11.1,
+      "source": "smithfield_10k_fy2025",
+      "asof": "2025-12-28",
+      "basis": "Internal hog production, FY2025, down from 14.6 million head in FY2024."
+    },
+    "smithfield_internal_production_prior_head_m": {
+      "value": 14.6,
+      "source": "smithfield_10k_fy2025",
+      "asof": "2024-12-29",
+      "basis": "Internal hog production, FY2024."
+    },
+    "smithfield_internal_share_pct": {
+      "value": 40,
+      "qualifier": "approximately",
+      "source": "smithfield_10k_fy2025",
+      "asof": "2025-12-28",
+      "basis": "Share of hogs processed by the Fresh Pork segment that come from internal production."
+    },
+    "nc_divestitures": [
+      {
+        "date": "2024-12",
+        "detail": "Contributed $3 million for a 25 percent minority interest in a Murphy Family Farms venture and sold approximately 150,000 sows and related inventories.",
+        "source": "smithfield_10k_fy2025"
+      },
+      {
+        "date": "2025-02",
+        "detail": "Contributed $450,000 for a 9 percent stake in VisionAg and divested approximately 28,000 sows and associated commercial hog inventories.",
+        "source": "smithfield_10k_fy2025"
+      }
+    ]
+  },
+  "biogas": {
+    "note": "Digester permits layer a covered lagoon and gas line onto the existing lagoon and sprayfield rather than replacing it. No digester technology met North Carolina's environmentally superior technology standard on its own.",
+    "align_rng": {
+      "structure": "50/50 joint venture between Smithfield Foods and Dominion Energy",
+      "projects": [
+        {
+          "name": "Grady Road",
+          "counties": [
+            "Sampson",
+            "Duplin"
+          ],
+          "farms": 19,
+          "annual_dth": 321456,
+          "source": "align_rng"
+        },
+        {
+          "name": "Bowdens",
+          "counties": [
+            "Duplin"
+          ],
+          "farms": 35,
+          "annual_dth": 304866,
+          "completion_estimate": "2026-Q4",
+          "source": "align_rng"
+        }
+      ],
+      "lcfs_application_finalized": "2025-03",
+      "ci_score_disclosed": false,
+      "disclosure_note": "Smithfield and Dominion have declined to disclose credit volumes or revenue, citing proprietary business information, and Align's certified carbon intensity score is not public."
+    },
+    "lcfs_ci_range": {
+      "low": -532,
+      "high": -135,
+      "unit": "gCO2e/MJ",
+      "source": "carb_dsm_lcfs",
+      "basis": "Certified CARB carbon intensity range for dairy and swine manure biomethane pathways, credited on an avoided-methane basis."
+    }
+  },
+  "label_disclosure": {
+    "headline": "None of this reaches the package.",
+    "body": "Federal labeling law requires no disclosure of waste-management method. A cut of pork from a lagoon-and-sprayfield operation and one from a pasture-based operation carry identical mandatory label information. The environmental dimension is reachable only through two upstream FAT categories, neither of which appears on conventional pork.",
+    "categories": [
+      {
+        "number": 4,
+        "name": "Farm / Ranch",
+        "why": "Waste-management method is a property of a specific farm. Without farm identity the question cannot be asked. Conventional pork discloses no farm."
+      },
+      {
+        "number": 7,
+        "name": "Who (corporate ownership)",
+        "why": "Siting and waste decisions are made by the integrator, not the grower whose name is on the mailbox. Conventional pork discloses no integrator — and DEQ's permit data carries no integrator field either."
+      },
+      {
+        "number": 15,
+        "name": "Supply-chain intermediaries",
+        "why": "The biogas joint venture is a second commercial channel monetizing the same waste stream. It appears in neither the meat's price nor its label."
+      }
+    ],
+    "asymmetry": "Verified, audited, government-certified disclosure exists in this system — it is simply pointed somewhere other than the consumer. California requires third-party verification of the carbon intensity of gas made from the waste. Neither the waste system nor the enforcement record is verified for, or disclosed to, the person buying the pork."
+  },
+  "data_gaps": [
+    {
+      "gap": "Integrator affiliation",
+      "detail": "NC DEQ's permit layer carries OWNER but no integrator or contractor field. Smithfield, Prestage and Murphy-Brown affiliation is absent from every DEQ source found. Any integrator mapping must come from secondary sources."
+    },
+    {
+      "gap": "Lagoon and waste-structure locations",
+      "detail": "No NC DEQ lagoon or waste-structure GIS layer was found. DEQ's Agricultural_Operations layer is a spill and incident tracker, not structures. The only comprehensive NC lagoon geometry in public circulation is the Waterkeeper Alliance / Environmental Working Group aerial digitization, a third-party remote-sensing product, now dated."
+    },
+    {
+      "gap": "State detail beyond 14 states",
+      "detail": "NASS does not publish it in the quarterly series. Census of Agriculture (2022) is the alternative, at a different vintage and definition."
+    },
+    {
+      "gap": "Packer CR3",
+      "detail": "The 66 percent figure carried forward from the March 2026 map has no citation. Source it or remove it."
+    },
+    {
+      "gap": "Statewide lagoon count",
+      "detail": "No DEQ publication states one. Figures in the 3,000 to 3,500 range circulate, including from industry sources, but do not trace to a state dataset."
+    }
+  ],
+  "reproducible_queries": {
+    "note": "Run these against the NC DEQ feature service to refresh the nc_facility_counts block. Append to the layer URL in sources.nc_afo_layer.",
+    "all": "/query?where=1%3D1&returnCountOnly=true&f=json",
+    "active": "/query?where=PERMIT_STATUS%3D'Active'&returnCountOnly=true&f=json",
+    "swine": "/query?where=DESC_+LIKE+'Swine%25'&returnCountOnly=true&f=json",
+    "swine_active": "/query?where=DESC_+LIKE+'Swine%25'+AND+PERMIT_STATUS%3D'Active'&returnCountOnly=true&f=json",
+    "digesters": "/query?where=PERMIT_TYPE+LIKE+'%25Digester%25'&returnCountOnly=true&f=json",
+    "currency_check": "/query?where=1%3D1&outStatistics=%5B%7B%22statisticType%22%3A%22max%22%2C%22onStatisticField%22%3A%22PERMIT_EFFECTIVE_DATE%22%2C%22outStatisticFieldName%22%3A%22max_eff%22%7D%5D&f=json",
+    "sslw_by_county": "/query?where=DESC_+LIKE+'Swine%25'+AND+PERMIT_STATUS%3D'Active'&outFields=COUNTY&groupByFieldsForStatistics=COUNTY&outStatistics=%5B%7B%22statisticType%22%3A%22sum%22%2C%22onStatisticField%22%3A%22TOTAL_LIVE_WEIGHT%22%2C%22outStatisticFieldName%22%3A%22sslw%22%7D%5D&f=json",
+    "filter_warning": "Do not filter on PERMIT_EXPIRATION_DT > today. The 2019 general permits show an expiration of 2024-09-30 while remaining Active, because the replacements were extended to 2028-09-30 by S.L. 2025-97. Filter on PERMIT_STATUS instead."
+  }
+}
