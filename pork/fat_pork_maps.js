@@ -455,8 +455,8 @@
             'NASS aggregates the remaining states into a single figure of ' +
             headM(data.states_not_separately_published.inventory) + ' head.',
             sourceChip(data, n.inventory_total)) +
-          card('Packer concentration', num(n.cr3_packers.value) + '%',
-            esc(pub(n.cr3_packers)), sourceChip(data, n.cr3_packers), 'warn') +
+          card('Four largest packers\' share', num(n.cr4_packers.value) + '%',
+            esc(pub(n.cr4_packers)), sourceChip(data, n.cr4_packers)) +
           '</div>';
         h += '<div class="fat-map" id="fat-map-int"></div><div id="fat-legend-int"></div>';
         h += permitWarning(data);

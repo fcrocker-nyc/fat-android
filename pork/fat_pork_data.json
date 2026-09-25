@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated": "2026-09-10",
+  "updated": "2026-09-25",
   "maintainer": "Farm Animal Transparency (FAT) — farmanimaltransparency.com",
   "about": "Single source of truth for the FAT pork supply chain maps. Every displayed figure lives here exactly once. Ratios and shares are COMPUTED at render time and must never be typed as literals. Each figure carries a source key resolving to the sources block, an as-of date, and a basis string stating what the number counts.",
   "editing_rules": [
@@ -142,6 +142,12 @@
       "url": "https://farmanimaltransparency.com/nc-hog-cafo-regulatory-record-label-disclosure/",
       "type": "fat",
       "asof": "2026-09-10"
+    },
+    "usda_ps_annual_2021_2022": {
+      "label": "USDA AMS, Packers and Stockyards Division: Annual Report 2021 & 2022 (March 2024), Tables 5 and 6",
+      "url": "https://www.govinfo.gov/content/pkg/CMR-A88-00186915/pdf/CMR-A88-00186915.pdf",
+      "type": "primary",
+      "asof": "2021"
     }
   },
   "permit_regime_warning": {
@@ -172,15 +178,13 @@
       "asof": "2026-06-01",
       "basis": "Breeding hogs"
     },
-    "cr3_packers": {
-      "value": 66,
+    "cr4_packers": {
+      "value": 65,
       "unit": "percent",
-      "source": null,
-      "needs_source": true,
-      "asof": null,
-      "basis": "Share of US hog slaughter held by the three largest packers. CARRIED FORWARD FROM THE 2026-03 MAP WITHOUT A CITATION. Do not present as verified until sourced — GIPSA/AMS packer concentration data or an academic CR3 series.",
-      "estimated": true,
-      "public_note": "Share of US hog slaughter held by the three largest packers. Carried over from an earlier version of this map without a citation, and shown here flagged rather than silently dropped. Treat as unverified until sourced."
+      "source": "usda_ps_annual_2021_2022",
+      "asof": "2021",
+      "basis": "Four-firm concentration ratio (CR4) for U.S. hog slaughter, 2021: share of slaughter held by the four largest packers. USDA reports 67% in 2019, 64% in 2020 and 65% in 2021; HHI 1,371 in 2021. Latest year USDA has published.",
+      "public_note": "Share of U.S. hog slaughter held by the four largest packers in 2021, the latest year USDA has published (Packers and Stockyards Division, Table 5)."
     }
   },
   "states": [
@@ -559,10 +563,10 @@
       }
     },
     "jbs": {
-      "parent": "JBS S.A.",
+      "parent": "JBS N.V.",
       "parent_domicile": "Brazil",
       "us_pork_subsidiary": "Swift Pork Company",
-      "note": "Retained from the March 2026 map. Ownership share of US hog slaughter not independently sourced here; see national.cr3_packers needs_source."
+      "note": "JBS N.V. became the parent in June 2025 (NYSE: JBS). Company-level share of U.S. hog slaughter is not published by USDA; national.cr4_packers gives the four-firm total."
     }
   },
   "integration": {
