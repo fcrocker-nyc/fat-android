@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/fat_models.dart';
 import '../theme/fat_theme.dart';
+import '../interpreter/seafood_detail_lines.dart';
 
 /// Shareable results card — Flutter port of iOS `DisclosureShareCard.swift`.
 ///
@@ -88,10 +89,24 @@ class DisclosureShareCard extends StatelessWidget {
     // One row per category, mirroring iOS ForEach(FATCategory.allCases).
     final rows = <Widget>[];
     if (isSeafood) {
+      // Seafood v1.1: the Cat. 5 "Grown in" line rides under its row.
+      final grownIn =
+          SeafoodDetailLines.forResult(result)[SeafoodCategory.farmVesselFishery];
       for (final c in SeafoodCategory.values) {
         final status =
             result.seafoodCategories[c]?.status ?? DisclosureStatus.missing;
         rows.add(_shareRow(c.displayName, status));
+        if (c == SeafoodCategory.farmVesselFishery && grownIn != null) {
+          for (final l in grownIn) {
+            rows.add(Text(
+              l.text,
+              style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black.withValues(alpha: 0.7)),
+            ));
+          }
+        }
       }
     } else {
       for (final c in FATCategory.values) {

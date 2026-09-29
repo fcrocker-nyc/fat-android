@@ -160,6 +160,34 @@ enum SeafoodProductionMethod {
   }
 }
 
+/// How a farmed fish was grown (Seafood Spec Addendum v1.1, change A).
+/// A U.S. "farm-raised" label does not say whether the fish came from a sea
+/// cage or a land-based tank; this records what the label says, as a detail
+/// line inside Cat. 5 (Farm / Vessel / Fishery). It never changes a category
+/// status or the seafood index. Persisted by `name`; do not rename cases.
+enum SeafoodProductionSystem {
+  openNetPen,
+  semiClosedSea,
+  landBasedRAS,
+  landBasedFlowThrough,
+  pond,
+  notApplicableWild,
+  undisclosed;
+
+  /// Text after "Grown in: " on the results screen and share card.
+  String get grownInLabel {
+    switch (this) {
+      case openNetPen:           return 'open net pens (sea)';
+      case semiClosedSea:        return 'semi-closed containment (sea)';
+      case landBasedRAS:         return 'land-based tanks (recirculating)';
+      case landBasedFlowThrough: return 'land-based raceways (flow-through)';
+      case pond:                 return 'ponds';
+      case notApplicableWild:    return 'not applicable (wild-caught)';
+      case undisclosed:          return 'not stated on label';
+    }
+  }
+}
+
 /// 16 FAT seafood transparency categories (port of iOS SeafoodCategory).
 enum SeafoodCategory {
   // The 16 canonical seafood categories (website order 1–16), identical to iOS.
@@ -264,6 +292,11 @@ class FATResult {
   final bool isSiluriformes;
   final SeafoodProductionMethod? productionMethod;
 
+  /// Seafood v1.1 production-system detail (Cat. 5 line). Null for meat, for
+  /// catfish, for scans saved before v1.1, and when nothing on the label says
+  /// the fish was farmed or wild.
+  final SeafoodProductionSystem? productionSystem;
+
   /// True when this evaluation superseded an earlier one in the same session —
   /// the user went back (e.g. after finding the EST number on the package)
   /// and added another scan. History marks such records "Revised".
@@ -295,6 +328,7 @@ class FATResult {
     this.seafoodCategories = const {},
     this.isSiluriformes = false,
     this.productionMethod,
+    this.productionSystem,
     this.isRevised = false,
     this.imagePaths = const [],
   })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),

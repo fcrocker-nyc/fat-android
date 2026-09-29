@@ -117,6 +117,7 @@ class _ScanScreenState extends State<ScanScreen> {
           seafoodCategories: si.categories,
           isSiluriformes: si.isSiluriformes,
           productionMethod: si.productionMethod,
+          productionSystem: si.productionSystem,
           detectedEstablishmentNumber: si.detectedEstablishmentNumber,
           isRevised: isRevision,
           imagePaths: imagePaths,
