@@ -450,9 +450,11 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
                 style: const TextStyle(fontSize: 13)),
             if (tier == ResolutionTier.notApplicable) ...[
               const SizedBox(height: 6),
-              const Text(
-                  'This venue (or a processed item) is exempt from COOL, so a missing origin placard is not a compliance finding.',
-                  style: TextStyle(fontSize: 13, height: 1.3)),
+              Text(
+                  r.establishmentType.isVoluntaryDisclosureVenue
+                      ? EstablishmentType.voluntaryDisclosureNote
+                      : 'This venue (or a processed item) is exempt from COOL, so a missing origin placard is not a compliance finding.',
+                  style: const TextStyle(fontSize: 13, height: 1.3)),
             ],
           ]),
         ),
