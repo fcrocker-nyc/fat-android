@@ -29,7 +29,7 @@ class _Scan {
   String get text => result.scannedText;
 }
 
-_Scan scan(int n) {
+_Scan _scanFixture(int n) {
   final text = seafoodV11Fixtures[n]!;
   final si = SeafoodInterpreter.interpret(text);
   final r = FATResult(
@@ -62,7 +62,7 @@ DisclosureStatus _sysStatus(_Scan s) => SeafoodInterpreter.productionSystemStatu
 void main() {
   group('Fixtures', () {
     test('#1 farmed Atlantic, Chile, color added, ASC', () {
-      final s = scan(1);
+      final s = _scanFixture(1);
       expect(s.si.productionSystem, SeafoodProductionSystem.undisclosed);
       expect(_sysStatus(s), DisclosureStatus.missing);
       expect(s.linesFor(_cat5), [
@@ -75,7 +75,7 @@ void main() {
     });
 
     test('#2 open net pens, astaxanthin', () {
-      final s = scan(2);
+      final s = _scanFixture(2);
       expect(s.si.productionSystem, SeafoodProductionSystem.openNetPen);
       expect(_sysStatus(s), DisclosureStatus.known);
       expect(s.linesFor(_cat5), ['Grown in: open net pens (sea)']);
@@ -85,7 +85,7 @@ void main() {
     });
 
     test('#3 land-based RAS, domestic', () {
-      final s = scan(3);
+      final s = _scanFixture(3);
       expect(s.si.productionSystem, SeafoodProductionSystem.landBasedRAS);
       expect(_sysStatus(s), DisclosureStatus.known);
       expect(s.linesFor(_cat5), ['Grown in: land-based tanks (recirculating)']);
@@ -93,7 +93,7 @@ void main() {
     });
 
     test('#4 responsibly farmed only', () {
-      final s = scan(4);
+      final s = _scanFixture(4);
       expect(s.si.productionSystem, SeafoodProductionSystem.undisclosed);
       expect(_sysStatus(s), DisclosureStatus.partial);
       expect(s.linesFor(_cat1),
@@ -101,7 +101,7 @@ void main() {
     });
 
     test('#5 wild Atlantic salmon → tripwire on Cat. 2 and Cat. 4', () {
-      final s = scan(5);
+      final s = _scanFixture(5);
       expect(s.linesFor(_cat2), [_tripwire]);
       expect(s.linesFor(_cat4), [_tripwire]);
       expect(s.lines[_cat2]!.single.kind, SeafoodDetailKind.flag);
@@ -111,7 +111,7 @@ void main() {
     });
 
     test('#6 wild Atlantic cod → no tripwire; SIMP covered', () {
-      final s = scan(6);
+      final s = _scanFixture(6);
       expect(s.linesFor(_cat2), isEmpty);
       expect(s.linesFor(_cat4), isEmpty);
       expect(s.linesFor(_cat7),
@@ -119,7 +119,7 @@ void main() {
     });
 
     test('#7 cold smoked, no origin → Cat. 4 notRequired', () {
-      final s = scan(7);
+      final s = _scanFixture(7);
       expect(SeafoodInterpreter.isProcessedSeafood(s.text), isTrue);
       expect(s.status(_cat4), DisclosureStatus.notRequired);
       expect(s.si.categories[_cat4]!.value,
@@ -128,7 +128,7 @@ void main() {
     });
 
     test('#8 smoked, farmed in Scotland → Cat. 4 Known + voluntary note', () {
-      final s = scan(8);
+      final s = _scanFixture(8);
       final c4 = s.si.categories[_cat4]!;
       expect(c4.status, DisclosureStatus.known);
       expect(c4.value, 'Farmed in Scotland');
@@ -138,7 +138,7 @@ void main() {
     });
 
     test('#9 wild Alaska sockeye', () {
-      final s = scan(9);
+      final s = _scanFixture(9);
       expect(s.linesFor(_cat1), isEmpty);
       expect(s.si.productionSystem, SeafoodProductionSystem.notApplicableWild);
       expect(s.linesFor(_cat5), isEmpty);
@@ -147,21 +147,21 @@ void main() {
     });
 
     test('#10 farm-raised trout, raceway', () {
-      final s = scan(10);
+      final s = _scanFixture(10);
       expect(s.si.productionSystem, SeafoodProductionSystem.landBasedFlowThrough);
       expect(_sysStatus(s), DisclosureStatus.known);
       expect(s.linesFor(_cat1), isNotEmpty); // salmonid → color rule applies
     });
 
     test('#11 channel catfish → fork unchanged, no new lines', () {
-      final s = scan(11);
+      final s = _scanFixture(11);
       expect(s.si.isSiluriformes, isTrue);
       expect(s.si.productionSystem, isNull);
       expect(s.lines, isEmpty);
     });
 
     test('#12 farm-raised shrimp, Ecuador', () {
-      final s = scan(12);
+      final s = _scanFixture(12);
       expect(s.linesFor(_cat7),
           ["Covered by NOAA's Seafood Import Monitoring Program (SIMP)."]);
       expect(s.linesFor(_cat1), isEmpty);
@@ -183,7 +183,7 @@ void main() {
       test('fixture #$n statuses and index', () {
         final b = baseline['$n'] as Map<String, dynamic>;
         final bc = b['categories'] as Map<String, dynamic>;
-        final s = scan(n);
+        final s = _scanFixture(n);
         for (final c in SeafoodCategory.values) {
           if (c == _cat4 && cat4Allowed.contains(n)) continue;
           expect(s.status(c).name, bc[c.name], reason: 'fixture #$n ${c.name}');
@@ -198,13 +198,13 @@ void main() {
     test('fixture #7: only Cat. 4 moved, Missing → notRequired', () {
       final bc = (baseline['7'] as Map)['categories'] as Map;
       expect(bc[_cat4.name], 'missing');
-      expect(scan(7).status(_cat4), DisclosureStatus.notRequired);
+      expect(_scanFixture(7).status(_cat4), DisclosureStatus.notRequired);
     });
 
     test('fixture #8: only Cat. 4 moved, Missing → Known', () {
       final bc = (baseline['8'] as Map)['categories'] as Map;
       expect(bc[_cat4.name], 'missing');
-      expect(scan(8).status(_cat4), DisclosureStatus.known);
+      expect(_scanFixture(8).status(_cat4), DisclosureStatus.known);
     });
   });
 
@@ -279,7 +279,7 @@ void main() {
 
     test('productionSystem round-trips', () async {
       SharedPreferences.setMockInitialValues({});
-      await ScanStore.instance.saveResult(scan(2).result);
+      await ScanStore.instance.saveResult(_scanFixture(2).result);
       final all = await ScanStore.instance.loadAll();
       expect(all.single.productionSystem, SeafoodProductionSystem.openNetPen);
     });
@@ -307,7 +307,7 @@ void main() {
       for (final p in SeafoodProductionSystem.values) p.grownInLabel,
       // Every line actually rendered for the 12 fixtures.
       for (final n in seafoodV11Fixtures.keys)
-        for (final ls in scan(n).lines.values)
+        for (final ls in _scanFixture(n).lines.values)
           for (final l in ls) l.text,
     ];
 
