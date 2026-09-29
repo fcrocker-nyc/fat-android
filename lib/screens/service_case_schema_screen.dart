@@ -393,10 +393,10 @@ class ServiceCaseSchemaScreen extends StatelessWidget {
   Widget _integrationSection() {
     return _section(
       number: '7',
-      title: 'Category 13 integration',
+      title: 'How it fits the 16 categories',
       children: [
         const Text(
-          'This schema is the operational detail inside Category 13 (Enforcement & Compliance) for the service-case lane, mirroring how the brand-search ladder sits inside Category 13 for packaged labels. Origin and method move on the same missing → partial → known track; the difference is the added unverified species state and the venue gate that precedes scoring.',
+          'This schema is the operational detail for the service-case lane. It fills the same categories a packaged label uses: Species Identity (Cat. 2), Country / Origin (Cat. 4) and Feed / Production Method (Cat. 10). Origin and method move on the same missing → partial → known track; the difference is the added unverified species state and the venue gate that precedes scoring.',
           style: TextStyle(fontSize: 15, height: 1.35, color: _ink),
         ),
       ],
