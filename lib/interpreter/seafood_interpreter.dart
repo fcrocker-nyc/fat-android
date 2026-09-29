@@ -1,6 +1,13 @@
 // SeafoodInterpreter — Flutter port of iOS Seafoodinterpreter.swift.
-// Evaluates OCR text against the 16 FAT seafood transparency categories and
-// grades Category 13 (Enforcement & Compliance) via the shared brand-data feed.
+// Evaluates OCR text against the 16 FAT seafood transparency categories
+// (canonical SeafoodCategory order, 1–16). Brand (Cat. 9) and Who (Cat. 8)
+// resolve through the shared brand-data feed.
+//
+// There is no Enforcement category. Enforcement / public-record data (FSIS
+// recalls for catfish, EPA/OSHA, FDA import alerts, SIMP coverage) belongs to
+// Cat. 7 (Processor) as public-record lines on the results screen; none of it
+// is produced or scored here. Unlike iOS (whose detectEnforcementCompliance()
+// exists but is never called), Android has no enforcement detector at all.
 
 import '../models/fat_models.dart';
 import '../data/brand_resolver.dart';
@@ -81,6 +88,7 @@ class SeafoodInterpreter {
       ProductType.seafood;
 
   // ── Detection ──
+  // Categories 8 (Who) and 9 (Brand) are resolved in interpret() via BrandResolver.
   static bool _detectSiluriformes(String t) =>
       ProductTypeDetector.isSiluriformes(t);
 
@@ -100,6 +108,7 @@ class SeafoodInterpreter {
     return null;
   }
 
+  // 1. Regulatory Required Language
   static FATCategoryResult _regulatory(String t, bool isCatfish) {
     if (isCatfish) {
       const fsis = [
@@ -126,6 +135,7 @@ class SeafoodInterpreter {
     );
   }
 
+  // 2. Species Identity
   static FATCategoryResult _species(String t) {
     const species = <String, String>{
       'atlantic salmon': 'Atlantic Salmon', 'sockeye salmon': 'Sockeye Salmon',
@@ -159,6 +169,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 3. Strain / Variety
   static FATCategoryResult _strain(String t) {
     const strain = <String, String>{
       'atlantic salmon': 'Atlantic Salmon (Salmo salar)',
@@ -179,6 +190,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 4. Country / Origin
   static FATCategoryResult _country(String t) {
     const patterns = <String, String>{
       'product of usa': 'Product of USA',
@@ -212,6 +224,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 5. Farm / Vessel / Fishery
   static FATCategoryResult _farmVessel(String t) {
     const patterns = <String, String>{
       'vessel': 'Vessel name disclosed',
@@ -232,6 +245,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 7. Processor
   static FATCategoryResult _processor(bool isCatfish, String? est) {
     if (isCatfish) {
       if (est != null) {
@@ -247,6 +261,7 @@ class SeafoodInterpreter {
     );
   }
 
+  // 10. Feed / Production Method
   static FATCategoryResult _methodFeed(String t, SeafoodProductionMethod? m) {
     if (m == null) return const FATCategoryResult(status: DisclosureStatus.missing);
     if (m == SeafoodProductionMethod.wildCaught) {
@@ -261,6 +276,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.known, value: 'Farm-Raised');
   }
 
+  // 11. Fish Welfare
   static FATCategoryResult _welfare(String t) {
     const certs = <String, List<String>>{
       'asc certified': ['ASC Certified', 'Third-party certified by Aquaculture Stewardship Council'],
@@ -283,6 +299,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 14. Quality & Handling
   static FATCategoryResult _quality(String t) {
     final found = <String>[];
     if (t.contains('previously frozen')) {
@@ -356,6 +373,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 12. Medicine / Antibiotics / Chemicals
   static FATCategoryResult _medicine(String t) {
     const patterns = <String, List<String>>{
       'antibiotic free': ['Antibiotic Free', 'Label claim — no independent audit identified'],
@@ -376,6 +394,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 16. Supply-Chain Intermediaries
   static FATCategoryResult _supplyChain(String t) {
     const patterns = <String, String>{
       'imported by': 'Importer named on label',
