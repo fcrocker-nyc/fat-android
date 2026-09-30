@@ -109,7 +109,7 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           const Text(
-            'Catfish and all other Siluriformes are regulated by USDA FSIS — not FDA. Every other seafood product falls under FDA. This split affects which inspection mark to look for, which establishment number unlocks enforcement data, which banned-substance testing regime applies, and which species-naming rules govern the label. FAT scores this fork explicitly in Categories 1, 2, 6, 11, and 13.',
+            'Catfish and all other Siluriformes are regulated by USDA FSIS — not FDA. Every other seafood product falls under FDA. This split affects which inspection mark to look for, which establishment number unlocks enforcement data, which banned-substance testing regime applies, and which species-naming rules govern the label. FAT scores this fork explicitly in Categories 1, 2, 7, and 12.',
             style: TextStyle(fontSize: 14, color: _ink, height: 1.35),
           ),
         ],

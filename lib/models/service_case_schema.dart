@@ -66,6 +66,15 @@ enum EstablishmentType {
   /// shops, and food-service establishments.
   bool get isCovered => this == EstablishmentType.coveredRetailer;
 
+  /// Restaurants and fish markets: FAT treats any disclosure there as
+  /// voluntary (no mandate is sought). Seafood v1.1, Task 7.
+  bool get isVoluntaryDisclosureVenue =>
+      this == EstablishmentType.exemptFoodservice ||
+      this == EstablishmentType.exemptFishmonger;
+
+  static const String voluntaryDisclosureNote =
+      'Country of origin and wild/farmed are not required here. Any disclosure at a restaurant or fish market is voluntary — you can ask where the salmon came from and how it was farmed.';
+
   String get display => switch (this) {
         EstablishmentType.coveredRetailer => 'Supermarket / covered retailer',
         EstablishmentType.exemptFishmonger => 'Fish market (exempt)',

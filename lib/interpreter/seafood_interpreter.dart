@@ -1,6 +1,13 @@
 // SeafoodInterpreter — Flutter port of iOS Seafoodinterpreter.swift.
-// Evaluates OCR text against the 16 FAT seafood transparency categories and
-// grades Category 13 (Enforcement & Compliance) via the shared brand-data feed.
+// Evaluates OCR text against the 16 FAT seafood transparency categories
+// (canonical SeafoodCategory order, 1–16). Brand (Cat. 9) and Who (Cat. 8)
+// resolve through the shared brand-data feed.
+//
+// There is no Enforcement category. Enforcement / public-record data (FSIS
+// recalls for catfish, EPA/OSHA, FDA import alerts, SIMP coverage) belongs to
+// Cat. 7 (Processor) as public-record lines on the results screen; none of it
+// is produced or scored here. Unlike iOS (whose detectEnforcementCompliance()
+// exists but is never called), Android has no enforcement detector at all.
 
 import '../models/fat_models.dart';
 import '../data/brand_resolver.dart';
@@ -12,11 +19,15 @@ class SeafoodInterpretation {
   final bool isSiluriformes;
   final SeafoodProductionMethod? productionMethod;
 
+  /// Seafood v1.1: how a farmed fish was grown (Cat. 5 detail line only).
+  final SeafoodProductionSystem? productionSystem;
+
   const SeafoodInterpretation({
     required this.categories,
     required this.detectedEstablishmentNumber,
     required this.isSiluriformes,
     required this.productionMethod,
+    this.productionSystem,
   });
 }
 
@@ -29,6 +40,9 @@ class SeafoodInterpreter {
 
     final isCatfish = _detectSiluriformes(text);
     final method = _detectProductionMethod(text);
+    // Runs after the production method; catfish keep their fork unchanged
+    // (no v1.1 detail lines).
+    final system = isCatfish ? null : detectProductionSystem(text, method);
     final est = isCatfish ? extractEstablishmentNumber(text) : null;
 
     // Brand + Who (owner / corporate parent) via the shared resolver — same
@@ -49,7 +63,7 @@ class SeafoodInterpreter {
       SeafoodCategory.regulatoryRequiredLanguage: _regulatory(text, isCatfish),
       SeafoodCategory.speciesIdentity: _species(text),
       SeafoodCategory.strainVariety: _strain(text),
-      SeafoodCategory.countryOrigin: _country(text),
+      SeafoodCategory.countryOrigin: _country(text, isProcessedSeafood(text)),
       SeafoodCategory.farmVesselFishery: _farmVessel(text),
       SeafoodCategory.ageAtHarvest: _ageAtHarvest(text),
       SeafoodCategory.processor: _processor(isCatfish, est),
@@ -69,6 +83,7 @@ class SeafoodInterpreter {
       detectedEstablishmentNumber: est,
       isSiluriformes: isCatfish,
       productionMethod: method,
+      productionSystem: system,
     );
   }
 
@@ -81,6 +96,7 @@ class SeafoodInterpreter {
       ProductType.seafood;
 
   // ── Detection ──
+  // Categories 8 (Who) and 9 (Brand) are resolved in interpret() via BrandResolver.
   static bool _detectSiluriformes(String t) =>
       ProductTypeDetector.isSiluriformes(t);
 
@@ -100,6 +116,103 @@ class SeafoodInterpreter {
     return null;
   }
 
+  // ── Production system (Seafood v1.1, change A) ──
+  static const Map<SeafoodProductionSystem, List<String>> _systemKeywords = {
+    SeafoodProductionSystem.openNetPen: [
+      'net pen', 'net-pen', 'netpen', 'sea pen', 'sea cage', 'ocean-farmed',
+      'ocean farmed', 'ocean-raised', 'ocean raised', 'raised in the ocean',
+      'open water pens',
+    ],
+    SeafoodProductionSystem.semiClosedSea: [
+      'closed containment', 'closed-containment', 'semi-closed',
+    ],
+    SeafoodProductionSystem.landBasedRAS: [
+      'land-based', 'land based', 'land-raised', 'raised on land',
+      'recirculating', 'ras-raised', 'indoor-raised', 'indoor raised',
+    ],
+    SeafoodProductionSystem.landBasedFlowThrough: [
+      'raceway', 'flow-through', 'spring-fed raceway',
+    ],
+    SeafoodProductionSystem.pond: ['pond raised', 'pond-raised'],
+  };
+
+  /// Farming language that names no system → the Cat. 5 line is Partial.
+  static const List<String> _vagueFarmingPhrases = [
+    'responsibly farmed', 'sustainably farmed', 'responsibly raised',
+  ];
+
+  /// Detects the production system from lowercased label text. Longest
+  /// keyword match wins. Wild-caught → [SeafoodProductionSystem.notApplicableWild];
+  /// farmed (or vague farming language) with no system named →
+  /// [SeafoodProductionSystem.undisclosed]; nothing farmed or wild on the
+  /// label → null (no line).
+  static SeafoodProductionSystem? detectProductionSystem(
+      String text, SeafoodProductionMethod? method) {
+    if (method == SeafoodProductionMethod.wildCaught) {
+      return SeafoodProductionSystem.notApplicableWild;
+    }
+    SeafoodProductionSystem? best;
+    var bestLen = 0;
+    _systemKeywords.forEach((system, keys) {
+      for (final k in keys) {
+        if (k.length > bestLen && text.contains(k)) {
+          best = system;
+          bestLen = k.length;
+        }
+      }
+    });
+    if (best != null) return best;
+    if (method == SeafoodProductionMethod.farmRaised ||
+        _vagueFarmingPhrases.any(text.contains)) {
+      return SeafoodProductionSystem.undisclosed;
+    }
+    return null;
+  }
+
+  /// Status of the Cat. 5 "Grown in" line: Known when a system is named,
+  /// Partial when the only farming language is marketing ("responsibly
+  /// farmed"), Missing when farm-raised and nothing else is said, and
+  /// notRequired (not applicable) for wild-caught. Detail only — never feeds
+  /// the Cat. 5 status or the seafood index.
+  static DisclosureStatus productionSystemStatus(
+      SeafoodProductionSystem system, String text) {
+    switch (system) {
+      case SeafoodProductionSystem.notApplicableWild:
+        return DisclosureStatus.notRequired;
+      case SeafoodProductionSystem.undisclosed:
+        final t = text.toLowerCase();
+        return _vagueFarmingPhrases.any(t.contains)
+            ? DisclosureStatus.partial
+            : DisclosureStatus.missing;
+      default:
+        return DisclosureStatus.known;
+    }
+  }
+
+  // ── Processed seafood (Seafood v1.1, change B) ──
+  static final RegExp _processedRe = RegExp(
+    r'\b(cold smoked|hot smoked|smoked|lox|gravlax|nova(?! scotia)|kippered|cured|canned|'
+    r'in water|in oil|cooked|ready to eat|ready-to-eat|marinated|breaded|'
+    r'battered|jerky|pouch)\b',
+  );
+
+  /// True when the label names a processed form (smoked, cured, canned,
+  /// cooked…). Seafood COOL (7 CFR Part 60) does not apply to processed food
+  /// items. Called only from the seafood pipeline, so meat routing (where
+  /// "smoked" is a deli word) is untouched.
+  static bool isProcessedSeafood(String text) =>
+      _processedRe.hasMatch(text.toLowerCase());
+
+  /// Voluntary origin statements that only processed seafood is checked for
+  /// (the regular COOL patterns run first and are unchanged).
+  static final RegExp _voluntaryOriginRe = RegExp(
+    r'\b(product of|farmed in|raised in|caught in|harvested in|smoked in|from)\s+'
+    r'(the )?(scotland|norway|chile|canada|iceland|faroe islands|ireland|'
+    r'united kingdom|alaska|usa|united states|china|vietnam|thailand|'
+    r'indonesia|india|ecuador|japan|mexico|peru|denmark|russia)\b',
+  );
+
+  // 1. Regulatory Required Language
   static FATCategoryResult _regulatory(String t, bool isCatfish) {
     if (isCatfish) {
       const fsis = [
@@ -126,6 +239,7 @@ class SeafoodInterpreter {
     );
   }
 
+  // 2. Species Identity
   static FATCategoryResult _species(String t) {
     const species = <String, String>{
       'atlantic salmon': 'Atlantic Salmon', 'sockeye salmon': 'Sockeye Salmon',
@@ -159,6 +273,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 3. Strain / Variety
   static FATCategoryResult _strain(String t) {
     const strain = <String, String>{
       'atlantic salmon': 'Atlantic Salmon (Salmo salar)',
@@ -179,7 +294,29 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
-  static FATCategoryResult _country(String t) {
+  // 4. Country / Origin
+  static const String coolNotRequiredProcessed =
+      'Not required for smoked or processed seafood (7 CFR Part 60). The brand may state it voluntarily.';
+  static const String coolVoluntaryNote =
+      'Stated voluntarily — not required for processed seafood.';
+
+  static String _titleCase(String s) => s
+      .split(' ')
+      .map((w) => w.isEmpty
+          ? w
+          : (w == 'usa' ? 'USA' : w == 'the' || w == 'in' || w == 'of' ? w
+              : w[0].toUpperCase() + w.substring(1)))
+      .join(' ');
+
+  static FATCategoryResult _country(String t, bool processed) {
+    // Processed seafood is outside seafood COOL: an origin, when stated, is
+    // voluntary (Known + note); no origin is notRequired, not "silent".
+    FATCategoryResult known(String v) => processed
+        ? FATCategoryResult(
+            status: DisclosureStatus.known,
+            value: v,
+            credibilityNote: coolVoluntaryNote)
+        : FATCategoryResult(status: DisclosureStatus.known, value: v);
     const patterns = <String, String>{
       'product of usa': 'Product of USA',
       'product of united states': 'Product of United States',
@@ -199,8 +336,18 @@ class SeafoodInterpreter {
     final keys = patterns.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
     for (final k in keys) {
       if (t.contains(k)) {
-        return FATCategoryResult(status: DisclosureStatus.known, value: patterns[k]);
+        return known(patterns[k]!);
       }
+    }
+    if (processed) {
+      final m = _voluntaryOriginRe.firstMatch(t);
+      if (m != null) {
+        final place = m.group(3)!;
+        final display = place == 'alaska' ? 'Alaska (USA)' : _titleCase(place);
+        return known('${_titleCase(m.group(1)!)} $display');
+      }
+      return const FATCategoryResult(
+          status: DisclosureStatus.notRequired, value: coolNotRequiredProcessed);
     }
     for (final p in ['distributed by', 'packed in', 'processed in']) {
       if (t.contains(p)) {
@@ -212,6 +359,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 5. Farm / Vessel / Fishery
   static FATCategoryResult _farmVessel(String t) {
     const patterns = <String, String>{
       'vessel': 'Vessel name disclosed',
@@ -232,6 +380,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 7. Processor
   static FATCategoryResult _processor(bool isCatfish, String? est) {
     if (isCatfish) {
       if (est != null) {
@@ -247,6 +396,7 @@ class SeafoodInterpreter {
     );
   }
 
+  // 10. Feed / Production Method
   static FATCategoryResult _methodFeed(String t, SeafoodProductionMethod? m) {
     if (m == null) return const FATCategoryResult(status: DisclosureStatus.missing);
     if (m == SeafoodProductionMethod.wildCaught) {
@@ -261,6 +411,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.known, value: 'Farm-Raised');
   }
 
+  // 11. Fish Welfare
   static FATCategoryResult _welfare(String t) {
     const certs = <String, List<String>>{
       'asc certified': ['ASC Certified', 'Third-party certified by Aquaculture Stewardship Council'],
@@ -283,6 +434,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 14. Quality & Handling
   static FATCategoryResult _quality(String t) {
     final found = <String>[];
     if (t.contains('previously frozen')) {
@@ -356,6 +508,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 12. Medicine / Antibiotics / Chemicals
   static FATCategoryResult _medicine(String t) {
     const patterns = <String, List<String>>{
       'antibiotic free': ['Antibiotic Free', 'Label claim — no independent audit identified'],
@@ -376,6 +529,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(status: DisclosureStatus.missing);
   }
 
+  // 16. Supply-Chain Intermediaries
   static FATCategoryResult _supplyChain(String t) {
     const patterns = <String, String>{
       'imported by': 'Importer named on label',

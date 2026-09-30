@@ -12,6 +12,7 @@ import '../services/environmental_watch_service.dart';
 import '../widgets/environmental_watch_card.dart';
 import '../services/processor_service.dart';
 import '../widgets/share_card_renderer.dart';
+import '../interpreter/seafood_detail_lines.dart';
 
 /// Seafood scan result screen — Flutter port of iOS SeafoodResultsView.
 ///
@@ -48,6 +49,11 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   ProcessorRecord? _processor;
 
   FATResult get result => widget.result;
+
+  /// Seafood v1.1 detail lines (color added, grown in, SIMP, tripwire) shown
+  /// inside existing category rows. Display only — no status or index change.
+  late final Map<SeafoodCategory, List<SeafoodDetailLine>> _detailLines =
+      SeafoodDetailLines.forResult(widget.result);
 
   List<String> get _panelPaths =>
       widget.imagePaths.isNotEmpty ? widget.imagePaths : widget.result.imagePaths;
@@ -736,7 +742,42 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
           if (value?.credibility != null) ...[
             const SizedBox(height: 6),
             _credibilityBadge(value!.credibility!, value.credibilityNote),
+          ] else if (value?.credibilityNote != null) ...[
+            const SizedBox(height: 4),
+            Text(value!.credibilityNote!,
+                style: const TextStyle(
+                    fontSize: 13, fontWeight: FontWeight.w600)),
           ],
+          for (final line in _detailLines[category] ?? const <SeafoodDetailLine>[])
+            _detailLine(line),
+        ],
+      ),
+    );
+  }
+
+  Widget _detailLine(SeafoodDetailLine line) {
+    final isFlag = line.kind == SeafoodDetailKind.flag;
+    const flagColor = Color(0xFFB45309);
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(
+                isFlag ? Icons.flag_outlined : Icons.subdirectory_arrow_right,
+                size: 14,
+                color: isFlag ? flagColor : Colors.black54),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(line.text,
+                style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: isFlag ? flagColor : Colors.black)),
+          ),
         ],
       ),
     );
@@ -876,6 +917,9 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
       if (r.credibility != null) line += ' [${r.credibility!.displayName}]';
       if (!cat.isAppSupported) line += ' (website only)';
       lines.add(line);
+      for (final d in _detailLines[cat] ?? const <SeafoodDetailLine>[]) {
+        lines.add('  ${d.text}');
+      }
     }
     // Diagnostic tail: exactly what the OCR read (mirrors the meat summary).
     final ocr = result.scannedText.trim();

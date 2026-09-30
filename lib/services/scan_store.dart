@@ -124,6 +124,7 @@ class ScanStore extends ChangeNotifier {
     'seafoodCategories': r.seafoodCategories.map((k, v) => MapEntry(k.name, _catResultToMap(v))),
     'isSiluriformes':   r.isSiluriformes,
     'productionMethod': r.productionMethod?.name,
+    'productionSystem': r.productionSystem?.name,
     'estSpeciesMismatch':     r.estSpeciesMismatch,
     'estSpeciesMismatchNote': r.estSpeciesMismatchNote,
     'speciesClaimMisuseNote': r.speciesClaimMisuseNote,
@@ -161,6 +162,13 @@ class ScanStore extends ChangeNotifier {
     }
     final typeStr = m['productType'] as String?;
     final methodStr = m['productionMethod'] as String?;
+    // Seafood v1.1: absent on scans saved before v1.1 (and unknown names from a
+    // newer build) decode to null rather than failing the whole record.
+    final systemStr = m['productionSystem'] as String?;
+    SeafoodProductionSystem? productionSystem;
+    for (final p in SeafoodProductionSystem.values) {
+      if (p.name == systemStr) productionSystem = p;
+    }
     return FATResult(
       id:                         m['id'] as String?,
       scannedText:                m['scannedText'] as String? ?? '',
@@ -188,6 +196,7 @@ class ScanStore extends ChangeNotifier {
           ? null
           : SeafoodProductionMethod.values.firstWhere((p) => p.name == methodStr,
               orElse: () => SeafoodProductionMethod.wildCaught),
+      productionSystem:           productionSystem,
       imagePaths:                 (m['imagePaths'] as List?)?.cast<String>() ?? const [],
     );
   }
