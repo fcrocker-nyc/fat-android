@@ -328,4 +328,20 @@ void main() {
     expect(EstablishmentType.exemptFishmonger.isVoluntaryDisclosureVenue, isTrue);
     expect(EstablishmentType.exemptButcher.isVoluntaryDisclosureVenue, isFalse);
   });
+
+  test('Glance-card baseline: FDA for most seafood, FSIS only for catfish, AMS for the counter', () {
+    expect(SeafoodDetailLines.baselineLine(_scanFixture(12).result),
+        'Meets FDA labeling requirements — as is required of all seafood sold in the United States.');
+    expect(SeafoodDetailLines.baselineLine(_scanFixture(1).result),
+        'Meets FDA labeling requirements — as is required of all seafood sold in the United States.');
+    expect(SeafoodDetailLines.baselineLine(_scanFixture(11).result),
+        'Meets USDA FSIS minimums — as is required of federally inspected catfish.');
+    final counter = FATResult(
+      scannedText: '${SeafoodDetailLines.serviceCaseHeader}\nSalmon · Farm-raised · Product of Chile',
+      categories: const {},
+      productType: ProductType.seafood,
+    );
+    expect(SeafoodDetailLines.baselineLine(counter),
+        'Meets AMS retail placard requirements — as is required of loose seafood.');
+  });
 }

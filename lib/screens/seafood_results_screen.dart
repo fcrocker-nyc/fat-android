@@ -420,13 +420,13 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              Icon(Icons.shield_outlined, size: 16, color: _disclosureGreen),
-              SizedBox(width: 8),
+            children: [
+              const Icon(Icons.shield_outlined, size: 16, color: _disclosureGreen),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Meets USDA FSIS minimums — as is required of all federally inspected meat and catfish.',
-                  style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
+                  SeafoodDetailLines.baselineLine(result),
+                  style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
                 ),
               ),
             ],

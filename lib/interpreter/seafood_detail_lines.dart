@@ -74,6 +74,19 @@ class SeafoodDetailLines {
   static const String serviceCaseHeader =
       'FAT Service-Case Capture (loose seafood at a counter)';
 
+  /// Federal-baseline line for the seafood at-a-glance card. Most seafood is
+  /// FDA-regulated; only catfish / Siluriformes are FSIS-inspected; loose fish
+  /// at a service case is held to the AMS retail placard.
+  static String baselineLine(FATResult r) {
+    if (r.scannedText.startsWith(serviceCaseHeader)) {
+      return 'Meets AMS retail placard requirements — as is required of loose seafood.';
+    }
+    if (r.isSiluriformes) {
+      return 'Meets USDA FSIS minimums — as is required of federally inspected catfish.';
+    }
+    return 'Meets FDA labeling requirements — as is required of all seafood sold in the United States.';
+  }
+
   static String _norm(String s) =>
       s.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
 
