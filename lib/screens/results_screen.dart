@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/big_four_ownership.dart';
 import '../widgets/corporate_structure_card.dart';
 import '../models/fat_models.dart';
+import '../interpreter/meat_seasoning_detail.dart';
 import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
 import '../data/ground_beef_blending_registry.dart';
@@ -279,6 +280,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   FATResult get result => widget.result;
+
+  /// Cat. 14 "seasoned / marinated" detail lines, derived from the saved
+  /// scanned text (display-only; no status or count change).
+  List<String> get _seasoningLines => MeatSeasoningDetail.forResult(result);
 
   /// Panel image paths to show: the ones passed in this session if present,
   /// else the paths persisted on the result (History re-open).
@@ -1830,12 +1835,40 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       const SizedBox(height: 2),
                       _captivityBadge(value!.captivityStatus!),
                     ],
+                    if (category == FATCategory.qualityPalatability)
+                      for (final line in _seasoningLines) _detailLine(line),
                   ],
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Secondary detail line inside a category row — same look as the seafood
+  /// v1.1 detail lines (seafood_results_screen.dart).
+  Widget _detailLine(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 2),
+            child: Icon(Icons.subdirectory_arrow_right,
+                size: 14, color: Colors.black54),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(text,
+                style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black)),
+          ),
+        ],
       ),
     );
   }
@@ -1995,6 +2028,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
       var line = '${cat.displayName}: ${r.status.name.toUpperCase()}';
       if (r.credibility != null) line += ' [${r.credibility!.displayName}]';
       lines.add(line);
+      if (cat == FATCategory.qualityPalatability) {
+        for (final d in _seasoningLines) {
+          lines.add('  $d');
+        }
+      }
     }
     if (result.detectedEstablishmentNumber != null) {
       lines.add('');
