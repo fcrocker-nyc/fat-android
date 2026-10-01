@@ -129,7 +129,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
   /// plant name is the parent. With no distinct parent, the operating company
   /// (the establishment name) is the owner the record discloses.
   String? _ownerFromDirectory(ProcessorRecord p) {
-    final name = p.name.trim();
+    final name = (p.directoryName ?? '').trim();
     final dba = p.dba;
     if (dba != null && dba.trim().isNotEmpty) {
       final parts = dba
@@ -206,10 +206,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
           // API result replaces it below when one comes back.
           _ownership = BigFourOwnership.resolveLocal(
             establishmentNumber: rec.estNumber,
-            name: rec.name,
+            name: rec.directoryName ?? '',
             dba: rec.dba,
             species: BigFourOwnership.speciesFor(
-                rec.primarySpecies, '${rec.name} ${rec.dba ?? ''}'),
+                rec.primarySpecies, '${rec.directoryName ?? ''} ${rec.dba ?? ''}'),
           );
           _applyDirectoryOwner(rec);
         }
@@ -1249,7 +1249,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     final p = _processor;
     return MontanaOrigin.detect(
       state: p?.state,
-      establishmentName: p?.name,
+      establishmentName: p?.resolvedName,
       city: p?.city,
       establishmentNumber: result.detectedEstablishmentNumber,
       ocrText: result.scannedText,
@@ -1276,6 +1276,26 @@ class _ResultsScreenState extends State<ResultsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Plant name leads the card: website name → bundled FSIS
+              // directory name → DBA → neutral "Plant name not on file".
+              if (_processor != null) ...[
+                Text(_processor!.displayName,
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                        color: _processor!.resolvedName == null
+                            ? Colors.grey
+                            : Colors.black)),
+                if (_processor!.fullAddress.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(_processor!.fullAddress,
+                      style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87)),
+                ],
+                const SizedBox(height: 8),
+              ],
               // EST pill
               Container(
                 padding:
@@ -1360,7 +1380,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     }
     final blend = GroundBeefBlendingRegistry.lookup(
       establishmentNumber: est,
-      establishmentName: _processor?.name,
+      establishmentName: _processor?.resolvedName,
       dba: _processor?.dba,
     );
     if (blend == null) return const [];
@@ -1837,6 +1857,18 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     ],
                     if (category == FATCategory.qualityPalatability)
                       for (final line in _seasoningLines) _detailLine(line),
+                    // Same resolved name as the processor card (website →
+                    // bundled FSIS directory → DBA). Mirrors iOS.
+                    if (category == FATCategory.processor &&
+                        _processor?.resolvedName != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text('Identified: ${_processor!.resolvedName}',
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black)),
+                      ),
                   ],
                 ),
               ),
@@ -2037,6 +2069,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
     if (result.detectedEstablishmentNumber != null) {
       lines.add('');
       lines.add('USDA EST. ${result.detectedEstablishmentNumber}');
+      final pd = _processor;
+      if (pd != null) {
+        lines.add('Name: ${pd.displayName}');
+        if (pd.fullAddress.isNotEmpty) lines.add('Address: ${pd.fullAddress}');
+      }
     }
     // Diagnostic tail: exactly what the OCR read. Lets a shared evaluation
     // answer "why didn't it read the brand?" — a missed logo shows as absent

@@ -11,6 +11,8 @@ import '../data/montana_origin.dart';
 import '../data/seafood_enforcement_database.dart';
 import '../models/lookup_record.dart';
 import '../services/scan_store.dart';
+import '../services/processor_service.dart';
+import '../services/fsis_plant_names.dart';
 
 /// A lookup request handed from the Home "Quick Lookup" card to the Lookup tab.
 class LookupRequest {
@@ -75,17 +77,19 @@ class _LookupScreenState extends State<LookupScreen> {
       _lookupFailed = false;
     });
     try {
-      final uri = Uri.parse(
-        'https://farmanimaltransparency.com/wp-content/plugins/fat-fsis-data-manager/fat-fsis-data.php?est=$est',
-      );
-      final response = await http.get(uri).timeout(const Duration(seconds: 10));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data is Map && data.containsKey('establishmentName')) {
-          _processorData = Map<String, dynamic>.from(data);
-        } else {
-          _lookupFailed = true;
-        }
+      // Same per-establishment FSIS JSON the Results screen (and iOS
+      // LookupView) reads. The old fat-fsis-data.php endpoint now 404s.
+      // Blank website names/city/state are filled from the bundled FSIS
+      // directory during parse.
+      final rec = await ProcessorService.fetch(est);
+      if (rec != null) {
+        _processorData = <String, dynamic>{
+          'establishmentName': rec.resolvedName,
+          'fullAddress': rec.fullAddress,
+          'city': rec.city,
+          'state': rec.state,
+          'dba': rec.dba,
+        };
       } else {
         _lookupFailed = true;
       }
@@ -124,7 +128,9 @@ class _LookupScreenState extends State<LookupScreen> {
       date: DateTime.now(),
       category: LookupCategory.establishment,
       query: est,
-      resultTitle: pd?['establishmentName'] as String? ?? 'No establishment found',
+      resultTitle: pd == null
+          ? 'No establishment found'
+          : (pd['establishmentName'] as String? ?? FsisPlantNames.notOnFileText),
       resultSubtitle: subtitle,
       matchCount: pd != null ? 1 : 0,
       flagged: _workerSafety != null,
@@ -879,7 +885,8 @@ class _LookupScreenState extends State<LookupScreen> {
   }
 
   Widget _processorCard(Map<String, dynamic> data) {
-    final name = data['establishmentName'] as String? ?? 'Unknown';
+    final resolved = data['establishmentName'] as String?;
+    final name = resolved ?? FsisPlantNames.notOnFileText;
     final address = data['fullAddress'] as String? ?? '';
     final est = _estController.text.trim();
     return _greenCard(
@@ -887,8 +894,10 @@ class _LookupScreenState extends State<LookupScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(name,
-              style:
-                  const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+              style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: resolved == null ? Colors.grey : null)),
           const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

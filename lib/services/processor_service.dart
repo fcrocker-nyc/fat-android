@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'fsis_plant_names.dart';
+
 /// Fetches a processor's FSIS public enforcement record from the FAT backend —
 /// the SAME per-establishment JSON the iOS app reads
 /// (`/wp-content/uploads/fsis/inspection-results/{digits}.json`, v2.0 schema).
@@ -30,11 +32,14 @@ class ProcessorService {
         return null;
       }
       final d = jsonDecode(r.body);
+      // Bundled FSIS directory fills blank names/city/state during parse.
+      await FsisPlantNames.ensureLoaded();
       if (d is! Map) {
         _cache[digits] = null;
         return null;
       }
-      final rec = ProcessorRecord.fromJson(Map<String, dynamic>.from(d));
+      final rec = ProcessorRecord.fromJson(Map<String, dynamic>.from(d),
+          digits: digits);
       _cache[digits] = rec;
       return rec;
     } catch (_) {
@@ -87,6 +92,7 @@ class ProcessorRecord {
   final String address;
   final String city;
   final String state;
+  final String zip;
   final String county;
   final String phone;
   final String grantDate;
@@ -120,6 +126,7 @@ class ProcessorRecord {
     required this.address,
     required this.city,
     required this.state,
+    this.zip = '',
     required this.county,
     required this.phone,
     required this.grantDate,
@@ -141,7 +148,8 @@ class ProcessorRecord {
     this.generatedDate,
   });
 
-  factory ProcessorRecord.fromJson(Map<String, dynamic> j) {
+  factory ProcessorRecord.fromJson(Map<String, dynamic> j,
+      {String? digits}) {
     final est = Map<String, dynamic>.from(j['establishment'] ?? {});
     final species = Map<String, dynamic>.from(j['species'] ?? {});
     final pathogen = Map<String, dynamic>.from(j['pathogen_testing'] ?? {});
@@ -164,14 +172,40 @@ class ProcessorRecord {
 
     final geo = Map<String, dynamic>.from(est['geolocation'] ?? {});
 
+    String trimmed(v) => (v ?? '').toString().trim();
+    final rawEst = trimmed(est['est_number']);
+    final estNumber = rawEst.isNotEmpty ? rawEst : (digits ?? '');
+    final estPrefix = trimmed(est['est_prefix']);
+    var name = trimmed(est['name']);
+    var city = trimmed(est['city']);
+    var state = trimmed(est['state']);
+    var dba = asStr(trimmed(est['dba']));
+    // The website's monthly FSIS update has blanked name/city/state on many
+    // records. Fill ONLY the blanks from the bundled FSIS MPI Directory
+    // snapshot — never overwrite a non-empty website value.
+    if (FsisPlantNames.isBlankName(name) || city.isEmpty || state.isEmpty) {
+      final info = FsisPlantNames.lookup(
+          prefix: estPrefix.isNotEmpty ? estPrefix : trimmed(j['est_prefix']),
+          digits: estNumber);
+      if (info != null) {
+        if (FsisPlantNames.isBlankName(name) && info.name.isNotEmpty) {
+          name = info.name;
+        }
+        if (city.isEmpty) city = info.city;
+        if (state.isEmpty) state = info.state;
+        dba ??= info.dba;
+      }
+    }
+
     return ProcessorRecord(
-      estNumber: (est['est_number'] ?? '').toString(),
-      estPrefix: (est['est_prefix'] ?? '').toString(),
-      name: (est['name'] ?? '').toString(),
-      dba: asStr(est['dba']),
+      estNumber: estNumber,
+      estPrefix: estPrefix,
+      name: name,
+      dba: dba,
       address: (est['address'] ?? '').toString().trim(),
-      city: (est['city'] ?? '').toString(),
-      state: (est['state'] ?? '').toString(),
+      city: city,
+      state: state,
+      zip: trimmed(est['zip']),
       county: (est['county'] ?? '').toString(),
       phone: (est['phone'] ?? '').toString(),
       grantDate: (est['grant_date'] ?? '').toString(),
@@ -205,6 +239,30 @@ class ProcessorRecord {
       hasResidues ||
       (salmonellaCategory != null && salmonellaCategory != 'null');
 
-  String get displayName =>
-      name.isNotEmpty ? name : (dba ?? 'Establishment $estNumber');
+  /// Street, city, state, zip — non-empty parts only.
+  String get fullAddress => [address, city, state, zip]
+      .map((s) => s.trim())
+      .where((s) => s.isNotEmpty)
+      .join(', ');
+
+  /// The legal plant name only (website → bundled FSIS directory), without
+  /// the DBA fallback — for ownership matching that treats DBAs separately.
+  String? get directoryName {
+    if (!FsisPlantNames.isBlankName(name)) return name.trim();
+    final info = FsisPlantNames.lookup(prefix: estPrefix, digits: estNumber);
+    if (info != null && info.name.isNotEmpty) return info.name;
+    return null;
+  }
+
+  /// The plant name to show: website name → bundled FSIS directory name →
+  /// DBA → null. Mirrors iOS ProcessorData.resolvedName.
+  String? get resolvedName {
+    final n = directoryName;
+    if (n != null) return n;
+    final d = dba?.trim();
+    return (d == null || d.isEmpty) ? null : d;
+  }
+
+  /// [resolvedName], or the neutral "Plant name not on file" placeholder.
+  String get displayName => resolvedName ?? FsisPlantNames.notOnFileText;
 }

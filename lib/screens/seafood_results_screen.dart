@@ -236,6 +236,18 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(p.displayName,
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w900,
+                      color: p.resolvedName == null ? Colors.grey : Colors.black)),
+              if (p.fullAddress.isNotEmpty)
+                Text(p.fullAddress,
+                    style: const TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87)),
+              const SizedBox(height: 6),
               Text('USDA-inspected (catfish / Siluriformes) — EST. ${p.estNumber}',
                   style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
               if (rows.isEmpty)
@@ -920,6 +932,15 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
       for (final d in _detailLines[cat] ?? const <SeafoodDetailLine>[]) {
         lines.add('  ${d.text}');
       }
+    }
+    final pd = _processor;
+    if (result.detectedEstablishmentNumber != null) {
+      lines.add('');
+      lines.add('USDA EST. ${result.detectedEstablishmentNumber}');
+    }
+    if (pd != null) {
+      lines.add('Name: ${pd.displayName}');
+      if (pd.fullAddress.isNotEmpty) lines.add('Location: ${pd.fullAddress}');
     }
     // Diagnostic tail: exactly what the OCR read (mirrors the meat summary).
     final ocr = result.scannedText.trim();
