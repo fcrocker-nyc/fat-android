@@ -95,4 +95,11 @@ void main() {
     expect(rec.resolvedName, isNull);
     expect(rec.displayName, 'Plant name not on file');
   });
+
+  test('Suffix folded into prefix resolves to the right plant, never the bare number', () async {
+    await FsisPlantNames.ensureLoaded();
+    expect(FsisPlantNames.lookup(prefix: 'MAE', digits: '20')?.name, 'Lopez Foods, Inc.');
+    expect(FsisPlantNames.lookup(prefix: 'I', digits: '20')?.name, 'Versacold Texas, LP');
+    expect(FsisPlantNames.lookup(prefix: 'P', digits: '80'), isNull);
+  });
 }

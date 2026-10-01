@@ -95,10 +95,14 @@ class FsisPlantNames {
       number = number.substring(lead.length);
     }
     if (number.isEmpty) return null;
+    // FAT records fold suffix letters into est_prefix (M20AE -> "MAE"), so
+    // also try first-letter + number + remaining letters. The bare number is
+    // tried only when no prefix is known — "20" alone is I20, a different plant.
     final candidates = <String>[
       if (pfx.isNotEmpty) '$pfx$number',
+      if (pfx.length > 1) '${pfx[0]}$number${pfx.substring(1)}',
       if (pfx.length > 1) '${pfx[0]}$number',
-      number,
+      if (pfx.isEmpty) number,
     ];
     for (final c in candidates) {
       final i = keys[c];
