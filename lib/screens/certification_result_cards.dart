@@ -23,6 +23,7 @@
 
 import 'package:flutter/material.dart';
 import '../models/fat_models.dart';
+import '../interpreter/label_interpreter.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Local color tokens — mirror the FATTheme.swift names the iOS views reference
@@ -1036,7 +1037,7 @@ const List<_UnverifiedClaim> _unverifiedClaims = [
     claimText: 'Pasture Raised',
     alternateTexts: ['Pasture-Raised', 'Pastured'],
     whatItActuallyMeans:
-        'Pasture raised is not regulated by USDA. Without an accompanying third-party certification (like Certified Humane Pasture Raised), this claim is unverified and may mean very little.',
+        "No USDA regulation defines pasture raised. FSIS approves the claim on an inspected label after reviewing the producer's documentation, but label approval is not verification — FSIS does not audit the farm. Without an accompanying third-party certification (like Certified Humane Pasture Raised), the claim rests on the producer's documentation and may mean very little.",
   ),
 ];
 
@@ -1542,6 +1543,7 @@ enum _PastureCredibility {
   thirdPartyAudited,
   usdaOrganicNOP,
   usdaProcessVerified,
+  fsisLabelApproved, // FSIS-inspected label: FSIS approved the claim on producer documentation (not verification)
   fsisAffidavitOnly,
   marketingClaimOnly,
 }
@@ -1555,6 +1557,8 @@ extension _PastureCredibilityLabel on _PastureCredibility {
         return 'USDA Organic (NOP Pasture Rule)';
       case _PastureCredibility.usdaProcessVerified:
         return 'USDA Process Verified';
+      case _PastureCredibility.fsisLabelApproved:
+        return 'FSIS Label Approved (Producer Documentation)';
       case _PastureCredibility.fsisAffidavitOnly:
         return 'FSIS Label Approved (Affidavit Only)';
       case _PastureCredibility.marketingClaimOnly:
@@ -1616,12 +1620,16 @@ _PastureApplicability _pastureApplicabilityForSpecies(String? species) {
 
 class _PastureClaimMatch {
   final _PastureClaimType claimType;
+  /// Overrides the claim-type title (used for the FSIS raising-claim family,
+  /// whose title names the phrase actually found).
+  final String? title;
   final _PastureCredibility credibility;
   final String consumerAlert;
   final String detailedExplanation;
   final String verificationRequirement;
   const _PastureClaimMatch({
     required this.claimType,
+    this.title,
     required this.credibility,
     required this.consumerAlert,
     required this.detailedExplanation,
@@ -1669,15 +1677,11 @@ class _PastureKB {
       'USDA audits compliance with that self-defined standard. Two PVP operations may '
       'have very different outdoor conditions.';
 
-  static const alertFSISFreeRange =
-      'FSIS defines "free range" as having access to the outdoors — but does not '
-      'specify pasture, duration, or outdoor conditions. A barn with a small door to '
-      'a concrete pad can qualify. Without third-party certification, the claim is unverified.';
 
-  static const alertPastureMarketingOnly =
-      'This label uses "pasture raised" without a third-party certification mark. '
-      'There is no FSIS regulatory definition of the term, and no audit or monitoring '
-      'documentation has been surfaced.';
+
+  static const verifyFSISLabelApproval =
+      'FSIS label (sketch) approval supported by producer documentation '
+      '(FSIS-GD-2024-0006). No independent on-farm audit required.';
 
   static const alertHumanelyRaisedUnverified =
       'There is no FSIS regulatory definition of "humanely raised." Without third-party '
@@ -1730,8 +1734,6 @@ class _PastureKB {
       'USDA Process Verified Program documentation showing the producer\'s self-defined '
       'pasture / outdoor-access standard and the audit scope.';
 
-  static const verifyAffidavit =
-      'FSIS label-approval record. No independent on-farm audit required.';
 
   static const verifyOrganicNOP =
       'USDA Organic certification by an accredited certifying agent, with the producer\'s '
@@ -1739,9 +1741,10 @@ class _PastureKB {
       'Note: the NOP pasture rule applies to ruminants only.';
 }
 
-/// Port of PastureDetector.detect(in:detectedSpecies:).
+/// Port of PastureDetector.detect(in:detectedSpecies:fsisInspected:).
 ({List<_PastureClaimMatch> claims, _PastureApplicability applicability})
-    _detectPasture(String text, String? detectedSpecies) {
+    _detectPasture(String text, String? detectedSpecies,
+        {bool fsisInspected = false}) {
   final applicability = _pastureApplicabilityForSpecies(detectedSpecies);
   final claims = <_PastureClaimMatch>[];
 
@@ -1839,26 +1842,36 @@ class _PastureKB {
       c.credibility == _PastureCredibility.usdaOrganicNOP ||
       c.credibility == _PastureCredibility.usdaProcessVerified);
 
-  // 7. Bare "pasture raised".
-  if (!hasStrongerPastureClaim() && text.contains('pasture raised')) {
-    claims.add(const _PastureClaimMatch(
-      claimType: _PastureClaimType.pastureMarketingOnly,
-      credibility: _PastureCredibility.marketingClaimOnly,
-      consumerAlert: _PastureKB.alertPastureMarketingOnly,
-      detailedExplanation: _PastureKB.explainNoFSISPastureDefinition,
-      verificationRequirement: _PastureKB.verifyThirdParty,
-    ));
-  }
-
-  // 8. Free range.
-  if (!hasStrongerPastureClaim() && text.contains('free range')) {
-    claims.add(const _PastureClaimMatch(
-      claimType: _PastureClaimType.fsisFreeRange,
-      credibility: _PastureCredibility.fsisAffidavitOnly,
-      consumerAlert: _PastureKB.alertFSISFreeRange,
-      detailedExplanation: _PastureKB.explainNoFSISPastureDefinition,
-      verificationRequirement: _PastureKB.verifyAffidavit,
-    ));
+  // 7. Bare FSIS animal-raising claim (pasture raised / fed / grown, meadow
+  //    raised, free range, free roaming) — only if no third-party / NOP / PVP
+  //    match above. FSIS-inspected label → FSIS approved it on the producer's
+  //    documentation (Producer Affidavit); otherwise unverified. Mirrors iOS.
+  if (!hasStrongerPastureClaim()) {
+    for (final c in LabelInterpreter.fsisRaisingClaims) {
+      if (!text.contains(c.$1)) continue;
+      final isFreeRange = c.$1.startsWith('free');
+      claims.add(_PastureClaimMatch(
+        claimType: isFreeRange
+            ? _PastureClaimType.fsisFreeRange
+            : (fsisInspected
+                ? _PastureClaimType.fsisPastureRaisedAffidavit
+                : _PastureClaimType.pastureMarketingOnly),
+        title: fsisInspected
+            ? '${c.$2} (FSIS Label Approved)'
+            : '${c.$2} (No Certification)',
+        credibility: fsisInspected
+            ? _PastureCredibility.fsisLabelApproved
+            : _PastureCredibility.marketingClaimOnly,
+        consumerAlert: fsisInspected
+            ? LabelInterpreter.pastureAlertFsisLabelApproved(c.$1)
+            : LabelInterpreter.pastureAlertNoInspectionMark(c.$1),
+        detailedExplanation: _PastureKB.explainNoFSISPastureDefinition,
+        verificationRequirement: fsisInspected
+            ? _PastureKB.verifyFSISLabelApproval
+            : _PastureKB.verifyThirdParty,
+      ));
+      break;
+    }
   }
 
   // 9. Humanely raised (unverified) — only if no third-party / PVP cert.
@@ -1885,6 +1898,7 @@ Color _pastureCredibilityColor(_PastureCredibility c) {
       return _CertColors.successGreen;
     case _PastureCredibility.usdaProcessVerified:
       return _CertColors.fatAmber;
+    case _PastureCredibility.fsisLabelApproved:
     case _PastureCredibility.fsisAffidavitOnly:
       return _CertColors.fatOrange;
     case _PastureCredibility.marketingClaimOnly:
@@ -1899,6 +1913,7 @@ Color _pastureAlertBg(_PastureCredibility c) {
       return _CertColors.successGreenSoft;
     case _PastureCredibility.usdaProcessVerified:
       return _CertColors.fatAmberTint;
+    case _PastureCredibility.fsisLabelApproved:
     case _PastureCredibility.fsisAffidavitOnly:
       return _CertColors.fatOrangeTint;
     case _PastureCredibility.marketingClaimOnly:
@@ -1914,6 +1929,7 @@ IconData _pastureBadgeIcon(_PastureCredibility c) {
       return Icons.eco;
     case _PastureCredibility.usdaProcessVerified:
       return Icons.account_balance;
+    case _PastureCredibility.fsisLabelApproved:
     case _PastureCredibility.fsisAffidavitOnly:
       return Icons.description;
     case _PastureCredibility.marketingClaimOnly:
@@ -1955,7 +1971,12 @@ class PastureResultCard extends StatelessWidget {
 
   /// Returns a card when pasture / outdoor-access claims are present, else null.
   static PastureResultCard? maybeFrom(FATResult result, String scannedText) {
-    final res = _detectPasture(_normalize(scannedText), _detectedSpecies(result));
+    final ws = scannedText.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
+    final fsisInspected = LabelInterpreter.isFsisInspected(ws,
+        isMeat: result.categories[FATCategory.species]?.status ==
+            DisclosureStatus.known);
+    final res = _detectPasture(_normalize(scannedText), _detectedSpecies(result),
+        fsisInspected: fsisInspected);
     if (res.claims.isEmpty) return null;
     return PastureResultCard._(res.claims, res.applicability);
   }
@@ -2064,7 +2085,7 @@ class _PastureClaimCardState extends State<_PastureClaimCard> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: Text(_pastureTitle(claim.claimType),
+                child: Text(claim.title ?? _pastureTitle(claim.claimType),
                     style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,

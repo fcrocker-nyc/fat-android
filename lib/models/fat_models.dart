@@ -15,7 +15,7 @@ enum ClaimCredibility {
   String get displayName {
     switch (this) {
       case verified:          return 'Third-Party Audited';
-      case usdaApproved:      return 'USDA-Reviewed';
+      case usdaApproved:      return 'USDA Process Verified Program';
       case producerAffidavit: return 'Producer Affidavit';
       case labelClaimOnly:    return 'Unverified Marketing';
     }
@@ -26,13 +26,19 @@ enum ClaimCredibility {
       case verified:
         return 'Independently audited on-farm by a third-party certifier.';
       case usdaApproved:
-        return 'USDA-reviewed under a federal program with audit teeth (Process Verified, USDA grade marks, organic verification) — or identity-substantiated via EPA NPDES CAFO permit or qualifying state CAFO permit (per FAT DSA v1.1).';
+        return 'A USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim. Government-backed, but not an independent third-party audit. (Also used for identity substantiated via EPA NPDES CAFO permit or qualifying state CAFO permit, per FAT DSA v1.1.)';
       case producerAffidavit:
-        return 'FSIS approved the label language; the producer\'s affidavit is the only backing — no independent on-farm audit.';
+        return 'Claim FSIS approved on the producer\'s documentation (label approval is not verification) — the producer\'s affidavit and records are the only backing; no independent on-farm audit.';
       case labelClaimOnly:
         return 'Printed on the label with no known third-party audit and no government label-language approval.';
     }
   }
+
+  /// Seafood screens: COOL, FSIS catfish inspection and FDA HACCP are not
+  /// Process Verified Programs, so the usdaApproved tier is labeled
+  /// generically there. Enum name unchanged so saved scans still decode.
+  String get seafoodDisplayName =>
+      this == usdaApproved ? 'USDA / FDA program' : displayName;
 
   String get iconData {
     switch (this) {

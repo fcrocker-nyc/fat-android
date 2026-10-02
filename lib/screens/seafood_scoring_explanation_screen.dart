@@ -210,7 +210,7 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
         _statusRow(
             symbol: '🏛',
             color: _amber,
-            title: 'USDA-Reviewed',
+            title: 'USDA / FDA program',
             detail:
                 'USDA-administered program with audit teeth — primarily relevant for catfish and other Siluriformes under FSIS inspection, plus USDA Process-Verified Program where applied to seafood operations.'),
         const SizedBox(height: 10),

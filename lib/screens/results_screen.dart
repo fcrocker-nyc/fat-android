@@ -147,7 +147,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   /// Overlay the FSIS-directory owner onto Who/Owner when the label didn't
   /// already disclose a brand owner. The EST number on the label makes this a
-  /// public-record disclosure, so it counts toward the 16 (USDA-Reviewed) —
+  /// public-record disclosure, so it counts toward the 16 (USDA Process Verified Program) —
   /// consistent with how Processor counts from the EST number. Mutates the
   /// (modifiable) categories map in place; caller wraps this in setState.
   void _applyDirectoryOwner(ProcessorRecord rec) {
@@ -535,7 +535,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
       return (line: 'Independently verified claims present', icon: Icons.verified, color: _disclosureGreen);
     }
     if (_credCount(ClaimCredibility.usdaApproved) > 0) {
-      return (line: 'USDA-reviewed claims present', icon: Icons.verified_user, color: _fatAmber);
+      return (line: 'USDA Process Verified Program claims present', icon: Icons.verified_user, color: _fatAmber);
     }
     if (_credCount(ClaimCredibility.producerAffidavit) > 0) {
       return (line: 'Producer-affidavit claims only', icon: Icons.info_outline, color: Colors.black54);

@@ -3,6 +3,8 @@ import '../models/fat_models.dart';
 import '../data/brand_resolver.dart';
 import 'est_number_guard.dart';
 import 'retail_exemption.dart';
+import 'prepared_food.dart';
+import 'foreign_establishment.dart';
 
 class LabelInterpreter {
   LabelInterpreter._();
@@ -26,7 +28,26 @@ class LabelInterpreter {
             status: DisclosureStatus.known,
             value: 'Establishment number disclosed on label')
         : const FATCategoryResult(status: DisclosureStatus.missing);
-    var feed              = _applyFeedSpeciesGate(_detectFeed(normalized), species.value);
+    // FSIS-inspected gate for the pasture / free-range animal-raising claims
+    // (mirrors iOS LabelInterpreter step 7.5).
+    final fsisInspected   = isFsisInspected(normalized,
+        isMeat: species.status == DisclosureStatus.known);
+    var baseFeed          = _detectFeed(normalized);
+    // Uncertified "Grass Fed" on an inspected label: FSIS substantiates it
+    // through documentation reviewed at label approval → Producer Affidavit
+    // (the species gate still downgrades pork/poultry). Mirrors iOS.
+    if (fsisInspected &&
+        baseFeed.status == DisclosureStatus.known &&
+        baseFeed.value == 'Grass Fed (100% forage)' &&
+        baseFeed.credibility == ClaimCredibility.labelClaimOnly) {
+      baseFeed = FATCategoryResult(
+        status: baseFeed.status,
+        value: baseFeed.value,
+        credibility: ClaimCredibility.producerAffidavit,
+        credibilityNote: baseFeed.credibilityNote,
+      );
+    }
+    var feed              = _applyFeedSpeciesGate(baseFeed, species.value);
     // Fold pasture / regenerative sub-claims into Feed (mirrors iOS): a
     // "pasture raised" or "regenerative" label still credits the Feed category.
     // Also fold when feed is `partial`: an unqualified "grass-fed" earns no
@@ -37,7 +58,8 @@ class LabelInterpreter {
         feed.status == DisclosureStatus.partial) {
       final uncreditedWhy =
           feed.status == DisclosureStatus.partial ? feed.credibilityNote : null;
-      final pasture = _detectPasture(normalized);
+      final pasture = _detectPasture(normalized, species.value,
+          fsisInspected: fsisInspected);
       final regen = _detectRegenerative(normalized);
       FATCategoryResult? earned;
       if (pasture.status == DisclosureStatus.known ||
@@ -61,7 +83,8 @@ class LabelInterpreter {
               );
       }
     }
-    final welfare         = _detectAnimalWelfare(normalized);
+    final welfare         = _detectAnimalWelfare(normalized,
+        fsisInspected: fsisInspected && !_hasThirdPartyPastureSeal(normalized, species.value));
     final quality         = _detectQualityPalatability(normalized);
     final medicine        = _detectMedicine(normalized);
     final hormones        = _detectHormones(normalized);
@@ -657,7 +680,16 @@ class LabelInterpreter {
 
   // ── Animal Welfare ───────────────────────────────────────────────────────
 
-  static FATCategoryResult _detectAnimalWelfare(String text) {
+  static const outdoorWelfareFsisNote =
+      'The label claims the animal was raised outdoors with pasture (or woodland) access — '
+      'a meaningful welfare positive versus cage or indoor confinement. FSIS approved the claim '
+      "after reviewing the producer's documentation, but label approval is not verification — "
+      'FSIS does not audit the farm. No third-party welfare certification (e.g. Certified '
+      'Humane, Animal Welfare Approved, Global Animal Partnership) was found, so the claim '
+      "rests on the producer's documentation.";
+
+  static FATCategoryResult _detectAnimalWelfare(String text,
+      {bool fsisInspected = false}) {
     const verified = <String, (String, String)>{
       'certified humane':      ('Certified Humane', 'Third-party certified by Humane Farm Animal Care'),
       'animal welfare approved': ('Animal Welfare Approved', 'Third-party certified by A Greener World'),
@@ -690,11 +722,26 @@ class LabelInterpreter {
       'raised outdoors', 'raised outside', 'pasture raised', 'pasture-raised',
       'raised on pasture', 'pasture access', 'outdoor access',
       'free range', 'free-range', 'free roaming', 'free-roaming',
+      'pasture fed', 'pasture-fed', 'pasture grown', 'pasture-grown',
+      'meadow raised', 'meadow-raised',
       'pasture or forest', 'pasture or woodland', 'pasture and woodland',
       'raised on pasture or', 'woodland raised', 'forest raised',
     ];
-    for (final c in outdoor) {
-      if (text.contains(c)) {
+    if (outdoor.any(text.contains)) {
+      // FSIS animal-raising claim on an FSIS-inspected label → FSIS approved it
+      // on the producer's documentation (Producer Affidavit). Mirrors iOS.
+      final dehyphenated = text.replaceAll('-', ' ');
+      final hasFsisRaisingClaim =
+          fsisRaisingClaims.any((c) => dehyphenated.contains(c.$1));
+      if (fsisInspected && hasFsisRaisingClaim) {
+        return const FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: 'Raised Outdoors / Pasture Access',
+          credibility: ClaimCredibility.producerAffidavit,
+          credibilityNote: outdoorWelfareFsisNote,
+        );
+      }
+      {
         return const FATCategoryResult(
           status: DisclosureStatus.known,
           value: 'Raised Outdoors / Pasture Access',
@@ -709,7 +756,123 @@ class LabelInterpreter {
 
   // ── Pasture ──────────────────────────────────────────────────────────────
 
-  static FATCategoryResult _detectPasture(String text) {
+  /// FSIS animal-raising claims FAT treats as one family, in display priority
+  /// order. Matched against hyphen-normalized text. Mirrors iOS
+  /// PastureDetector.fsisRaisingClaims.
+  static const fsisRaisingClaims = <(String, String)>[
+    ('pasture raised', 'Pasture Raised'),
+    ('pasture fed', 'Pasture Fed'),
+    ('pasture grown', 'Pasture Grown'),
+    ('meadow raised', 'Meadow Raised'),
+    ('free range', 'Free Range'),
+    ('free roaming', 'Free Roaming'),
+  ];
+
+  /// FSIS-inspected label (EST/P number or inspection legend) carrying an
+  /// animal-raising claim with no third-party seal / PVP → Producer Affidavit.
+  static String pastureAlertFsisLabelApproved(String phrase) =>
+      'This label uses "$phrase." FSIS has no regulation defining the term, but it '
+      'approves the claim on an inspected label only after the producer submits '
+      'documentation; its 2024 guideline asks for evidence that the animals spent the '
+      'majority of their lives on pasture, and the label must name who set the standard. '
+      'Label approval is a paperwork review, not verification: FSIS does not audit the '
+      "farm or check that the practice continues, so the claim rests on the producer's own "
+      'documentation. No third-party certification mark was found.';
+
+  /// No EST/P number or inspection legend read → Unverified Marketing.
+  static String pastureAlertNoInspectionMark(String phrase) =>
+      'This label uses "$phrase" without a third-party certification mark. '
+      'There is no FSIS regulatory definition of the term, and with no establishment '
+      'number or inspection legend found on the scanned panels, FAT cannot tie the '
+      'claim to an FSIS label approval.';
+
+  static String pastureSpeciesNote(String? species) {
+    switch (species?.toLowerCase()) {
+      case 'pork':
+        return 'For pork, pasture-raised should mean outdoor paddock or '
+            'pasture access with rooting, wallowing, and shade — and '
+            'explicitly excludes "indoor confinement with a small '
+            'concrete yard."';
+      case 'chicken':
+      case 'turkey':
+        return 'For poultry, pasture-raised should mean year-round outdoor '
+            'access on managed vegetated land at densities that maintain '
+            'ground cover — and explicitly rejects "a pop-door to a worn '
+            'dirt run." "Free range" under FSIS only requires some '
+            'outdoor access — a much weaker standard.';
+      default:
+        return 'For beef, bison, lamb, and goat, FAT looks for lifetime '
+            'pasture or rangeland access with managed grazing and '
+            'pasture- or range-finishing — not feedlot finishing.';
+    }
+  }
+
+  static bool _isRuminant(String? species) {
+    final s = species?.toLowerCase();
+    return s != 'pork' && s != 'chicken' && s != 'turkey';
+  }
+
+  /// Tier of a third-party / USDA Organic (ruminant) / PVP pasture standard on
+  /// the label, or null when none — the bare-claim FSIS tier then applies.
+  /// Mirrors iOS PastureDetector steps 1–6.
+  static ClaimCredibility? _pastureSealTier(String text, String? species) {
+    final t = text.replaceAll('-', ' ');
+    final ruminant = _isRuminant(species);
+    if (t.contains('certified humane') && t.contains('pasture raised')) {
+      return ClaimCredibility.verified;
+    }
+    if (t.contains('animal welfare approved') || t.contains('awa certified') ||
+        (t.contains('a greener world') && !t.contains('regenerative') &&
+            !t.contains('grassfed'))) {
+      return ClaimCredibility.verified;
+    }
+    if (t.contains('global animal partnership') &&
+        (t.contains('step 5') || t.contains('step5') ||
+            t.contains('step 4') || t.contains('step4'))) {
+      return ClaimCredibility.verified;
+    }
+    if (ruminant && (t.contains('american grassfed') ||
+        t.contains('aga certified') || t.contains('aga grassfed'))) {
+      return ClaimCredibility.verified;
+    }
+    if (ruminant && t.contains('usda organic')) return ClaimCredibility.verified;
+    final pvp = t.contains('process verified') || t.contains('usda pvp') ||
+        t.contains(' pvp ');
+    if (pvp && (t.contains('pasture') || t.contains('free range'))) {
+      return ClaimCredibility.usdaApproved;
+    }
+    return null;
+  }
+
+  static bool _hasThirdPartyPastureSeal(String text, String? species) =>
+      _pastureSealTier(text, species) != null;
+
+  static const _alertPVPPasture =
+      'USDA Process Verified: the producer defined their own "pasture" standard and '
+      'USDA audits compliance with that self-defined standard. Two PVP operations may '
+      'have very different outdoor conditions.';
+
+  /// True when the label is FSIS-inspected: an EST/P number or the USDA
+  /// inspection legend is present, and it is not a retail-exempt store cut, an
+  /// imported (foreign-mark) product, or an FDA-jurisdiction prepared food.
+  /// Seafood never reaches this interpreter. Mirrors iOS LabelInterpreter 7.5.
+  static bool isFsisInspected(String normalized, {required bool isMeat}) {
+    final est = extractEstablishmentNumber(normalized);
+    final legend = _detectUSDAFSIS(normalized).status == DisclosureStatus.known ||
+        PreparedFoodDetector.hasFsisLegend(normalized);
+    if (est == null && !legend) return false;
+    final exemption = RetailExemptionDetector.detect(
+      normalized, estFound: est != null, isMeat: isMeat);
+    if (exemption.isExempt) return false;
+    if (est == null && ForeignEstablishmentDetector.detect(normalized) != null) {
+      return false;
+    }
+    // Prepared foods: est || legend already places it under FSIS jurisdiction.
+    return true;
+  }
+
+  static FATCategoryResult _detectPasture(String text, String? species,
+      {bool fsisInspected = false}) {
     if (text.contains('certified humane') || text.contains('animal welfare approved')) {
       return FATCategoryResult(
         status: DisclosureStatus.known,
@@ -718,20 +881,30 @@ class LabelInterpreter {
         credibilityNote: 'Third-party certification requires meaningful outdoor access.',
       );
     }
-    if (text.contains('pasture raised') || text.contains('pasture-raised')) {
+    final t = text.replaceAll('-', ' ');
+    for (final c in fsisRaisingClaims) {
+      if (!t.contains(c.$1)) continue;
+      final seal = _pastureSealTier(text, species);
+      if (seal != null) {
+        return FATCategoryResult(
+          status: DisclosureStatus.known,
+          value: c.$2,
+          credibility: seal,
+          credibilityNote: seal == ClaimCredibility.usdaApproved
+              ? '$_alertPVPPasture ${pastureSpeciesNote(species)}'
+              : 'Third-party certification requires meaningful outdoor access.',
+        );
+      }
+      final alert = fsisInspected
+          ? pastureAlertFsisLabelApproved(c.$1)
+          : pastureAlertNoInspectionMark(c.$1);
       return FATCategoryResult(
         status: DisclosureStatus.known,
-        value: 'Pasture Raised',
-        credibility: ClaimCredibility.producerAffidavit,
-        credibilityNote: 'FSIS-approved claim with producer documentation; no on-farm audit.',
-      );
-    }
-    if (text.contains('free range') || text.contains('free-range')) {
-      return FATCategoryResult(
-        status: DisclosureStatus.known,
-        value: 'Free Range',
-        credibility: ClaimCredibility.producerAffidavit,
-        credibilityNote: 'FSIS minimum = 5 min/day outdoor access for poultry. No third-party audit.',
+        value: c.$2,
+        credibility: fsisInspected
+            ? ClaimCredibility.producerAffidavit
+            : ClaimCredibility.labelClaimOnly,
+        credibilityNote: '$alert ${pastureSpeciesNote(species)}',
       );
     }
     return FATCategoryResult.missing;
@@ -793,6 +966,24 @@ class LabelInterpreter {
     return FATCategoryResult.missing;
   }
 
+  /// Antibiotic / hormone raising claims: FSIS approves the label on the
+  /// producer's documentation — Producer Affidavit, not verification.
+  static const fsisLabelApprovalNote =
+      "FSIS-approved claim based on the producer's documentation — label approval is a "
+      'paperwork review, not an on-farm audit or residue test.';
+
+  static const pvpBackedClaimNote =
+      'Backed by a USDA Process Verified Program on the label — USDA audits the producer '
+      'against its documented standard.';
+
+  /// USDA AMS Process Verified Program (incl. the Non-Hormone Treated Cattle
+  /// program) named on the label — the only path that keeps an antibiotic /
+  /// hormone claim at the USDA Process Verified Program tier. Mirrors iOS.
+  static bool hasUSDAProcessVerified(String text) =>
+      text.contains('process verified') || text.contains('usda pvp') ||
+      text.contains(' pvp ') || text.contains('non-hormone treated cattle') ||
+      text.contains('non hormone treated cattle') || text.contains('nhtc');
+
   // ── Medicine / Antibiotics ───────────────────────────────────────────────
 
   static FATCategoryResult _detectMedicine(String text) {
@@ -811,8 +1002,12 @@ class LabelInterpreter {
         return FATCategoryResult(
           status: DisclosureStatus.known,
           value: entry.value,
-          credibility: ClaimCredibility.producerAffidavit,
-          credibilityNote: 'FSIS-approved claim with producer documentation; no on-farm audit.',
+          credibility: hasUSDAProcessVerified(text)
+              ? ClaimCredibility.usdaApproved
+              : ClaimCredibility.producerAffidavit,
+          credibilityNote: hasUSDAProcessVerified(text)
+              ? pvpBackedClaimNote
+              : fsisLabelApprovalNote,
         );
       }
     }
@@ -834,8 +1029,12 @@ class LabelInterpreter {
         return FATCategoryResult(
           status: DisclosureStatus.known,
           value: entry.value,
-          credibility: ClaimCredibility.producerAffidavit,
-          credibilityNote: 'FSIS-approved claim with producer documentation; no on-farm audit.',
+          credibility: hasUSDAProcessVerified(text)
+              ? ClaimCredibility.usdaApproved
+              : ClaimCredibility.producerAffidavit,
+          credibilityNote: hasUSDAProcessVerified(text)
+              ? pvpBackedClaimNote
+              : fsisLabelApprovalNote,
         );
       }
     }

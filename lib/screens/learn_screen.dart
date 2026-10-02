@@ -555,7 +555,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Step 1 — What was disclosed?\n'
             'We read the label and check which transparency categories are present. For meat, there are 16 categories (species, breed, country of origin, farm/ranch, processor, feed, animal welfare, pasture/outdoor access, regenerative/land use, quality, dietary attributes, medicine, age at slaughter, USDA/FSIS required language, the establishment number, and supply-chain intermediaries). For seafood, there is a partly overlapping set of 16 categories with seafood-specific additions. Each category gets one of three states: Disclosed (green), Partially disclosed (amber), or Not disclosed (red).\n\n'
             'Step 2 — How credible is what was disclosed?\n'
-            'Disclosure alone isn\'t proof. A claim can be Third-Party Audited (independently audited on-farm by an organization that is neither the producer nor the regulator), USDA-Reviewed (USDA-administered program with audit teeth — Process Verified, USDA grade marks, FSIS catfish inspection), Producer Affidavit (FSIS approved the label language but only a producer affidavit backs it — no on-farm audit), or Unverified Marketing (the words are on the package with no audit and no government label-language approval). The same disclosure can carry very different weight depending on which of those four credibility tiers applies.\n\n'
+            'Disclosure alone isn\'t proof. A claim can be Third-Party Audited (independently audited on-farm by an organization that is neither the producer nor the regulator), USDA Process Verified Program (a USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim; government-backed, but not an independent third-party audit), Producer Affidavit (claims FSIS approved on the producer\'s documentation — label approval is not verification; e.g. Grass Fed, Pasture Raised, Free Range, No Antibiotics Ever without a certifier — no on-farm audit), or Unverified Marketing (the words are on the package with no audit and no government label-language approval). The same disclosure can carry very different weight depending on which of those four credibility tiers applies.\n\n'
             'Step 3 — Who is behind this product, and what does the public record say?\n'
             'The label is one source of information. The processor\'s enforcement history, the parent company\'s ownership and concentration in the category, foreign ownership status, recall history, humane-handling violations, pathogen testing results, and HHI for the relevant supply chain are all relevant facts that don\'t appear on the label but do affect what the consumer is actually buying. FAT surfaces these facts when they are available in public records.\n\n'
             'FAT reports how many of the 16 categories a label discloses (Step 1) and how credible those disclosures are (Step 2). Step 3 sits alongside as public-record context — not part of the count. It is a count of what the label tells you, not a grade of the food. Step 3 can flag a product even when its label discloses a lot: a well-disclosed label whose processor has a recent recall, or whose parent corporation holds an HHI-flagged share of the market, is a different consumer story than the same label without that history.'),
@@ -602,7 +602,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
       _LearnTopic(
         title: 'Step 2 — How Credible Is the Disclosure',
         subtitle:
-            'Third-Party Audited · USDA-Reviewed · Producer Affidavit · Unverified Marketing',
+            'Third-Party Audited · USDA Process Verified Program · Producer Affidavit · Unverified Marketing',
         body: [
           const _Para(
               'Step 2 of a FAT read asks how credible the disclosed claim is. Disclosure (Step 1) tells you whether the label addressed a topic at all. Credibility tells you how much weight that claim carries.'),
@@ -619,16 +619,16 @@ final List<_LearnSection> _sections = <_LearnSection>[
           const _TierRow(
             icon: Icons.verified,
             color: FATTheme.usdaApprovedBlue,
-            title: 'USDA-Reviewed',
+            title: 'USDA Process Verified Program',
             description:
-                'USDA-administered program with audit teeth — broader than just label-language approval. Examples: USDA AMS Process-Verified Program (PVP, the producer\'s own standard audited by USDA), USDA quality-grade shields (Prime, Choice, Select) determined by USDA graders, and FSIS catfish (and other Siluriformes) inspection. Strong score weight.',
+                'A USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim. Government-backed, but not an independent third-party audit. Examples: USDA AMS Process Verified Program (PVP, the producer\'s own standard audited by USDA), USDA quality-grade shields (Prime, Choice, Select) determined by USDA graders. FSIS label approval alone does not qualify. Strong score weight.',
           ),
           const _TierRow(
             icon: Icons.description_outlined,
             color: FATTheme.fatOrange,
             title: 'Producer Affidavit',
             description:
-                'FSIS reviewed and approved the wording on the label, backed by the producer\'s affidavit and internal records — no independent on-farm audit. Examples: "Grass Fed" or "No Antibiotics Ever" without a third-party cert mark, "No Hormones Administered" (beef), "Raised using Regenerative Agriculture Practices." Government oversight exists at the label-approval stage only. Moderate score weight.',
+                'Claims FSIS approved on the producer\'s documentation (label approval is not verification): FSIS reviewed and approved the wording on the label, backed by the producer\'s affidavit and internal records — no independent on-farm audit. Examples: "Grass Fed," "Pasture Raised," "Free Range," or "No Antibiotics Ever" without a third-party cert mark, "No Hormones Administered" (beef), "Raised using Regenerative Agriculture Practices." Government oversight exists at the label-approval stage only. Moderate score weight.',
           ),
           const _TierRow(
             icon: Icons.info_outline,
@@ -974,7 +974,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'In practice, the gap matters a lot. The National Chicken Council\'s annual Broiler Performance Report shows that average commercial slaughter age has fallen from 112 days in 1925 to 47.4 days in 2024. A label saying "Broiler" legally means "under 70 days" — the typical bird is closer to 47. The compression is driven by selective breeding for growth rate, not feed or management alone: a 2014 University of Alberta study (Zuidhof et al., Poultry Science 93:12) found that the modern broiler strain grows to market weight more than 400% faster than the 1957 strain raised under identical conditions.\n\n'
             'The Stewing Hen class is a different supply chain entirely. These birds are not raised for meat — they are egg-production hens removed from laying flocks when output declines, typically at 12 to 18 months.\n\n'
             'How FAT reads it:\n'
-            'FAT scores a class-name disclosure as Known under the USDA-Reviewed credibility tier. The term is a standard of identity enforced by FSIS — the ceiling is legally binding. But the result card states explicitly that the class name is a ceiling, not the actual age, and displays the NCC 47-day industry benchmark. A label bearing only "chicken breast" or "chicken thighs" with no class term scores Missing on Category 6.\n\n'
+            'FAT scores a class-name disclosure as Known under the USDA Process Verified Program credibility tier. The term is a standard of identity enforced by FSIS — the ceiling is legally binding. But the result card states explicitly that the class name is a ceiling, not the actual age, and displays the NCC 47-day industry benchmark. A label bearing only "chicken breast" or "chicken thighs" with no class term scores Missing on Category 6.\n\n'
             'Source: 9 CFR 381.170; 76 FR 68064 (final rule, eff. Jan 1, 2014); 81 FR 21709 (2016 amendment); NCC 2024 Broiler Performance Report; Zuidhof et al. 2014, Poultry Science 93(12):2970–2982.'),
       ),
       // 2.6 (was 2.5)
@@ -1024,7 +1024,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             '• Claims backed by independent welfare certification are treated as third-party verified\n'
             '• "Humanely raised" or "animal welfare" language without certification is flagged as label claim only\n'
             '• FSIS humane-handling enforcement data for the processing establishment is shown when available\n'
-            '• "Cage-free," "free-range," and "pasture-raised" are scored separately based on the specific term used and whether a certifier is identified\n'
+            '• "Cage-free," "free-range," and "pasture-raised" are scored separately based on the specific term used and whether a certifier is identified. On an FSIS-inspected label (establishment number or inspection legend) with no certifier, "pasture raised" and "free range" are rated Producer Affidavit: FSIS approved them on the producer’s documentation, and label approval is not verification — FSIS does not audit the farm\n'
             '• Missing welfare disclosure is flagged as missing information — not evidence of poor welfare or good welfare\n\n'
             'Source: FAT Animal Welfare Research Series. Full papers available at farmanimaltransparency.com/fat-research/#fat-topic-animal-welfare-research-series.'),
       ),
@@ -1489,7 +1489,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
           const _Para(
               'FAT evaluates seafood labels using the same two-question model used for meat: what does the label disclose, and how credible is the claim?'),
           const _Para(
-              'The disclosure statuses (Known, Partial, Missing) and the four credibility tiers (Third-Party Audited, USDA-Reviewed, Producer Affidavit, Unverified Marketing) work identically. What changes are the 16 categories themselves, adapted for the regulatory, supply-chain, and species-identification realities of seafood.'),
+              'The disclosure statuses (Known, Partial, Missing) and the four credibility tiers (Third-Party Audited, USDA / FDA program, Producer Affidavit, Unverified Marketing) work identically — on seafood the government-program tier is labeled "USDA / FDA program" because seafood programs such as FSIS catfish inspection are not Process Verified Programs. What changes are the 16 categories themselves, adapted for the regulatory, supply-chain, and species-identification realities of seafood.'),
           const _Rule(),
           _Box(
             heading: '16 Seafood Transparency Categories',
@@ -1528,7 +1528,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
               _TierRow(
                 icon: Icons.verified,
                 color: FATTheme.usdaApprovedBlue,
-                title: 'USDA-Reviewed',
+                title: 'USDA / FDA program',
                 description:
                     'USDA-administered program with audit teeth — primarily the FSIS catfish (and other Siluriformes) inspection mark. USDA Process-Verified Program where it applies to seafood operations.',
               ),

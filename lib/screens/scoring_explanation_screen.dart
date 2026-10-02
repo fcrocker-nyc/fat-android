@@ -280,16 +280,16 @@ class ScoringExplanationScreen extends StatelessWidget {
         _statusRow(
             symbol: '🏛',
             color: _amber,
-            title: 'USDA-Reviewed',
+            title: 'USDA Process Verified Program',
             detail:
-                'USDA-administered program with audit teeth — broader than just label-language approval. Examples: USDA AMS Process-Verified Program (PVP), USDA quality-grade shields (Prime / Choice / Select), FSIS catfish inspection. Strong weight.'),
+                'A USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim. Government-backed, but not an independent third-party audit. Examples: USDA AMS Process Verified Program (PVP), USDA quality-grade shields (Prime / Choice / Select). FSIS label approval alone does not qualify. Strong weight.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '📄',
             color: _amber,
             title: 'Producer Affidavit',
             detail:
-                'FSIS approved the wording on the label, backed by the producer\'s own affidavit and internal records. No independent on-farm audit. Examples: "Grass Fed" or "No Antibiotics Ever" without a third-party cert mark, "Raised using Regenerative Agriculture Practices." Government oversight exists at the label-approval stage only. Moderate weight.'),
+                'Claims FSIS approved on the producer\'s documentation (label approval is not verification): FSIS approved the wording on the label, backed by the producer\'s own affidavit and internal records. No independent on-farm audit. Examples: "Grass Fed," "Pasture Raised," "Free Range," or "No Antibiotics Ever" without a third-party cert mark, "Raised using Regenerative Agriculture Practices." Government oversight exists at the label-approval stage only. Moderate weight.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '⚠',

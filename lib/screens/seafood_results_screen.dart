@@ -401,7 +401,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
       return (line: 'Independently verified claims present', icon: Icons.verified, color: _disclosureGreen);
     }
     if (_credCount(ClaimCredibility.usdaApproved) > 0) {
-      return (line: 'USDA-reviewed claims present', icon: Icons.verified_user, color: _fatAmber);
+      return (line: 'USDA / FDA program claims present', icon: Icons.verified_user, color: _fatAmber);
     }
     if (_credCount(ClaimCredibility.producerAffidavit) > 0) {
       return (line: 'Producer-affidavit claims only', icon: Icons.info_outline, color: Colors.black54);
@@ -629,7 +629,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
         Icon(_credIcon(tier), size: 14, color: color),
         const SizedBox(width: 6),
         Expanded(
-          child: Text(tier.displayName,
+          child: Text(tier.seafoodDisplayName,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
         ),
         Text('$count',
@@ -811,7 +811,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
             children: [
               Icon(_credIcon(cred), size: 13, color: color),
               const SizedBox(width: 6),
-              Text(cred.displayName,
+              Text(cred.seafoodDisplayName,
                   style: TextStyle(
                       fontSize: 13, fontWeight: FontWeight.bold, color: color)),
             ],
@@ -926,7 +926,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     for (final cat in SeafoodCategory.values) {
       final r = result.seafoodCategories[cat] ?? FATCategoryResult.missing;
       var line = '${cat.displayName}: ${r.status.name.toUpperCase()}';
-      if (r.credibility != null) line += ' [${r.credibility!.displayName}]';
+      if (r.credibility != null) line += ' [${r.credibility!.seafoodDisplayName}]';
       if (!cat.isAppSupported) line += ' (website only)';
       lines.add(line);
       for (final d in _detailLines[cat] ?? const <SeafoodDetailLine>[]) {
