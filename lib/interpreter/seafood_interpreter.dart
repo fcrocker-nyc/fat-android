@@ -10,6 +10,7 @@
 // exists but is never called), Android has no enforcement detector at all.
 
 import '../models/fat_models.dart';
+import 'est_number_guard.dart';
 import '../data/brand_resolver.dart';
 import 'product_type_detector.dart';
 
@@ -555,17 +556,19 @@ class SeafoodInterpreter {
   }
 
   // ── EST extraction (catfish) ──
+  // Left-bounded prefixes + EstNumberGuard screening, same as the meat
+  // extractor ("Cholest. 80mg" must never read as EST 80).
   static String? extractEstablishmentNumber(String text) {
     final patterns = [
-      RegExp(r'(?:usda\s{0,2})?est\.?\s{0,2}(\d{1,6})', caseSensitive: false),
-      RegExp(r'establishment\s{0,3}(?:number\s{0,3})?(?:#\s{0,2})?(\d{1,6})', caseSensitive: false),
-      RegExp(r'est#\s{0,2}(\d{1,6})', caseSensitive: false),
-      RegExp(r'p-(\d{1,6})', caseSensitive: false),
+      RegExp(r'(?<![a-z])(?:usda\s{0,2})?est\.?\s{0,2}(\d{1,6})(?![0-9])', caseSensitive: false),
+      RegExp(r'(?<![a-z])establishment\s{0,3}(?:number\s{0,3})?(?:#\s{0,2})?(\d{1,6})(?![0-9])', caseSensitive: false),
+      RegExp(r'(?<![a-z])est#\s{0,2}(\d{1,6})(?![0-9])', caseSensitive: false),
+      RegExp(r'(?<![a-z])p-(\d{1,6})(?![0-9])', caseSensitive: false),
     ];
     for (final re in patterns) {
-      final m = re.firstMatch(text);
-      if (m != null && m.groupCount >= 1) {
+      for (final m in re.allMatches(text)) {
         final raw = m.group(1)!;
+        if (EstNumberGuard.reject(text, m.start, m.end, raw)) continue;
         final n = int.tryParse(raw);
         if (n != null && n > 0 && n < 999999 && raw.length <= 6) return raw;
       }

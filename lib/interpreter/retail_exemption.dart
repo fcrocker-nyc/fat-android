@@ -19,6 +19,8 @@
 // a plant-packaged one would misattribute the failure: it belongs to the
 // regulatory design, not to the store.
 
+import '../data/pork_owner_database.dart';
+
 /// Result of retail-store-exemption detection for a scanned meat label.
 class RetailExemption {
   final bool isExempt;
@@ -104,6 +106,74 @@ class RetailExemptionDetector {
   static final RegExp _randomWeightUpc =
       RegExp(r'(?<![0-9])0?2[0-9]{11}(?![0-9])');
 
+  /// FSIS inspection-legend wording. A package bearing the legend came out of
+  /// an official establishment — by definition not a retail-exempt store cut.
+  static const List<String> _inspectionLegendPhrases = [
+    'inspected for wholesomeness', 'inspected and passed by',
+    'u.s. inspected and passed', 'usda inspected', 'department of agriculture',
+  ];
+
+  /// Manufacturer / distributor statements. Naming a company that is not one of
+  /// the listed grocers marks a national (plant-packed) package.
+  static final RegExp _makerStatement = RegExp(
+    r'\b(?:distributed by|manufactured by|manufactured for|produced by)\b\s*:?\s*(.{0,60})',
+  );
+
+  static final RegExp _grocerAlternation = RegExp(
+    _grocers.map((g) => RegExp.escape(g[0])).join('|'),
+  );
+
+  /// `verb for GROCER` / `verb fresh for GROCER` / `verb by GROCER`.
+  /// A bare `verb by` is NOT enough — "packed by" / "processed by" appear on
+  /// national-brand packages too.
+  static final RegExp _verbForGrocer = RegExp(
+    '\\b(?:${_prepVerbs.join('|')})\\s+(?:fresh\\s+)?(?:for|by)\\s*:?\\s*(?:the\\s+)?'
+    '(?:${_grocers.map((g) => RegExp.escape(g[0])).join('|')})',
+  );
+
+  /// National meat brands from the ownership tables (the same source as the
+  /// results-screen "Brand clue"). Whole-word match; numeric-only keywords
+  /// (e.g. "1855") are skipped because digit runs on a scale label (price,
+  /// barcode) would collide with them.
+  static String? nationalBrandOnLabel(String text) {
+    const tables = [
+      PorkOwnerDatabase.brandKeywords,
+      PorkOwnerDatabase.beefBrandKeywords,
+      PorkOwnerDatabase.chickenBrandKeywords,
+      PorkOwnerDatabase.turkeyBrandKeywords,
+    ];
+    for (final table in tables) {
+      for (final e in table) {
+        final kw = e.keyword.toLowerCase();
+        if (!RegExp(r'[a-z]').hasMatch(kw)) continue;
+        if (!text.contains(kw)) continue;
+        if (RegExp('(?<![a-z0-9])${RegExp.escape(kw)}(?![a-z0-9])')
+            .hasMatch(text)) {
+          return e.keyword;
+        }
+      }
+    }
+    return null;
+  }
+
+  /// Positive evidence that this is a plant-packed national package, which
+  /// overrides every in-store signal. Returns a reason, or null.
+  static String? nationalPackageEvidence(String text) {
+    for (final p in _inspectionLegendPhrases) {
+      if (text.contains(p)) return 'FSIS inspection legend ("$p")';
+    }
+    final brand = nationalBrandOnLabel(text);
+    if (brand != null) return 'national brand on label ($brand)';
+    for (final m in _makerStatement.allMatches(text)) {
+      final named = (m.group(1) ?? '').trim();
+      if (!RegExp(r'[a-z]{2,}').hasMatch(named)) continue;
+      if (!_grocerAlternation.hasMatch(named)) {
+        return 'manufacturer/distributor statement names a non-grocer';
+      }
+    }
+    return null;
+  }
+
   /// - [text]: normalized (lowercased, whitespace-collapsed) OCR label text.
   /// - [estFound]: whether an establishment number was already extracted.
   /// - [isMeat]: whether a meat/poultry species was recognized.
@@ -116,6 +186,11 @@ class RetailExemptionDetector {
     // establishment number. If an EST number is present, the plant is identified
     // and normal scoring applies.
     if (!isMeat || estFound) return RetailExemption.none;
+
+    // Hard block: inspection legend, a known national brand, or a
+    // "distributed/manufactured/produced by <non-grocer>" statement means the
+    // package came from an official establishment, whatever else it carries.
+    if (nationalPackageEvidence(text) != null) return RetailExemption.none;
 
     final signals = <String>[];
 
@@ -131,15 +206,7 @@ class RetailExemptionDetector {
     final hasStorePrep = _storePrepPhrases.any(text.contains);
     if (hasStorePrep) signals.add('in-store preparation statement');
 
-    var packedForRetailer = false;
-    for (final v in _prepVerbs) {
-      if (text.contains('$v for ') ||
-          text.contains('$v by ') ||
-          text.contains('$v fresh for ')) {
-        packedForRetailer = true;
-        break;
-      }
-    }
+    final packedForRetailer = _verbForGrocer.hasMatch(text);
     if (packedForRetailer) signals.add('packed/ground-for-retailer statement');
 
     final fieldHits = _scaleFields.where(text.contains).toList();
@@ -152,13 +219,14 @@ class RetailExemptionDetector {
 
     if (store != null) signals.add('retailer: $store');
 
-    // Decision. Require positive evidence of in-store handling — a lone grocer
-    // name or a lone generic field is not enough (national brands sell here too).
+    // Decision. Require positive evidence of in-store handling. Scale fields
+    // ("sell by", "packed on" — national packages carry these too) count only
+    // alongside a grocer name or a random-weight barcode; a random-weight
+    // barcode (a lot code can look like one) counts only alongside a scale field.
     final exempt = hasStorePrep ||
         packedForRetailer ||
-        hasRandomWeightUpc ||
-        (store != null && fieldHits.isNotEmpty) ||
-        fieldHits.length >= 2;
+        (hasRandomWeightUpc && fieldHits.isNotEmpty) ||
+        (store != null && fieldHits.isNotEmpty);
 
     if (!exempt) return RetailExemption.none;
     return RetailExemption(

@@ -1,6 +1,7 @@
 // Label Interpreter — Dart port of LabelInterpreter.swift (v1.1)
 import '../models/fat_models.dart';
 import '../data/brand_resolver.dart';
+import 'est_number_guard.dart';
 import 'retail_exemption.dart';
 
 class LabelInterpreter {
@@ -986,18 +987,26 @@ class LabelInterpreter {
   /// Lexington NE plant is 245L and its Dakota City plant is 245C; dropping the
   /// letter yields "245", which matches no establishment in the FSIS directory
   /// at all. Suffixed numbers are common: 86J, 208A, 717CR, 969G, 18076J.
+  ///
+  /// Every prefix requires a non-letter (or start of text) immediately before
+  /// it — "Cholest. 80mg" on the Nutrition Facts panel used to read as EST 80 —
+  /// and each candidate is screened by [EstNumberGuard] (cholesterol word
+  /// before, nutrition/weight unit after). All matches of a pattern are tried,
+  /// not just the first, so a rejected candidate never hides a real one.
   static String? extractEstablishmentNumber(String text) {
     final patterns = [
-      RegExp(r'(?:usda\s*)?est\.?\s*(\d{1,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
-      RegExp(r'establishment\s*(?:number\s*)?(?:#\s*)?(\d{1,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
-      RegExp(r'est#\s*(\d{1,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
+      RegExp(r'(?<![a-z])(?:usda\s*)?est\.?\s*(\d{1,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
+      RegExp(r'(?<![a-z])establishment\s*(?:number\s*)?(?:#\s*)?(\d{1,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
+      RegExp(r'(?<![a-z])est#\s*(\d{1,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
       RegExp(r'(?<![a-z])p\s*-\s*(\d{2,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
+      RegExp(r'(?<![a-z])p\s{1,2}(\d{3,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
       RegExp(r'(?<![a-z])p(\d{3,6}[a-z]{0,2})(?![a-z0-9])', caseSensitive: false),
     ];
     for (final re in patterns) {
-      final m = re.firstMatch(text);
-      if (m != null) {
-        final raw = (m.group(1) ?? '').replaceAll(' ', '').toUpperCase();
+      for (final m in re.allMatches(text)) {
+        final captured = m.group(1) ?? '';
+        if (EstNumberGuard.reject(text, m.start, m.end, captured)) continue;
+        final raw = captured.replaceAll(' ', '').toUpperCase();
         final digits = raw.replaceAll(RegExp(r'[^0-9]'), '');
         final n = int.tryParse(digits);
         if (n != null && n > 0 && n < 999999 && raw.length <= 8) return raw;
