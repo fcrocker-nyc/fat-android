@@ -101,6 +101,29 @@ class FATCategoryResult {
   });
 
   static const FATCategoryResult missing = FATCategoryResult(status: DisclosureStatus.missing);
+
+  /// Every FSIS poultry class-name value (Broiler / Fryer, Roaster, Capon,
+  /// Cornish Game Hen, Stewing Hen / Fowl) ends with this citation.
+  static const String fsisClassNameSuffix = '(9 CFR 381.170)';
+
+  /// Neutral line shown in place of a credibility tier chip for a
+  /// class-name-only Age at Slaughter disclosure. Mirrors iOS.
+  static const String fsisClassNameLine =
+      'FSIS class name (9 CFR 381.170) — a required naming standard that implies an age range, not a verified claim.';
+
+  /// True for an FSIS poultry class-name disclosure (9 CFR 381.170). A class
+  /// name is an FSIS-defined naming standard, not an audited program, so it is
+  /// shown like the other required label basics: no credibility tier chip.
+  /// Derived from the stored value, so saved scans need no migration.
+  bool get isFsisClassName =>
+      credibility == ClaimCredibility.usdaApproved &&
+      (value?.endsWith(fsisClassNameSuffix) ?? false);
+
+  /// The tier to DISPLAY (chips, tier counts, share text). Null for an FSIS
+  /// class name. The behind-the-scenes index keeps reading [credibility], so
+  /// the stored usdaApproved weight — and the index — do not move.
+  ClaimCredibility? get displayCredibility =>
+      isFsisClassName ? null : credibility;
 }
 
 // ─────────────────────────────────────────────

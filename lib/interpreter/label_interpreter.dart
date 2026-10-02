@@ -1078,7 +1078,11 @@ class LabelInterpreter {
   // ── Age at Slaughter ─────────────────────────────────────────────────────
 
   // USDA 9 CFR 381.170 poultry class terms set a legal age ceiling and are
-  // the only age-linked fact on most chicken labels. Credibility is usdaApproved.
+  // the only age-linked fact on most chicken labels. A class name is an FSIS
+  // naming standard, not an audited program: the result keeps its internal
+  // usdaApproved tier (so the behind-the-scenes index does not move) but is
+  // DISPLAYED like the other FSIS label basics — no tier chip, just the neutral
+  // FATCategoryResult.fsisClassNameLine (see isFsisClassName). Mirrors iOS.
   // Typical commercial broiler slaughter: ~47 days (NCC 2024 Broiler Performance Report).
   static FATCategoryResult _detectAgeAtSlaughter(String text) {
     final hasChickenContext = text.contains('chicken') || text.contains('broiler') ||
@@ -1092,7 +1096,7 @@ class LabelInterpreter {
           status: DisclosureStatus.known,
           value: 'Cornish Game Hen — < 5 weeks old (9 CFR 381.170)',
           credibility: ClaimCredibility.usdaApproved,
-          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Class name sets a legal ceiling on age.',
+          credibilityNote: '${FATCategoryResult.fsisClassNameLine} Class name sets a legal ceiling on age.',
         );
       }
       if (text.contains('stewing hen') || text.contains('stewing chicken') ||
@@ -1101,7 +1105,7 @@ class LabelInterpreter {
           status: DisclosureStatus.known,
           value: 'Stewing Hen / Fowl — ≥ 10 months old (9 CFR 381.170)',
           credibility: ClaimCredibility.usdaApproved,
-          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Indicates a spent laying hen, typically 12–18 months at slaughter.',
+          credibilityNote: '${FATCategoryResult.fsisClassNameLine} Indicates a spent laying hen, typically 12–18 months at slaughter.',
         );
       }
       if (text.contains('fowl')) {
@@ -1109,7 +1113,7 @@ class LabelInterpreter {
           status: DisclosureStatus.known,
           value: 'Fowl — ≥ 10 months old (9 CFR 381.170)',
           credibility: ClaimCredibility.usdaApproved,
-          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Mature poultry; indicates a spent laying hen.',
+          credibilityNote: '${FATCategoryResult.fsisClassNameLine} Mature poultry; indicates a spent laying hen.',
         );
       }
       if (text.contains('capon')) {
@@ -1117,7 +1121,7 @@ class LabelInterpreter {
           status: DisclosureStatus.known,
           value: 'Capon — < 4 months old (9 CFR 381.170)',
           credibility: ClaimCredibility.usdaApproved,
-          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Surgically unsexed male chicken, under 4 months at slaughter.',
+          credibilityNote: '${FATCategoryResult.fsisClassNameLine} Surgically unsexed male chicken, under 4 months at slaughter.',
         );
       }
       if (text.contains('roaster') || text.contains('roasting chicken')) {
@@ -1125,7 +1129,7 @@ class LabelInterpreter {
           status: DisclosureStatus.known,
           value: 'Roaster — < 12 weeks old (9 CFR 381.170)',
           credibility: ClaimCredibility.usdaApproved,
-          credibilityNote: 'USDA standard of identity — 9 CFR 381.170, as amended 81 FR 21709 (2016). Typical commercial roaster slaughter: 8–10 weeks.',
+          credibilityNote: '${FATCategoryResult.fsisClassNameLine} As amended 81 FR 21709 (2016). Typical commercial roaster slaughter: 8–10 weeks.',
         );
       }
       if (text.contains('broiler') || text.contains('fryer')) {
@@ -1133,7 +1137,7 @@ class LabelInterpreter {
           status: DisclosureStatus.known,
           value: 'Broiler / Fryer — < 10 weeks old (9 CFR 381.170)',
           credibility: ClaimCredibility.usdaApproved,
-          credibilityNote: 'USDA standard of identity — 9 CFR 381.170. Typical commercial slaughter age is ~47 days (NCC 2024 Broiler Performance Report).',
+          credibilityNote: '${FATCategoryResult.fsisClassNameLine} Typical commercial slaughter age is ~47 days (NCC 2024 Broiler Performance Report).',
         );
       }
       // Chicken label with no class term — age not disclosed. State the likely

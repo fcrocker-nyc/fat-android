@@ -492,7 +492,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
   static const int _totalCategories = 16;
 
   int _credCount(ClaimCredibility tier) =>
-      result.categories.values.where((r) => r.credibility == tier).length;
+      result.categories.values.where((r) => r.displayCredibility == tier).length;
 
   List<FATCategory> get _silentCategories => FATCategory.values
       .where((c) =>
@@ -1161,7 +1161,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     // Credibility tier counts across all disclosed categories.
     final tierCounts = <ClaimCredibility, int>{};
     for (final r in result.categories.values) {
-      final c = r.credibility;
+      final c = r.displayCredibility;
       if (c == null) continue;
       tierCounts[c] = (tierCounts[c] ?? 0) + 1;
     }
@@ -1836,13 +1836,15 @@ class _ResultsScreenState extends State<ResultsScreen> {
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: subtitleColor)),
-                    if (value?.credibility != null) ...[
+                    if (value?.displayCredibility != null) ...[
                       const SizedBox(height: 6),
                       _credibilityBadge(
-                          value!.credibility!, value.credibilityNote),
+                          value!.displayCredibility!, value.credibilityNote),
                     ] else if (value?.credibilityNote != null) ...[
                       // A clarifying note with no credibility badge (e.g. the
-                      // undisclosed-origin caveat) still renders on its own.
+                      // undisclosed-origin caveat, or an FSIS poultry class
+                      // name — a required naming standard, not a tier) still
+                      // renders on its own.
                       const SizedBox(height: 6),
                       Text(value!.credibilityNote!,
                           style: const TextStyle(
@@ -2058,7 +2060,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     for (final cat in FATCategory.values) {
       final r = result.categories[cat] ?? FATCategoryResult.missing;
       var line = '${cat.displayName}: ${r.status.name.toUpperCase()}';
-      if (r.credibility != null) line += ' [${r.credibility!.displayName}]';
+      if (r.displayCredibility != null) line += ' [${r.displayCredibility!.displayName}]';
       lines.add(line);
       if (cat == FATCategory.qualityPalatability) {
         for (final d in _seasoningLines) {

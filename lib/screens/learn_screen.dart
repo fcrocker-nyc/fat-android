@@ -607,7 +607,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
           const _Para(
               'Step 2 of a FAT read asks how credible the disclosed claim is. Disclosure (Step 1) tells you whether the label addressed a topic at all. Credibility tells you how much weight that claim carries.'),
           const _Para(
-              'FAT places every disclosed claim into one of four credibility tiers, mirroring the canonical model at farmanimaltransparency.com/learn-how-to-read-meat-labels/. Higher tiers carry more score weight.'),
+              'FAT places every disclosed voluntary claim into one of four credibility tiers, mirroring the canonical model at farmanimaltransparency.com/learn-how-to-read-meat-labels/. Higher tiers carry more score weight.'),
           const _Rule(),
           const _TierRow(
             icon: Icons.verified_user,
@@ -637,6 +637,8 @@ final List<_LearnSection> _sections = <_LearnSection>[
             description:
                 'Printed on the label with no third-party audit and no government label-language approval. The claim may still be true, but the consumer has no external confirmation. Examples: "Family Farm," "Humanely Raised" (without a certification logo), "All Natural," "Farm Fresh," "Sustainably Sourced." Lowest score weight.',
           ),
+          const _Para(
+              'Required label basics carry no tier. What FSIS requires on the label — the inspection legend and establishment number, the product name and species, and FSIS poultry class names such as Broiler, Fryer, Roaster, Capon or Cornish Game Hen (9 CFR 381.170) — is counted when present, but it is a required naming standard, not a verified claim, so it shows without a credibility tier. A class name implies an age range; a stated age or a USDA Process Verified Program claim on the same label still shows its own tier.'),
           const _Rule(),
           const _Head('What FAT Does Not Do'),
           const _Para(
@@ -974,7 +976,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'In practice, the gap matters a lot. The National Chicken Council\'s annual Broiler Performance Report shows that average commercial slaughter age has fallen from 112 days in 1925 to 47.4 days in 2024. A label saying "Broiler" legally means "under 70 days" — the typical bird is closer to 47. The compression is driven by selective breeding for growth rate, not feed or management alone: a 2014 University of Alberta study (Zuidhof et al., Poultry Science 93:12) found that the modern broiler strain grows to market weight more than 400% faster than the 1957 strain raised under identical conditions.\n\n'
             'The Stewing Hen class is a different supply chain entirely. These birds are not raised for meat — they are egg-production hens removed from laying flocks when output declines, typically at 12 to 18 months.\n\n'
             'How FAT reads it:\n'
-            'FAT scores a class-name disclosure as Known under the USDA Process Verified Program credibility tier. The term is a standard of identity enforced by FSIS — the ceiling is legally binding. But the result card states explicitly that the class name is a ceiling, not the actual age, and displays the NCC 47-day industry benchmark. A label bearing only "chicken breast" or "chicken thighs" with no class term scores Missing on Category 6.\n\n'
+            'FAT counts a class-name disclosure as Known on Category 6, but not as a verified claim. A class name is an FSIS naming standard (9 CFR 381.170), not an audited program, so FAT shows it the way it shows the other label basics FSIS requires — with no credibility tier. The ceiling is legally binding, and the result card states explicitly that the class name is a ceiling, not the actual age, and displays the NCC 47-day industry benchmark. A label bearing only "chicken breast" or "chicken thighs" with no class term scores Missing on Category 6.\n\n'
             'Source: 9 CFR 381.170; 76 FR 68064 (final rule, eff. Jan 1, 2014); 81 FR 21709 (2016 amendment); NCC 2024 Broiler Performance Report; Zuidhof et al. 2014, Poultry Science 93(12):2970–2982.'),
       ),
       // 2.6 (was 2.5)
