@@ -7,6 +7,7 @@ import '../services/big_four_ownership.dart';
 import '../widgets/corporate_structure_card.dart';
 import '../models/fat_models.dart';
 import '../interpreter/meat_seasoning_detail.dart';
+import '../interpreter/prepared_food.dart';
 import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
 import '../data/ground_beef_blending_registry.dart';
@@ -946,7 +947,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
         titleColor: _disclosureBlue,
         body: result.preparedFsisJurisdiction
             ? 'This looks like a multi-ingredient prepared food under USDA/FSIS jurisdiction (it carries a USDA legend or establishment number). On a prepared food the establishment number identifies the final assembler — the cannery or plant that made the product — not the slaughterhouse of the meat inside. The per-animal categories (breed, farm, age, feed, welfare, medicine, hormones) are marked “not applicable” rather than “not disclosed”: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat — a regulatory gap, not a brand failure. Anything the brand voluntarily discloses (e.g., “made with organic chicken”) still counts and still earns its credibility tier.'
-            : 'This looks like a multi-ingredient prepared food with no USDA legend or establishment number — which is legal: products whose meat or poultry content is below the FSIS thresholds (roughly 3% raw / 2% cooked) are regulated by FDA, not USDA, and are not required to carry either mark. Their absence is not a compliance failure. The per-animal categories (breed, farm, age, feed, welfare, medicine, hormones) are marked “not applicable” rather than “not disclosed”: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat — the disclosure floor for the meat inside prepared foods is essentially zero. Anything the brand voluntarily discloses still counts and still earns its credibility tier.',
+            : PreparedFoodDetector.fdaBannerText,
       ));
     }
     if (result.estSpeciesMismatch && result.estSpeciesMismatchNote != null) {

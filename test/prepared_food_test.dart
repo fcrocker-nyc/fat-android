@@ -126,4 +126,25 @@ USDA ORGANIC CERTIFIED ORGANIC BY OREGON TILTH
     // Organic was disclosed — must remain credited, not flattened.
     expect(cats[FATCategory.organic]!.status, DisclosureStatus.known);
   });
+
+  test('FDA-lane copy infers jurisdiction, never asserts legality', () {
+    const banner = PreparedFoodDetector.fdaBannerText;
+    const cat1 = PreparedFoodDetector.fdaJurisdictionNote;
+    expect(banner, contains("Labels don't state the meat percentage"));
+    expect(banner, isNot(contains('which is legal')));
+    expect(banner, isNot(contains('not a compliance failure')));
+    expect(cat1, contains('FAT infers the jurisdiction'));
+    expect(cat1, isNot(contains('not a compliance failure')));
+    for (final w in ['score', 'grade', 'avoid', 'fails', 'poor', 'hides',
+        'conceals', 'refuses', 'unsafe', 'unhealthy']) {
+      expect(banner.toLowerCase(), isNot(contains(w)), reason: w);
+      expect(cat1.toLowerCase(), isNot(contains(w)), reason: w);
+    }
+    final cats = PreparedFoodDetector.apply(
+      LabelInterpreter.interpret(pizzaFda),
+      PreparedFoodDetector.detect(pizzaFda),
+      fsisJurisdiction: false,
+    );
+    expect(cats[FATCategory.usdaFsisRequiredLanguage]!.value, cat1);
+  });
 }

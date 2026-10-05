@@ -152,12 +152,13 @@ class PreparedFoodDetector {
       'meat, poultry, or seafood used as an ingredient. A regulatory gap, '
       'not a brand failure.';
 
-  static const String _fdaJurisdictionNote =
-      'FDA-jurisdiction prepared food — products whose meat or poultry '
-      'content is below the FSIS thresholds (roughly 3% raw / 2% cooked) '
-      'are regulated by FDA, not USDA, and legally carry no USDA inspection '
-      'legend and no establishment number. Their absence is not a '
-      'compliance failure.';
+  static const String fdaJurisdictionNote =
+      'Likely FDA-jurisdiction prepared food — no USDA inspection legend or establishment number was found. Labels don\'t state meat content, so FAT infers the jurisdiction: below the FSIS thresholds (roughly 3% raw / 2% cooked meat) a product is FDA-regulated and carries neither mark. If the legend is on a panel that wasn\'t scanned, rescan it.';
+
+  /// Blue banner copy for the FDA lane (no legend / EST found). Labels
+  /// don't state meat content, so jurisdiction is inferred, not confirmed.
+  static const String fdaBannerText =
+      'This looks like a multi-ingredient prepared food, and no USDA inspection legend or establishment number was found on the scanned panels. Labels don\'t state the meat percentage, so FAT can\'t confirm which agency regulates it. If the meat or poultry content is below the FSIS thresholds (roughly 3% raw / 2% cooked meat), the product is FDA-regulated and isn\'t required to carry either mark. If it\'s above, the legend should be somewhere on the package — check the other panels. The per-animal categories (breed, farm, age, feed, welfare, medicine, hormones) are marked “not applicable” rather than “not disclosed”: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat. Anything the brand voluntarily discloses still counts and still earns its credibility tier.';
 
   static const String assemblerNote =
       'On a prepared food, the establishment number identifies the final '
@@ -217,7 +218,7 @@ class PreparedFoodDetector {
         if (out[cat]?.status == DisclosureStatus.missing) {
           out[cat] = const FATCategoryResult(
             status: DisclosureStatus.notRequired,
-            value: _fdaJurisdictionNote,
+            value: fdaJurisdictionNote,
           );
         }
       }
