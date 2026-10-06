@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+import 'establishments_service.dart';
 import 'fsis_plant_names.dart';
 
 /// Fetches a processor's FSIS public enforcement record from the FAT backend —
@@ -118,6 +119,14 @@ class ProcessorRecord {
 
   final String? generatedDate;
 
+  /// Full FSIS number from fat/v1/establishments (e.g. "M245C+V245C").
+  final String? fullEstNumber;
+  /// fat/v1/establishments record_url ("Full FSIS record").
+  final String? recordUrl;
+  /// Set when the record shown comes from the endpoint's counts (the
+  /// digits-keyed website JSON could not be confirmed as this plant).
+  final FatEstablishment? endpointPlant;
+
   ProcessorRecord({
     required this.estNumber,
     required this.estPrefix,
@@ -146,7 +155,81 @@ class ProcessorRecord {
     required this.residueCount,
     required this.residueItems,
     this.generatedDate,
+    this.fullEstNumber,
+    this.recordUrl,
+    this.endpointPlant,
   });
+
+  /// Number to show on the EST pill: full FSIS number when known.
+  String get displayEstNumber => fullEstNumber ?? estNumber;
+
+  /// Same enforcement detail, with the endpoint plant's identity.
+  ProcessorRecord withIdentity(FatEstablishment p) => ProcessorRecord(
+        estNumber: estNumber,
+        estPrefix: estPrefix,
+        name: p.name.isNotEmpty ? p.name : name,
+        dba: p.dba ?? dba,
+        address: p.address ?? address,
+        city: p.city ?? city,
+        state: p.state ?? state,
+        zip: p.zip ?? zip,
+        county: county,
+        phone: phone,
+        grantDate: grantDate,
+        primarySpecies: primarySpecies,
+        lat: lat,
+        lon: lon,
+        salmonellaCategory: salmonellaCategory,
+        hasRecalls: hasRecalls,
+        recallCount: recallCount,
+        recallItems: recallItems,
+        hasActions: hasActions,
+        nrCount: nrCount,
+        moiCount: moiCount,
+        taskCount: taskCount,
+        actionItems: actionItems,
+        hasResidues: hasResidues,
+        residueCount: residueCount,
+        residueItems: residueItems,
+        generatedDate: generatedDate,
+        fullEstNumber: p.establishmentNumber,
+        recordUrl: p.recordUrl,
+      );
+
+  /// Identity + endpoint counts for a plant (no digits-keyed detail).
+  factory ProcessorRecord.fromEstablishment(FatEstablishment p,
+      {String primarySpecies = ''}) {
+    final tok = p.numberTokens.isEmpty ? '' : p.numberTokens.first;
+    final pre = RegExp(r'^[A-Z]+').firstMatch(tok)?.group(0) ?? '';
+    return ProcessorRecord(
+      estNumber: p.digits,
+      estPrefix: pre,
+      name: p.name,
+      dba: p.dba,
+      address: p.address ?? '',
+      city: p.city ?? '',
+      state: p.state ?? '',
+      zip: p.zip ?? '',
+      county: '',
+      phone: '',
+      grantDate: p.grantDate ?? '',
+      primarySpecies: primarySpecies,
+      hasRecalls: p.recalls > 0,
+      recallCount: p.recalls,
+      recallItems: const [],
+      hasActions: p.noncomplianceRecords + p.memorandaOfInterview > 0,
+      nrCount: p.noncomplianceRecords,
+      moiCount: p.memorandaOfInterview,
+      taskCount: p.inspectionTasks,
+      actionItems: const [],
+      hasResidues: p.residueViolations > 0,
+      residueCount: p.residueViolations,
+      residueItems: const [],
+      fullEstNumber: p.establishmentNumber,
+      recordUrl: p.recordUrl,
+      endpointPlant: p,
+    );
+  }
 
   factory ProcessorRecord.fromJson(Map<String, dynamic> j,
       {String? digits}) {
@@ -237,6 +320,7 @@ class ProcessorRecord {
       hasRecalls ||
       humaneHandling.isNotEmpty ||
       hasResidues ||
+      (endpointPlant?.hasRecords ?? false) ||
       (salmonellaCategory != null && salmonellaCategory != 'null');
 
   /// Street, city, state, zip — non-empty parts only.

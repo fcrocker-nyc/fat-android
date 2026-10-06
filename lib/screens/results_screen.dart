@@ -20,6 +20,8 @@ import '../services/beta_agonists_service.dart';
 import '../services/environmental_watch_service.dart';
 import '../widgets/environmental_watch_card.dart';
 import '../services/processor_service.dart';
+import '../services/establishments_service.dart';
+import '../widgets/establishment_cards.dart';
 import '../services/feedlot_proximity_service.dart';
 import '../widgets/share_card_renderer.dart';
 import 'certification_result_cards.dart';
@@ -62,6 +64,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // FSIS public enforcement record fetched from the FAT backend (recalls,
   // humane-handling, Salmonella category, residues). Null until it loads.
   ProcessorRecord? _processor;
+  /// Several FSIS plants share the scanned number and the label didn't say
+  /// which (fat/v1/establishments). When non-empty, no single plant's identity
+  /// or enforcement record is shown.
+  List<FatEstablishment> _sharedPlants = const [];
   /// Who ultimately owns the plant: the site's parent-company database first,
   /// the on-device crosswalk second. Null when neither can attribute it.
   OwnershipDisclosure? _ownership;
@@ -196,36 +202,61 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Future<void> _loadProcessorRecord() async {
-    final rec =
-        await ProcessorService.fetch(result.detectedEstablishmentNumber);
+    final est = result.detectedEstablishmentNumber;
+    final website = await ProcessorService.fetch(est);
+    // Collision-safe identity: FSIS reuses some numbers across plants, so
+    // resolve the label's mark (keeping a "P-" prefix or letter suffix)
+    // against fat/v1/establishments. Offline / error → null → the
+    // digits-keyed website record as before.
+    ScanOutcome outcome = ScanOutcome(website, const []);
+    if (est != null && est.isNotEmpty) {
+      final mark = EstablishmentsService.labelMark(est, result.scannedText);
+      final resp = await EstablishmentsService.lookup(mark);
+      outcome = EstablishmentsService.scanOutcome(website, mark, resp);
+    }
+    final rec = outcome.record;
+    final shared = outcome.shared;
+    // Owner attribution in the ambiguous case only when every plant behind the
+    // number maps to the same parent company.
+    ProcessorRecord? ownerSource = rec;
+    if (shared.isNotEmpty) {
+      final parents =
+          shared.map((p) => (p.parentCompany ?? '').toLowerCase()).toSet();
+      ownerSource = (parents.length == 1 && parents.first.isNotEmpty)
+          ? website
+          : null;
+    }
     if (mounted) {
       setState(() {
         _processor = rec;
+        _sharedPlants = shared;
         _processorLoading = false;
-        if (rec != null) {
+        final o = ownerSource;
+        if (o != null) {
           // Local crosswalk first so the card is populated immediately; the
           // API result replaces it below when one comes back.
           _ownership = BigFourOwnership.resolveLocal(
-            establishmentNumber: rec.estNumber,
-            name: rec.directoryName ?? '',
-            dba: rec.dba,
+            establishmentNumber: o.estNumber,
+            name: o.directoryName ?? '',
+            dba: o.dba,
             species: BigFourOwnership.speciesFor(
-                rec.primarySpecies, '${rec.directoryName ?? ''} ${rec.dba ?? ''}'),
+                o.primarySpecies, '${o.directoryName ?? ''} ${o.dba ?? ''}'),
           );
-          _applyDirectoryOwner(rec);
+          _applyDirectoryOwner(o);
         }
       });
     }
     // Then the site's parent-company database, which is authoritative, covers
     // parents the crosswalk does not, and can be corrected without an app
     // release. A miss or a network failure leaves the local result standing.
-    if (rec != null) {
+    final o = ownerSource;
+    if (o != null) {
       final api = await ParentCompanyService.lookup(
-          result.detectedEstablishmentNumber ?? rec.estNumber);
+          result.detectedEstablishmentNumber ?? o.estNumber);
       if (api != null && mounted) {
         setState(() {
           _ownership = api;
-          _applyDirectoryOwner(rec);
+          _applyDirectoryOwner(o);
         });
       }
     }
@@ -702,7 +733,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
-  bool get _hasEnforcement => _oshaViolation || _epaViolation;
+  // EPA/OSHA are keyed by the number's digits, so when several plants share
+  // the number they can't be attributed to one plant: not shown.
+  bool get _hasEnforcement =>
+      _sharedPlants.isEmpty && (_oshaViolation || _epaViolation);
 
   // ── A5. EST Warnings ───────────────────────────────────────────────────
 
@@ -1279,7 +1313,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: [
               // Plant name leads the card: website name → bundled FSIS
               // directory name → DBA → neutral "Plant name not on file".
-              if (_processor != null) ...[
+              if (_sharedPlants.isNotEmpty) ...[
+                SharedNumberPlantsCard(plants: _sharedPlants),
+                const SizedBox(height: 10),
+              ] else if (_processor != null) ...[
                 Text(_processor!.displayName,
                     style: TextStyle(
                         fontSize: 20,
@@ -1305,7 +1342,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   color: _disclosureGreen,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text('USDA EST. $est',
+                child: Text('USDA EST. ${_processor?.displayEstNumber ?? est}',
                     style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -1324,7 +1361,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
               // Honest "not found" — the number is on the label but no such
               // establishment exists in the FSIS directory (e.g. an OCR
               // misread of the inspection legend). Don't leave it blank.
-              if (_processor == null && !_processorLoading) ...[
+              if (_processor == null &&
+                  _sharedPlants.isEmpty &&
+                  !_processorLoading) ...[
                 const SizedBox(height: 10),
                 Text(
                   'EST $est isn’t in the current USDA/FSIS directory — the '
@@ -1340,8 +1379,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 const SizedBox(height: 12),
                 CorporateStructureCard(disclosure: _ownership!),
               ],
-              _enforcementBlock(),
-              _regulatorStatusRows(),
+              if (_sharedPlants.isEmpty) ...[
+                _enforcementBlock(),
+                _regulatorStatusRows(),
+              ],
               // Ground-beef blending-operator context (roadmap Phase 3): only
               // for ground beef, and only when this establishment is documented
               // as a Big Four or named independent/QSR blending operator.
@@ -1350,7 +1391,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               GestureDetector(
                 // "/processor/est-$est" returned 404 for every establishment;
                 // "/processor/<number>" is the only shape the site serves.
-                onTap: () => _openUrl(
+                onTap: () => _openUrl(_processor?.recordUrl ??
                     'https://farmanimaltransparency.com/processor/$est'),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
@@ -1585,6 +1626,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
     }
     final p = _processor;
     if (p == null) return const SizedBox.shrink();
+    final plant = p.endpointPlant;
+    if (plant != null) {
+      // The digits-keyed website record couldn't be confirmed as this plant,
+      // so show this plant's FSIS counts from fat/v1/establishments.
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 14),
+          const Divider(height: 1, color: Colors.black26),
+          const SizedBox(height: 10),
+          const Text('FSIS Public Record',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
+          EstablishmentRecordRows(plant: plant),
+        ],
+      );
+    }
 
     final asOf = p.generatedDate != null ? ' (as of ${p.generatedDate})' : '';
     final rows = <Widget>[];
@@ -2073,7 +2130,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
       lines.add('');
       lines.add('USDA EST. ${result.detectedEstablishmentNumber}');
       final pd = _processor;
-      if (pd != null) {
+      if (_sharedPlants.isNotEmpty) {
+        lines.add(EstablishmentsService.sharedHeadline(_sharedPlants.length));
+        for (final p in _sharedPlants) {
+          lines.add('- ${p.name} · ${p.establishmentNumber} · ${p.cityState}');
+        }
+      } else if (pd != null) {
         lines.add('Name: ${pd.displayName}');
         if (pd.fullAddress.isNotEmpty) lines.add('Address: ${pd.fullAddress}');
       }

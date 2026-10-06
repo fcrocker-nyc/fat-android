@@ -12,6 +12,8 @@ import '../data/seafood_enforcement_database.dart';
 import '../models/lookup_record.dart';
 import '../services/scan_store.dart';
 import '../services/processor_service.dart';
+import '../services/establishments_service.dart';
+import '../widgets/establishment_cards.dart';
 import '../services/fsis_plant_names.dart';
 
 /// A lookup request handed from the Home "Quick Lookup" card to the Lookup tab.
@@ -44,6 +46,9 @@ class _LookupScreenState extends State<LookupScreen> {
   Map<String, dynamic>? _processorData;
   Map<String, dynamic>? _workerSafety; // OSHA worker-safety (fat/v1/osha)
   PorkOwnerResult? _porkOwner;
+  /// fat/v1/establishments result — every plant behind the number (or name).
+  /// Null when the endpoint was unreachable (falls back to _processorData).
+  EstablishmentsResponse? _estResponse;
   bool _estSearched = false;
   bool _lookupFailed = false;
 
@@ -73,9 +78,43 @@ class _LookupScreenState extends State<LookupScreen> {
       _processorData = null;
       _workerSafety = null;
       _porkOwner = null;
+      _estResponse = null;
       _estSearched = true;
       _lookupFailed = false;
     });
+    // Collision-safe endpoint first: returns every plant behind a shared
+    // number, or a plant-name search. Offline / error → old per-digits path.
+    final resp = await EstablishmentsService.lookup(est);
+    if (resp != null) {
+      final single = resp.mode == 'number' && resp.count == 1;
+      Map<String, dynamic>? osha;
+      if (single) {
+        try {
+          final oshaResp = await http
+              .get(Uri.parse(
+                  'https://farmanimaltransparency.com/wp-json/fat/v1/osha/${resp.establishments.first.digits}'))
+              .timeout(const Duration(seconds: 10));
+          if (oshaResp.statusCode == 200) {
+            final od = jsonDecode(oshaResp.body);
+            if (od is Map && od['found'] == true) {
+              osha = Map<String, dynamic>.from(od);
+            }
+          }
+        } catch (_) {}
+      }
+      if (!mounted) return;
+      setState(() {
+        _estResponse = resp;
+        _workerSafety = osha;
+        _porkOwner = single
+            ? PorkOwnerDatabase.detectOwnerAnySpeciesForEstablishment(
+                resp.establishments.first.digits)
+            : null;
+        _isLoading = false;
+      });
+      _recordEstResponse(est, resp);
+      return;
+    }
     try {
       // Same per-establishment FSIS JSON the Results screen (and iOS
       // LookupView) reads. The old fat-fsis-data.php endpoint now 404s.
@@ -114,6 +153,70 @@ class _LookupScreenState extends State<LookupScreen> {
       if (mounted) setState(() => _isLoading = false);
       _recordEstLookup(est);
     }
+  }
+
+  void _recordEstResponse(String query, EstablishmentsResponse resp) {
+    final plants = resp.establishments;
+    String title;
+    String? subtitle;
+    if (plants.length == 1) {
+      final p = plants.first;
+      title = p.name.isEmpty ? FsisPlantNames.notOnFileText : p.name;
+      subtitle = p.fullAddress.isEmpty
+          ? 'EST. ${p.establishmentNumber}'
+          : 'EST. ${p.establishmentNumber} · ${p.fullAddress}';
+    } else if (plants.isEmpty) {
+      title = 'No establishment found';
+    } else {
+      title = '${plants.length} FSIS plants';
+      subtitle = plants
+          .map((p) => '${p.establishmentNumber} ${p.cityState}')
+          .join(' · ');
+    }
+    ScanStore.instance.saveLookup(LookupRecord(
+      id: '${DateTime.now().microsecondsSinceEpoch}-est',
+      date: DateTime.now(),
+      category: LookupCategory.establishment,
+      query: query,
+      resultTitle: title,
+      resultSubtitle: subtitle,
+      matchCount: plants.length,
+      flagged: plants.any((p) => p.hasRecords) || _workerSafety != null,
+    ));
+  }
+
+  /// All plants the endpoint returned, as cards; the shared-number note first.
+  List<Widget> _estResponseWidgets(EstablishmentsResponse resp) {
+    return [
+      if (resp.note != null) ...[
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Icon(Icons.info, size: 18, color: Color(0xFF2C3E50)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(resp.note!,
+                style: const TextStyle(
+                    fontSize: 14.5, fontWeight: FontWeight.w600)),
+          ),
+        ]),
+        const SizedBox(height: 14),
+      ],
+      if (resp.establishments.isEmpty)
+        _notFoundCard('No FSIS establishment matched \u201C${resp.query}\u201D.',
+            'Check the number on the USDA mark of inspection (e.g. EST. 245C or P-39928), or try part of the plant name.'),
+      for (final p in resp.establishments) ...[
+        EstablishmentPlantCard(plant: p),
+        ...[
+          MontanaOriginCard.maybeFrom(MontanaOrigin.detect(
+            state: p.state ?? '',
+            establishmentName: p.name,
+            city: p.city,
+            establishmentNumber: p.digits,
+            ocrText: '',
+          )),
+        ].whereType<Widget>().expand((w) => [const SizedBox(height: 14), w]),
+        const SizedBox(height: 14),
+      ],
+    ];
   }
 
   void _recordEstLookup(String est) {
@@ -362,14 +465,16 @@ class _LookupScreenState extends State<LookupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Enter USDA Establishment Number',
+          const Text('Enter USDA Establishment Number or Plant Name',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
-          _searchField(_estController, 'e.g. 969',
-              keyboard: TextInputType.number, onSubmit: _lookupEst),
+          _searchField(_estController, 'e.g. 969, 245C, P-39928, or Godshall',
+              keyboard: TextInputType.text, onSubmit: _lookupEst),
           const SizedBox(height: 14),
           _actionButton('Look Up', _isLoading ? null : _lookupEst),
           const SizedBox(height: 20),
+          if (_estSearched && _estResponse != null)
+            ..._estResponseWidgets(_estResponse!),
           if (_estSearched && _processorData != null)
             _processorCard(_processorData!),
           // Montana call-out — fires when this establishment is located in MT.
