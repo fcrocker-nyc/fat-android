@@ -126,6 +126,9 @@ class ProcessorRecord {
   /// Set when the record shown comes from the endpoint's counts (the
   /// digits-keyed website JSON could not be confirmed as this plant).
   final FatEstablishment? endpointPlant;
+  /// The fat/v1/establishments plant this record was resolved to (both merge
+  /// paths) — keys per-plant lookups such as recalls.
+  final FatEstablishment? resolvedPlant;
 
   ProcessorRecord({
     required this.estNumber,
@@ -158,6 +161,7 @@ class ProcessorRecord {
     this.fullEstNumber,
     this.recordUrl,
     this.endpointPlant,
+    this.resolvedPlant,
   });
 
   /// Number to show on the EST pill: full FSIS number when known.
@@ -194,6 +198,7 @@ class ProcessorRecord {
         generatedDate: generatedDate,
         fullEstNumber: p.establishmentNumber,
         recordUrl: p.recordUrl,
+        resolvedPlant: p,
       );
 
   /// Identity + endpoint counts for a plant (no digits-keyed detail).
@@ -230,6 +235,7 @@ class ProcessorRecord {
       fullEstNumber: p.establishmentNumber,
       recordUrl: p.recordUrl,
       endpointPlant: p,
+      resolvedPlant: p,
     );
   }
 

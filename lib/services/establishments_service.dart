@@ -34,13 +34,15 @@ class FatEstablishmentRecall {
   final String? recallClass;
   final String? type;
   final String? reason;
+  final String? url;
   const FatEstablishmentRecall(
       {this.recallNumber,
       this.title,
       this.date,
       this.recallClass,
       this.type,
-      this.reason});
+      this.reason,
+      this.url});
 }
 
 class FatSalmonellaProduct {
@@ -116,6 +118,7 @@ class FatEstablishment {
         recallClass: _str(r['class']),
         type: _str(r['type']),
         reason: _str(r['reason']),
+        url: _str(r['url']),
       );
     }
     List<FatSalmonellaProduct>? sal;

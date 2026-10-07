@@ -89,8 +89,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     _loadOshaPenalty();
     _loadBetaAgonists();
     _loadEnvWatch();
-    _loadProcessorRecord();
-    _loadRecalls();
+    _loadProcessorRecord(); // chains the plant-specific recall check
     _loadForeignEstablishment();
   }
 
@@ -107,12 +106,25 @@ class _ResultsScreenState extends State<ResultsScreen> {
   /// label has one and by the foreign establishment mark when it does not.
   /// Purely additive: a lookup failure leaves the card hidden and never
   /// changes the disclosure count.
-  Future<void> _loadRecalls() async {
+  Future<void> _loadRecalls(
+      ProcessorRecord? rec, List<FatEstablishment> shared) async {
     final token = result.recallLookupToken;
     if (token == null || token.isEmpty) return;
-    final check = await RecallService.instance.check(token);
-    if (check != null && check.matchCount > 0 && mounted) {
-      setState(() => _recalls = check);
+    // Domestic EST: keyed by the resolved plant (FSIS reuses digits across
+    // plants). Foreign marks are unchanged.
+    final domestic = result.detectedEstablishmentNumber != null;
+    final plant = rec?.resolvedPlant;
+    final check = (domestic && shared.isNotEmpty)
+        ? null
+        : await RecallService.instance.check(
+            domestic ? RecallResolver.lookupKey(token, plant) : token);
+    final d = RecallResolver.display(check,
+        domestic: domestic, plant: plant, shared: shared);
+    if (!mounted) return;
+    if (d.kind == RecallDisplayKind.records) {
+      setState(() => _recalls = d.check);
+    } else if (d.kind == RecallDisplayKind.sharedOnFile) {
+      setState(() => _recallsSharedOnFile = true);
     }
   }
 
@@ -255,6 +267,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
       });
     }
     _loadEpa(rec, shared, numberShared);
+    _loadRecalls(rec, shared);
     // Then the site's parent-company database, which is authoritative, covers
     // parents the crosswalk does not, and can be corrected without an app
     // release. A miss or a network failure leaves the local result standing.
@@ -352,6 +365,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // ── Palette (spec section D) ───────────────────────────────────────────
   static const _disclosureGreen = Color(0xFF34A853); // ✓ disclosed
   RecallCheck? _recalls;
+  /// Shared number the label didn't resolve and a candidate plant has
+  /// recalls or public health alerts on file.
+  bool _recallsSharedOnFile = false;
   ForeignEstablishmentRecord? _foreignPlant;
 
   static const _disclosureBlue = Color(0xFF2563EB); //  ⓘ not applicable (exemption)
@@ -996,6 +1012,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
     // FSIS recall / public-health alert matching this establishment.
     if (_recalls != null && _recalls!.matchCount > 0) {
       widgets.add(_recallBanner(_recalls!));
+    } else if (_recallsSharedOnFile) {
+      widgets.add(Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(14)),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Icon(Icons.info, size: 20, color: Color(0xFF2C3E50)),
+          const SizedBox(width: 10),
+          const Expanded(
+            child: Text(RecallResolver.sharedOnFileText,
+                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600)),
+          ),
+        ]),
+      ));
     }
     // Prepared / Multi-Ingredient lane — a NEUTRAL context banner. The blue
     // "not applicable" lights and the reduced "of N applicable" meter come
