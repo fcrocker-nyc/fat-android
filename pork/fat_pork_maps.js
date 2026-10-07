@@ -277,8 +277,27 @@
 
   function permitWarning(data) {
     var w = data.permit_regime_warning;
-    return '<div class="fat-note"><p class="fat-note-title">' + esc(w.headline) + '</p>' +
-      '<p class="fat-note-body">' + esc(w.body) + '</p></div>';
+    var html = '<div class="fat-note"><p class="fat-note-title">' + esc(w.headline) + '</p>' +
+      '<p class="fat-note-body">' + esc(w.body) + '</p>';
+
+    var ev = w.state_evidence;
+    if (ev && ev.unique_active_swine_operations) {
+      // COMPUTED — the data file stores counts only, never a percentage.
+      var noNpdes = ev.unique_active_swine_operations - ev.with_npdes_or_npdes_sds;
+      var sharePct = 100 * noNpdes / ev.unique_active_swine_operations;
+      html += '<p class="fat-note-body" style="margin-top:10px">' +
+        '<strong>' + esc(ev.headline) + '</strong> Of ' +
+        num(ev.unique_active_swine_operations) + ' distinct active ' + esc(ev.state) +
+        ' swine operations, ' + num(ev.with_npdes_or_npdes_sds) +
+        ' hold an NPDES or NPDES/SDS permit, ' + num(ev.with_sds_only) +
+        ' hold a state SDS permit only, and ' + num(ev.no_permit_stated) +
+        ' state no permit at all. That is ' + num(sharePct, 1) +
+        '% with no NPDES record, and therefore no EPA ECHO entry — in a state where ' +
+        num(ev.cafo_flagged) + ' of those operations are flagged CAFO. ' +
+        esc(ev.basis) + ' ' + esc(ev.caveat) + ' ' + sourceChip(data, ev) + '</p>';
+    }
+
+    return html + '</div>';
   }
 
   function footer(data) {
@@ -351,7 +370,8 @@
     html += '</div></div>';
 
     // Counts reconciliation — honest about the four disagreeing numbers.
-    var countKeys = ['active_swine_permits', 'all_swine_permits', 'deq_reported_swine_facilities',
+    var countKeys = ['active_swine_permits', 'deduplicated_active_swine_operations',
+      'all_swine_permits', 'deq_reported_swine_facilities',
       'deq_reported_all_operations', 'digester_permits'].filter(function (k) { return c[k]; });
     var words = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'];
     html += '<div class="fat-panel"><h3 class="fat-h3">' +

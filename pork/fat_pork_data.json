@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated": "2026-09-25",
+  "updated": "2026-10-07",
   "maintainer": "Farm Animal Transparency (FAT) — farmanimaltransparency.com",
   "about": "Single source of truth for the FAT pork supply chain maps. Every displayed figure lives here exactly once. Ratios and shares are COMPUTED at render time and must never be typed as literals. Each figure carries a source key resolving to the sources block, an as-of date, and a basis string stating what the number counts.",
   "editing_rules": [
@@ -148,13 +148,32 @@
       "url": "https://www.govinfo.gov/content/pkg/CMR-A88-00186915/pdf/CMR-A88-00186915.pdf",
       "type": "primary",
       "asof": "2021"
+    },
+    "mn_feedlots_layer": {
+      "label": "MN MPCA, Feedlots in Minnesota (Geospatial Commons, env_feedlots)",
+      "url": "https://gisdata.mn.gov/dataset/env-feedlots",
+      "type": "primary",
+      "asof": "2026-07-08"
     }
   },
   "permit_regime_warning": {
     "headline": "Permit counts are not comparable across states.",
     "body": "Large swine operations are permitted under fundamentally different instruments by state. Only Illinois and Oklahoma route most large swine operations through an NPDES permit. In Iowa, North Carolina, Indiana and Nebraska — and in the no-discharge tiers of Minnesota, Missouri and South Dakota — the default instrument is a STATE-only permit that produces no NPDES record and therefore no EPA ECHO entry. Roughly 62 to 74 percent of the national herd sits in those states. A choropleth built on EPA ECHO NPDES data shows Iowa, which holds about a third of all US hogs, as nearly empty. FAT therefore builds the base choropleth on USDA NASS inventory and treats permits as a separate, explicitly labeled categorical layer.",
     "never_label_echo_as": "permitted hog facilities",
-    "correct_label_for_echo": "facilities holding a federal NPDES CAFO permit"
+    "correct_label_for_echo": "facilities holding a federal NPDES CAFO permit",
+    "state_evidence": {
+      "state": "Minnesota",
+      "headline": "Minnesota publishes the permit instrument per operation, so the gap can be counted rather than estimated.",
+      "unique_active_swine_operations": 5555,
+      "with_npdes_or_npdes_sds": 617,
+      "with_sds_only": 186,
+      "no_permit_stated": 4752,
+      "cafo_flagged": 1189,
+      "source": "mn_feedlots_layer",
+      "asof": "2026-07-08",
+      "basis": "MPCA's env_feedlots extract carries an npdes_sds field per operation. Swine operations selected where swine_big + swine_medium + swine_little > 0, then deduplicated on permit or registration id.",
+      "caveat": "MPCA states a daily refresh, but the published extract's internal timestamp is July 8, 2026."
+    }
   },
   "national": {
     "inventory_total": {
@@ -340,13 +359,20 @@
     "public_note": "NASS publishes state detail for 14 states only; the remaining 36 are reported as a single combined figure and cannot be broken out from this series."
   },
   "nc_facility_counts": {
-    "note": "Four different counts, all current, none reconciling. Show the basis with any number displayed.",
+    "note": "Multiple current counts, none reconciling. Show the basis with any number displayed. Only the deduplicated row counts distinct operations; the rest count permit records.",
     "active_swine_permits": {
       "value": 2146,
       "source": "nc_afo_layer",
       "asof": "2026-09-10",
       "basis": "Records where DESC_ LIKE 'Swine%' AND PERMIT_STATUS='Active' in DEQ's live feature service. Certificates of coverage, not deduplicated facilities.",
       "label": "Active swine permits"
+    },
+    "deduplicated_active_swine_operations": {
+      "value": 1987,
+      "source": "nc_afo_layer",
+      "asof": "2026-09-16",
+      "basis": "The active swine permit records deduplicated on PERMITNUMBER. This is the closest thing to a count of distinct permitted swine operations that DEQ's own data supports.",
+      "label": "Active swine operations, deduplicated"
     },
     "all_swine_permits": {
       "value": 2222,
@@ -391,7 +417,7 @@
       "label": "Digester permits"
     },
     "reconciliation_gap": {
-      "note": "DEQ's own report count (2,047 swine facilities) and its own GIS layer (2,222 swine records) differ by about 175, and DEQ publishes no reconciliation. Likely causes: superseded certificates retained as rows, digester certificates issued alongside a base certificate for the same farm, and facilities carrying more than one animal-type record. Deduplicate on PERMITNUMBER before publishing any count."
+      "note": "DEQ's own report count (2,047 swine facilities) and its own GIS layer (2,222 swine records) differ by about 175, and DEQ publishes no reconciliation. Likely causes: superseded certificates retained as rows, digester certificates issued alongside a base certificate for the same farm, and facilities carrying more than one animal-type record. FAT has now done that deduplication: the 2,146 active swine records resolve to 1,987 distinct permit numbers, which lands between DEQ's two published figures and is the number its own caveat was pointing at."
     }
   },
   "nc_enforcement": {
