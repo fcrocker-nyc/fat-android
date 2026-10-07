@@ -11,6 +11,8 @@ import '../services/epa_service.dart';
 import '../services/environmental_watch_service.dart';
 import '../widgets/environmental_watch_card.dart';
 import '../services/processor_service.dart';
+import '../services/establishments_service.dart';
+import '../widgets/establishment_cards.dart';
 import '../widgets/share_card_renderer.dart';
 import '../interpreter/seafood_detail_lines.dart';
 
@@ -41,7 +43,11 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   // relevant to catfish/Siluriformes, the only seafood with an OSHA-linkable
   // FSIS establishment. Set true after a high-confidence match with violations.
   bool _oshaViolation = false;
-  bool _epaViolation = false; // EPA environmental-enforcement penalty (Cat 7)
+  // EPA (ECHO) environmental enforcement, matched to the resolved plant.
+  EpaOutcome _epa = EpaOutcome.clean;
+  /// Catfish plants that share the scanned number when the label didn't say
+  /// which (fat/v1/establishments). No single plant's record is shown then.
+  List<FatEstablishment> _sharedPlants = const [];
   // Environmental Watch litigation matters — informational, not a score input.
   List<EnvWatchMatter> _envWatch = const [];
   // FSIS record — only catfish / Siluriformes seafood has an FSIS establishment;
@@ -62,7 +68,6 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   void initState() {
     super.initState();
     _loadOshaPenalty();
-    _loadEpaPenalty();
     _loadEnvWatch();
     _loadProcessorRecord();
   }
@@ -73,15 +78,94 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     if (m.isNotEmpty && mounted) setState(() => _envWatch = m);
   }
 
+  /// Catfish (Siluriformes) plants are FSIS establishments, so the scanned
+  /// mark resolves through fat/v1/establishments exactly like meat: one plant
+  /// → its record; a shared number the label didn't resolve → the neutral
+  /// candidate list. Offline → the digits-keyed website record.
   Future<void> _loadProcessorRecord() async {
-    final rec =
-        await ProcessorService.fetch(result.detectedEstablishmentNumber);
-    if (rec != null && mounted) setState(() => _processor = rec);
+    final est = result.detectedEstablishmentNumber;
+    final website = await ProcessorService.fetch(est);
+    ScanOutcome outcome = ScanOutcome(website, const []);
+    var numberShared = false;
+    if (est != null && est.isNotEmpty) {
+      final mark = EstablishmentsService.labelMark(est, result.scannedText);
+      final resp = await EstablishmentsService.lookup(mark);
+      outcome = EstablishmentsService.scanOutcome(website, mark, resp);
+      numberShared = (resp?.count ?? 0) > 1;
+    }
+    if (mounted) {
+      setState(() {
+        _processor = outcome.record;
+        _sharedPlants = outcome.shared;
+      });
+    }
+    final rec = outcome.record;
+    final o = await EpaService.outcome(est,
+        plant: rec == null ? null : EpaPlant.fromRecord(rec),
+        numberShared: numberShared,
+        sharedPlants:
+            outcome.shared.map(EpaPlant.fromEstablishment).toList());
+    if (mounted) setState(() => _epa = o);
   }
 
-  Future<void> _loadEpaPenalty() async {
-    final v = await EpaService.hasViolation(result.detectedEstablishmentNumber);
-    if (v && mounted) setState(() => _epaViolation = true);
+  Widget _epaRow() {
+    final (IconData icon, Color color, String text) = switch (_epa) {
+      EpaOutcome.sharedOnFile => (
+          Icons.info,
+          const Color(0xFF2C3E50),
+          EpaService.sharedOnFileText
+        ),
+      EpaOutcome.violation => (
+          Icons.warning_amber_rounded,
+          const Color(0xFFEA580C),
+          'EPA (ECHO) environmental violations in the last 3 years (12 quarters)'
+        ),
+      EpaOutcome.clean => (
+          Icons.verified_user_outlined,
+          FATTheme.scanGreen,
+          'No EPA (ECHO) environmental violations in the last 3 years (12 quarters)'
+        ),
+    };
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(icon, size: 16, color: color)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(text,
+              style:
+                  const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+        ),
+      ]),
+    );
+  }
+
+  /// Shared catfish number: the neutral candidate list + EPA line.
+  Widget _sharedSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('FSIS Public Record',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+              color: FATTheme.primaryGreen,
+              borderRadius: BorderRadius.circular(16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SharedNumberPlantsCard(plants: _sharedPlants),
+              _epaRow(),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _loadOshaPenalty() async {
@@ -167,7 +251,10 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
               _productTypeBanner(),
               _atAGlanceCard(),
               _disclosureSummary(),
-              if (_processor != null) _fsisRecordSection(),
+              if (_sharedPlants.isNotEmpty)
+                _sharedSection()
+              else if (_processor != null)
+                _fsisRecordSection(),
               _categorySection(),
               if (_envWatch.isNotEmpty)
                 EnvironmentalWatchCard(matters: _envWatch),
@@ -248,9 +335,11 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
                         fontWeight: FontWeight.w600,
                         color: Colors.black87)),
               const SizedBox(height: 6),
-              Text('USDA-inspected (catfish / Siluriformes) — EST. ${p.estNumber}',
+              Text('USDA-inspected (catfish / Siluriformes) — EST. ${p.displayEstNumber}',
                   style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
-              if (rows.isEmpty)
+              if (p.endpointPlant != null)
+                EstablishmentRecordRows(plant: p.endpointPlant!)
+              else if (rows.isEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: Text('Clean record — no recalls, humane-handling actions, or residue violations on file$asOf.',
@@ -258,6 +347,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
                 )
               else
                 ...rows,
+              _epaRow(),
             ],
           ),
         ),
@@ -364,7 +454,10 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   int _credCount(ClaimCredibility tier) =>
       result.seafoodCategories.values.where((r) => r.credibility == tier).length;
 
-  bool get _hasEnforcement => _oshaViolation || _epaViolation;
+  // OSHA is keyed by the number's digits — not attributable when the number
+  // is shared. EPA is matched to the resolved plant only.
+  bool get _hasEnforcement =>
+      (_sharedPlants.isEmpty && _oshaViolation) || _epa == EpaOutcome.violation;
 
   String _seafoodGlanceLabel(SeafoodCategory c) {
     switch (c) {
@@ -938,7 +1031,13 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
       lines.add('');
       lines.add('USDA EST. ${result.detectedEstablishmentNumber}');
     }
-    if (pd != null) {
+    if (_sharedPlants.isNotEmpty) {
+      lines.add(EstablishmentsService.sharedHeadline(_sharedPlants.length));
+      for (final p in _sharedPlants) {
+        lines.add('- ${p.name} · ${p.establishmentNumber} · ${p.cityState}');
+      }
+      if (_epa == EpaOutcome.sharedOnFile) lines.add(EpaService.sharedOnFileText);
+    } else if (pd != null) {
       lines.add('Name: ${pd.displayName}');
       if (pd.fullAddress.isNotEmpty) lines.add('Location: ${pd.fullAddress}');
     }

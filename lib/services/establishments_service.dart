@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'dart:math' as math;
 import 'package:http/http.dart' as http;
+
+import '../models/fat_models.dart';
 
 import 'processor_service.dart';
 
@@ -18,6 +21,9 @@ String? _str(dynamic v) {
   final s = v.toString().trim();
   return s.isEmpty ? null : s;
 }
+
+double? _dbl(dynamic v) =>
+    v is num ? v.toDouble() : double.tryParse('${v ?? ''}'.trim());
 
 int _int(dynamic v) => v is num ? v.toInt() : int.tryParse('${v ?? ''}') ?? 0;
 
@@ -54,6 +60,9 @@ class FatEstablishment {
   final String? zip;
   final String? size;
   final String? grantDate;
+  final String? county;
+  final double? latitude;
+  final double? longitude;
   final String? activities;
   final String? parentCompany;
   final int recalls;
@@ -77,6 +86,9 @@ class FatEstablishment {
     this.zip,
     this.size,
     this.grantDate,
+    this.county,
+    this.latitude,
+    this.longitude,
     this.activities,
     this.parentCompany,
     this.recalls = 0,
@@ -126,6 +138,9 @@ class FatEstablishment {
       zip: _str(e['zip']),
       size: _str(e['size']),
       grantDate: _str(e['grant_date']),
+      county: _str(e['county']),
+      latitude: _dbl(e['latitude']),
+      longitude: _dbl(e['longitude']),
       activities: _str(e['activities']),
       parentCompany: _str(e['parent_company']),
       recalls: _int(e['recalls']),
@@ -409,6 +424,95 @@ class EstablishmentsService {
       case ResolutionKind.notFound:
         return ScanOutcome(website, const []);
     }
+  }
+
+  // ── Shared number — owner + location helpers (unit-tested) ──────────
+
+  static const noParentMappingText = 'no parent mapping on file';
+
+  static String sharedOwnerNote(int n) =>
+      'This number belongs to $n FSIS plants with different owners — match the city on the package\'s USDA mark to know which.';
+
+  /// Who/Owner for a shared number the label didn't resolve, when the
+  /// candidate plants map to different parent companies: Partial, value
+  /// "One of: Tyson Foods; JBS" (+ "no parent mapping on file" when any
+  /// candidate lacks one). Null when every candidate shares one parent (the
+  /// single-parent path applies) or none has a mapping.
+  static FATCategoryResult? sharedOwnerResult(List<FatEstablishment> plants) {
+    if (plants.length < 2) return null;
+    final names = <String>[];
+    final seen = <String>{};
+    var unmapped = false;
+    for (final p in plants) {
+      final parent = (p.parentCompany ?? '').trim();
+      if (parent.isEmpty) {
+        unmapped = true;
+        continue;
+      }
+      if (seen.add(parent.toLowerCase())) names.add(parent);
+    }
+    if (names.isEmpty || names.length + (unmapped ? 1 : 0) < 2) return null;
+    if (unmapped) names.add(noParentMappingText);
+    return FATCategoryResult(
+      status: DisclosureStatus.partial,
+      value: 'One of: ${names.join('; ')}',
+      credibility: ClaimCredibility.usdaApproved,
+      credibilityNote: sharedOwnerNote(plants.length),
+    );
+  }
+
+  /// Apply [sharedOwnerResult] to Who/Owner only when the label left it
+  /// Missing. Partial doesn't count toward the known count.
+  static bool applySharedOwner(
+      Map<FATCategory, FATCategoryResult> categories,
+      List<FatEstablishment> plants) {
+    final status = categories[FATCategory.who]?.status ?? DisclosureStatus.missing;
+    if (status != DisclosureStatus.missing) return false;
+    final r = sharedOwnerResult(plants);
+    if (r == null) return false;
+    categories[FATCategory.who] = r;
+    return true;
+  }
+
+  /// Great-circle distance in miles.
+  static double miles(double lat1, double lon1, double lat2, double lon2) {
+    const r = 3958.8;
+    double rad(double d) => d * math.pi / 180;
+    final dLat = rad(lat2 - lat1), dLon = rad(lon2 - lon1);
+    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(rad(lat1)) *
+            math.cos(rad(lat2)) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
+    return 2 * r * math.asin(math.min(1.0, math.sqrt(a)));
+  }
+
+  /// Where to centre the nearby-CAFO lookup. A resolved plant → its
+  /// coordinates (endpoint first, website geolocation when that record is
+  /// confirmed as this plant). A shared number → no location is guessed,
+  /// unless every candidate has coordinates within 10 miles of each other,
+  /// then the first candidate's.
+  static (double, double)? proximityPoint(
+      ProcessorRecord? record, List<FatEstablishment> shared) {
+    if (shared.isNotEmpty) {
+      final pts = <(double, double)>[];
+      for (final p in shared) {
+        final la = p.latitude, lo = p.longitude;
+        if (la == null || lo == null) return null;
+        pts.add((la, lo));
+      }
+      for (var i = 0; i < pts.length; i++) {
+        for (var j = i + 1; j < pts.length; j++) {
+          if (miles(pts[i].$1, pts[i].$2, pts[j].$1, pts[j].$2) > 10) {
+            return null;
+          }
+        }
+      }
+      return pts.first;
+    }
+    final la = record?.lat, lo = record?.lon;
+    if (la == null || lo == null) return null;
+    return (la, lo);
   }
 
   /// Scan-results headline when several plants share the number.

@@ -863,6 +863,41 @@ class PorkOwnerDatabase {
         detectTurkeyOwnerForEstablishment(est);
   }
 
+  /// Owner for a RESOLVED plant, keyed by its own number tokens (type letters
+  /// stripped, suffix kept: "M245C+V245C" → "245C"), never by bare digits —
+  /// FSIS reuses digits across plants. Exact table keys, so "717M" and "3S"
+  /// match as written.
+  static PorkOwnerResult? detectOwnerForPlantTokens(List<String> tokens) {
+    for (final t in tokens) {
+      final key = t
+          .toUpperCase()
+          .replaceAll(RegExp(r'[^A-Z0-9]'), '')
+          .replaceFirst(RegExp(r'^[A-Z]+'), '');
+      if (key.isEmpty) continue;
+      final tables = <(Map<String, String>, List<PorkCorporateOwner>, MeatSpecies)>[
+        (establishmentOwners, owners, MeatSpecies.pork),
+        (beefEstablishmentOwners, beefOwners, MeatSpecies.beef),
+        (chickenEstablishmentOwners, chickenOwners, MeatSpecies.chicken),
+        (turkeyEstablishmentOwners, turkeyOwners, MeatSpecies.turkey),
+      ];
+      for (final (map, list, species) in tables) {
+        final id = map[key];
+        if (id == null) continue;
+        for (final o in list) {
+          if (o.id == id) {
+            return PorkOwnerResult(
+              detectedBrand: 'EST. $key',
+              owner: o,
+              source: DetectionSource.estNumber,
+              species: species,
+            );
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   static List<PorkCorporateOwner> get allOwners =>
       [...owners, ...beefOwners, ...chickenOwners, ...turkeyOwners];
 

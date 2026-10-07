@@ -54,8 +54,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // Set true after the live OSHA fetch confirms a high-confidence match with
   // violations on record; the score/grade then recompute with −2 applied.
   bool _oshaViolation = false;
-  // EPA environmental-enforcement penalty (Cat 7), set after the jsDelivr fetch.
-  bool _epaViolation = false;
+  // EPA (ECHO) environmental enforcement, matched to the resolved plant
+  // (number + city/state) after the processor resolves. Display only on
+  // Android — the disclosure count takes no penalties.
+  EpaOutcome _epa = EpaOutcome.clean;
+
   // AMS Never Fed Beta Agonists (ractopamine) verified record — POSITIVE, plant-
   // level disclosure, NOT a score input. Null until the jsDelivr fetch resolves.
   BetaAgonistsInfo? _betaAgonists;
@@ -84,7 +87,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
   void initState() {
     super.initState();
     _loadOshaPenalty();
-    _loadEpaPenalty();
     _loadBetaAgonists();
     _loadEnvWatch();
     _loadProcessorRecord();
@@ -209,10 +211,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
     // against fat/v1/establishments. Offline / error → null → the
     // digits-keyed website record as before.
     ScanOutcome outcome = ScanOutcome(website, const []);
+    var numberShared = false;
     if (est != null && est.isNotEmpty) {
       final mark = EstablishmentsService.labelMark(est, result.scannedText);
       final resp = await EstablishmentsService.lookup(mark);
       outcome = EstablishmentsService.scanOutcome(website, mark, resp);
+      numberShared = (resp?.count ?? 0) > 1;
     }
     final rec = outcome.record;
     final shared = outcome.shared;
@@ -231,6 +235,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
         _processor = rec;
         _sharedPlants = shared;
         _processorLoading = false;
+        if (ownerSource == null && shared.isNotEmpty && !result.isSeafood) {
+          // Different parents behind the number: Who/Owner Partial, never Known.
+          EstablishmentsService.applySharedOwner(result.categories, shared);
+        }
         final o = ownerSource;
         if (o != null) {
           // Local crosswalk first so the card is populated immediately; the
@@ -246,13 +254,18 @@ class _ResultsScreenState extends State<ResultsScreen> {
         }
       });
     }
+    _loadEpa(rec, shared, numberShared);
     // Then the site's parent-company database, which is authoritative, covers
     // parents the crosswalk does not, and can be corrected without an app
     // release. A miss or a network failure leaves the local result standing.
     final o = ownerSource;
     if (o != null) {
-      final api = await ParentCompanyService.lookup(
-          result.detectedEstablishmentNumber ?? o.estNumber);
+      // Key the parent lookup by the resolved plant's own number (M969G, not
+      // 969 — FSIS reuses digits across plants).
+      final full = shared.isEmpty ? rec?.fullEstNumber : null;
+      final api = await ParentCompanyService.lookup(full != null
+          ? full.split('+').first
+          : (result.detectedEstablishmentNumber ?? o.estNumber));
       if (api != null && mounted) {
         setState(() {
           _ownership = api;
@@ -260,16 +273,26 @@ class _ResultsScreenState extends State<ResultsScreen> {
         });
       }
     }
-    // Chain the environmental-proximity lookup off the processor's coordinates.
-    if (rec?.lat != null && rec?.lon != null) {
-      final sp = rec!.primarySpecies.toLowerCase();
+    // Chain the environmental-proximity lookup off the resolved plant's
+    // coordinates (endpoint latitude/longitude, else the website geolocation
+    // when that record is confirmed as this plant). A shared number guesses
+    // no location unless every candidate sits within 10 miles.
+    final pt = EstablishmentsService.proximityPoint(rec, shared);
+    if (pt != null) {
+      final (lat, lon) = pt;
+      final labelSpecies =
+          (result.categories[FATCategory.species]?.value ?? '').toLowerCase();
+      final sp = [rec?.primarySpecies, website?.primarySpecies, labelSpecies]
+          .whereType<String>()
+          .firstWhere((s) => s.trim().isNotEmpty, orElse: () => '')
+          .toLowerCase();
       ProximityResult? prox;
       String kind = '';
       if (sp.contains('beef') || sp.contains('cattle')) {
-        prox = await FeedlotProximityService.feedlot(rec.lat!, rec.lon!);
+        prox = await FeedlotProximityService.feedlot(lat, lon);
         kind = 'feedlot';
       } else if (sp.contains('pork') || sp.contains('hog') || sp.contains('swine')) {
-        prox = await FeedlotProximityService.hog(rec.lat!, rec.lon!);
+        prox = await FeedlotProximityService.hog(lat, lon);
         kind = 'hog CAFO';
       }
       if (prox != null && mounted) {
@@ -281,9 +304,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
     }
   }
 
-  Future<void> _loadEpaPenalty() async {
-    final v = await EpaService.hasViolation(result.detectedEstablishmentNumber);
-    if (v && mounted) setState(() => _epaViolation = true);
+  Future<void> _loadEpa(ProcessorRecord? rec, List<FatEstablishment> shared,
+      bool numberShared) async {
+    final o = await EpaService.outcome(result.detectedEstablishmentNumber,
+        plant: rec == null ? null : EpaPlant.fromRecord(rec),
+        numberShared: numberShared,
+        sharedPlants: shared.map(EpaPlant.fromEstablishment).toList());
+    if (mounted) setState(() => _epa = o);
   }
 
   Future<void> _loadOshaPenalty() async {
@@ -733,10 +760,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
-  // EPA/OSHA are keyed by the number's digits, so when several plants share
-  // the number they can't be attributed to one plant: not shown.
+  // OSHA is keyed by the number's digits, so when several plants share the
+  // number it can't be attributed to one plant: not shown. EPA is matched to
+  // the resolved plant; a shared number never reports a violation.
   bool get _hasEnforcement =>
-      _sharedPlants.isEmpty && (_oshaViolation || _epaViolation);
+      (_sharedPlants.isEmpty && _oshaViolation) ||
+      _epa == EpaOutcome.violation;
 
   // ── A5. EST Warnings ───────────────────────────────────────────────────
 
@@ -1293,7 +1322,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   Widget _processorSection() {
     final est = result.detectedEstablishmentNumber!;
-    final owner = PorkOwnerDatabase.detectOwnerAnySpeciesForEstablishment(est);
+    final owner = _scanCardOwner(est);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1351,7 +1380,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               if (owner != null) ...[
                 const SizedBox(height: 12),
                 _ownerBlock(owner),
-              ] else ...[
+              ] else if (_sharedPlants.isEmpty) ...[
                 const SizedBox(height: 12),
                 const Text(
                   'No corporate-owner record matched this establishment number. The processing facility is federally inspected under this EST number.',
@@ -1382,7 +1411,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
               if (_sharedPlants.isEmpty) ...[
                 _enforcementBlock(),
                 _regulatorStatusRows(),
-              ],
+              ] else
+                _sharedEpaRow(),
               // Ground-beef blending-operator context (roadmap Phase 3): only
               // for ground beef, and only when this establishment is documented
               // as a Big Four or named independent/QSR blending operator.
@@ -1753,7 +1783,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _epaViolation
+        _epa == EpaOutcome.violation
             ? row(Icons.warning_amber_rounded, const Color(0xFFEA580C),
                 'EPA (ECHO) environmental violations in the last 3 years (12 quarters)')
             : row(Icons.verified_user_outlined, FATTheme.scanGreen,
@@ -1782,6 +1812,46 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 'Ractopamine (beta-agonists): no AMS “never fed” verification on file — FSIS requires no label disclosure of use either way'),
         ],
       ],
+    );
+  }
+
+  /// Corporate-owner block for the scan card. Keyed by the RESOLVED plant's
+  /// own number tokens (full EST number from fat/v1/establishments); a shared
+  /// number the label didn't resolve shows no single plant's owner. Offline
+  /// (no resolution) → the detected number as before.
+  PorkOwnerResult? _scanCardOwner(String est) {
+    if (_sharedPlants.isNotEmpty) return null;
+    final p = _processor;
+    final full = p?.endpointPlant?.establishmentNumber ?? p?.fullEstNumber;
+    if (full != null) {
+      return PorkOwnerDatabase.detectOwnerForPlantTokens(
+          full.split(RegExp(r'[+,/ ]')));
+    }
+    return PorkOwnerDatabase.detectOwnerAnySpeciesForEstablishment(est);
+  }
+
+  /// EPA line under the shared-number card: neutral when one of the candidate
+  /// plants has violations on file, otherwise the normal clean line.
+  Widget _sharedEpaRow() {
+    final onFile = _epa == EpaOutcome.sharedOnFile;
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Padding(
+            padding: const EdgeInsets.only(top: 1),
+            child: Icon(onFile ? Icons.info : Icons.verified_user_outlined,
+                size: 16,
+                color: onFile ? const Color(0xFF2C3E50) : FATTheme.scanGreen)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+              onFile
+                  ? EpaService.sharedOnFileText
+                  : 'No EPA (ECHO) environmental violations in the last 3 years (12 quarters)',
+              style:
+                  const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+        ),
+      ]),
     );
   }
 
@@ -2134,6 +2204,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
         lines.add(EstablishmentsService.sharedHeadline(_sharedPlants.length));
         for (final p in _sharedPlants) {
           lines.add('- ${p.name} · ${p.establishmentNumber} · ${p.cityState}');
+        }
+        if (_epa == EpaOutcome.sharedOnFile) {
+          lines.add(EpaService.sharedOnFileText);
         }
       } else if (pd != null) {
         lines.add('Name: ${pd.displayName}');
