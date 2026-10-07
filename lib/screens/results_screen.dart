@@ -19,6 +19,8 @@ import '../services/epa_service.dart';
 import '../services/beta_agonists_service.dart';
 import '../services/environmental_watch_service.dart';
 import '../widgets/environmental_watch_card.dart';
+import '../services/nc_hog_lagoon_notice.dart';
+import '../widgets/nc_hog_lagoon_card.dart';
 import '../services/processor_service.dart';
 import '../services/establishments_service.dart';
 import '../widgets/establishment_cards.dart';
@@ -471,6 +473,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
               _disclosureSummary(),
               if (result.detectedEstablishmentNumber != null) _processorSection(),
               if (_proximity != null) _proximitySection(),
+              // Informational only — no status, count, index or penalty change.
+              if (_showsNcHogLagoonCard) const NcHogLagoonCard(),
               _categorySection(),
               // Certification result cards (grass-fed / welfare cert / pasture /
               // regenerative) — each renders only when detected on the label.
@@ -2210,6 +2214,24 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
+  /// North Carolina hog-lagoon informational card (pork processed in NC).
+  /// The bundled-map fallback applies only once the processor lookup has
+  /// finished with neither a record nor shared candidates (offline).
+  bool get _showsNcHogLagoonCard {
+    final est = result.detectedEstablishmentNumber;
+    final offline = !_processorLoading &&
+        _processor == null &&
+        _sharedPlants.isEmpty &&
+        est != null &&
+        est.isNotEmpty;
+    return NcHogLagoonNotice.applies(result,
+        processor: _processor,
+        shared: _sharedPlants,
+        offlineMark: offline
+            ? EstablishmentsService.labelMark(est, result.scannedText)
+            : null);
+  }
+
   String _summaryText() {
     final lines = <String>[
       'Farm Animal Transparency (FAT) — Label Analysis',
@@ -2244,6 +2266,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
         lines.add('Name: ${pd.displayName}');
         if (pd.fullAddress.isNotEmpty) lines.add('Address: ${pd.fullAddress}');
       }
+    }
+    if (_showsNcHogLagoonCard) {
+      lines.add('');
+      lines.add(NcHogLagoonNotice.shareParagraph);
     }
     // Diagnostic tail: exactly what the OCR read. Lets a shared evaluation
     // answer "why didn't it read the brand?" — a missed logo shows as absent
