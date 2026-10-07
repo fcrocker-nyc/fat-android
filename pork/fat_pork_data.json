@@ -154,6 +154,12 @@
       "url": "https://gisdata.mn.gov/dataset/env-feedlots",
       "type": "primary",
       "asof": "2026-07-08"
+    },
+    "ia_afo_gdb": {
+      "label": "Iowa DNR, Animal Feeding Operations geodatabase (AFO.gdb, animal_feeding_operations)",
+      "url": "https://geodata.iowa.gov/documents/abfbd972640d4e87b6c48dc669775767",
+      "type": "primary",
+      "asof": "2024-04-05"
     }
   },
   "permit_regime_warning": {
@@ -161,19 +167,57 @@
     "body": "Large swine operations are permitted under fundamentally different instruments by state. Only Illinois and Oklahoma route most large swine operations through an NPDES permit. In Iowa, North Carolina, Indiana and Nebraska — and in the no-discharge tiers of Minnesota, Missouri and South Dakota — the default instrument is a STATE-only permit that produces no NPDES record and therefore no EPA ECHO entry. Roughly 62 to 74 percent of the national herd sits in those states. A choropleth built on EPA ECHO NPDES data shows Iowa, which holds about a third of all US hogs, as nearly empty. FAT therefore builds the base choropleth on USDA NASS inventory and treats permits as a separate, explicitly labeled categorical layer.",
     "never_label_echo_as": "permitted hog facilities",
     "correct_label_for_echo": "facilities holding a federal NPDES CAFO permit",
-    "state_evidence": {
-      "state": "Minnesota",
-      "headline": "Minnesota publishes the permit instrument per operation, so the gap can be counted rather than estimated.",
-      "unique_active_swine_operations": 5555,
-      "with_npdes_or_npdes_sds": 617,
-      "with_sds_only": 186,
-      "no_permit_stated": 4752,
-      "cafo_flagged": 1189,
-      "source": "mn_feedlots_layer",
-      "asof": "2026-07-08",
-      "basis": "MPCA's env_feedlots extract carries an npdes_sds field per operation. Swine operations selected where swine_big + swine_medium + swine_little > 0, then deduplicated on permit or registration id.",
-      "caveat": "MPCA states a daily refresh, but the published extract's internal timestamp is July 8, 2026."
-    }
+    "state_evidence": [
+      {
+        "state": "Minnesota",
+        "headline": "Minnesota publishes the permit instrument per operation, so the gap can be counted rather than estimated.",
+        "unique_active_swine_operations": 5555,
+        "with_npdes": 617,
+        "detail": [
+          {
+            "value": 186,
+            "label": "hold a state SDS permit only"
+          },
+          {
+            "value": 4752,
+            "label": "state no permit at all"
+          },
+          {
+            "value": 1189,
+            "label": "are flagged CAFO"
+          }
+        ],
+        "source": "mn_feedlots_layer",
+        "asof": "2026-07-08",
+        "basis": "MPCA's env_feedlots extract carries an npdes_sds field per operation. Swine operations selected where swine_big + swine_medium + swine_little > 0, then deduplicated on permit or registration id.",
+        "caveat": "MPCA states a daily refresh, but the published extract's internal timestamp is July 8, 2026."
+      },
+      {
+        "state": "Iowa",
+        "headline": "Iowa, which holds about a third of the national herd, records an NPDES permit date per facility — and almost none have one.",
+        "unique_active_swine_operations": 8816,
+        "with_npdes": 37,
+        "detail": [
+          {
+            "value": 8255,
+            "label": "are roofed confinements — just one of which holds a permit"
+          },
+          {
+            "value": 520,
+            "label": "pair a confinement with an open feedlot (the structure that triggers NPDES)"
+          },
+          {
+            "value": 41,
+            "label": "are open feedlots alone"
+          }
+        ],
+        "source": "ia_afo_gdb",
+        "asof": "2024-04-05",
+        "basis": "Iowa DNR's AFO geodatabase carries NPDESPermitIssueDate per facility. Swine facilities are those with any swine animal units recorded. Under Iowa law a totally roofed confinement is deemed non-discharging and needs no NPDES permit, which is why the confinement column is almost entirely empty.",
+        "caveat": "The published geodatabase was last updated April 5, 2024 and covers facilities at 300 or more animal units, so smaller operations are out of scope.",
+        "internal_note": "NPDESPermitIssueDate is a string field: missing values are the literal text NULL, not an empty field. A truthiness test on it reports 100% coverage. The Swine_* columns are ANIMAL UNITS, not head — they equal TotalAnimalUnitsByFacility exactly on pure-swine facilities."
+      }
+    ]
   },
   "national": {
     "inventory_total": {

@@ -280,25 +280,33 @@
     var html = '<div class="fat-note"><p class="fat-note-title">' + esc(w.headline) + '</p>' +
       '<p class="fat-note-body">' + esc(w.body) + '</p>';
 
-    var ev = w.state_evidence;
-    if (ev && ev.unique_active_swine_operations) {
-      // COMPUTED — the data file stores counts only, never a percentage.
-      var noNpdes = ev.unique_active_swine_operations - ev.with_npdes_or_npdes_sds;
-      var sharePct = 100 * noNpdes / ev.unique_active_swine_operations;
+    // One block per state that publishes the permit instrument per operation.
+    // Shares are COMPUTED here; the data file stores counts only.
+    var evs = w.state_evidence || [];
+    if (!Array.isArray(evs)) evs = [evs];
+    evs.forEach(function (ev) {
+      if (!ev || !ev.unique_active_swine_operations) return;
+      var total = ev.unique_active_swine_operations;
+      var without = total - ev.with_npdes;
+      var sharePct = 100 * without / total;
+
+      // Labels may themselves contain commas, so clauses are joined with semicolons.
+      var detail = (ev.detail || []).map(function (dd, i, arr) {
+        return (i === arr.length - 1 && arr.length > 1 ? 'and ' : '') +
+          num(dd.value) + ' ' + esc(dd.label);
+      }).join('; ');
+
       html += '<p class="fat-note-body" style="margin-top:10px">' +
-        '<strong>' + esc(ev.headline) + '</strong> Of ' +
-        num(ev.unique_active_swine_operations) + ' distinct active ' + esc(ev.state) +
-        ' swine operations, ' + num(ev.with_npdes_or_npdes_sds) +
-        ' hold an NPDES or NPDES/SDS permit, ' + num(ev.with_sds_only) +
-        ' hold a state SDS permit only, and ' + num(ev.no_permit_stated) +
-        ' state no permit at all. That is ' + num(sharePct, 1) +
-        '% with no NPDES record, and therefore no EPA ECHO entry — in a state where ' +
-        num(ev.cafo_flagged) + ' of those operations are flagged CAFO. ' +
-        esc(ev.basis) + ' ' + esc(ev.caveat) + ' ' + sourceChip(data, ev) + '</p>';
-    }
+        '<strong>' + esc(ev.headline) + '</strong> Of ' + num(total) + ' ' + esc(ev.state) +
+        ' swine operations, ' + num(ev.with_npdes) + ' hold an NPDES permit — ' +
+        num(sharePct, 1) + '% do not, and so generate no NPDES record and no EPA ECHO entry.' +
+        (detail ? ' Of the total, ' + detail + '.' : '') +
+        ' ' + esc(ev.basis) + ' ' + esc(ev.caveat) + ' ' + sourceChip(data, ev) + '</p>';
+    });
 
     return html + '</div>';
   }
+
 
   function footer(data) {
     var b = data.sources.fat_nc_briefing;
