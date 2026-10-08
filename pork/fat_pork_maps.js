@@ -10,7 +10,11 @@
  *   <div data-fat-pork-map="enforcement"></div>
  *   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
  *   <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
- *   <script src="https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/pork/fat_pork_maps.js"></script>
+ *   <script src="https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@<commit>/pork/fat_pork_maps.js"></script>
+ *
+ * Pin the script to a commit hash rather than @main: jsDelivr caches the branch
+ * resolution and can serve a stale file for hours even after a purge, and
+ * browsers cache @main for a long time. The data file follows the script's ref.
  *
  * Views: "enforcement" | "integrated" | "supply"
  *
@@ -36,7 +40,14 @@
 (function () {
   'use strict';
 
-  var DATA_URL = 'https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/pork/fat_pork_data.json';
+  // The data file is loaded from the same place (and the same git ref) this
+  // script was loaded from, so pinning the script URL to a commit pins the
+  // data with it. Falls back to @main if the script's own URL is unavailable.
+  var SELF_URL = (document.currentScript && document.currentScript.src) || '';
+  var BASE_URL = /fat_pork_maps\.js/.test(SELF_URL)
+    ? SELF_URL.replace(/fat_pork_maps\.js.*$/, '')
+    : 'https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/pork/';
+  var DATA_URL = BASE_URL + 'fat_pork_data.json';
   var ATLAS_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
   var SUPPLY_MAP_URL = '/pork-supply-chain/pork-supply-map/';
   var INTEGRATED_MAP_URL = '/pork-supply-chain/pork-integrated-model-map/';
