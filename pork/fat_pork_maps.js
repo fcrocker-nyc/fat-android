@@ -583,7 +583,7 @@
       '<p class="fat-foot">' + esc(c.reconciliation_gap.note) + '</p></div>';
 
     html += permitWarning(data);
-    html += '<p class="fat-xref">Where the hogs are nationally, and which permit each state issues: ' +
+    html += '<p class="fat-xref">Where the hogs are nationally, and which permit the state requires: ' +
       '<a href="' + SUPPLY_MAP_URL + '">Pork Supply Map</a>. Ownership, integration and the legal record in one view: ' +
       '<a href="' + INTEGRATED_MAP_URL + '">Pork Integrated Model Map</a>.</p>';
     html += footer(data) + '</div>';
@@ -597,7 +597,7 @@
 
     html += '<div class="fat-panel"><div class="fat-head"><div>' +
       '<h2 class="fat-h2">U.S. hog inventory and permit architecture</h2>' +
-      '<p class="fat-sub">Where the hogs are, and what kind of permit each state issues</p></div>' +
+      '<p class="fat-sub">Where the hogs are, and what kind of permit the state requires</p></div>' +
       '<div><p class="fat-asof">USDA National Agricultural Statistics Service<br>' + esc(nassAsOf(data)) + '</p></div></div>';
 
     html += keyTerms();
