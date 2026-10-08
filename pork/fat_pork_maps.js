@@ -13,12 +13,28 @@
  *   <script src="https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/pork/fat_pork_maps.js"></script>
  *
  * Views: "enforcement" | "integrated" | "supply"
+ *
+ *   supply      — hog inventory by state (USDA NASS) with the permit-regime layer
+ *                 and the full state table. The reference view for "where the hogs are".
+ *   integrated  — what the supply view does NOT repeat: how much of the herd sits
+ *                 outside federal records (computed from the regime layer), the
+ *                 North Carolina legal record, ownership and integration, biogas,
+ *                 and what reaches the label. It links to the supply view for the
+ *                 inventory table rather than duplicating it.
+ *   enforcement — North Carolina swine enforcement.
+ *
+ * The choropleth labels every state NASS publishes with its postal code and head
+ * count, and a detail panel under the map shows the selected state's figures on
+ * hover or tap. States NASS does not publish separately are grey and say so.
  */
 (function () {
   'use strict';
 
   var DATA_URL = 'https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/pork/fat_pork_data.json';
   var ATLAS_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
+  var SUPPLY_MAP_URL = '/pork-supply-chain/pork-supply-map/';
+  var INTEGRATED_MAP_URL = '/pork-supply-chain/pork-integrated-model-map/';
+  var ENFORCEMENT_MAP_URL = '/pork-supply-chain/pork-enforcement-map/';
 
   // ---------------------------------------------------------------- palette
   // Sequential ramp for inventory; categorical for permit regime; status colors
@@ -28,10 +44,10 @@
   var NO_DATA_DARK = '#4A4844';
 
   var REGIME = {
-    state_only: { color: '#7A3D12', label: 'State-only permit is the default' },
-    both: { color: '#C9853C', label: 'Both — state-only default, NPDES on discharge' },
-    npdes: { color: '#2E6B8A', label: 'NPDES is the primary instrument' },
-    unknown: { color: '#9A9791', label: 'Not determined' }
+    state_only: { color: '#7A3D12', label: 'State-only permit is the default', dark: true },
+    both: { color: '#C9853C', label: 'Both — state-only default, NPDES on discharge', dark: true },
+    npdes: { color: '#2E6B8A', label: 'NPDES is the primary instrument', dark: true },
+    unknown: { color: '#9A9791', label: 'Not determined', dark: true }
   };
 
   var STATUS = {
@@ -69,6 +85,11 @@
   function headM(thousands) {
     if (thousands == null) return '—';
     return num(thousands / 1000, 2) + 'M';
+  }
+  // Shorter form for on-map labels: 24.7M, 1.3M.
+  function headMShort(thousands) {
+    if (thousands == null) return '';
+    return num(thousands / 1000, 1) + 'M';
   }
 
   function fmtDate(iso) {
@@ -118,6 +139,23 @@
       '</div>';
   }
 
+  // The NASS as-of date, read from the data file rather than typed.
+  function nassAsOf(data) {
+    var m = data.national && data.national.inventory_total;
+    return m && m.asof ? fmtDate(m.asof) : '';
+  }
+
+  // State evidence entry (permit instrument per operation) for a state, if any.
+  function evidenceFor(data, stateName) {
+    var w = data.permit_regime_warning || {};
+    var evs = w.state_evidence || [];
+    if (!Array.isArray(evs)) evs = [evs];
+    for (var i = 0; i < evs.length; i++) {
+      if (evs[i] && evs[i].state === stateName && evs[i].unique_active_swine_operations) return evs[i];
+    }
+    return null;
+  }
+
   // ---------------------------------------------------------------- styles
   var CSS = [
     '.fat-wrap{--fat-bg:#fff;--fat-fg:#111;--fat-muted:#666;--fat-line:rgba(0,0,0,.15);--fat-panel:#f6f4f0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--fat-fg)}',
@@ -144,12 +182,25 @@
     '.fat-note-title{font-size:13px;font-weight:600;margin:0 0 6px}',
     '.fat-note-body{font-size:13px;color:var(--fat-muted);margin:0}',
     '.fat-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}',
-    '.fat-btn{font:inherit;font-size:13px;padding:7px 13px;border-radius:6px;cursor:pointer;background:transparent;color:var(--fat-fg);border:.5px solid var(--fat-line)}',
+    '.fat-btn{font:inherit;font-size:13px;padding:7px 13px;border-radius:6px;cursor:pointer;background:transparent;color:var(--fat-fg);border:.5px solid var(--fat-line);text-decoration:none;display:inline-block}',
     '.fat-btn[aria-pressed="true"]{background:#7A3D12;color:#fff;border-color:#7A3D12}',
+    '.fat-jump{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}',
+    '.fat-jump .fat-btn:hover{background:var(--fat-panel)}',
     '.fat-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--fat-muted);margin:10px 0 0}',
     '.fat-legend span.k{display:inline-flex;align-items:center;gap:6px}',
     '.fat-sw{width:11px;height:11px;border-radius:2px;display:inline-block;flex:0 0 auto}',
     '.fat-map svg{width:100%;height:auto;display:block}',
+    '.fat-map svg path.fat-st{cursor:pointer;transition:opacity .12s}',
+    '.fat-map svg path.fat-st.fat-hot{stroke:#111;stroke-width:1.8}',
+    '@media (prefers-color-scheme:dark){.fat-map svg path.fat-st.fat-hot{stroke:#fff}}',
+    '.fat-map svg text.fat-lbl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;pointer-events:none;text-anchor:middle;paint-order:stroke fill;stroke-linejoin:round}',
+    '.fat-map svg text.fat-lbl.on-light{fill:#1b1a18;stroke:rgba(255,255,255,.85);stroke-width:3px}',
+    '.fat-map svg text.fat-lbl.on-dark{fill:#fff;stroke:rgba(0,0,0,.55);stroke-width:3px}',
+    '.fat-map svg text.fat-lbl tspan.v{font-weight:500;font-size:10px}',
+    '.fat-detail{background:var(--fat-panel);border-radius:8px;padding:12px 14px;margin:12px 0 0;min-height:72px;font-size:13px;color:var(--fat-fg)}',
+    '.fat-detail-title{font-size:14px;font-weight:600;margin:0 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
+    '.fat-detail p{margin:0 0 4px}',
+    '.fat-detail .fat-sub{margin:0}',
     '.fat-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}',
     '.fat-table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}',
     '.fat-table th,.fat-table td{text-align:left;padding:8px 10px;border-bottom:.5px solid var(--fat-line);vertical-align:top}',
@@ -164,7 +215,10 @@
     '.fat-pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;color:#fff;white-space:nowrap}',
     '.fat-err{border:.5px solid #B3261E;border-radius:12px;padding:16px 20px;font-size:13px}',
     '.fat-foot{font-size:12px;color:var(--fat-muted);margin:14px 0 0}',
-    '.fat-foot a{color:inherit}'
+    '.fat-foot a,.fat-sub a,.fat-detail a{color:inherit}',
+    '.fat-xref{font-size:13px;color:var(--fat-muted);margin:12px 0 0;padding-top:10px;border-top:.5px solid var(--fat-line)}',
+    '.fat-xref a{color:#2E6B8A;font-weight:600}',
+    '@media (prefers-color-scheme:dark){.fat-xref a{color:#7FB3CF}}'
   ].join('\n');
 
   function injectCSS() {
@@ -175,9 +229,54 @@
     document.head.appendChild(st);
   }
 
+  // ---------------------------------------------------------------- detail panel
+  function detailIdle(data) {
+    var other = data.states_not_separately_published;
+    return '<p class="fat-detail-title">Hover or tap a state</p>' +
+      '<p class="fat-sub">Each labeled state shows its postal code and hogs on hand, ' +
+      esc(nassAsOf(data)) + '. Grey states are not published separately by NASS; together they hold ' +
+      headM(other.inventory) + ' head.</p>';
+  }
+
+  function detailFor(data, s, name) {
+    if (!s) {
+      var other = data.states_not_separately_published;
+      return '<p class="fat-detail-title">' + esc(name) + '</p>' +
+        '<p class="fat-sub">' + esc(other.public_note || other.basis) +
+        ' The combined figure for those states is ' + headM(other.inventory) + ' head. ' +
+        'FAT does not distribute that figure across states, so no state-level count is shown here.</p>';
+    }
+    var r = REGIME[s.permit_regime] || REGIME.unknown;
+    var html = '<p class="fat-detail-title">' + esc(s.name) +
+      '<span class="fat-pill" style="background:' + r.color + '">' + esc(r.label) + '</span></p>';
+    html += '<p><strong>' + headM(s.inventory) + '</strong> hogs and pigs on ' + esc(nassAsOf(data)) +
+      (s.breeding != null && s.market != null
+        ? ' — ' + headM(s.breeding) + ' breeding, ' + headM(s.market) + ' market'
+        : '') + '. ' + sourceChip(data, data.national.inventory_total) + '</p>';
+    if (s.permit_program) {
+      html += '<p>' + (s.regime_source
+        ? '<a href="' + esc(s.regime_source) + '" target="_blank" rel="noopener noreferrer">' + esc(s.permit_program) + '</a>'
+        : esc(s.permit_program)) +
+        (s.regime_note ? ' <span class="fat-sub">' + esc(s.regime_note) + '</span>' : '') + '</p>';
+    } else {
+      html += '<p class="fat-sub">Permit regime not yet determined by FAT.</p>';
+    }
+    var ev = evidenceFor(data, s.name);
+    if (ev) {
+      var total = ev.unique_active_swine_operations;
+      var pct = 100 * (total - ev.with_npdes) / total;
+      html += '<p>Of <strong>' + num(total) + '</strong> swine operations the state lists, <strong>' +
+        num(ev.with_npdes) + '</strong> hold an NPDES permit — <strong>' + num(pct, 1) +
+        '%</strong> do not, so they have no EPA ECHO entry. ' + sourceChip(data, ev) + '</p>';
+    }
+    return html;
+  }
+
   // ---------------------------------------------------------------- choropleth
   // mode: "inventory" | "regime"
-  function drawMap(container, data, mode) {
+  // opts: { detailEl } — a panel that shows the hovered / tapped state's figures.
+  function drawMap(container, data, mode, opts) {
+    opts = opts || {};
     if (!window.d3 || !window.topojson) {
       container.innerHTML = '<p class="fat-sub">Map library unavailable.</p>';
       return;
@@ -187,38 +286,83 @@
 
     var maxInv = d3.max(data.states, function (s) { return s.inventory; });
     var scale = d3.scaleQuantize().domain([0, maxInv]).range(RAMP);
+    var dark = isDark();
 
     container.innerHTML = '';
     var svg = d3.select(container).append('svg')
       .attr('viewBox', '0 0 900 540')
       .attr('role', 'img')
       .attr('aria-label', mode === 'regime'
-        ? 'US map shaded by swine permit regime'
-        : 'US map shaded by hog inventory');
+        ? 'US map shaded by swine permit regime, labeled with hog inventory by state'
+        : 'US map shaded by hog inventory, labeled with hog inventory by state');
 
     var path = d3.geoPath(d3.geoAlbersUsa().scale(1120).translate([450, 270]));
 
+    function fillFor(d) {
+      var s = byName[d.properties.name];
+      if (!s) return noDataColor();
+      if (mode === 'regime') return (REGIME[s.permit_regime] || REGIME.unknown).color;
+      return scale(s.inventory);
+    }
+    // Whether the fill is dark enough to want a white label.
+    function fillIsDark(d) {
+      var s = byName[d.properties.name];
+      if (!s) return dark;
+      if (mode === 'regime') return true;
+      return RAMP.indexOf(scale(s.inventory)) >= 3;
+    }
+
+    var detailEl = opts.detailEl || null;
+    function showDetail(d) {
+      if (!detailEl) return;
+      detailEl.innerHTML = detailFor(data, byName[d.properties.name], d.properties.name);
+    }
+    if (detailEl) detailEl.innerHTML = detailIdle(data);
+
     d3.json(ATLAS_URL).then(function (us) {
       var feats = topojson.feature(us, us.objects.states).features;
-      svg.selectAll('path').data(feats).join('path')
+      var paths = svg.append('g').selectAll('path').data(feats).join('path')
+        .attr('class', 'fat-st')
         .attr('d', path)
-        .attr('stroke', isDark() ? 'rgba(255,255,255,.18)' : '#fff')
+        .attr('stroke', dark ? 'rgba(255,255,255,.18)' : '#fff')
         .attr('stroke-width', 0.8)
-        .attr('fill', function (d) {
+        .attr('fill', fillFor)
+        .attr('tabindex', function (d) { return byName[d.properties.name] ? 0 : null; })
+        .attr('aria-label', function (d) {
           var s = byName[d.properties.name];
-          if (!s) return noDataColor();
-          if (mode === 'regime') return (REGIME[s.permit_regime] || REGIME.unknown).color;
-          return scale(s.inventory);
-        })
-        .append('title')
-        .text(function (d) {
-          var s = byName[d.properties.name];
-          if (!s) return d.properties.name + '\nNot separately published by NASS';
-          var lines = [s.name, headM(s.inventory) + ' head (June 1, 2026)'];
-          lines.push((REGIME[s.permit_regime] || REGIME.unknown).label);
-          if (s.permit_program) lines.push(s.permit_program);
-          return lines.join('\n');
+          return s ? s.name + ', ' + headM(s.inventory) + ' head' : d.properties.name + ', not separately published';
         });
+
+      paths.append('title').text(function (d) {
+        var s = byName[d.properties.name];
+        if (!s) return d.properties.name + '\nNot separately published by NASS';
+        var lines = [s.name, headM(s.inventory) + ' head (' + nassAsOf(data) + ')'];
+        lines.push((REGIME[s.permit_regime] || REGIME.unknown).label);
+        if (s.permit_program) lines.push(s.permit_program);
+        return lines.join('\n');
+      });
+
+      function hot(d, on) {
+        paths.classed('fat-hot', function (e) { return on && e === d; });
+        if (on) paths.filter(function (e) { return e === d; }).raise();
+      }
+      paths.on('mouseenter', function (ev, d) { hot(d, true); showDetail(d); })
+        .on('focus', function (ev, d) { hot(d, true); showDetail(d); })
+        .on('click', function (ev, d) { hot(d, true); showDetail(d); })
+        .on('mouseleave', function (ev, d) { hot(d, false); });
+
+      // Labels: postal code and head count for every state NASS publishes.
+      var labeled = feats.filter(function (d) { return !!byName[d.properties.name]; });
+      var lbl = svg.append('g').selectAll('text').data(labeled).join('text')
+        .attr('class', function (d) { return 'fat-lbl ' + (fillIsDark(d) ? 'on-dark' : 'on-light'); })
+        .attr('transform', function (d) {
+          var c = path.centroid(d);
+          return 'translate(' + c[0].toFixed(1) + ',' + c[1].toFixed(1) + ')';
+        });
+      lbl.append('tspan').attr('x', 0).attr('dy', '-0.15em')
+        .text(function (d) { return byName[d.properties.name].code; });
+      lbl.append('tspan').attr('class', 'v').attr('x', 0).attr('dy', '1.15em')
+        .text(function (d) { return headMShort(byName[d.properties.name].inventory); });
     }).catch(function () {
       container.innerHTML = '<p class="fat-sub">Base map could not be loaded.</p>';
     });
@@ -240,7 +384,7 @@
       var lo = i * step, hi = (i + 1) * step;
       var lbl = i === 0 ? 'under ' + headM(hi)
         : (i === RAMP.length - 1 ? headM(lo) + ' and above'
-          : headM(lo) + ' \u2013 ' + headM(hi));
+          : headM(lo) + ' – ' + headM(hi));
       return '<span class="k"><span class="fat-sw" style="background:' + c + '"></span>' +
         lbl + '</span>';
     }).join('') +
@@ -270,7 +414,7 @@
       esc(other.public_note || other.basis) + '</span></td></tr>';
 
     return '<div class="fat-tablewrap"><table class="fat-table">' +
-      '<thead><tr><th>State</th><th style="text-align:right">Hogs, June 1 2026</th>' +
+      '<thead><tr><th>State</th><th style="text-align:right">Hogs, ' + esc(nassAsOf(data)) + '</th>' +
       '<th>Permit regime</th><th>Program</th></tr></thead>' +
       '<tbody>' + body + otherRow + '</tbody></table></div>';
   }
@@ -315,6 +459,25 @@
       'ratios are computed, not entered. ' +
       (b ? 'Background: <a href="' + esc(b.url) + '" target="_blank" rel="noopener noreferrer">' +
         esc(b.label) + '</a>.' : '') + '</p>';
+  }
+
+  // Shared block: the North Carolina legal-authority mechanisms list.
+  function mechanismRows(data) {
+    var la = data.nc_legal_authority;
+    var h = '<div class="fat-mech">';
+    la.mechanisms.forEach(function (m) {
+      var st = STATUS[m.status] || { color: '#9A9791', label: m.status };
+      var s = data.sources[m.source];
+      h += '<div class="fat-mech-row"><div>' +
+        '<p class="fat-mech-name">' + esc(m.name) + '</p>' +
+        '<p class="fat-mech-scope">' + esc(m.scope) + '</p></div>' +
+        '<p class="fat-mech-detail">' + esc(m.detail) +
+        (s ? ' <a class="fat-chip fat-chip-' + esc(s.type) + '" href="' + esc(s.url) +
+          '" target="_blank" rel="noopener noreferrer">source</a>' : '') + '</p>' +
+        '<div><span class="fat-pill" style="background:' + st.color + '">' + esc(st.label) + '</span>' +
+        '<p class="fat-mech-scope">' + esc(fmtDate(m.date)) + '</p></div></div>';
+    });
+    return h + '</div>';
   }
 
   // ---------------------------------------------------------------- views
@@ -362,22 +525,9 @@
     var la = data.nc_legal_authority;
     html += '<div class="fat-panel"><h3 class="fat-h3">' + esc(la.headline) + '</h3>' +
       '<p class="fat-sub" style="margin-bottom:12px">' + esc(la.body) + '</p>' +
-      '<div class="fat-mech">';
-    la.mechanisms.forEach(function (m) {
-      var st = STATUS[m.status] || { color: '#9A9791', label: m.status };
-      var s = data.sources[m.source];
-      html += '<div class="fat-mech-row"><div>' +
-        '<p class="fat-mech-name">' + esc(m.name) + '</p>' +
-        '<p class="fat-mech-scope">' + esc(m.scope) + '</p></div>' +
-        '<p class="fat-mech-detail">' + esc(m.detail) +
-        (s ? ' <a class="fat-chip fat-chip-' + esc(s.type) + '" href="' + esc(s.url) +
-          '" target="_blank" rel="noopener noreferrer">source</a>' : '') + '</p>' +
-        '<div><span class="fat-pill" style="background:' + st.color + '">' + esc(st.label) + '</span>' +
-        '<p class="fat-mech-scope">' + esc(fmtDate(m.date)) + '</p></div></div>';
-    });
-    html += '</div></div>';
+      mechanismRows(data) + '</div>';
 
-    // Counts reconciliation — honest about the four disagreeing numbers.
+    // Counts reconciliation — honest about the disagreeing numbers.
     var countKeys = ['active_swine_permits', 'deduplicated_active_swine_operations',
       'all_swine_permits', 'deq_reported_swine_facilities',
       'deq_reported_all_operations', 'digester_permits'].filter(function (k) { return c[k]; });
@@ -397,6 +547,9 @@
       '<p class="fat-foot">' + esc(c.reconciliation_gap.note) + '</p></div>';
 
     html += permitWarning(data);
+    html += '<p class="fat-xref">Where the hogs are nationally, and which permit each state issues: ' +
+      '<a href="' + SUPPLY_MAP_URL + '">Pork Supply Map</a>. Ownership, integration and the legal record in one view: ' +
+      '<a href="' + INTEGRATED_MAP_URL + '">Pork Integrated Model Map</a>.</p>';
     html += footer(data) + '</div>';
 
     el.innerHTML = html;
@@ -409,7 +562,7 @@
     html += '<div class="fat-panel"><div class="fat-head"><div>' +
       '<h2 class="fat-h2">U.S. hog inventory and permit architecture</h2>' +
       '<p class="fat-sub">Where the hogs are, and what kind of permit each state issues</p></div>' +
-      '<div><p class="fat-asof">USDA NASS<br>June 1, 2026</p></div></div>';
+      '<div><p class="fat-asof">USDA NASS<br>' + esc(nassAsOf(data)) + '</p></div></div>';
 
     html += '<div class="fat-grid">';
     html += card('All hogs and pigs', headM(n.inventory_total.value), esc(pub(n.inventory_total)),
@@ -426,19 +579,24 @@
       '</div>';
     html += '<div class="fat-map" id="fat-map-supply"></div>';
     html += '<div id="fat-legend-supply"></div>';
+    html += '<div class="fat-detail" id="fat-detail-supply" aria-live="polite"></div>';
     html += '</div>';
 
     html += permitWarning(data);
     html += '<div class="fat-panel"><h3 class="fat-h3">States NASS publishes individually</h3>' +
       stateTable(data) + '</div>';
+    html += '<p class="fat-xref">How much of this herd sits outside federal records, who owns the packers, and what reaches the label: ' +
+      '<a href="' + INTEGRATED_MAP_URL + '">Pork Integrated Model Map</a>. North Carolina permits, inspections and complaints: ' +
+      '<a href="' + ENFORCEMENT_MAP_URL + '">Pork Enforcement Map</a>.</p>';
     html += footer(data) + '</div>';
 
     el.innerHTML = html;
 
     var mapEl = el.querySelector('#fat-map-supply');
     var legEl = el.querySelector('#fat-legend-supply');
+    var detEl = el.querySelector('#fat-detail-supply');
     function set(mode) {
-      drawMap(mapEl, data, mode);
+      drawMap(mapEl, data, mode, { detailEl: detEl });
       legEl.innerHTML = legendFor(mode, data);
       Array.prototype.forEach.call(el.querySelectorAll('.fat-btn[data-mode]'), function (b) {
         b.setAttribute('aria-pressed', String(b.getAttribute('data-mode') === mode));
@@ -450,144 +608,183 @@
     set('inventory');
   }
 
+  // The integrated view does not repeat the supply view. It opens on what the
+  // regime layer implies for the herd as a whole (computed), then stacks the
+  // material no other pork map carries: the North Carolina legal record,
+  // ownership and integration, biogas, and what reaches the label.
   function viewIntegrated(el, data) {
     var n = data.national, o = data.ownership, ig = data.integration, b = data.biogas;
+
+    // COMPUTED — inventory by permit regime over the states NASS publishes.
+    var byRegime = { state_only: 0, both: 0, npdes: 0, unknown: 0 };
+    var published = 0;
+    data.states.forEach(function (s) {
+      var k = REGIME[s.permit_regime] ? s.permit_regime : 'unknown';
+      byRegime[k] += s.inventory;
+      published += s.inventory;
+    });
+    var natTotal = n.inventory_total.value;
+    var pctOfNat = function (v) { return 100 * v / natTotal; };
+    var outsideEcho = byRegime.state_only + byRegime.both;
+    var namesFor = function (k) {
+      return data.states.filter(function (s) { return s.permit_regime === k; })
+        .sort(function (a, c) { return c.inventory - a.inventory; })
+        .map(function (s) { return s.name; });
+    };
+    var listNames = function (arr) {
+      if (arr.length <= 1) return arr.join('');
+      return arr.slice(0, -1).join(', ') + ' and ' + arr[arr.length - 1];
+    };
+
     var html = '<div class="fat-wrap">';
 
     html += '<div class="fat-panel"><div class="fat-head"><div>' +
       '<h2 class="fat-h2">U.S. pork — integrated analysis</h2>' +
-      '<p class="fat-sub">Inventory, permit architecture, legal authority, ownership and integration</p></div>' +
+      '<p class="fat-sub">How much of the herd federal records can see, who owns the packers, ' +
+      'what North Carolina law still reaches, and what gets to the label</p></div>' +
       '<div><p class="fat-asof">Updated ' + esc(fmtDate(data.updated)) + '</p></div></div>';
 
-    html += '<div class="fat-btns" role="group" aria-label="Analysis layer">' +
-      ['inventory|Hog inventory', 'regime|Permit regime', 'authority|Legal authority',
-        'ownership|Ownership &amp; integration'].map(function (p, i) {
-        var kv = p.split('|');
-        return '<button class="fat-btn" type="button" data-layer="' + kv[0] + '" aria-pressed="' +
-          (i === 0) + '">' + kv[1] + '</button>';
+    // Jump bar — every section is on the page; nothing is hidden behind a tab.
+    html += '<div class="fat-jump" role="navigation" aria-label="Sections">' +
+      [['fat-int-map', 'Permit map'], ['fat-int-authority', 'Legal authority'],
+        ['fat-int-ownership', 'Ownership &amp; integration'], ['fat-int-biogas', 'Biogas'],
+        ['fat-int-label', 'What reaches the label']].map(function (p) {
+        return '<a class="fat-btn" href="#' + p[0] + '" data-jump="' + p[0] + '">' + p[1] + '</a>';
       }).join('') + '</div>';
 
-    html += '<div id="fat-int-body"></div></div>';
+    html += '<div class="fat-grid">';
+    html += card('Herd in state-only-permit states', headM(byRegime.state_only),
+      num(pctOfNat(byRegime.state_only), 0) + '% of all U.S. hogs are in ' + esc(listNames(namesFor('state_only'))) +
+      ', where the default instrument is a state permit that creates no NPDES record and no EPA ECHO entry.',
+      sourceChip(data, n.inventory_total));
+    html += card('Herd where NPDES applies only on discharge', headM(byRegime.both),
+      num(pctOfNat(byRegime.both), 0) + '% of all U.S. hogs are in ' + esc(listNames(namesFor('both'))) +
+      ', where the state permit is the default and NPDES attaches only on a discharge.',
+      sourceChip(data, n.inventory_total));
+    html += card('Herd in NPDES-primary states', headM(byRegime.npdes),
+      num(pctOfNat(byRegime.npdes), 0) + '% of all U.S. hogs are in ' + esc(listNames(namesFor('npdes'))) +
+      ', the only published states that route most large swine operations through a federal permit.',
+      sourceChip(data, n.inventory_total));
+    html += card('Four largest packers’ share', num(n.cr4_packers.value) + '%',
+      esc(pub(n.cr4_packers)), sourceChip(data, n.cr4_packers));
+    html += '</div>';
+
+    html += '<div id="fat-int-map"></div>';
+    html += '<h3 class="fat-h3">Where the hogs are, and which permit covers them</h3>' +
+      '<p class="fat-sub" style="margin-bottom:10px">Shaded by permit regime, labeled with hogs on hand (USDA NASS, ' +
+      esc(nassAsOf(data)) + '). Together, ' + headM(outsideEcho) + ' head — ' + num(pctOfNat(outsideEcho), 0) +
+      '% of the national herd — are in states where the default permit produces no federal record' +
+      (byRegime.unknown ? '; a further ' + headM(byRegime.unknown) + ' head are in states whose regime FAT has not yet determined' : '') +
+      '. The grey states are not separately published by NASS and are not shown as zero.</p>';
+    html += '<div class="fat-map" id="fat-map-int"></div><div id="fat-legend-int"></div>' +
+      '<div class="fat-detail" id="fat-detail-int" aria-live="polite"></div>';
+    html += '<p class="fat-xref">Hog inventory by state, the breeding and market split, and the full state table are on the ' +
+      '<a href="' + SUPPLY_MAP_URL + '">Pork Supply Map</a>; this page does not repeat them.</p>';
+    html += '</div>';
+
+    html += permitWarning(data);
+
+    // Legal authority — North Carolina.
+    var la = data.nc_legal_authority;
+    html += '<div class="fat-panel" id="fat-int-authority"><h3 class="fat-h3">Legal authority — North Carolina</h3>' +
+      '<div class="fat-note"><p class="fat-note-title">' + esc(la.headline) + '</p>' +
+      '<p class="fat-note-body">' + esc(la.body) + '</p></div>' + mechanismRows(data);
+    var op = la.open_proceeding, ops = data.sources[op.source];
+    html += '<div class="fat-note" style="border-left-color:' + STATUS.open.color + ';margin-top:16px">' +
+      '<p class="fat-note-title">' + esc(op.name) + ' — ' + esc(STATUS.open.label) + '</p>' +
+      '<p class="fat-note-body">' + esc(op.detail) +
+      (ops ? ' <a class="fat-chip fat-chip-' + esc(ops.type) + '" href="' + esc(ops.url) +
+        '" target="_blank" rel="noopener noreferrer">source</a>' : '') + '</p></div>';
+    var ss = data.nc_statutory_structure;
+    html += '<div style="margin-top:16px"><h3 class="fat-h3">Why the lagoons remain</h3>' +
+      '<p class="fat-sub">' + esc(ss.moratorium.detail) + ' <a class="fat-chip fat-chip-primary" href="' +
+      esc(data.sources[ss.moratorium.source].url) +
+      '" target="_blank" rel="noopener noreferrer">' + esc(ss.moratorium.statute) + '</a></p></div>';
+    html += '<p class="fat-xref">Permits, inspection staffing and complaint outcomes for North Carolina: ' +
+      '<a href="' + ENFORCEMENT_MAP_URL + '">Pork Enforcement Map</a>.</p></div>';
+
+    // Ownership and integration.
+    var sm = o.smithfield;
+    html += '<div class="fat-panel" id="fat-int-ownership"><h3 class="fat-h3">Ownership &amp; integration</h3>' +
+      '<p class="fat-sub" style="margin-bottom:12px">' + esc(o.note) + '</p>';
+    html += '<div class="fat-grid">' +
+      card('Smithfield parent stake', num(sm.parent_stake_pct.value) + '%',
+        esc(sm.parent) + ' (' + esc(sm.parent_domicile) + '), ' + esc(sm.parent_stake_pct.basis),
+        sourceChip(data, sm.parent_stake_pct)) +
+      card('U.S. listing', esc(sm.listing.ticker),
+        esc(sm.listing.exchange) + ', since ' + esc(fmtDate(sm.listing.ipo_date)) + '. ' +
+        esc(sm.listing.basis), sourceChip(data, sm.parent_stake_pct)) +
+      card('Internal hog production', num(ig.smithfield_internal_production_head_m.value, 1) + 'M',
+        'Down from ' + num(ig.smithfield_internal_production_prior_head_m.value, 1) +
+        'M head the prior year — about ' + num(ig.smithfield_internal_share_pct.value) +
+        '% of the hogs its Fresh Pork segment processes.',
+        sourceChip(data, ig.smithfield_internal_production_head_m)) +
+      card('Farms', num(ig.smithfield_company_owned_farms.value) + '+ / ' +
+        num(ig.smithfield_contract_farms.value) + '+',
+        'Company-owned and contract farms, United States.',
+        sourceChip(data, ig.smithfield_contract_farms)) +
+      '</div>';
+    if (o.jbs) {
+      html += '<p class="fat-sub" style="margin-bottom:12px"><strong>' + esc(o.jbs.us_pork_subsidiary || 'JBS') +
+        '</strong> — parent ' + esc(o.jbs.parent) + ' (' + esc(o.jbs.parent_domicile) + '). ' + esc(o.jbs.note) + '</p>';
+    }
+    html += '<div class="fat-note"><p class="fat-note-title">Integration is loosening at the production end</p>' +
+      '<p class="fat-note-body">' + esc(ig.note) + '</p></div>';
+    html += '<h3 class="fat-h3">North Carolina divestitures</h3><div class="fat-tablewrap">' +
+      '<table class="fat-table"><thead><tr><th>When</th><th>What</th></tr></thead><tbody>' +
+      ig.nc_divestitures.map(function (d) {
+        return '<tr><td>' + esc(fmtDate(d.date)) + '</td><td>' + esc(d.detail) + ' ' +
+          sourceChip(data, d) + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+
+    // Biogas.
+    html += '<div class="fat-panel" id="fat-int-biogas"><h3 class="fat-h3">Biogas — the second revenue channel</h3>' +
+      '<p class="fat-sub" style="margin-bottom:12px">' + esc(b.note) +
+      (b.align_rng.structure ? ' Align RNG is a ' + esc(b.align_rng.structure) + '.' : '') + '</p><div class="fat-tablewrap">' +
+      '<table class="fat-table"><thead><tr><th>Project</th><th>Counties</th>' +
+      '<th style="text-align:right">Farms</th><th style="text-align:right">Dth / yr</th></tr></thead><tbody>' +
+      b.align_rng.projects.map(function (p) {
+        return '<tr><td>' + esc(p.name) +
+          (p.completion_estimate ? ' <span class="fat-sub">(est. ' + esc(p.completion_estimate) + ')</span>' : '') +
+          ' ' + sourceChip(data, p) +
+          '</td><td>' + esc(p.counties.join(', ')) + '</td>' +
+          '<td class="n">' + num(p.farms) + '</td><td class="n">' + num(p.annual_dth) + '</td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<p class="fat-foot">Certified CARB carbon intensity for dairy and swine manure biomethane runs from ' +
+      num(b.lcfs_ci_range.low) + ' to ' + num(b.lcfs_ci_range.high) + ' ' + esc(b.lcfs_ci_range.unit) +
+      ' on an avoided-methane basis. ' + esc(b.align_rng.disclosure_note) + ' ' +
+      sourceChip(data, { source: 'carb_dsm_lcfs' }) + '</p></div>';
+
+    // What reaches the label.
+    var ld = data.label_disclosure;
+    html += '<div class="fat-panel" id="fat-int-label"><h3 class="fat-h3">What reaches the label</h3>' +
+      '<div class="fat-note"><p class="fat-note-title">' + esc(ld.headline) + '</p>' +
+      '<p class="fat-note-body">' + esc(ld.body) + '</p></div>';
+    html += '<div class="fat-tablewrap"><table class="fat-table"><thead><tr>' +
+      '<th>FAT category</th><th>Why it is the only route to this information</th></tr></thead><tbody>' +
+      ld.categories.map(function (c2) {
+        return '<tr><td><strong>' + num(c2.number) + '. ' + esc(c2.name) + '</strong></td><td>' +
+          esc(c2.why) + '</td></tr>';
+      }).join('') + '</tbody></table></div>' +
+      '<p class="fat-foot">' + esc(ld.asymmetry) + '</p></div>';
+
     html += footer(data) + '</div>';
     el.innerHTML = html;
 
-    var body = el.querySelector('#fat-int-body');
-
-    function renderLayer(layer) {
-      var h = '';
-      if (layer === 'inventory' || layer === 'regime') {
-        h += '<div class="fat-grid">' +
-          card('All hogs and pigs', headM(n.inventory_total.value), esc(pub(n.inventory_total)),
-            sourceChip(data, n.inventory_total)) +
-          card('States published individually', num(data.states.length),
-            'NASS aggregates the remaining states into a single figure of ' +
-            headM(data.states_not_separately_published.inventory) + ' head.',
-            sourceChip(data, n.inventory_total)) +
-          card('Four largest packers\' share', num(n.cr4_packers.value) + '%',
-            esc(pub(n.cr4_packers)), sourceChip(data, n.cr4_packers)) +
-          '</div>';
-        h += '<div class="fat-map" id="fat-map-int"></div><div id="fat-legend-int"></div>';
-        h += permitWarning(data);
-        h += stateTable(data);
-      } else if (layer === 'authority') {
-        var la = data.nc_legal_authority;
-        h += '<div class="fat-note"><p class="fat-note-title">' + esc(la.headline) + '</p>' +
-          '<p class="fat-note-body">' + esc(la.body) + '</p></div>';
-        h += '<div class="fat-mech">';
-        la.mechanisms.forEach(function (m) {
-          var st = STATUS[m.status] || { color: '#9A9791', label: m.status };
-          var s = data.sources[m.source];
-          h += '<div class="fat-mech-row"><div>' +
-            '<p class="fat-mech-name">' + esc(m.name) + '</p>' +
-            '<p class="fat-mech-scope">' + esc(m.scope) + '</p></div>' +
-            '<p class="fat-mech-detail">' + esc(m.detail) +
-            (s ? ' <a class="fat-chip fat-chip-' + esc(s.type) + '" href="' + esc(s.url) +
-              '" target="_blank" rel="noopener noreferrer">source</a>' : '') + '</p>' +
-            '<div><span class="fat-pill" style="background:' + st.color + '">' + esc(st.label) +
-            '</span><p class="fat-mech-scope">' + esc(fmtDate(m.date)) + '</p></div></div>';
-        });
-        h += '</div>';
-        var op = la.open_proceeding, ops = data.sources[op.source];
-        h += '<div class="fat-note" style="border-left-color:' + STATUS.open.color + ';margin-top:16px">' +
-          '<p class="fat-note-title">' + esc(op.name) + ' — ' + esc(STATUS.open.label) + '</p>' +
-          '<p class="fat-note-body">' + esc(op.detail) +
-          (ops ? ' <a class="fat-chip fat-chip-' + esc(ops.type) + '" href="' + esc(ops.url) +
-            '" target="_blank" rel="noopener noreferrer">source</a>' : '') + '</p></div>';
-        var ss = data.nc_statutory_structure;
-        h += '<div style="margin-top:16px"><h3 class="fat-h3">Why the lagoons remain</h3>' +
-          '<p class="fat-sub">' + esc(ss.moratorium.detail) + ' <a class="fat-chip fat-chip-primary" href="' +
-          esc(data.sources[ss.moratorium.source].url) +
-          '" target="_blank" rel="noopener noreferrer">' + esc(ss.moratorium.statute) + '</a></p></div>';
-      } else if (layer === 'ownership') {
-        var sm = o.smithfield;
-        h += '<div class="fat-grid">' +
-          card('Smithfield parent stake', num(sm.parent_stake_pct.value) + '%',
-            esc(sm.parent) + ' (' + esc(sm.parent_domicile) + '), ' + esc(sm.parent_stake_pct.basis),
-            sourceChip(data, sm.parent_stake_pct)) +
-          card('U.S. listing', esc(sm.listing.ticker),
-            esc(sm.listing.exchange) + ', since ' + esc(fmtDate(sm.listing.ipo_date)) + '. ' +
-            esc(sm.listing.basis), sourceChip(data, sm.parent_stake_pct)) +
-          card('Internal hog production', num(ig.smithfield_internal_production_head_m.value, 1) + 'M',
-            'Down from ' + num(ig.smithfield_internal_production_prior_head_m.value, 1) +
-            'M head the prior year — about ' + num(ig.smithfield_internal_share_pct.value) +
-            '% of the hogs its Fresh Pork segment processes.',
-            sourceChip(data, ig.smithfield_internal_production_head_m)) +
-          card('Farms', num(ig.smithfield_company_owned_farms.value) + '+ / ' +
-            num(ig.smithfield_contract_farms.value) + '+',
-            'Company-owned and contract farms, United States.',
-            sourceChip(data, ig.smithfield_contract_farms)) +
-          '</div>';
-        h += '<div class="fat-note"><p class="fat-note-title">Integration is loosening at the production end</p>' +
-          '<p class="fat-note-body">' + esc(ig.note) + '</p></div>';
-        h += '<h3 class="fat-h3">North Carolina divestitures</h3><div class="fat-tablewrap">' +
-          '<table class="fat-table"><thead><tr><th>When</th><th>What</th></tr></thead><tbody>' +
-          ig.nc_divestitures.map(function (d) {
-            return '<tr><td>' + esc(fmtDate(d.date)) + '</td><td>' + esc(d.detail) + ' ' +
-              sourceChip(data, d) + '</td></tr>';
-          }).join('') + '</tbody></table></div>';
-        h += '<div style="margin-top:16px"><h3 class="fat-h3">Biogas — the second revenue channel</h3>' +
-          '<p class="fat-sub">' + esc(b.note) + '</p><div class="fat-tablewrap">' +
-          '<table class="fat-table"><thead><tr><th>Project</th><th>Counties</th>' +
-          '<th style="text-align:right">Farms</th><th style="text-align:right">Dth / yr</th></tr></thead><tbody>' +
-          b.align_rng.projects.map(function (p) {
-            return '<tr><td>' + esc(p.name) +
-              (p.completion_estimate ? ' <span class="fat-sub">(est. ' + esc(p.completion_estimate) + ')</span>' : '') +
-              '</td><td>' + esc(p.counties.join(', ')) + '</td>' +
-              '<td class="n">' + num(p.farms) + '</td><td class="n">' + num(p.annual_dth) + '</td></tr>';
-          }).join('') + '</tbody></table></div>' +
-          '<p class="fat-foot">Certified CARB carbon intensity for dairy and swine manure biomethane runs from ' +
-          num(b.lcfs_ci_range.low) + ' to ' + num(b.lcfs_ci_range.high) + ' ' + esc(b.lcfs_ci_range.unit) +
-          ' on an avoided-methane basis. ' + esc(b.align_rng.disclosure_note) + ' ' +
-          sourceChip(data, { source: 'carb_dsm_lcfs' }) + '</p></div>';
-
-        var ld = data.label_disclosure;
-        h += '<div class="fat-note" style="margin-top:16px"><p class="fat-note-title">' +
-          esc(ld.headline) + '</p><p class="fat-note-body">' + esc(ld.body) + '</p></div>';
-        h += '<div class="fat-tablewrap"><table class="fat-table"><thead><tr>' +
-          '<th>FAT category</th><th>Why it is the only route to this information</th></tr></thead><tbody>' +
-          ld.categories.map(function (c2) {
-            return '<tr><td><strong>' + num(c2.number) + '. ' + esc(c2.name) + '</strong></td><td>' +
-              esc(c2.why) + '</td></tr>';
-          }).join('') + '</tbody></table></div>' +
-          '<p class="fat-foot">' + esc(ld.asymmetry) + '</p>';
-      }
-
-      body.innerHTML = h;
-
-      if (layer === 'inventory' || layer === 'regime') {
-        var mode = layer === 'regime' ? 'regime' : 'inventory';
-        drawMap(body.querySelector('#fat-map-int'), data, mode);
-        body.querySelector('#fat-legend-int').innerHTML = legendFor(mode, data);
-      }
-      Array.prototype.forEach.call(el.querySelectorAll('.fat-btn[data-layer]'), function (bt) {
-        bt.setAttribute('aria-pressed', String(bt.getAttribute('data-layer') === layer));
+    // Jump links scroll within whatever container holds the page, without
+    // rewriting the URL hash (the standalone map shell scrolls an inner pane).
+    Array.prototype.forEach.call(el.querySelectorAll('a[data-jump]'), function (a) {
+      a.addEventListener('click', function (ev) {
+        var t = el.querySelector('#' + a.getAttribute('data-jump'));
+        if (!t) return;
+        ev.preventDefault();
+        try { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        catch (e) { t.scrollIntoView(); }
       });
-    }
-
-    Array.prototype.forEach.call(el.querySelectorAll('.fat-btn[data-layer]'), function (bt) {
-      bt.addEventListener('click', function () { renderLayer(bt.getAttribute('data-layer')); });
     });
-    renderLayer('inventory');
+
+    drawMap(el.querySelector('#fat-map-int'), data, 'regime', { detailEl: el.querySelector('#fat-detail-int') });
+    el.querySelector('#fat-legend-int').innerHTML = legendFor('regime', data);
   }
 
   // ---------------------------------------------------------------- boot
