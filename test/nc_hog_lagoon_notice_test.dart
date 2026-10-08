@@ -129,6 +129,8 @@ void main() {
       NcHogLagoonNotice.caveat,
       NcHogLagoonNotice.sourceLabel,
       NcHogLagoonNotice.permitListLabel,
+      NcHogLagoonNotice.nassLabel,
+      NcHogLagoonNotice.courtLabel,
     ].join(' ').toLowerCase();
     for (final w in [
       'score', 'grade', 'avoid', 'fails', 'poor', 'hides', 'conceals',
@@ -138,8 +140,16 @@ void main() {
     }
     expect(
         NcHogLagoonNotice.body.contains(
-            "NC DEQ's April 2026 permit list shows 1,880 current swine permits, 1,866 of them with at least one lagoon, permitted for about 8.5 million hogs at a time."),
+            "so existing lagoon farms continue to operate. NC DEQ's April 2026 list of permitted animal facilities includes 1,962 swine permits, 1,944 of them with at least one lagoon, permitted for about 8.7 million hogs at a time. North Carolina had 7.20 million hogs on June 1, 2026, the third most of any state. In October 2025 the N.C. Supreme Court ruled that DEQ could not enforce the swine general permit's annual reporting requirement without formal rulemaking."),
         isTrue);
+    expect(NcHogLagoonNotice.body.endsWith('without formal rulemaking.'), isTrue);
+    expect(NcHogLagoonNotice.body.contains('1,880'), isFalse);
+    expect(NcHogLagoonNotice.nassUrl,
+        'https://www.nass.usda.gov/Newsroom/2026/06-25-2026.php');
+    expect(NcHogLagoonNotice.courtUrl,
+        'https://appellate.nccourts.org/opinions/?c=1&pdf=45263');
+    expect(NcHogLagoonNotice.caveat,
+        "The package doesn't say which farm raised this pork. The plant's location is only a clue: hogs can travel long distances to slaughter.");
     expect(NcHogLagoonNotice.shareParagraph.contains(NcHogLagoonNotice.body), isTrue);
     expect(NcHogLagoonNotice.shareParagraph.contains(NcHogLagoonNotice.caveat), isTrue);
   });

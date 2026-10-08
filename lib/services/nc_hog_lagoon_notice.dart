@@ -19,7 +19,7 @@ import 'processor_service.dart';
 class NcHogLagoonNotice {
   static const title = 'North Carolina hog farms and waste lagoons';
   static const body =
-      "This pork was processed at a plant in North Carolina. Many of the state's hog farms store manure in open-air anaerobic lagoons and apply the liquid to nearby fields. North Carolina placed a moratorium on new and expanded hog farms in 1997 and made it permanent in 2007 for farms that use anaerobic lagoons as their primary waste treatment, so existing lagoon farms continue to operate. NC DEQ's April 2026 permit list shows 1,880 current swine permits, 1,866 of them with at least one lagoon, permitted for about 8.5 million hogs at a time.";
+      "This pork was processed at a plant in North Carolina. Many of the state's hog farms store manure in open-air anaerobic lagoons and apply the liquid to nearby fields. North Carolina placed a moratorium on new and expanded hog farms in 1997 and made it permanent in 2007 for farms that use anaerobic lagoons as their primary waste treatment, so existing lagoon farms continue to operate. NC DEQ's April 2026 list of permitted animal facilities includes 1,962 swine permits, 1,944 of them with at least one lagoon, permitted for about 8.7 million hogs at a time. North Carolina had 7.20 million hogs on June 1, 2026, the third most of any state. In October 2025 the N.C. Supreme Court ruled that DEQ could not enforce the swine general permit's annual reporting requirement without formal rulemaking.";
   static const caveat =
       "The package doesn't say which farm raised this pork. The plant's location is only a clue: hogs can travel long distances to slaughter.";
   static const sourceLabel =
@@ -31,6 +31,14 @@ class NcHogLagoonNotice {
       'NC DEQ — List of Permitted Animal Facilities (April 23, 2026)';
   static const permitListUrl =
       'https://www.deq.nc.gov/listpermittedanimalfacilities20260423xlsx/open';
+
+  static const nassLabel =
+      'USDA NASS — Quarterly Hogs and Pigs (June 25, 2026)';
+  static const nassUrl = 'https://www.nass.usda.gov/Newsroom/2026/06-25-2026.php';
+
+  static const courtLabel =
+      'N.C. Supreme Court — DEQ v. N.C. Farm Bureau Federation, No. 338PA23 (Oct. 17, 2025)';
+  static const courtUrl = 'https://appellate.nccourts.org/opinions/?c=1&pdf=45263';
 
   /// One compact paragraph for the share / email summary.
   static String get shareParagraph =>

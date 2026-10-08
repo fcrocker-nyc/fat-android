@@ -57,6 +57,10 @@ class NcHogLagoonCard extends StatelessWidget {
           const SizedBox(height: 6),
           _link(NcHogLagoonNotice.permitListLabel,
               NcHogLagoonNotice.permitListUrl),
+          const SizedBox(height: 6),
+          _link(NcHogLagoonNotice.nassLabel, NcHogLagoonNotice.nassUrl),
+          const SizedBox(height: 6),
+          _link(NcHogLagoonNotice.courtLabel, NcHogLagoonNotice.courtUrl),
         ],
       ),
     );

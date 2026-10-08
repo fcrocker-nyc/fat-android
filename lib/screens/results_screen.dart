@@ -25,6 +25,7 @@ import '../services/processor_service.dart';
 import '../services/establishments_service.dart';
 import '../widgets/establishment_cards.dart';
 import '../services/feedlot_proximity_service.dart';
+import '../services/swine_permit_service.dart';
 import '../widgets/share_card_renderer.dart';
 import 'certification_result_cards.dart';
 import '../widgets/label_image_viewer.dart';
@@ -84,6 +85,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // CAFOs 75mi). Fetched once the processor record supplies coordinates.
   ProximityResult? _proximity;
   String _proximityKind = ''; // 'feedlot' | 'hog CAFO'
+  // State swine permit records within 75 mi of a pork plant (informational;
+  // never a status/count input). Null until the dataset resolves.
+  SwinePermitSummary? _swinePermits;
 
   @override
   void initState() {
@@ -316,6 +320,27 @@ class _ResultsScreenState extends State<ResultsScreen> {
           _proximityKind = kind;
         });
       }
+      // State permit records: pork meat-lane scans only.
+      if (result.productType == ProductType.meat &&
+          !result.isPreparedFood &&
+          (sp.contains('pork') || sp.contains('hog') || sp.contains('swine'))) {
+        final data = await SwinePermitService.load();
+        if (data != null && mounted) {
+          final parent = shared.isNotEmpty
+              ? (shared.map((p) => p.parentCompany ?? '').toSet().length == 1
+                  ? shared.first.parentCompany
+                  : null)
+              : (_ownership?.parentName ?? rec?.resolvedPlant?.parentCompany);
+          final summary =
+              data.summarize(lat, lon, plantParentName: parent);
+          if (!summary.isEmpty) {
+            setState(() {
+              _swinePermits = summary;
+              if (_proximityKind.isEmpty) _proximityKind = 'hog CAFO';
+            });
+          }
+        }
+      }
     }
   }
 
@@ -472,7 +497,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               ..._estWarnings(),
               _disclosureSummary(),
               if (result.detectedEstablishmentNumber != null) _processorSection(),
-              if (_proximity != null) _proximitySection(),
+              if (_proximity != null || _swinePermits != null) _proximitySection(),
               // Informational only — no status, count, index or penalty change.
               if (_showsNcHogLagoonCard) const NcHogLagoonCard(),
               _categorySection(),
@@ -1554,7 +1579,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
   /// Nearby feedlot / hog-CAFO environmental compliance (EPA ECHO). Mirrors iOS
   /// feedlotProximitySection / hogProximitySection.
   Widget _proximitySection() {
-    final p = _proximity!;
+    final p = _proximity;
+    final permits = _swinePermits;
     final title = _proximityKind == 'hog CAFO'
         ? 'Nearby Hog Farm Compliance'
         : 'Nearby Feedlot Compliance';
@@ -1581,7 +1607,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (!p.hasNearby)
+              if (p == null)
+                const SizedBox.shrink()
+              else if (!p.hasNearby)
                 Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   const Padding(
                       padding: EdgeInsets.only(top: 1),
@@ -1635,6 +1663,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   ]),
                 ],
               ],
+              if (permits != null)
+                for (final line in permits.cardLines)
+                  Padding(
+                    padding: EdgeInsets.only(top: p == null ? 0 : 10),
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                              padding: EdgeInsets.only(top: 1),
+                              child: Icon(Icons.description_outlined,
+                                  size: 16, color: Colors.black54)),
+                          const SizedBox(width: 8),
+                          Expanded(
+                              child: Text(line,
+                                  style: const TextStyle(fontSize: 13.5))),
+                        ]),
+                  ),
               const SizedBox(height: 12),
               GestureDetector(
                 onTap: () => _openUrl(mapUrl),
@@ -1648,7 +1693,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                           color: Colors.blue)),
                 ]),
               ),
-              if (p.dataDate.isNotEmpty)
+              if (p != null && p.dataDate.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 6),
                   child: Text('${p.dataSource} · ${p.dataDate}',
@@ -2021,6 +2066,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       const SizedBox(height: 2),
                       _captivityBadge(value!.captivityStatus!),
                     ],
+                    // State permit records held by the plant's parent —
+                    // a detail line only; Cat. 16 status/count unchanged.
+                    if (category == FATCategory.supplyChainIntermediary &&
+                        _swinePermits?.parentLine != null)
+                      _detailLine(_swinePermits!.parentLine!),
                     if (category == FATCategory.qualityPalatability)
                       for (final line in _seasoningLines) _detailLine(line),
                     // Same resolved name as the processor card (website →
