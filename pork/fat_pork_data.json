@@ -176,7 +176,7 @@
         "detail": [
           {
             "value": 186,
-            "label": "hold a state SDS permit only"
+            "label": "hold a State Disposal System (SDS) permit only"
           },
           {
             "value": 4752,
@@ -184,12 +184,12 @@
           },
           {
             "value": 1189,
-            "label": "are flagged CAFO"
+            "label": "are flagged as a CAFO"
           }
         ],
         "source": "mn_feedlots_layer",
         "asof": "2026-07-08",
-        "basis": "MPCA's env_feedlots extract carries an npdes_sds field per operation. Swine operations selected where swine_big + swine_medium + swine_little > 0, then deduplicated on permit or registration id.",
+        "basis": "The Minnesota Pollution Control Agency (MPCA) env_feedlots extract carries an npdes_sds field per operation. Swine operations selected where swine_big + swine_medium + swine_little > 0, then deduplicated on permit or registration id.",
         "caveat": "MPCA states a daily refresh, but the published extract's internal timestamp is July 8, 2026."
       },
       {
@@ -213,7 +213,7 @@
         ],
         "source": "ia_afo_gdb",
         "asof": "2024-04-05",
-        "basis": "Iowa DNR's AFO geodatabase carries NPDESPermitIssueDate per facility. Swine facilities are those with any swine animal units recorded. Under Iowa law a totally roofed confinement is deemed non-discharging and needs no NPDES permit, which is why the confinement column is almost entirely empty.",
+        "basis": "The Iowa Department of Natural Resources (DNR) Animal Feeding Operations (AFO) geodatabase carries NPDESPermitIssueDate per facility. Swine facilities are those with any swine animal units recorded. Under Iowa law a totally roofed confinement is deemed non-discharging and needs no NPDES permit, which is why the confinement column is almost entirely empty.",
         "caveat": "The published geodatabase was last updated April 5, 2024 and covers facilities at 300 or more animal units, so smaller operations are out of scope.",
         "internal_note": "NPDESPermitIssueDate is a string field: missing values are the literal text NULL, not an empty field. A truthiness test on it reports 100% coverage. The Swine_* columns are ANIMAL UNITS, not head — they equal TotalAnimalUnitsByFacility exactly on pure-swine facilities."
       }
@@ -258,7 +258,7 @@
       "breeding": 840,
       "market": 23860,
       "permit_regime": "state_only",
-      "permit_program": "Iowa DNR construction permit + Manure Management Plan (IAC 567 Ch. 65); NPDES only where a discharge would be expected",
+      "permit_program": "Iowa Department of Natural Resources (DNR) construction permit + Manure Management Plan (Iowa Administrative Code 567 Ch. 65); NPDES only where a discharge would be expected",
       "regime_source": "https://www.iowadnr.gov/environmental-protection/animal-feeding-operations/afo-confinements"
     },
     {
@@ -268,7 +268,7 @@
       "breeding": 540,
       "market": 8760,
       "permit_regime": "both",
-      "permit_program": "SDS general permit MNG450000 required at 1,000+ animal units (state-only); NPDES general MNG440000 only on discharge to WOTUS",
+      "permit_program": "State Disposal System (SDS) general permit MNG450000 required at 1,000+ animal units (state-only); NPDES general permit MNG440000 only on discharge to waters of the United States",
       "regime_source": "https://www.pca.state.mn.us/business-with-us/npdes-and-sds-feedlot-permits"
     },
     {
@@ -288,7 +288,7 @@
       "breeding": 600,
       "market": 4650,
       "permit_regime": "npdes",
-      "permit_program": "IEPA NPDES general permit ILA01 (on discharge); siting under the Livestock Management Facilities Act carries no discharge permit",
+      "permit_program": "Illinois EPA NPDES general permit ILA01 (on discharge); siting under the Livestock Management Facilities Act carries no discharge permit",
       "regime_source": "https://epa.illinois.gov/topics/water-quality/watershed-management/cafos.html"
     },
     {
@@ -298,7 +298,7 @@
       "breeding": 260,
       "market": 4040,
       "permit_regime": "state_only",
-      "permit_program": "State CFO permit under 327 IAC 19 for non-discharging operations; NPDES CAFO permit only where discharging",
+      "permit_program": "State Confined Feeding Operation (CFO) permit under 327 Indiana Administrative Code 19 for non-discharging operations; NPDES CAFO permit only where discharging",
       "regime_source": "https://www.in.gov/idem/cfo/cfo-permit-requirements/"
     },
     {
@@ -328,7 +328,7 @@
       "breeding": 210,
       "market": 2590,
       "permit_regime": "both",
-      "permit_program": "ODA Permit to Install / Permit to Operate (state, universal); Ohio EPA NPDES for CAFOs that discharge or propose to discharge",
+      "permit_program": "Ohio Department of Agriculture Permit to Install / Permit to Operate (state, universal); Ohio EPA NPDES for CAFOs that discharge or propose to discharge",
       "regime_source": "https://epa.ohio.gov/divisions-and-offices/surface-water/permitting/concentrated-animal-feeding-operations",
       "regime_note": "Whether Ohio EPA requires NPDES coverage of all large swine CAFOs or only actual and proposed dischargers is not established."
     },
@@ -349,7 +349,7 @@
       "breeding": 430,
       "market": 1620,
       "permit_regime": "npdes",
-      "permit_program": "ODAFF AgPDES general permit OKG010000 under EPA-authorized partial NPDES authority (Dec. 20, 2012); plus a separate state swine license under the Oklahoma Swine Feeding Operations Act",
+      "permit_program": "Oklahoma Department of Agriculture, Food and Forestry AgPDES (Agricultural Pollutant Discharge Elimination System) general permit OKG010000 under EPA-authorized partial NPDES authority (Dec. 20, 2012); plus a separate state swine license under the Oklahoma Swine Feeding Operations Act",
       "regime_source": "https://ag.ok.gov/divisions/agricultural-environmental-management/"
     },
     {
@@ -359,7 +359,7 @@
       "breeding": 170,
       "market": 1660,
       "permit_regime": "both",
-      "permit_program": "KDHE three tiers — registration at 300+ animal units, state permit where no significant pollution potential, federal NPDES for larger operations",
+      "permit_program": "Kansas Department of Health and Environment three tiers — registration at 300+ animal units, state permit where no significant pollution potential, federal NPDES for larger operations",
       "regime_source": "https://www.kdhe.ks.gov/436/Livestock-Waste-Management",
       "regime_note": "Exact swine head thresholds separating the state permit from NPDES are not published."
     },
@@ -390,7 +390,7 @@
       "breeding": 140,
       "market": 1000,
       "permit_regime": "both",
-      "permit_program": "TCEQ general permit TXG920000 covers both TPDES (NPDES-delegated) and State-only CAFOs in one instrument",
+      "permit_program": "Texas Commission on Environmental Quality general permit TXG920000 covers both the Texas Pollutant Discharge Elimination System (TPDES, the NPDES-delegated program) and state-only CAFOs in one instrument",
       "regime_source": "https://www.tceq.texas.gov/downloads/permitting/wastewater/agriculture/cafo-general/txg920000-factsheet.pdf"
     }
   ],
@@ -513,7 +513,7 @@
         "scope": "All permitted swine facilities",
         "status": "unenforceable",
         "date": "2025-10-17",
-        "detail": "A two-page annual summary of animal numbers, lagoons and manure application acreage. Struck as an unpromulgated APA rule.",
+        "detail": "A two-page annual summary of animal numbers, lagoons and manure application acreage. Struck as a rule that was never promulgated under the Administrative Procedure Act (APA).",
         "source": "nc_338pa23"
       },
       {
@@ -521,7 +521,7 @@
         "scope": "About 5 percent of operations",
         "status": "unenforceable",
         "date": "2025-10-17",
-        "detail": "PLAT analysis on high-phosphorus fields with mitigation required at specified ratings. Struck on the same grounds.",
+        "detail": "Phosphorus Loss Assessment Tool (PLAT) analysis on high-phosphorus fields with mitigation required at specified ratings. Struck on the same grounds.",
         "source": "nc_338pa23"
       },
       {
@@ -545,7 +545,7 @@
         "scope": "All animal feeding operations, nationwide",
         "status": "exempt",
         "date": "2018-03-23",
-        "detail": "Congress exempted air emissions from animal waste at a farm from CERCLA section 103 reporting.",
+        "detail": "Congress exempted air emissions from animal waste at a farm from reporting under section 103 of the Comprehensive Environmental Response, Compensation, and Liability Act (CERCLA).",
         "source": "farm_act_2018"
       },
       {
@@ -553,7 +553,7 @@
         "scope": "All animal feeding operations, nationwide",
         "status": "exempt_on_appeal",
         "date": "2019-06-13",
-        "detail": "EPA extended the exemption to EPCRA section 304. The challenge was decided for EPA on August 7, 2025 and is on appeal in the D.C. Circuit, No. 25-5354.",
+        "detail": "EPA extended the exemption to section 304 of the Emergency Planning and Community Right-to-Know Act (EPCRA). The challenge was decided for EPA on August 7, 2025 and is on appeal in the D.C. Circuit, No. 25-5354.",
         "source": "epcra_rule_2019"
       },
       {
@@ -722,7 +722,7 @@
       "high": -135,
       "unit": "gCO2e/MJ",
       "source": "carb_dsm_lcfs",
-      "basis": "Certified CARB carbon intensity range for dairy and swine manure biomethane pathways, credited on an avoided-methane basis."
+      "basis": "Certified California Air Resources Board (CARB) carbon intensity range for dairy and swine manure biomethane pathways, credited on an avoided-methane basis."
     }
   },
   "label_disclosure": {

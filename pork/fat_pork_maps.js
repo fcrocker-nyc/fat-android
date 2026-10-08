@@ -23,6 +23,12 @@
  *                 inventory table rather than duplicating it.
  *   enforcement — North Carolina swine enforcement.
  *
+ * Design follows the FAT map system used by the beef maps: Georgia serif body,
+ * Arial for labels and figures, evergreen header band (#3a4a2d) on #f7f9f5,
+ * sage KPI strip (#e8ede4) with white bordered cards, emerald links (#0F6C4F),
+ * and the shared tier colors. Light theme only, like the beef maps.
+ * Every acronym is spelled out the first time it appears in each view.
+ *
  * The choropleth labels every state NASS publishes with its postal code and head
  * count, and a detail panel under the map shows the selected state's figures on
  * hover or tap. States NASS does not publish separately are grey and say so.
@@ -37,35 +43,37 @@
   var ENFORCEMENT_MAP_URL = '/pork-supply-chain/pork-enforcement-map/';
 
   // ---------------------------------------------------------------- palette
-  // Sequential ramp for inventory; categorical for permit regime; status colors
-  // for the legal-authority view. Chosen to stay legible in both themes.
-  var RAMP = ['#F2E9DC', '#E8CFA9', '#DDAE6E', '#C9853C', '#A85D20', '#7A3D12'];
-  var NO_DATA_LIGHT = '#D3D1C7';
-  var NO_DATA_DARK = '#4A4844';
+  // FAT map design system (shared with the beef maps).
+  var C = {
+    ink: '#1f2a1a', bg: '#f7f9f5', band: '#3a4a2d', bandText: '#f7f9f5', bandSub: '#dde5d9',
+    strip: '#e8ede4', line: '#c9d3c2', olive: '#4a5e3a', link: '#0F6C4F', muted: '#5a6652',
+    red: '#a83232', darkRed: '#7a1f1f', orange: '#d9822b', navy: '#1f4e79', green: '#3a7a3a',
+    amber: '#b45309', grey: '#8f948a'
+  };
+  // Sequential sage-to-evergreen ramp for inventory; categorical for permit
+  // regime; status colors for the legal-authority view.
+  var RAMP = ['#f0f4ec', '#dde5d9', '#b9c9ad', '#8ba57a', '#5f7a4e', '#3a4a2d'];
+  var NO_DATA = '#d9d9d4';
 
   var REGIME = {
-    state_only: { color: '#7A3D12', label: 'State-only permit is the default', dark: true },
-    both: { color: '#C9853C', label: 'Both — state-only default, NPDES on discharge', dark: true },
-    npdes: { color: '#2E6B8A', label: 'NPDES is the primary instrument', dark: true },
-    unknown: { color: '#9A9791', label: 'Not determined', dark: true }
+    state_only: { color: C.red, label: 'State-only permit is the default' },
+    both: { color: C.orange, label: 'Both — state-only default, NPDES on discharge' },
+    npdes: { color: C.navy, label: 'NPDES is the primary instrument' },
+    unknown: { color: C.grey, label: 'Not determined' }
   };
 
   var STATUS = {
-    unenforceable: { color: '#B3261E', label: 'Struck — unenforceable' },
-    repealed: { color: '#7A1710', label: 'Repealed' },
-    exempt: { color: '#B3261E', label: 'Statutory exemption' },
-    exempt_on_appeal: { color: '#C9853C', label: 'Exempt — on appeal' },
-    stalled: { color: '#C9853C', label: 'Stalled' },
-    not_initiated: { color: '#8A6A2F', label: 'Not initiated' },
-    open: { color: '#2E6B8A', label: 'Open proceeding' }
+    unenforceable: { color: C.red, label: 'Struck — unenforceable' },
+    repealed: { color: C.darkRed, label: 'Repealed' },
+    exempt: { color: C.red, label: 'Statutory exemption' },
+    exempt_on_appeal: { color: C.orange, label: 'Exempt — on appeal' },
+    stalled: { color: C.orange, label: 'Stalled' },
+    not_initiated: { color: C.amber, label: 'Not initiated' },
+    open: { color: C.navy, label: 'Open proceeding' }
   };
 
   // ---------------------------------------------------------------- helpers
-  function isDark() {
-    try { return window.matchMedia('(prefers-color-scheme: dark)').matches; }
-    catch (e) { return false; }
-  }
-  function noDataColor() { return isDark() ? NO_DATA_DARK : NO_DATA_LIGHT; }
+  function noDataColor() { return NO_DATA; }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -157,68 +165,72 @@
   }
 
   // ---------------------------------------------------------------- styles
+  var SANS = 'Arial,Helvetica,sans-serif';
+  var SERIF = 'Georgia,"Times New Roman",serif';
   var CSS = [
-    '.fat-wrap{--fat-bg:#fff;--fat-fg:#111;--fat-muted:#666;--fat-line:rgba(0,0,0,.15);--fat-panel:#f6f4f0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--fat-fg)}',
-    '@media (prefers-color-scheme:dark){.fat-wrap{--fat-bg:#1b1a18;--fat-fg:#ece9e4;--fat-muted:#a5a09a;--fat-line:rgba(255,255,255,.16);--fat-panel:#232120}}',
-    '.fat-panel{background:var(--fat-bg);border:.5px solid var(--fat-line);border-radius:12px;padding:16px 20px;margin-bottom:16px}',
-    '.fat-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:14px}',
-    '.fat-h2{font-size:18px;font-weight:600;margin:0 0 4px}',
-    '.fat-h3{font-size:15px;font-weight:600;margin:0 0 10px}',
-    '.fat-sub{font-size:13px;color:var(--fat-muted);margin:0}',
-    '.fat-asof{font-size:12px;color:var(--fat-muted);margin:0;text-align:right}',
-    '.fat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}',
-    '.fat-card{background:var(--fat-panel);border-radius:8px;padding:12px 14px}',
-    '.fat-card-warn{outline:1px solid #C9853C}',
-    '.fat-card-label{font-size:12px;color:var(--fat-muted);margin:0 0 4px;text-transform:uppercase;letter-spacing:.04em}',
-    '.fat-card-value{font-size:26px;font-weight:600;margin:0;line-height:1.15}',
-    '.fat-card-sub{font-size:12px;color:var(--fat-muted);margin:6px 0 0}',
+    '.fat-wrap{--fat-bg:#fff;--fat-fg:' + C.ink + ';--fat-muted:' + C.muted + ';--fat-line:' + C.line + ';--fat-panel:' + C.strip + ';font:15px/1.5 ' + SERIF + ';color:var(--fat-fg)}',
+    '.fat-wrap a{color:' + C.link + '}',
+    '.fat-panel{background:var(--fat-bg);border:1px solid var(--fat-line);border-radius:6px;padding:14px 16px;margin-bottom:16px}',
+    '.fat-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;background:' + C.band + ';color:' + C.bandText + ';margin:-14px -16px 14px;padding:12px 16px;border-radius:5px 5px 0 0}',
+    '.fat-h2{font:600 1.15rem/1.3 ' + SERIF + ';margin:0 0 4px;color:' + C.bandText + '}',
+    '.fat-head .fat-sub{font:13px/1.45 ' + SANS + ';color:' + C.bandSub + ';max-width:1100px}',
+    '.fat-h3{font:600 1.05rem/1.3 ' + SERIF + ';color:' + C.band + ';margin:0 0 10px;padding-bottom:6px;border-bottom:1px solid var(--fat-line)}',
+    '.fat-sub{font-size:14px;color:var(--fat-muted);margin:0}',
+    '.fat-key{font:13px/1.5 ' + SANS + ';color:var(--fat-fg);background:var(--fat-panel);border:1px solid var(--fat-line);border-radius:6px;padding:8px 12px;margin:0 0 14px}',
+    '.fat-key b{color:' + C.band + '}',
+    '.fat-asof{font:12px/1.4 ' + SANS + ';color:' + C.bandSub + ';margin:0;text-align:right}',
+    '.fat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:14px;background:var(--fat-panel);border:1px solid var(--fat-line);border-radius:6px;padding:8px}',
+    '.fat-card{background:#fff;border:1px solid var(--fat-line);border-radius:6px;padding:8px 10px}',
+    '.fat-card-warn{outline:1px solid ' + C.amber + '}',
+    '.fat-card-label{font:11px/1.3 ' + SANS + ';color:' + C.olive + ';margin:0 0 4px;text-transform:uppercase;letter-spacing:.04em}',
+    '.fat-card-value{font:600 20px/1.15 ' + SANS + ';margin:0;color:var(--fat-fg)}',
+    '.fat-card-sub{font:12px/1.45 ' + SANS + ';color:var(--fat-muted);margin:6px 0 0}',
     '.fat-card-chip{margin:8px 0 0}',
-    '.fat-chip{display:inline-block;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;text-decoration:none;border:.5px solid var(--fat-line);color:var(--fat-muted)}',
-    '.fat-chip-primary{color:#2E6B8A;border-color:#2E6B8A}',
-    '.fat-chip-secondary{color:#8A6A2F;border-color:#8A6A2F}',
-    '.fat-chip-fat{color:#7A3D12;border-color:#7A3D12}',
-    '.fat-chip-warn{color:#B3261E;border-color:#B3261E}',
-    '.fat-note{border-left:3px solid #C9853C;background:var(--fat-panel);border-radius:0 8px 8px 0;padding:12px 14px;margin:0 0 16px}',
-    '.fat-note-title{font-size:13px;font-weight:600;margin:0 0 6px}',
-    '.fat-note-body{font-size:13px;color:var(--fat-muted);margin:0}',
+    '.fat-chip{display:inline-block;font:10px/1.4 ' + SANS + ';letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;text-decoration:none;border:1px solid var(--fat-line);color:var(--fat-muted)}',
+    '.fat-chip-primary{color:' + C.link + ';border-color:' + C.link + '}',
+    '.fat-chip-secondary{color:' + C.amber + ';border-color:' + C.amber + '}',
+    '.fat-chip-fat{color:' + C.band + ';border-color:' + C.band + '}',
+    '.fat-chip-warn{color:' + C.red + ';border-color:' + C.red + '}',
+    '.fat-note{border-left:3px solid ' + C.amber + ';background:var(--fat-panel);border-radius:0 6px 6px 0;padding:10px 14px;margin:0 0 16px}',
+    '.fat-note-title{font:600 14px/1.4 ' + SERIF + ';color:' + C.band + ';margin:0 0 6px}',
+    '.fat-note-body{font-size:14px;color:var(--fat-fg);margin:0}',
     '.fat-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}',
-    '.fat-btn{font:inherit;font-size:13px;padding:7px 13px;border-radius:6px;cursor:pointer;background:transparent;color:var(--fat-fg);border:.5px solid var(--fat-line);text-decoration:none;display:inline-block}',
-    '.fat-btn[aria-pressed="true"]{background:#7A3D12;color:#fff;border-color:#7A3D12}',
-    '.fat-jump{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}',
-    '.fat-jump .fat-btn:hover{background:var(--fat-panel)}',
-    '.fat-legend{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--fat-muted);margin:10px 0 0}',
+    '.fat-btn{font:13px/1.3 ' + SANS + ';padding:7px 13px;border-radius:6px;cursor:pointer;background:#fff;color:var(--fat-fg);border:1px solid var(--fat-line);text-decoration:none;display:inline-block}',
+    '.fat-wrap a.fat-btn{color:var(--fat-fg)}',
+    '.fat-btn:hover{background:var(--fat-panel)}',
+    '.fat-btn[aria-pressed="true"]{background:' + C.band + ';color:#fff;border-color:' + C.band + '}',
+    '.fat-jump{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}',
+    '.fat-legend{display:flex;flex-wrap:wrap;gap:14px;font:12px/1.5 ' + SANS + ';color:var(--fat-fg);margin:10px 0 0}',
     '.fat-legend span.k{display:inline-flex;align-items:center;gap:6px}',
-    '.fat-sw{width:11px;height:11px;border-radius:2px;display:inline-block;flex:0 0 auto}',
+    '.fat-sw{width:11px;height:11px;border-radius:2px;display:inline-block;flex:0 0 auto;border:1px solid #333}',
+    '.fat-map{background:' + C.bg + ';border:1px solid var(--fat-line);border-radius:6px;padding:6px}',
     '.fat-map svg{width:100%;height:auto;display:block}',
-    '.fat-map svg path.fat-st{cursor:pointer;transition:opacity .12s}',
-    '.fat-map svg path.fat-st.fat-hot{stroke:#111;stroke-width:1.8}',
-    '@media (prefers-color-scheme:dark){.fat-map svg path.fat-st.fat-hot{stroke:#fff}}',
-    '.fat-map svg text.fat-lbl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;pointer-events:none;text-anchor:middle;paint-order:stroke fill;stroke-linejoin:round}',
-    '.fat-map svg text.fat-lbl.on-light{fill:#1b1a18;stroke:rgba(255,255,255,.85);stroke-width:3px}',
+    '.fat-map svg path.fat-st{cursor:pointer}',
+    '.fat-map svg path.fat-st.fat-hot{stroke:' + C.ink + ';stroke-width:1.8}',
+    '.fat-map svg text.fat-lbl{font-family:' + SANS + ';font-size:11px;font-weight:700;pointer-events:none;text-anchor:middle;paint-order:stroke fill;stroke-linejoin:round}',
+    '.fat-map svg text.fat-lbl.on-light{fill:' + C.ink + ';stroke:rgba(255,255,255,.85);stroke-width:3px}',
     '.fat-map svg text.fat-lbl.on-dark{fill:#fff;stroke:rgba(0,0,0,.55);stroke-width:3px}',
     '.fat-map svg text.fat-lbl tspan.v{font-weight:500;font-size:10px}',
-    '.fat-detail{background:var(--fat-panel);border-radius:8px;padding:12px 14px;margin:12px 0 0;min-height:72px;font-size:13px;color:var(--fat-fg)}',
-    '.fat-detail-title{font-size:14px;font-weight:600;margin:0 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
+    '.fat-detail{background:var(--fat-panel);border:1px solid var(--fat-line);border-radius:6px;padding:10px 14px;margin:12px 0 0;min-height:72px;font:13px/1.5 ' + SANS + ';color:var(--fat-fg)}',
+    '.fat-detail-title{font:600 15px/1.3 ' + SERIF + ';color:' + C.band + ';margin:0 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
     '.fat-detail p{margin:0 0 4px}',
-    '.fat-detail .fat-sub{margin:0}',
+    '.fat-detail .fat-sub{margin:0;font-size:13px}',
     '.fat-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}',
-    '.fat-table{width:100%;border-collapse:collapse;font-size:13px;min-width:520px}',
-    '.fat-table th,.fat-table td{text-align:left;padding:8px 10px;border-bottom:.5px solid var(--fat-line);vertical-align:top}',
-    '.fat-table th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--fat-muted);font-weight:600}',
+    '.fat-table{width:100%;border-collapse:collapse;font:13px/1.45 ' + SANS + ';min-width:520px}',
+    '.fat-table th,.fat-table td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--fat-line);vertical-align:top}',
+    '.fat-table th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:' + C.olive + ';font-weight:600;background:var(--fat-panel)}',
     '.fat-table td.n{text-align:right;font-variant-numeric:tabular-nums}',
     '.fat-mech{display:grid;gap:10px}',
-    '.fat-mech-row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,2fr) auto;gap:12px;align-items:start;padding:10px 0;border-bottom:.5px solid var(--fat-line)}',
+    '.fat-mech-row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,2fr) auto;gap:12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--fat-line)}',
     '@media (max-width:640px){.fat-mech-row{grid-template-columns:1fr}}',
-    '.fat-mech-name{font-weight:600;font-size:13px;margin:0}',
-    '.fat-mech-scope{font-size:12px;color:var(--fat-muted);margin:3px 0 0}',
-    '.fat-mech-detail{font-size:13px;color:var(--fat-muted);margin:0}',
-    '.fat-pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;color:#fff;white-space:nowrap}',
-    '.fat-err{border:.5px solid #B3261E;border-radius:12px;padding:16px 20px;font-size:13px}',
-    '.fat-foot{font-size:12px;color:var(--fat-muted);margin:14px 0 0}',
-    '.fat-foot a,.fat-sub a,.fat-detail a{color:inherit}',
-    '.fat-xref{font-size:13px;color:var(--fat-muted);margin:12px 0 0;padding-top:10px;border-top:.5px solid var(--fat-line)}',
-    '.fat-xref a{color:#2E6B8A;font-weight:600}',
-    '@media (prefers-color-scheme:dark){.fat-xref a{color:#7FB3CF}}'
+    '.fat-mech-name{font:600 14px/1.4 ' + SERIF + ';color:' + C.band + ';margin:0}',
+    '.fat-mech-scope{font:12px/1.45 ' + SANS + ';color:var(--fat-muted);margin:3px 0 0}',
+    '.fat-mech-detail{font-size:14px;color:var(--fat-fg);margin:0}',
+    '.fat-pill{display:inline-block;font:600 11px/1.4 ' + SANS + ';padding:3px 9px;border-radius:999px;color:#fff;white-space:nowrap}',
+    '.fat-err{border:1px solid ' + C.red + ';border-radius:6px;padding:16px 20px;font-size:14px}',
+    '.fat-foot{font:12px/1.5 ' + SANS + ';color:var(--fat-muted);margin:14px 0 0}',
+    '.fat-xref{font-size:14px;color:var(--fat-fg);margin:12px 0 0;padding-top:10px;border-top:1px solid var(--fat-line)}',
+    '.fat-xref a{font-weight:600}'
   ].join('\n');
 
   function injectCSS() {
@@ -228,6 +240,19 @@
     st.textContent = CSS;
     document.head.appendChild(st);
   }
+
+  // ---------------------------------------------------------------- key terms
+  // Each view spells out its acronyms once, before any figure uses them.
+  function keyTerms(extra) {
+    var t = '<p class="fat-key"><b>Key terms.</b> ' +
+      'Hog inventory is published by the USDA <b>National Agricultural Statistics Service (NASS)</b>. ' +
+      'A federal Clean Water Act permit under the <b>National Pollutant Discharge Elimination System (NPDES)</b> ' +
+      'creates a record in the EPA <b>Enforcement and Compliance History Online (ECHO)</b> database; ' +
+      'a state-only permit does not. Large operations are <b>concentrated animal feeding operations (CAFOs)</b>.' +
+      (extra ? ' ' + extra : '') + '</p>';
+    return t;
+  }
+  var KEY_NC = 'In North Carolina the regulator is the <b>Department of Environmental Quality (DEQ)</b>.';
 
   // ---------------------------------------------------------------- detail panel
   function detailIdle(data) {
@@ -286,7 +311,6 @@
 
     var maxInv = d3.max(data.states, function (s) { return s.inventory; });
     var scale = d3.scaleQuantize().domain([0, maxInv]).range(RAMP);
-    var dark = isDark();
 
     container.innerHTML = '';
     var svg = d3.select(container).append('svg')
@@ -307,7 +331,7 @@
     // Whether the fill is dark enough to want a white label.
     function fillIsDark(d) {
       var s = byName[d.properties.name];
-      if (!s) return dark;
+      if (!s) return false;
       if (mode === 'regime') return true;
       return RAMP.indexOf(scale(s.inventory)) >= 3;
     }
@@ -324,7 +348,7 @@
       var paths = svg.append('g').selectAll('path').data(feats).join('path')
         .attr('class', 'fat-st')
         .attr('d', path)
-        .attr('stroke', dark ? 'rgba(255,255,255,.18)' : '#fff')
+        .attr('stroke', '#fff')
         .attr('stroke-width', 0.8)
         .attr('fill', fillFor)
         .attr('tabindex', function (d) { return byName[d.properties.name] ? 0 : null; })
@@ -496,10 +520,11 @@
     html += '<div class="fat-panel"><div class="fat-head"><div>' +
       '<h2 class="fat-h2">North Carolina swine enforcement</h2>' +
       '<p class="fat-sub">Permitted facilities, inspection capacity, and complaint outcomes</p></div>' +
-      '<div><p class="fat-asof">NC DEQ complaint records<br>' +
+      '<div><p class="fat-asof">DEQ complaint records<br>' +
       esc(fmtDate(e.complaint_window.start)) + ' – ' + esc(fmtDate(e.complaint_window.end)) +
       '</p></div></div>';
 
+    html += keyTerms(KEY_NC);
     html += '<div class="fat-grid">';
     html += card('Permitted swine operations', num(c.active_swine_permits.value),
       esc(pub(c.active_swine_permits)), sourceChip(data, c.active_swine_permits));
@@ -513,7 +538,7 @@
       sourceChip(data, e.operations_covered));
     html += card('Complaints investigated', num(e.complaints_investigated.value),
       'Violations found in about ' + num(vioPct, 0) + '% of cases — roughly ' + num(vioCount) +
-      ' verified. NC DEQ complaint records, not EPA ECHO.', sourceChip(data, e.complaints_investigated));
+      ' verified. DEQ complaint records, not EPA ECHO.', sourceChip(data, e.complaints_investigated));
     html += '</div>';
 
     html += '<div class="fat-note"><p class="fat-note-title">What the complaint count does and does not show</p>' +
@@ -564,6 +589,7 @@
       '<p class="fat-sub">Where the hogs are, and what kind of permit each state issues</p></div>' +
       '<div><p class="fat-asof">USDA NASS<br>' + esc(nassAsOf(data)) + '</p></div></div>';
 
+    html += keyTerms();
     html += '<div class="fat-grid">';
     html += card('All hogs and pigs', headM(n.inventory_total.value), esc(pub(n.inventory_total)),
       sourceChip(data, n.inventory_total));
@@ -652,6 +678,7 @@
         return '<a class="fat-btn" href="#' + p[0] + '" data-jump="' + p[0] + '">' + p[1] + '</a>';
       }).join('') + '</div>';
 
+    html += keyTerms(KEY_NC);
     html += '<div class="fat-grid">';
     html += card('Herd in state-only-permit states', headM(byRegime.state_only),
       num(pctOfNat(byRegime.state_only), 0) + '% of all U.S. hogs are in ' + esc(listNames(namesFor('state_only'))) +
@@ -665,7 +692,7 @@
       num(pctOfNat(byRegime.npdes), 0) + '% of all U.S. hogs are in ' + esc(listNames(namesFor('npdes'))) +
       ', the only published states that route most large swine operations through a federal permit.',
       sourceChip(data, n.inventory_total));
-    html += card('Four largest packers’ share', num(n.cr4_packers.value) + '%',
+    html += card('Four largest packers’ share of slaughter (CR4)', num(n.cr4_packers.value) + '%',
       esc(pub(n.cr4_packers)), sourceChip(data, n.cr4_packers));
     html += '</div>';
 
@@ -740,9 +767,9 @@
     // Biogas.
     html += '<div class="fat-panel" id="fat-int-biogas"><h3 class="fat-h3">Biogas — the second revenue channel</h3>' +
       '<p class="fat-sub" style="margin-bottom:12px">' + esc(b.note) +
-      (b.align_rng.structure ? ' Align RNG is a ' + esc(b.align_rng.structure) + '.' : '') + '</p><div class="fat-tablewrap">' +
+      (b.align_rng.structure ? ' Align RNG (renewable natural gas) is a ' + esc(b.align_rng.structure) + '.' : '') + '</p><div class="fat-tablewrap">' +
       '<table class="fat-table"><thead><tr><th>Project</th><th>Counties</th>' +
-      '<th style="text-align:right">Farms</th><th style="text-align:right">Dth / yr</th></tr></thead><tbody>' +
+      '<th style="text-align:right">Farms</th><th style="text-align:right">Dekatherms (Dth) per year</th></tr></thead><tbody>' +
       b.align_rng.projects.map(function (p) {
         return '<tr><td>' + esc(p.name) +
           (p.completion_estimate ? ' <span class="fat-sub">(est. ' + esc(p.completion_estimate) + ')</span>' : '') +
@@ -750,9 +777,9 @@
           '</td><td>' + esc(p.counties.join(', ')) + '</td>' +
           '<td class="n">' + num(p.farms) + '</td><td class="n">' + num(p.annual_dth) + '</td></tr>';
       }).join('') + '</tbody></table></div>' +
-      '<p class="fat-foot">Certified CARB carbon intensity for dairy and swine manure biomethane runs from ' +
+      '<p class="fat-foot">Carbon intensity certified by the California Air Resources Board (CARB) for dairy and swine manure biomethane runs from ' +
       num(b.lcfs_ci_range.low) + ' to ' + num(b.lcfs_ci_range.high) + ' ' + esc(b.lcfs_ci_range.unit) +
-      ' on an avoided-methane basis. ' + esc(b.align_rng.disclosure_note) + ' ' +
+      ' of carbon dioxide equivalent per megajoule, on an avoided-methane basis. ' + esc(b.align_rng.disclosure_note) + ' ' +
       sourceChip(data, { source: 'carb_dsm_lcfs' }) + '</p></div>';
 
     // What reaches the label.
