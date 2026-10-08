@@ -541,19 +541,19 @@
         "source": "sl_2026_11"
       },
       {
-        "name": "CERCLA air-release reporting",
+        "name": "Air-release reporting under the Comprehensive Environmental Response, Compensation, and Liability Act (CERCLA)",
         "scope": "All animal feeding operations, nationwide",
         "status": "exempt",
         "date": "2018-03-23",
-        "detail": "Congress exempted air emissions from animal waste at a farm from reporting under section 103 of the Comprehensive Environmental Response, Compensation, and Liability Act (CERCLA).",
+        "detail": "Congress exempted air emissions from animal waste at a farm from CERCLA section 103 reporting.",
         "source": "farm_act_2018"
       },
       {
-        "name": "EPCRA air-release reporting",
+        "name": "Air-release reporting under the Emergency Planning and Community Right-to-Know Act (EPCRA)",
         "scope": "All animal feeding operations, nationwide",
         "status": "exempt_on_appeal",
         "date": "2019-06-13",
-        "detail": "EPA extended the exemption to section 304 of the Emergency Planning and Community Right-to-Know Act (EPCRA). The challenge was decided for EPA on August 7, 2025 and is on appeal in the D.C. Circuit, No. 25-5354.",
+        "detail": "EPA extended the exemption to EPCRA section 304. The challenge was decided for EPA on August 7, 2025 and is on appeal in the D.C. Circuit, No. 25-5354.",
         "source": "epcra_rule_2019"
       },
       {
