@@ -520,7 +520,7 @@
     html += '<div class="fat-panel"><div class="fat-head"><div>' +
       '<h2 class="fat-h2">North Carolina swine enforcement</h2>' +
       '<p class="fat-sub">Permitted facilities, inspection capacity, and complaint outcomes</p></div>' +
-      '<div><p class="fat-asof">DEQ complaint records<br>' +
+      '<div><p class="fat-asof">N.C. Department of Environmental Quality complaint records<br>' +
       esc(fmtDate(e.complaint_window.start)) + ' – ' + esc(fmtDate(e.complaint_window.end)) +
       '</p></div></div>';
 
@@ -587,7 +587,7 @@
     html += '<div class="fat-panel"><div class="fat-head"><div>' +
       '<h2 class="fat-h2">U.S. hog inventory and permit architecture</h2>' +
       '<p class="fat-sub">Where the hogs are, and what kind of permit each state issues</p></div>' +
-      '<div><p class="fat-asof">USDA NASS<br>' + esc(nassAsOf(data)) + '</p></div></div>';
+      '<div><p class="fat-asof">USDA National Agricultural Statistics Service<br>' + esc(nassAsOf(data)) + '</p></div></div>';
 
     html += keyTerms();
     html += '<div class="fat-grid">';
