@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 /// Environmental-proximity lookup: EPA-ECHO CAFO/feedlot violators near a
 /// processor. Hits the SAME FAT backend endpoints the iOS app uses:
 ///   feedlot-proximity.php?lat&lon&miles=50   (beef processors)
-///   hog-proximity.php?lat&lon&miles=75       (pork processors)
+///   hog-proximity.php?lat&lon&miles=50       (pork processors)
 /// We pass lat/lon straight from the establishment record (ProcessorService),
 /// which is the reliable path. Fail-open: any error returns null.
 class FeedlotProximityService {
@@ -15,7 +15,7 @@ class FeedlotProximityService {
       _fetch('feedlot-proximity.php', lat, lon, 50);
 
   static Future<ProximityResult?> hog(double lat, double lon) =>
-      _fetch('hog-proximity.php', lat, lon, 75);
+      _fetch('hog-proximity.php', lat, lon, 50);
 
   static Future<ProximityResult?> _fetch(
       String path, double lat, double lon, int miles) async {

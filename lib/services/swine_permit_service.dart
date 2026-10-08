@@ -5,7 +5,7 @@
 // when every candidate is within 10 miles):
 //   1. a count line on the "Nearby Hog Farm" card, next to the EPA-ECHO result;
 //   2. a Cat. 16 (Supply-Chain Intermediaries) detail line when permits within
-//      75 miles are held by an entity mapped to the plant's parent company.
+//      50 miles are held by an entity mapped to the plant's parent company.
 //      The line never changes Cat. 16's status: the label didn't disclose it.
 //
 // Dataset: fat-android/swine-permits/fat_swine_permits.json (served by
@@ -154,7 +154,7 @@ class SwinePermitSummary {
 
   bool get isEmpty => sources.isEmpty && unpublished.isEmpty;
 
-  /// "State permit records list N hog operations within 75 miles of this
+  /// "State permit records list N hog operations within 50 miles of this
   /// plant (sources: …)" + the lagoon clause when lagoon data exists.
   String? get countLine {
     if (sources.isEmpty) return null;
@@ -332,7 +332,7 @@ class SwinePermitData {
   }
 
   SwinePermitSummary summarize(double lat, double lon,
-      {String? plantParentName, int miles = 75}) {
+      {String? plantParentName, int miles = 50}) {
     final near = this.near(lat, lon, miles);
     final byState = <String, int>{};
     for (final r in near) {

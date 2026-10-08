@@ -38,43 +38,49 @@ void main() {
     expect(data.stateAt(43.6773, -92.9671), 'MN');
   });
 
-  test('Clinton NC (413): count, lagoons, Murphy-Brown parent line', () {
+  test('Clinton NC (413): count, lagoons, Murphy-Brown parent line (50 mi)', () {
     final (lat, lon) = point(r413, '413');
     final s = data.summarize(lat, lon, plantParentName: 'Smithfield Foods');
-    expect(s.total, 1783);
-    expect(s.lagoonCount, 1768);
-    expect(s.parentHoldings, 85);
+    expect(s.total, 1484);
+    expect(s.lagoonCount, 1470);
+    expect(s.parentHoldings, 61);
+    expect(s.radiusMiles, 50);
     expect(s.countLine,
-        'State permit records list 1,783 hog operations within 75 miles of this plant (sources: NC DEQ, April 2026), 1,768 of them with at least one waste lagoon.');
-    expect(s.unpublishedLine,
-        'Data not published by South Carolina — not counted.');
+        'State permit records list 1,484 hog operations within 50 miles of this plant (sources: NC DEQ, April 2026), 1,470 of them with at least one waste lagoon.');
+    // South Carolina is beyond 50 miles of Clinton, so no not-published note.
+    expect(s.unpublishedLine, isNull);
     expect(s.parentLine,
-        "The plant's parent company (Smithfield Foods) holds state permits for at least 85 hog farms within 75 miles (North Carolina permit records). Contract farms are listed under growers' own names, so this is a minimum.");
+        "The plant's parent company (Smithfield Foods) holds state permits for at least 61 hog farms within 50 miles (North Carolina permit records). Contract farms are listed under growers' own names, so this is a minimum.");
   });
 
   test('Tar Heel NC (shared 18079, both NC): point + parent line', () {
     final (lat, lon) = point(r18079, '18079');
     final s = data.summarize(lat, lon, plantParentName: 'Smithfield Foods');
-    expect(s.total, 1572);
-    expect(s.lagoonCount, 1559);
-    expect(s.parentHoldings, 83);
-    expect(s.parentLine, contains('at least 83 hog farms'));
+    expect(s.total, 935);
+    expect(s.lagoonCount, 924);
+    expect(s.parentHoldings, 75);
+    expect(s.parentLine, contains('at least 75 hog farms within 50 miles'));
+    expect(s.unpublishedLine,
+        'Data not published by South Carolina — not counted.');
   });
 
   test('WH Group (on-device crosswalk name) maps to the same parent', () {
     final (lat, lon) = point(r413, '413');
     final s = data.summarize(lat, lon, plantParentName: 'WH Group Limited');
-    expect(s.parentHoldings, 85);
+    expect(s.parentHoldings, 61);
   });
 
   test('MN plant (Austin, Hormel): MPCA count, no parent line', () {
     final s = data.summarize(43.677287001013, -92.967141965855,
         plantParentName: 'Hormel Foods');
-    expect(s.byState['MN'], 1636);
+    expect(s.total, 1409);
+    expect(s.byState['MN'], 940);
+    expect(s.byState['IA'], 469);
     expect(s.countLine, contains('MPCA, October 2026'));
     expect(s.countLine, isNot(contains('lagoon')));
     expect(s.parentLine, isNull);
-    expect(s.unpublishedLine, 'Data not published by Wisconsin — not counted.');
+    // Wisconsin is beyond 50 miles of Austin.
+    expect(s.unpublishedLine, isNull);
   });
 
   test('OK plant (Guymon): not-published note, no count line', () {

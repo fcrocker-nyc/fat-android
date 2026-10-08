@@ -82,10 +82,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
   bool _whoSetFromOwnership = false;
   bool _processorLoading = true;
   // Nearby EPA-ECHO CAFO/feedlot violators (beef → feedlots 50mi; pork → hog
-  // CAFOs 75mi). Fetched once the processor record supplies coordinates.
+  // CAFOs 50mi). Fetched once the processor record supplies coordinates.
   ProximityResult? _proximity;
   String _proximityKind = ''; // 'feedlot' | 'hog CAFO'
-  // State swine permit records within 75 mi of a pork plant (informational;
+  // State swine permit records within 50 mi of a pork plant (informational;
   // never a status/count input). Null until the dataset resolves.
   SwinePermitSummary? _swinePermits;
 

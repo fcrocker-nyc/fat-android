@@ -3,7 +3,7 @@
 `fat_swine_permits.json` — hog-operation permit and registration records from state
 environmental agencies. The FAT apps (iOS + Android) fetch it via jsDelivr, cache it on the
 device and refresh it weekly, to add a line to the "Nearby Hog Farm" card on pork scans:
-"State permit records list N hog operations within 75 miles of this plant". Informational
+"State permit records list N hog operations within 50 miles of this plant". Informational
 only: it never changes a category status or the disclosure count.
 
 Prepared by Dirk Adams with the assistance of AI. Built 2026-10-08.
@@ -20,7 +20,7 @@ App fetch URL: `https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/swine-
   rounded to 4 decimal places.
 - `notPublished` — states with no usable public list (not counted).
 - `grid` — run-length-encoded 0.1-degree grid of the state each cell centre falls in (Census
-  TIGERweb state boundaries, simplified). The apps use it only to say which states a 75-mile
+  TIGERweb state boundaries, simplified). The apps use it only to say which states a 50-mile
   radius reaches, so they can say "Data not published by <state> — not counted".
 
 ## Sources
