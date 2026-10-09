@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "updated": "2026-10-07",
+  "updated": "2026-10-09",
   "maintainer": "Farm Animal Transparency (FAT) — farmanimaltransparency.com",
   "about": "Single source of truth for the FAT pork supply chain maps. Every displayed figure lives here exactly once. Ratios and shares are COMPUTED at render time and must never be typed as literals. Each figure carries a source key resolving to the sources block, an as-of date, and a basis string stating what the number counts.",
   "editing_rules": [
@@ -160,6 +160,354 @@
       "url": "https://geodata.iowa.gov/documents/abfbd972640d4e87b6c48dc669775767",
       "type": "primary",
       "asof": "2024-04-05"
+    },
+    "nass_2026_09": {
+      "label": "USDA NASS, Quarterly Hogs and Pigs, September 24, 2026",
+      "url": "https://esmis.nal.usda.gov/sites/default/release-files/796073/hgpg0926.txt",
+      "type": "primary",
+      "asof": "2026-09-01"
+    },
+    "epa_cafo_status_2024": {
+      "label": "EPA, NPDES CAFO Permitting Status Report, end of calendar year 2024 (completed July 18, 2025)",
+      "url": "https://www.epa.gov/system/files/documents/2025-09/cafo-status-report-2024.pdf",
+      "type": "primary",
+      "asof": "2024-12-31"
+    },
+    "ia_dnr_afo": {
+      "label": "Iowa Department of Natural Resources, Animal Feeding Operations program",
+      "url": "https://www.iowadnr.gov/environmental-protection/animal-feeding-operations",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "icd_mmp_2026_01": {
+      "label": "Iowa Capital Dispatch, \"How do manure management plans work in Iowa?\", January 23, 2026",
+      "url": "https://iowacapitaldispatch.com/2026/01/23/how-do-manure-management-plans-work-in-iowa/",
+      "type": "secondary",
+      "asof": "2026-01-23"
+    },
+    "axios_ia_cafos_2026_07": {
+      "label": "Axios Des Moines, \"Environmental group says more CAFOs in Iowa than reported\", July 15, 2026",
+      "url": "https://www.axios.com/local/des-moines/2026/07/15/environmental-group-says-more-cafos-in-iowa-than-reported",
+      "type": "secondary",
+      "asof": "2026-07-15"
+    },
+    "icd_ewg_2026_07": {
+      "label": "Iowa Capital Dispatch, \"Imagery mapping finds Iowa has 15,000-plus animal feeding operations\", July 15, 2026",
+      "url": "https://iowacapitaldispatch.com/2026/07/15/imagery-mapping-finds-iowa-has-15000-plus-animal-feeding-operations/",
+      "type": "secondary",
+      "asof": "2026-07-15"
+    },
+    "icn_ia_mmp_2026_08": {
+      "label": "Inside Climate News, Iowa manure management plan investigation, August 21, 2026",
+      "url": "https://insideclimatenews.org/news/21082026/impact-iowa-manure-management/",
+      "type": "secondary",
+      "asof": "2026-08-21"
+    },
+    "gazette_ia_manure_2026_07": {
+      "label": "The Gazette (Cedar Rapids), \"Iowa livestock produced 107M tons of manure last year\", July 2026",
+      "url": "https://www.thegazette.com/news/iowa-livestock-produced-107m-tons-of-manure-last-year/article_2a90b5fd-9be7-4334-bf66-58023946282f.html",
+      "type": "secondary",
+      "asof": "2026-07-15"
+    },
+    "mpca_feedlot_permitting": {
+      "label": "Minnesota Pollution Control Agency, Feedlot permitting",
+      "url": "https://www.pca.state.mn.us/air-water-land-climate/feedlot-permitting",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "mpca_feedlot_overview_2021": {
+      "label": "Minnesota Pollution Control Agency, Feedlot Program Overview (wq-f1-01), January 2021",
+      "url": "https://www.pca.state.mn.us/sites/default/files/wq-f1-01.pdf",
+      "type": "primary",
+      "asof": "2021-01-01"
+    },
+    "mn_delegation_workplan_2024": {
+      "label": "MPCA County Feedlot Program Delegation Agreement Work Plan, 2024-2025 (Le Sueur County copy)",
+      "url": "https://www.lesueurcounty.gov/DocumentCenter/View/6016/2024-2025-Delegation-Agreement-Work-Plan",
+      "type": "primary",
+      "asof": "2024-01-01"
+    },
+    "mpca_enforcement_h1_2024": {
+      "label": "MPCA, \"MPCA completes 100 enforcement cases in first half of 2024\"",
+      "url": "https://www.pca.state.mn.us/news-and-stories/mpca-completes-100-enforcement-cases-in-first-half-of-2024",
+      "type": "primary",
+      "asof": "2024-06-30"
+    },
+    "mncorn_feedlot_permits_2025": {
+      "label": "Minnesota Corn Growers Association, \"MPCA finalizes changes to feedlot general permits\", February 18, 2025",
+      "url": "https://www.mncorn.org/2025/02/18/mpca-finalizes-changes-to-feedlot-general-permits/",
+      "type": "secondary",
+      "asof": "2025-02-18"
+    },
+    "agweek_mn_7020_2026_09": {
+      "label": "Agweek, MPCA summarizes 7,500 pages of comments on feedlot rule amendment, September 2026",
+      "url": "https://www.agweek.com/news/policy/mpca-summarizes-more-than-7-500-pages-of-comments-petitions-on-feedlot-rule-amendment",
+      "type": "secondary",
+      "asof": "2026-09-15"
+    },
+    "goodhue_feedlot_2025": {
+      "label": "Goodhue County, 2025 County Feedlot Annual Report",
+      "url": "https://goodhuecountymn.gov/files/land_use_management/planning_zoning/2025_county_feedlot_annual_report_57049.pdf",
+      "type": "primary",
+      "asof": "2025-12-31"
+    },
+    "iepa_cafo": {
+      "label": "Illinois Environmental Protection Agency, Concentrated Animal Feeding Operations",
+      "url": "https://epa.illinois.gov/topics/water-quality/watershed-management/cafos.html",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "idoa_lmfa": {
+      "label": "Illinois Department of Agriculture, Livestock Management Facilities Program",
+      "url": "https://agr.illinois.gov/animals/livestockmanagement.html",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "epa_r5_iepa_cafo_2010": {
+      "label": "EPA Region 5, Review of the Illinois EPA CAFO program, September 2010",
+      "url": "https://www.epa.gov/sites/default/files/2017-02/documents/iepa_cafo_report.pdf",
+      "type": "primary",
+      "asof": "2010-09-01"
+    },
+    "srap_il_guide_2023": {
+      "label": "Socially Responsible Agriculture Project, Illinois CAFO Guide, February 2023",
+      "url": "https://sraproject.org/wp-content/uploads/Illinois-CAFO-Guide-2023.02.22.pdf",
+      "type": "secondary",
+      "asof": "2023-02-22"
+    },
+    "pcb_2026_033": {
+      "label": "Illinois Pollution Control Board, PCB 2026-033, People v. Paragon Pork (filed October 30, 2025)",
+      "url": "https://pcb.illinois.gov/documents/dsweb/Get/Rendition-271348/unknown",
+      "type": "primary",
+      "asof": "2025-10-30"
+    },
+    "ilga_sb2332": {
+      "label": "Illinois General Assembly, SB 2332 (104th), Livestock Management Facilities Act amendments",
+      "url": "https://lrb.ilga.gov/ftp/legislation/104/BillStatus/XML/10400SB2332.xml",
+      "type": "primary",
+      "asof": "2025-02-07"
+    },
+    "idem_cfo": {
+      "label": "Indiana Department of Environmental Management, Confined Feeding Operations",
+      "url": "https://www.in.gov/idem/cfo/about-confined-feeding-operations",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "idem_annual_fy2025": {
+      "label": "IDEM Confined Feeding Program annual report, FY2025 (Indiana General Assembly agency reports compilation)",
+      "url": "https://iga.in.gov/publications/agency_report/2025---Annual-Reports.pdf",
+      "type": "primary",
+      "asof": "2025-06-30"
+    },
+    "in_lsa_sb193_fn": {
+      "label": "Indiana Legislative Services Agency, SB 193 fiscal note, December 17, 2024",
+      "url": "https://iga.in.gov/pdf-documents/124/2025/senate/bills/SB0193/fiscal-notes/SB0193.01.INTR.FN001.pdf",
+      "type": "primary",
+      "asof": "2024-12-17"
+    },
+    "legiscan_in_sb193": {
+      "label": "LegiScan, Indiana SB 193 (2025), enacted as P.L. 192-2025",
+      "url": "https://legiscan.com/IN/bill/SB0193/2025",
+      "type": "primary",
+      "asof": "2025-05-06"
+    },
+    "in_hea1355_2026": {
+      "label": "Indiana House Republicans, HEA 1355 (2026) ceremonial signing, April 22, 2026",
+      "url": "https://www.indianahouserepublicans.com/news/press-releases/governor-ceremonially-signs-new-law-co-authored-by-baird-to-streamline-hoosier-farming-practices/",
+      "type": "secondary",
+      "asof": "2026-04-22"
+    },
+    "indianamap_cfo": {
+      "label": "IndianaMap, Confined Feeding Operations layer (IDEM Office of Land Quality)",
+      "url": "https://www.indianamap.org/datasets/INMap::confined-feeding-operations/about",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "dwee_lwc": {
+      "label": "Nebraska Department of Water, Energy, and Environment, Livestock Waste Control Program",
+      "url": "https://dwee.nebraska.gov/land-waste/agriculture/livestock-waste-control-program",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "dwee_inspections_2023": {
+      "label": "DWEE, \"All about DWEE livestock inspections\", August 24, 2023",
+      "url": "https://dwee.nebraska.gov/news-events/press-releases/all-about-dwee-livestock-inspections",
+      "type": "primary",
+      "asof": "2023-08-24"
+    },
+    "ndee_lwc_release_2022": {
+      "label": "Nebraska Department of Environment and Energy, Livestock Waste Control Program release, December 22, 2022",
+      "url": "https://dwee.nebraska.gov/news-events/press-releases/livestock-waste-control-program",
+      "type": "primary",
+      "asof": "2022-12-22"
+    },
+    "dwee_enforcement": {
+      "label": "DWEE, Enforcement actions",
+      "url": "https://dwee.nebraska.gov/news-events/enforcement-actions",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "ndee_annual_fy2024": {
+      "label": "NDEE Annual Report to the Legislature, FY2024",
+      "url": "https://nebraskalegislature.gov/FloorDocs/108/PDF/Agencies/Environment_and_Energy__Nebraska_Department_of_/703_20241126-131927.pdf",
+      "type": "primary",
+      "asof": "2024-06-30"
+    },
+    "ne_neg022000_fs_2026": {
+      "label": "DWEE, NPDES general permit NEG022000 for CAFOs confining cattle, 2027-2032 fact sheet, May 19, 2026",
+      "url": "https://dwee.nebraska.gov/sites/default/files/publications/NPDES%20Permit%20Number%20NEG022000%20General%20Permit%20for%20CAFOs%20Confining%20Cattle%202027-2032%20Fact%20Sheet.pdf",
+      "type": "primary",
+      "asof": "2026-05-19"
+    },
+    "ne_lb1048_2026": {
+      "label": "Nebraska Legislature, LB 1048 (2026), introduced January 14, 2026",
+      "url": "https://nebraskalegislature.gov/FloorDocs/109/PDF/Intro/LB1048.pdf",
+      "type": "primary",
+      "asof": "2026-01-14"
+    },
+    "modnr_cafo": {
+      "label": "Missouri Department of Natural Resources, Concentrated Animal Feeding Operations",
+      "url": "https://dnr.mo.gov/water/business-industry-other-entities/agriculture-landowners/concentrated-animal-feeding-operation-cafo",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "modnr_pub2351": {
+      "label": "Missouri DNR, Animal Feeding Operation Permits and Regulations in Missouri (PUB2351)",
+      "url": "https://dnr.mo.gov/document-search/animal-feeding-operation-permits-regulations-missouri-pub2351/pub2351",
+      "type": "primary",
+      "asof": "2023-03-01"
+    },
+    "rsmo_640_750": {
+      "label": "Revised Statutes of Missouri, section 640.750 (quarterly inspection of Class IA facilities)",
+      "url": "https://revisor.mo.gov/main/OneSection.aspx?bid=31138&hl=&section=640.750",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "modnr_cw_enforcement": {
+      "label": "Missouri DNR, Clean Water compliance and enforcement reports",
+      "url": "https://dnr.mo.gov/water/business-industry-other-entities/clean-water-compliance-enforcement",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "stlpr_sb391_2023": {
+      "label": "St. Louis Public Radio, \"Missouri Supreme Court upholds state law prohibiting local regulation of CAFOs\", March 22, 2023",
+      "url": "https://www.stlpr.org/law-order/2023-03-22/missouri-supreme-court-upholds-state-law-prohibiting-local-regulation-of-cafos",
+      "type": "secondary",
+      "asof": "2023-03-22"
+    },
+    "moind_class_ia_2021": {
+      "label": "Missouri Independent, \"Some of Missouri's largest CAFOs are seeking less stringent state regulation\", June 23, 2021",
+      "url": "https://missouriindependent.com/2021/06/23/some-of-missouris-largest-cafos-are-seeking-less-stringent-state-regulation/",
+      "type": "secondary",
+      "asof": "2021-06-23"
+    },
+    "kcur_modnr_2022": {
+      "label": "KCUR, \"Missouri DNR faces criticism over regulation of CAFOs\", June 29, 2022",
+      "url": "https://www.kcur.org/news/2022-06-29/missouri-dnr-faces-criticism-over-regulation-of-cafos-but-department-points-to-state-statutes",
+      "type": "secondary",
+      "asof": "2022-06-29"
+    },
+    "oda_dlep": {
+      "label": "Ohio Department of Agriculture, Division of Livestock Environmental Permitting",
+      "url": "https://agri.ohio.gov/divisions/livestock-environmental-permitting",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "oda_annual_2024_25": {
+      "label": "Ohio Department of Agriculture, 2024-2025 Annual Report (August 1, 2025)",
+      "url": "https://dam.assets.ohio.gov/image/upload/v1772547739/agri.ohio.gov/Communications/Annual%20Report/FINAL_August_1_2025_ODA_2024-2025_Annual_Report.pdf",
+      "type": "primary",
+      "asof": "2024-12-31"
+    },
+    "oda_tmacog_2021": {
+      "label": "ODA Division of Livestock Environmental Permitting presentation to TMACOG, July 12, 2021",
+      "url": "https://dfig7j11pjx8o.cloudfront.net/councils-committees-documents/Councils-Committees/monday-july-12-2021/ODA-Presentation-7.12.2021.pdf",
+      "type": "primary",
+      "asof": "2021-07-12"
+    },
+    "epa_oig_ohio_2026": {
+      "label": "EPA Office of Inspector General, Report 26-E-0040 on Ohio NPDES CAFO oversight, July 7, 2026",
+      "url": "https://www.epa.gov/system/files/documents/2026-07/_epaoig_20260707-26-e-0040_cert.pdf",
+      "type": "primary",
+      "asof": "2026-07-07"
+    },
+    "ca6_25_3609": {
+      "label": "U.S. Court of Appeals for the Sixth Circuit, No. 25-3609 (Maumee River TMDL intervention), March 9, 2026",
+      "url": "https://law.justia.com/cases/federal/appellate-courts/ca6/25-3609/25-3609-2026-03-09.html",
+      "type": "primary",
+      "asof": "2026-03-09"
+    },
+    "lpelc_oda_dlep": {
+      "label": "Livestock and Poultry Environmental Learning Community, overview of ODA Division of Livestock Environmental Permitting",
+      "url": "https://lpelc.org/overview-of-odas-division-of-livestock-environmental-permitting/",
+      "type": "secondary",
+      "asof": "2026-10-09"
+    },
+    "danr_feedlot": {
+      "label": "South Dakota Department of Agriculture and Natural Resources, Feedlot Permit Program",
+      "url": "https://danr.sd.gov/Agriculture/Livestock/FeedlotPermit/default.aspx",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "danr_inspections": {
+      "label": "South Dakota DANR, Feedlot inspections",
+      "url": "https://danr.sd.gov/Agriculture/Livestock/FeedlotPermit/Inspections/default.aspx",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "danr_webinar_2024_12": {
+      "label": "South Dakota DANR, CAFO regulations outreach webinar, December 2024",
+      "url": "https://danr.sd.gov/Agriculture/Livestock/FeedlotPermit/CAFORegulations/2412%20Outreach%20Webinar.pdf",
+      "type": "primary",
+      "asof": "2024-01-01"
+    },
+    "sd_lrc_danr_fy26": {
+      "label": "South Dakota Legislative Research Council, DANR FY2026 budget brief",
+      "url": "https://mylrc.sdlegislature.gov/api/Documents/Attachment/276986.pdf?Year=2025",
+      "type": "primary",
+      "asof": "2025-01-15"
+    },
+    "sd_sb14_2025": {
+      "label": "South Dakota Legislature, SB 14 (2025), House Agriculture committee amendment",
+      "url": "https://mylrc.sdlegislature.gov/api/Documents/283356.pdf",
+      "type": "primary",
+      "asof": "2025-03-04"
+    },
+    "danr_npdes_sob_2025": {
+      "label": "South Dakota DANR, Statement of Basis, CAFO NPDES general permit reissuance, November 2025",
+      "url": "https://danr.sd.gov/Press/docs/publicnotices/FeedlotCCH/NPDESPermitSoB.pdf",
+      "type": "primary",
+      "asof": "2025-11-01"
+    },
+    "odaff_aems": {
+      "label": "Oklahoma Department of Agriculture, Food and Forestry, Agricultural Environmental Management Services",
+      "url": "https://ag.ok.gov/divisions/agricultural-environmental-management/",
+      "type": "primary",
+      "asof": "2026-10-09"
+    },
+    "ok_swine_act_2024": {
+      "label": "Oklahoma Swine Feeding Operations Act (2 O.S. 20-1 et seq.), as amended effective November 1, 2024",
+      "url": "https://ag.ok.gov/wp-content/uploads/2023/04/Oklahoma-Swine-Feeding-Operations-Act-Nov-24.pdf",
+      "type": "primary",
+      "asof": "2024-11-01"
+    },
+    "ok_swine_rules_2025": {
+      "label": "Oklahoma Administrative Code 35:17-3, swine feeding operations rules effective July 11, 2025",
+      "url": "https://ag.ok.gov/wp-content/uploads/2025/07/Effective-July-11-2025_OAC35_Swine.pdf",
+      "type": "primary",
+      "asof": "2025-07-11"
+    },
+    "ok_senate_odaff_bpr_fy26": {
+      "label": "Oklahoma Senate, FY2026 Budget Performance Review, ODAFF, February 2025",
+      "url": "https://oksenate.gov/sites/default/files/2025-02/FY%2026%20-%20ODAFF%20-%20BPR_1.pdf",
+      "type": "primary",
+      "asof": "2025-02-01"
+    },
+    "ok_agpdes_gp_2023": {
+      "label": "ODAFF, AgPDES CAFO General Permit OKG010000 fact sheet, 2023-2028",
+      "url": "https://ag.ok.gov/wp-content/uploads/2023/03/2023-2028-AgPDES-CAFO-GP-Fact-Sheet_Final.pdf",
+      "type": "primary",
+      "asof": "2023-03-24"
     }
   },
   "permit_regime_warning": {
@@ -580,6 +928,794 @@
       "source": "epa_title_vi_05rno21r4"
     }
   },
+  "state_enforcement": {
+    "note": "One entry per state in the top ten by hog inventory, other than North Carolina, whose fuller record lives in nc_enforcement, nc_facility_counts and nc_legal_authority. A metric with value null and not_published_by means the agency publishes no such figure; the proxy string says what the closest public evidence is. Every figure here is all-species unless scope is swine. Ratios (NPDES share, operations per inspector) are computed by the renderer, never typed.",
+    "ranking_source": "nass_2026_09",
+    "ranking_basis": "Top ten states by all hogs and pigs on hand, USDA NASS Quarterly Hogs and Pigs, September 1, 2026. The inventory figures displayed come from the states block of this file, which carries the June 2026 quarter.",
+    "scope_copy": {
+      "headline": "Enforcement is a state-by-state record, and this page builds it one state at a time",
+      "body": "Most large hog operations in the United States hold a state permit rather than a federal National Pollutant Discharge Elimination System (NPDES) permit, so they never appear in the EPA's Enforcement and Compliance History Online (ECHO) database. There is no national enforcement record for hogs. Each state's record has to be assembled from its own regulator's files, and what those files contain ranges from an annual inspection table to nothing at all. North Carolina, where FAT first did this work, remains the most detailed entry. The other nine states are the rest of the top ten by hog inventory. Where a regulator does not publish a figure, this page says so: the gap is part of the finding."
+    },
+    "states": [
+      {
+        "code": "IA",
+        "name": "Iowa",
+        "regulator": "Iowa Department of Natural Resources (DNR)",
+        "regulator_short": "Iowa DNR",
+        "program": "Animal Feeding Operations (AFO) section, Environmental Services Division; on-site inspections by six regional Environmental Field Offices.",
+        "permit_regime_text": "Large hog confinements are regulated under a state-only regime: a DNR construction permit at 1,000 or more animal units, scored through the county \"Master Matrix\", plus a Manure Management Plan (MMP) for confinements above 500 animal units that is updated annually. Under Iowa law a totally roofed confinement is deemed non-discharging and needs no NPDES permit, so almost no hog confinement holds one; Iowa's NPDES CAFO permits are overwhelmingly held by open cattle feedlots.",
+        "regime_source": "ia_dnr_afo",
+        "key_term": "In Iowa the regulator is the <b>Department of Natural Resources (DNR)</b> and the plan it reviews is the <b>Manure Management Plan (MMP)</b>.",
+        "epa_cafo_status": {
+          "total_cafos": 3938,
+          "npdes_permitted": 162,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of every species as reported by the state to EPA, and how many of them hold an NPDES permit. This is EPA's status report, not the ECHO database, and it is the only series published on the same definition for every state. It is not a count of hog farms."
+        },
+        "swine_operations": {
+          "value": 8816,
+          "source": "ia_afo_gdb",
+          "asof": "2024-04-05",
+          "basis": "Unique active swine facilities in the DNR Animal Feeding Operations geodatabase (facilities at 300 or more animal units with any swine recorded), deduplicated by FAT. Of these, 37 record an NPDES permit issue date.",
+          "label": "Swine facilities in the DNR database",
+          "scope": "swine"
+        },
+        "regulated_operations": {
+          "value": 8000,
+          "source": "icn_ia_mmp_2026_08",
+          "asof": "2025-06-30",
+          "basis": "More than 8,000 active Manure Management Plans on file with DNR, all species, per a June 2025 records request. DNR's database lists fewer than 11,000 animal feeding operations in total; aerial-imagery mapping published in July 2026 counted 15,309, of which 10,172 were hog facilities.",
+          "label": "Active manure management plans",
+          "scope": "all_livestock"
+        },
+        "inspectors": {
+          "value": null,
+          "not_published_by": "Iowa DNR",
+          "proxy": "The AFO section has five full-time employees plus some field officers, with no budget or staffing increase in nearly a decade; AFO enforcement funding has been $1.32 million a year since 2014.",
+          "source": "icn_ia_mmp_2026_08",
+          "asof": "2026-08-21"
+        },
+        "inspection_policy": {
+          "value": null,
+          "source": "ia_dnr_afo",
+          "asof": "2026-10-09",
+          "basis": "No statutory inspection-frequency requirement applies to confinements. DNR's inspection standard operating procedure covers only NPDES-permitted sites. Administrative penalties are capped at $10,000 per violation; recent hog-manure spill orders have typically been $5,000.",
+          "scope": "all_livestock"
+        },
+        "inspections_per_year": {
+          "value": 745,
+          "source": "icd_mmp_2026_01",
+          "asof": "2025-12-31",
+          "basis": "On-site animal feeding operation inspections DNR reported for 2025, all species. Swine-only inspections are not published.",
+          "label": "On-site AFO inspections, 2025",
+          "scope": "all_livestock"
+        },
+        "complaints_per_year": {
+          "value": null,
+          "not_published_by": "Iowa DNR",
+          "proxy": "DNR does not publish an annual complaint count. A Food & Water Watch review of DNR records found 179 manure discharges to Iowa waters between 2013 and 2023.",
+          "source": "icd_mmp_2026_01",
+          "asof": "2026-01-23"
+        },
+        "violations_per_year": {
+          "value": 50,
+          "source": "axios_ia_cafos_2026_07",
+          "asof": "2025-12-31",
+          "basis": "About 50 notices of violation arising from the 2025 inspections, all species, per a DNR spokesperson. DNR also reported 97 manure-management-plan and 62 prohibited-discharge enforcement actions since 2020.",
+          "label": "Notices of violation, 2025",
+          "scope": "all_livestock"
+        },
+        "publication_note": "Iowa publishes inspection and violation counts only when asked by reporters; there is no annual enforcement report, and roughly half of the manure management plans exist only on paper.",
+        "developments": [
+          {
+            "date": "2026-07-15",
+            "detail": "Environmental Working Group imagery mapping found 15,309 animal feeding operations against fewer than 11,000 in DNR records; large CAFOs grew from 3,936 (2019) to 4,444 (2025). DNR said its database cannot capture confinements below the reporting threshold.",
+            "source": "icd_ewg_2026_07"
+          },
+          {
+            "date": "2026-08-21",
+            "detail": "Inside Climate News found roughly half of the 8,000-plus manure management plans are paper-only; DNR estimated two years and $85,000 to digitize them. State Auditor Rob Sand proposed a uniform online form and public application records.",
+            "source": "icn_ia_mmp_2026_08"
+          },
+          {
+            "date": "2026-01-23",
+            "detail": "Food & Water Watch called for NPDES permits for large operations and inspection of one-fifth of permitted sites each year; Iowa law keeps manure-application records confidential.",
+            "source": "icd_mmp_2026_01"
+          }
+        ]
+      },
+      {
+        "code": "MN",
+        "name": "Minnesota",
+        "regulator": "Minnesota Pollution Control Agency (MPCA)",
+        "regulator_short": "MPCA",
+        "program": "Feedlot Program, with staff in six regional offices; about 50 livestock-dense counties run delegated County Feedlot Programs through County Feedlot Officers.",
+        "permit_regime_text": "Nearly every feedlot at 50 or more animal units must register; feedlots at 1,000 or more animal units need either a State Disposal System (SDS) permit or an NPDES permit. Minnesota is unusual in that most large feedlots, swine included, take the NPDES general permit rather than the state-only SDS permit, so a majority of large hog operations here do have a federal record. Smaller operations need a short-form construction permit only when they build.",
+        "regime_source": "mpca_feedlot_permitting",
+        "key_term": "In Minnesota the regulator is the <b>Minnesota Pollution Control Agency (MPCA)</b>; its state-only permit is the <b>State Disposal System (SDS)</b> permit.",
+        "epa_cafo_status": {
+          "total_cafos": 1585,
+          "npdes_permitted": 905,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of every species as reported by the state to EPA, and how many of them hold an NPDES permit. This is EPA's status report, not the ECHO database, and it is the only series published on the same definition for every state. It is not a count of hog farms."
+        },
+        "swine_operations": {
+          "value": 5555,
+          "source": "mn_feedlots_layer",
+          "asof": "2026-07-08",
+          "basis": "Unique active swine operations in the MPCA feedlot extract, deduplicated by FAT. Of these, 617 hold an NPDES permit and 186 an SDS permit only; 4,752 state no permit, most of them below the permit threshold.",
+          "label": "Swine operations in the MPCA feedlot extract",
+          "scope": "swine"
+        },
+        "regulated_operations": {
+          "value": 18000,
+          "source": "mpca_feedlot_permitting",
+          "asof": "2026-10-09",
+          "basis": "About 18,000 registered feedlots of all species, of which roughly 1,000 to 1,200 are large enough to need an SDS or NPDES permit.",
+          "label": "Registered feedlots",
+          "scope": "all_livestock"
+        },
+        "inspectors": {
+          "value": null,
+          "not_published_by": "MPCA",
+          "proxy": "MPCA does not publish a statewide inspector count. A 2023 fiscal note estimated four full-time staff for 660 inspections, about ten staff-hours each; county reports note staffing gaps and state funding held at early-2020 levels.",
+          "source": "mn_delegation_workplan_2024",
+          "asof": "2024-01-01"
+        },
+        "inspection_policy": {
+          "value": null,
+          "source": "mn_delegation_workplan_2024",
+          "asof": "2024-01-01",
+          "basis": "Delegated counties must inspect at least 7 percent of registered feedlots each year, at least half of them as compliance inspections, to earn performance credits. Permitted sites self-inspect weekly or monthly and file an annual report by March 1.",
+          "scope": "all_livestock"
+        },
+        "inspections_per_year": {
+          "value": null,
+          "not_published_by": "MPCA",
+          "proxy": "No statewide inspection total is published; each delegated county reports its own. Goodhue County, for example, reported 67 to 69 inspections in 2025, a 9.2 percent rate against the 7 percent minimum.",
+          "source": "goodhue_feedlot_2025",
+          "asof": "2025-12-31"
+        },
+        "complaints_per_year": {
+          "value": null,
+          "not_published_by": "MPCA",
+          "proxy": "Counties must keep complaint logs and refer serious complaints to MPCA, but no statewide complaint count is published.",
+          "source": "mn_delegation_workplan_2024",
+          "asof": "2024-01-01"
+        },
+        "violations_per_year": {
+          "value": null,
+          "not_published_by": "MPCA",
+          "proxy": "MPCA publishes semiannual all-media enforcement summaries without a feedlot total. In the first half of 2024, 4 of 100 cases were feedlot violations, totalling $12,600 in penalties, including $4,200 against Wakefield Pork Inc.",
+          "source": "mpca_enforcement_h1_2024",
+          "asof": "2024-06-30"
+        },
+        "publication_note": "Minnesota is the one top-ten state where the permit instrument is published per operation, so the federal-record gap can be counted rather than estimated. Inspection and complaint counts, by contrast, are scattered across county reports.",
+        "developments": [
+          {
+            "date": "2025-01-01",
+            "detail": "MPCA finalized revised feedlot general permits (SDS effective June 1, 2025; NPDES effective February 1, 2026) adding nitrogen-practice rules in vulnerable groundwater areas, winter application bans, manure-recipient recordkeeping and a mandatory online nutrient management tool.",
+            "source": "mncorn_feedlot_permits_2025"
+          },
+          {
+            "date": "2025-09-01",
+            "detail": "A court order in a nitrate lawsuit over karst and Central Sands groundwater gave MPCA and the Department of Agriculture one year to show current rules protect drinking water.",
+            "source": "agweek_mn_7020_2026_09"
+          },
+          {
+            "date": "2026-07-22",
+            "detail": "MPCA opened rulemaking to amend the 25-year-old chapter 7020 feedlot rules; the comment period closed with about 7,500 pages of comments, and environmental groups are seeking operating permits for the 374 operations just under the 1,000-animal-unit threshold. Rulemaking is expected to run into 2027.",
+            "source": "agweek_mn_7020_2026_09"
+          }
+        ]
+      },
+      {
+        "code": "IL",
+        "name": "Illinois",
+        "regulator": "Illinois Environmental Protection Agency (Illinois EPA) and Illinois Department of Agriculture (IDOA)",
+        "regulator_short": "Illinois EPA / IDOA",
+        "program": "Illinois EPA Bureau of Water issues NPDES CAFO permits and conducts inspections; IDOA's Livestock Management Facilities Program handles siting, construction, lagoon registration and waste management plans.",
+        "permit_regime_text": "Illinois has no state operating permit for hog confinements. New facilities file a Notice of Intent to Construct with IDOA under the Livestock Management Facilities Act; lagoons are registered; facilities at 1,000 or more animal units need a waste management plan, self-certified below 5,000 animal units. NPDES permits are required only for CAFOs that discharge, so almost no Illinois hog operation holds one, and Illinois EPA has acknowledged it has no comprehensive inventory of CAFOs.",
+        "regime_source": "iepa_cafo",
+        "key_term": "In Illinois the regulators are the <b>Illinois Environmental Protection Agency (Illinois EPA)</b> and the <b>Illinois Department of Agriculture (IDOA)</b>, under the <b>Livestock Management Facilities Act (LMFA)</b>.",
+        "epa_cafo_status": {
+          "total_cafos": 522,
+          "npdes_permitted": 12,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of every species as reported by the state to EPA, and how many of them hold an NPDES permit. This is EPA's status report, not the ECHO database, and it is the only series published on the same definition for every state. It is not a count of hog farms."
+        },
+        "swine_operations": {
+          "value": null,
+          "not_published_by": "Illinois EPA and IDOA",
+          "proxy": "Neither agency publishes a count of hog operations. The Illinois Environmental Council states 680 CAFO applications were approved and built over the past decade and that IDOA has never denied a notice of intent.",
+          "source": "srap_il_guide_2023",
+          "asof": "2023-02-22"
+        },
+        "regulated_operations": {
+          "value": 522,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of all species as reported to EPA, the only official count. A 2010 EPA Region 5 review estimated about 500 large CAFOs, and in 2017 an Illinois EPA official told a Senate subcommittee the agency still did not know how many large hog confinements exist.",
+          "label": "CAFOs reported to EPA",
+          "scope": "all_livestock"
+        },
+        "inspectors": {
+          "value": null,
+          "not_published_by": "Illinois EPA and IDOA",
+          "proxy": "The last official figure is from EPA Region 5's 2010 review: seven Bureau of Water staff with CAFO permitting and inspection as collateral duties.",
+          "source": "epa_r5_iepa_cafo_2010",
+          "asof": "2010-09-01"
+        },
+        "inspection_policy": {
+          "value": null,
+          "source": "idoa_lmfa",
+          "asof": "2026-10-09",
+          "basis": "Illinois EPA's stated goal is one inspection of each permitted CAFO per five-year permit term, which EPA found was not met in 2010. IDOA says lagoons at facilities of 1,000 or more animal units are inspected annually. Illinois EPA has no administrative penalty authority; cases go to the Attorney General or the Pollution Control Board.",
+          "scope": "all_livestock"
+        },
+        "inspections_per_year": {
+          "value": null,
+          "not_published_by": "Illinois EPA and IDOA",
+          "proxy": "No annual inspection count is published. EPA's 2010 review found about three-quarters of livestock inspections were complaint-driven.",
+          "source": "epa_r5_iepa_cafo_2010",
+          "asof": "2010-09-01"
+        },
+        "complaints_per_year": {
+          "value": null,
+          "not_published_by": "Illinois EPA",
+          "proxy": "No complaint count is published. EPA's 2010 review cited more than 200 complaints a year at the Peoria office alone, about 37 percent of them livestock-related.",
+          "source": "epa_r5_iepa_cafo_2010",
+          "asof": "2010-09-01"
+        },
+        "violations_per_year": {
+          "value": null,
+          "not_published_by": "Illinois EPA",
+          "proxy": "No count is published. Enforcement appears case by case at the Pollution Control Board, such as PCB 2026-033 (October 2025) against Paragon Pork, a 5,000-hog farrow-to-wean site, over a 2020 land-application discharge and a 1,447-fish kill.",
+          "source": "pcb_2026_033",
+          "asof": "2025-10-30"
+        },
+        "publication_note": "Illinois is the state in this set with the thinnest record: no inventory of hog operations, no inspection or complaint counts, and no administrative penalties. The only enforcement visible to the public is what the Attorney General files.",
+        "developments": [
+          {
+            "date": "2025-10-30",
+            "detail": "Attorney General Raoul filed PCB 2026-033 against Paragon Pork and its applicator over a 2020 manure discharge and fish kill at an unpermitted large CAFO, seeking $50,000 per violation.",
+            "source": "pcb_2026_033"
+          },
+          {
+            "date": "2025-02-07",
+            "detail": "SB 2331 to 2333 would have added county-board notice, two-mile setbacks and water-impact surveys to the Livestock Management Facilities Act; referred to Assignments and not moved, with Farm Bureau, Illinois Pork Producers and Illinois Beef opposed.",
+            "source": "ilga_sb2332"
+          },
+          {
+            "date": "2023-05-01",
+            "detail": "Illinois EPA reissued general permit ILA01 after the 2009 permit lapsed in 2014; further Part 502 amendments are before the Pollution Control Board in docket R25-23.",
+            "source": "iepa_cafo"
+          }
+        ]
+      },
+      {
+        "code": "IN",
+        "name": "Indiana",
+        "regulator": "Indiana Department of Environmental Management (IDEM)",
+        "regulator_short": "IDEM",
+        "program": "Confined Feeding Program, Office of Land Quality, under the Confined Feeding Control Law (Indiana Code 13-18-10).",
+        "permit_regime_text": "Any operation with 600 or more swine is a Confined Feeding Operation (CFO) and must hold an IDEM approval before building or operating. Operations with 2,500 or more swine over 55 pounds are tracked as CAFOs by size but are still permitted under the state CFO rule unless they discharge. NPDES coverage is effectively unused: EPA lists Indiana with zero NPDES-permitted CAFOs, so IDEM's \"CAFO\" label means size class, not a federal permit.",
+        "regime_source": "idem_cfo",
+        "key_term": "In Indiana the regulator is the <b>Indiana Department of Environmental Management (IDEM)</b> and the state permit is the <b>Confined Feeding Operation (CFO)</b> approval.",
+        "epa_cafo_status": {
+          "total_cafos": 846,
+          "npdes_permitted": 0,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of every species as reported by the state to EPA, and how many of them hold an NPDES permit. This is EPA's status report, not the ECHO database, and it is the only series published on the same definition for every state. It is not a count of hog farms."
+        },
+        "swine_operations": {
+          "value": null,
+          "not_published_by": "IDEM",
+          "proxy": "IDEM's annual report does not split its 1,647 permitted operations by species. The IndianaMap Confined Feeding Operations layer carries an animal-type field and is the closest proxy.",
+          "source": "indianamap_cfo",
+          "asof": "2026-10-09"
+        },
+        "regulated_operations": {
+          "value": 1647,
+          "source": "idem_annual_fy2025",
+          "asof": "2025-06-30",
+          "basis": "Operations subject to permitting and inspection in fiscal 2025: 789 CFOs plus 658 large CAFO-size operations, all species. Down from 1,730 in fiscal 2022.",
+          "label": "Permitted CFOs and CAFOs, FY2025",
+          "scope": "all_livestock"
+        },
+        "inspectors": {
+          "value": null,
+          "not_published_by": "IDEM",
+          "proxy": "A December 2024 fiscal note said annual inspections would require up to six additional inspectors; IDEM testified it inspects about 20 percent of CFOs each year.",
+          "source": "in_lsa_sb193_fn",
+          "asof": "2024-12-17"
+        },
+        "inspection_policy": {
+          "value": null,
+          "source": "legiscan_in_sb193",
+          "asof": "2025-05-06",
+          "basis": "Routine inspection roughly once every five years plus a first-year inspection. Since Senate Enrolled Act 193 (2025), IDEM must inspect each CFO within 45 days of initial approval and within 90 days of renewal, and may make unannounced complaint inspections; the bill's original annual-inspection mandate was removed.",
+          "scope": "all_livestock"
+        },
+        "inspections_per_year": {
+          "value": 516,
+          "source": "idem_annual_fy2025",
+          "asof": "2025-06-30",
+          "basis": "All CFO and CAFO inspections in fiscal 2025: 329 routine, 16 complaint, 26 follow-up, 82 construction and 35 exit or closure, plus other. All species.",
+          "label": "Inspections, FY2025",
+          "scope": "all_livestock"
+        },
+        "complaints_per_year": {
+          "value": null,
+          "not_published_by": "IDEM",
+          "proxy": "Complaints received are not reported; 16 complaint-based inspections were made in fiscal 2025 (15 in fiscal 2022).",
+          "source": "idem_annual_fy2025",
+          "asof": "2025-06-30"
+        },
+        "violations_per_year": {
+          "value": 64,
+          "source": "idem_annual_fy2025",
+          "asof": "2025-06-30",
+          "basis": "Violations cited in fiscal 2025: 37 at CFOs and 27 at large CAFO-size operations, led by land application (26) and operational standards (20). Formal enforcement actions are not counted in the report.",
+          "label": "Violations cited, FY2025",
+          "scope": "all_livestock"
+        },
+        "publication_note": "Indiana is one of only two states in this set that publishes an annual inspection and violation table for its livestock program. It is also the only one with zero NPDES-permitted CAFOs, so none of its 1,647 permitted operations appears in EPA ECHO.",
+        "developments": [
+          {
+            "date": "2025-05-06",
+            "detail": "Senate Enrolled Act 193 (P.L. 192-2025) added inspections within 45 days of approval and 90 days of renewal and allowed unannounced complaint inspections, after Farm Bureau, Indiana Pork and the poultry association stripped the annual-inspection requirement.",
+            "source": "legiscan_in_sb193"
+          },
+          {
+            "date": "2026-04-22",
+            "detail": "House Enrolled Act 1355 added pre-application meetings, fee refunds when IDEM misses its 90-day deadline, and a bar on retroactive requirements for approved infrastructure during expansions.",
+            "source": "in_hea1355_2026"
+          },
+          {
+            "date": "2024-06-30",
+            "detail": "In fiscal 2024 IDEM received 50 CFO approval applications, issued 46 and denied none.",
+            "source": "idem_annual_fy2025"
+          }
+        ]
+      },
+      {
+        "code": "NE",
+        "name": "Nebraska",
+        "regulator": "Nebraska Department of Water, Energy, and Environment (DWEE)",
+        "regulator_short": "DWEE",
+        "program": "Livestock Waste Control Program, Livestock and Agriculture Section, Water Quality Division (Title 130). Renamed from the Department of Environment and Energy (NDEE) by LB 317 in 2025.",
+        "permit_regime_text": "Nebraska runs a dual system. A non-expiring state Construction and Operating Permit is required for any operation DWEE determines needs waste-control facilities; an NPDES permit is \"generally required\" for large and medium CAFOs that discharge or propose to. Unlike Indiana or Iowa, a sizeable share of Nebraska's large CAFOs do carry NPDES coverage, mostly cattle feedlots under the cattle general permit; the draft 2027-2032 reissuance would extend general coverage to all CAFO types and hold new swine CAFOs to zero production-area discharge.",
+        "regime_source": "dwee_lwc",
+        "key_term": "In Nebraska the regulator is the <b>Department of Water, Energy, and Environment (DWEE)</b>, until 2025 the <b>Department of Environment and Energy (NDEE)</b>.",
+        "epa_cafo_status": {
+          "total_cafos": 1228,
+          "npdes_permitted": 434,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of every species as reported by the state to EPA, and how many of them hold an NPDES permit. This is EPA's status report, not the ECHO database, and it is the only series published on the same definition for every state. It is not a count of hog farms."
+        },
+        "swine_operations": {
+          "value": null,
+          "not_published_by": "DWEE",
+          "proxy": "DWEE describes \"thousands\" of animal feeding operations but publishes no species breakdown on its website; the livestock tables are in its annual report to the Legislature.",
+          "source": "ndee_annual_fy2024",
+          "asof": "2024-06-30"
+        },
+        "regulated_operations": {
+          "value": null,
+          "not_published_by": "DWEE",
+          "proxy": "No current total of permitted livestock operations is published online. EPA's count of 1,228 medium and large CAFOs reported by the state is the closest proxy; EPA cut that figure from 1,555 a year earlier without explanation.",
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31"
+        },
+        "inspectors": {
+          "value": null,
+          "not_published_by": "DWEE",
+          "proxy": "Agency-wide authorized staffing was 273 full-time equivalents at the start of fiscal 2024 and 268 at the end; the livestock share is not published.",
+          "source": "ndee_annual_fy2024",
+          "asof": "2024-06-30"
+        },
+        "inspection_policy": {
+          "value": null,
+          "source": "dwee_inspections_2023",
+          "asof": "2023-08-24",
+          "basis": "DWEE states facilities are inspected every 18 to 24 months, if not more often, with an initial inspection before construction and a post-construction inspection within 30 days. It reports an average of 50 days to issue a livestock permit against a 110-day statutory limit.",
+          "scope": "all_livestock"
+        },
+        "inspections_per_year": {
+          "value": 870,
+          "source": "ndee_lwc_release_2022",
+          "asof": "2022-12-22",
+          "basis": "Average of 7,833 animal feeding operation inspections DWEE reported for 2014 through 2022, all species, with a stated 96 percent compliance rate. No annual figure is published; the average is computed from the nine-year total.",
+          "label": "Inspections per year, 2014-2022 average",
+          "scope": "all_livestock"
+        },
+        "complaints_per_year": {
+          "value": null,
+          "not_published_by": "DWEE",
+          "proxy": "No livestock complaint count is published; the agency logged 325 citizen complaints across all programs in fiscal 2024.",
+          "source": "ndee_annual_fy2024",
+          "asof": "2024-06-30"
+        },
+        "violations_per_year": {
+          "value": null,
+          "not_published_by": "DWEE",
+          "proxy": "Letters of non-compliance are not counted publicly. Formal Livestock Waste Control enforcement orders listed on the agency site: 4 in 2024, 2 in 2025 and 1 so far in 2026, every one a cattle feedlot; no swine order was found.",
+          "source": "dwee_enforcement",
+          "asof": "2026-10-09"
+        },
+        "publication_note": "Nebraska's enforcement record is visible only as a cumulative inspection total and a handful of formal orders. LB 1048, introduced at the Governor's request in 2026, would eliminate the annual Livestock Waste Management Act cost report, one of the few public windows on program capacity.",
+        "developments": [
+          {
+            "date": "2026-05-19",
+            "detail": "Draft NPDES general permit NEG022000 for 2027-2032 was released for comment, extending general coverage to all CAFO types.",
+            "source": "ne_neg022000_fs_2026"
+          },
+          {
+            "date": "2026-01-14",
+            "detail": "LB 1048 would change or eliminate state reporting requirements, including the Livestock Waste Management Act annual cost report.",
+            "source": "ne_lb1048_2026"
+          },
+          {
+            "date": "2025-01-01",
+            "detail": "LB 317 renamed the Department of Environment and Energy as the Department of Water, Energy, and Environment; conforming Title 130 amendments were heard by the Environmental Quality Council in June 2026.",
+            "source": "dwee_lwc"
+          }
+        ]
+      },
+      {
+        "code": "MO",
+        "name": "Missouri",
+        "regulator": "Missouri Department of Natural Resources (MoDNR)",
+        "regulator_short": "MoDNR",
+        "program": "Water Protection Program, Division of Environmental Quality; CAFO permitting unit, with compliance monitoring by regional offices and referral to the Compliance and Enforcement Section.",
+        "permit_regime_text": "Class I CAFOs (1,000 or more animal units; 2,500 or more swine over 55 pounds) need a Missouri State Operating Permit. Two master general permits apply: MO-G010000, an NPDES permit allowing discharge only in a 25-year, 24-hour storm, and MO-GS10000, a state no-discharge permit that most swine operations use. Class IA operations (7,000 or more animal units, which includes the Smithfield complexes) must hold site-specific NPDES permits. Class II operations of 300 to 999 animal units are unpermitted unless designated.",
+        "regime_source": "modnr_pub2351",
+        "key_term": "In Missouri the regulator is the <b>Department of Natural Resources (MoDNR)</b>; its state-only instrument is the no-discharge general permit <b>MO-GS10000</b>.",
+        "epa_cafo_status": {
+          "total_cafos": 515,
+          "npdes_permitted": 43,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of every species as reported by the state to EPA, and how many of them hold an NPDES permit. This is EPA's status report, not the ECHO database, and it is the only series published on the same definition for every state. It is not a count of hog farms."
+        },
+        "swine_operations": {
+          "value": null,
+          "not_published_by": "MoDNR",
+          "proxy": "MoDNR publishes a permit search and map but no species tally. Eighteen Class IA operations, mostly Smithfield hog complexes, hold site-specific NPDES permits.",
+          "source": "moind_class_ia_2021",
+          "asof": "2021-06-23"
+        },
+        "regulated_operations": {
+          "value": 515,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Permitted Class I CAFOs of all species as reported to EPA. MoDNR itself publishes no total.",
+          "label": "Permitted Class I CAFOs",
+          "scope": "all_livestock"
+        },
+        "inspectors": {
+          "value": null,
+          "not_published_by": "MoDNR",
+          "proxy": "No inspector count is published for the CAFO program.",
+          "source": "modnr_cafo",
+          "asof": "2026-10-09"
+        },
+        "inspection_policy": {
+          "value": null,
+          "source": "rsmo_640_750",
+          "asof": "2026-10-09",
+          "basis": "Section 640.750 of the Revised Statutes requires at least one on-site DNR inspection each quarter of every Class IA facility. No statutory frequency applies to Class IB or IC operations.",
+          "scope": "all_livestock"
+        },
+        "inspections_per_year": {
+          "value": null,
+          "not_published_by": "MoDNR",
+          "proxy": "No CAFO inspection total is published. The statute implies about 72 required Class IA inspections a year (18 facilities, quarterly) plus regional-office visits; facility-level actions appear in monthly Clean Water enforcement reports and the MoCWIS database.",
+          "source": "modnr_cw_enforcement",
+          "asof": "2026-10-09"
+        },
+        "complaints_per_year": {
+          "value": null,
+          "not_published_by": "MoDNR",
+          "proxy": "Concerns are filed through an online form; no CAFO complaint tally is published.",
+          "source": "modnr_cafo",
+          "asof": "2026-10-09"
+        },
+        "violations_per_year": {
+          "value": null,
+          "not_published_by": "MoDNR",
+          "proxy": "No CAFO count is published. Monthly Clean Water enforcement reports list facility-level actions; one example is an $18,000 penalty against a Smithfield site for a roughly 300,000-gallon spill in 2022.",
+          "source": "kcur_modnr_2022",
+          "asof": "2022-06-29"
+        },
+        "publication_note": "Missouri publishes facility-level enforcement documents but no program-level counts, and since 2023 counties cannot regulate CAFOs more strictly than the state.",
+        "developments": [
+          {
+            "date": "2023-03-21",
+            "detail": "The Missouri Supreme Court unanimously upheld Senate Bill 391 (2019) and its 2021 amendment, voiding county health ordinances that are stricter than, or different from, state CAFO rules.",
+            "source": "stlpr_sb391_2023"
+          },
+          {
+            "date": "2023-03-01",
+            "detail": "Master general permits MO-G010000 and MO-GS10000 were reissued, expiring in February 2028, after a 2022 controversy over Smithfield's South Meadows site moving from a site-specific to a general permit.",
+            "source": "modnr_pub2351"
+          },
+          {
+            "date": "2025-07-14",
+            "detail": "Three petitions for rulemaking to amend 10 CSR 20-6.300, arising from southwest Missouri poultry permits, drew a DNR response to comments.",
+            "source": "modnr_cafo"
+          }
+        ]
+      },
+      {
+        "code": "OH",
+        "name": "Ohio",
+        "regulator": "Ohio Department of Agriculture (ODA), with Ohio Environmental Protection Agency (Ohio EPA) for NPDES",
+        "regulator_short": "ODA / Ohio EPA",
+        "program": "ODA Division of Livestock Environmental Permitting (DLEP) issues and inspects state permits; Ohio EPA issues the few NPDES CAFO permits, all of them individual.",
+        "permit_regime_text": "Large hog farms (2,500 or more swine over 55 pounds) are Concentrated Animal Feeding Facilities (CAFFs) and need an ODA Permit to Install and a five-year Permit to Operate under Ohio Revised Code chapter 903. NPDES CAFO permits come only from Ohio EPA, only as individual permits, and only for the minority that discharge. EPA declined in 2022 to transfer NPDES CAFO permitting to ODA, so the split persists.",
+        "regime_source": "oda_dlep",
+        "key_term": "In Ohio the state regulator is the <b>Ohio Department of Agriculture (ODA)</b>, whose permitted sites are <b>Concentrated Animal Feeding Facilities (CAFFs)</b>; the <b>Ohio Environmental Protection Agency (Ohio EPA)</b> holds the NPDES program.",
+        "epa_cafo_status": {
+          "total_cafos": 300,
+          "npdes_permitted": 20,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of every species as reported by the state to EPA, and how many of them hold an NPDES permit. This is EPA's status report, not the ECHO database, and it is the only series published on the same definition for every state. It is not a count of hog farms."
+        },
+        "swine_operations": {
+          "value": 101,
+          "source": "oda_tmacog_2021",
+          "asof": "2021-07-12",
+          "basis": "Swine CAFFs of 265 permitted facilities in ODA's July 2021 presentation, the last species split found. ODA's annual reports since then give totals only.",
+          "label": "Swine CAFFs (2021 split)",
+          "scope": "swine"
+        },
+        "regulated_operations": {
+          "value": 297,
+          "source": "oda_annual_2024_25",
+          "asof": "2024-12-31",
+          "basis": "CAFFs operating under a Permit to Operate at the end of calendar 2024, all species (295 at the end of 2023).",
+          "label": "Permitted CAFFs, end of 2024",
+          "scope": "all_livestock"
+        },
+        "inspectors": {
+          "value": 4,
+          "source": "oda_tmacog_2021",
+          "asof": "2021-07-12",
+          "basis": "Division inspectors in July 2021, plus one vacancy and three engineers. ODA has not published a current headcount.",
+          "label": "Division inspectors (2021)",
+          "scope": "all_livestock"
+        },
+        "inspection_policy": {
+          "value": null,
+          "source": "lpelc_oda_dlep",
+          "asof": "2026-10-09",
+          "basis": "ODA policy is at least one routine inspection of every permitted CAFF each year, against a federal recommendation of once every five years.",
+          "scope": "all_livestock"
+        },
+        "inspections_per_year": {
+          "value": 446,
+          "source": "oda_annual_2024_25",
+          "asof": "2024-12-31",
+          "basis": "Routine inspections of permitted CAFFs in calendar 2024, all species (441 in 2023).",
+          "label": "Routine inspections, 2024",
+          "scope": "all_livestock"
+        },
+        "complaints_per_year": {
+          "value": 25,
+          "source": "oda_annual_2024_25",
+          "asof": "2024-12-31",
+          "basis": "Complaint investigations at CAFFs in calendar 2024 (36 in 2023), plus 11 complaints about certified livestock managers. All species.",
+          "label": "Complaint investigations, 2024",
+          "scope": "all_livestock"
+        },
+        "violations_per_year": {
+          "value": null,
+          "not_published_by": "ODA",
+          "proxy": "The annual report gives no enforcement counts. ODA's tools are warning letters, notices of deficiency and director's orders; Ohio EPA's eDocument system holds the NPDES record.",
+          "source": "oda_annual_2024_25",
+          "asof": "2024-12-31"
+        },
+        "publication_note": "Ohio and Indiana are the only states in this set that publish annual inspection totals. Ohio also publishes complaint investigations, which makes its record the fullest after North Carolina's, though it stops short of counting violations.",
+        "developments": [
+          {
+            "date": "2026-07-07",
+            "detail": "EPA's Inspector General found EPA oversight gives reasonable assurance that Ohio's 20 NPDES CAFO nutrient management plans meet federal minimums, with no recommendations; it did not evaluate whether manure is applied as the plans say.",
+            "source": "epa_oig_ohio_2026"
+          },
+          {
+            "date": "2026-03-09",
+            "detail": "The Sixth Circuit ordered that Ohio agricultural associations including the Ohio Pork Council be admitted as intervenors in the Lucas County, Toledo and Environmental Law & Policy Center suit over EPA's approval of the Maumee River TMDL, which alleges at least 73 watershed CAFOs received no wasteload allocation.",
+            "source": "ca6_25_3609"
+          },
+          {
+            "date": "2022-01-01",
+            "detail": "EPA declined ODA's 2015 request to take over NPDES CAFO permitting from Ohio EPA.",
+            "source": "epa_oig_ohio_2026"
+          }
+        ]
+      },
+      {
+        "code": "SD",
+        "name": "South Dakota",
+        "regulator": "South Dakota Department of Agriculture and Natural Resources (DANR)",
+        "regulator_short": "DANR",
+        "program": "Feedlot Permit Program, Division of Agriculture and Environmental Services.",
+        "permit_regime_text": "Since 2007 every large CAFO (2,500 or more swine over 55 pounds) must hold coverage under DANR's General Water Pollution Control Permit for CAFOs, a combined NPDES and state general permit. DANR is splitting it into a five-year NPDES general permit and a ten-year state-only general permit; operators that do not discharge may choose the state-only version, so the share with a federal record is set to fall.",
+        "regime_source": "danr_feedlot",
+        "key_term": "In South Dakota the regulator is the <b>Department of Agriculture and Natural Resources (DANR)</b>.",
+        "epa_cafo_status": {
+          "total_cafos": 437,
+          "npdes_permitted": 174,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of every species as reported by the state to EPA, and how many of them hold an NPDES permit. This is EPA's status report, not the ECHO database, and it is the only series published on the same definition for every state. It is not a count of hog farms."
+        },
+        "swine_operations": {
+          "value": 145,
+          "source": "danr_webinar_2024_12",
+          "asof": "2024-01-01",
+          "basis": "Permitted swine CAFOs holding 884,629 head on January 1, 2024, among 436 permitted facilities; a further 62 multi-animal facilities may include swine.",
+          "label": "Permitted swine CAFOs",
+          "scope": "swine"
+        },
+        "regulated_operations": {
+          "value": 436,
+          "source": "danr_webinar_2024_12",
+          "asof": "2024-01-01",
+          "basis": "Permitted facilities of all species on January 1, 2024, a figure repeated in the Legislative Research Council's fiscal 2026 budget brief.",
+          "label": "Permitted facilities",
+          "scope": "all_livestock"
+        },
+        "inspectors": {
+          "value": null,
+          "not_published_by": "DANR",
+          "proxy": "Division-wide staffing was 89.5 full-time equivalents in fiscal 2024 and 95.9 budgeted for fiscal 2025 across many programs; the feedlot share is not published.",
+          "source": "sd_lrc_danr_fy26",
+          "asof": "2025-01-15"
+        },
+        "inspection_policy": {
+          "value": null,
+          "source": "danr_inspections",
+          "asof": "2026-10-09",
+          "basis": "DANR policy is to inspect larger operations at least once a year and other operations at least once every three years, plus a construction inspection and one within the first 18 months of operation.",
+          "scope": "all_livestock"
+        },
+        "inspections_per_year": {
+          "value": null,
+          "not_published_by": "DANR",
+          "proxy": "No inspection count is published. The budget performance measure is the share of CAFOs in compliance: 99.7 percent in fiscal 2023 and 2024.",
+          "source": "sd_lrc_danr_fy26",
+          "asof": "2025-01-15"
+        },
+        "complaints_per_year": {
+          "value": null,
+          "not_published_by": "DANR",
+          "proxy": "A complaint form exists; no tally is published.",
+          "source": "danr_feedlot",
+          "asof": "2026-10-09"
+        },
+        "violations_per_year": {
+          "value": null,
+          "not_published_by": "DANR",
+          "proxy": "No count is published. The 99.7 percent compliance measure implies roughly one non-compliant facility among about 436.",
+          "source": "sd_lrc_danr_fy26",
+          "asof": "2025-01-15"
+        },
+        "publication_note": "South Dakota publishes the best species breakdown of permitted operations in this set but no inspection, complaint or violation counts, and in 2025 the Legislature came within one committee vote of barring DANR from releasing the list of permitted CAFO locations.",
+        "developments": [
+          {
+            "date": "2025-11-01",
+            "detail": "DANR posted contested-case materials for splitting the CAFO general permit into a five-year NPDES permit and a ten-year state-only permit, as 2021 Senate Bill 52 allows.",
+            "source": "danr_npdes_sob_2025"
+          },
+          {
+            "date": "2025-03-04",
+            "detail": "Senate Bill 14 originally barred DANR from releasing an aggregated list of permitted CAFO locations; the House Agriculture committee deleted that section 13-0 before the bill was signed.",
+            "source": "sd_sb14_2025"
+          },
+          {
+            "date": "2025-03-19",
+            "detail": "House Bill 1021 raised CAFO application and annual fees, phasing program revenue from about $97,000 to $705,000 a year.",
+            "source": "sd_lrc_danr_fy26"
+          }
+        ]
+      },
+      {
+        "code": "OK",
+        "name": "Oklahoma",
+        "regulator": "Oklahoma Department of Agriculture, Food and Forestry (ODAFF)",
+        "regulator_short": "ODAFF",
+        "program": "Agricultural Environmental Management Services (AEMS) division: swine feeding operations, CAFO, poultry and the Agricultural Pollutant Discharge Elimination System (AgPDES) programs.",
+        "permit_regime_text": "Large hog farms are licensed by ODAFF as Licensed Managed Feeding Operations under the Oklahoma Swine Feeding Operations Act, at 1,000 swine animal units (2,500 swine over 55 pounds). ODAFF also holds EPA-delegated NPDES authority for agriculture (AgPDES, since 2013) and issues the AgPDES CAFO general permit OKG010000, from which new-source swine CAFOs are excluded and need individual permits. Most licensed swine operations rely on the state license alone; NPDES coverage is the minority.",
+        "regime_source": "odaff_aems",
+        "key_term": "In Oklahoma the regulator is the <b>Department of Agriculture, Food and Forestry (ODAFF)</b>; its delegated federal program is the <b>Agricultural Pollutant Discharge Elimination System (AgPDES)</b>.",
+        "epa_cafo_status": {
+          "total_cafos": 322,
+          "npdes_permitted": 36,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of every species as reported by the state to EPA, and how many of them hold an NPDES permit. This is EPA's status report, not the ECHO database, and it is the only series published on the same definition for every state. It is not a count of hog farms."
+        },
+        "swine_operations": {
+          "value": null,
+          "not_published_by": "ODAFF",
+          "proxy": "ODAFF links to a list of permitted CAFOs but publishes no swine tally on its website; licensed-swine statistics appear in the monthly AEMS report in State Board of Agriculture packets.",
+          "source": "odaff_aems",
+          "asof": "2026-10-09"
+        },
+        "regulated_operations": {
+          "value": 322,
+          "source": "epa_cafo_status_2024",
+          "asof": "2024-12-31",
+          "basis": "Medium and large CAFOs of all species as reported to EPA. ODAFF publishes no total.",
+          "label": "CAFOs reported to EPA",
+          "scope": "all_livestock"
+        },
+        "inspectors": {
+          "value": 18.4,
+          "source": "ok_senate_odaff_bpr_fy26",
+          "asof": "2024-06-30",
+          "basis": "AEMS division full-time equivalents in fiscal 2024 across swine, CAFO, poultry and pet-breeder programs (17.2 in fiscal 2023; 20.7 budgeted for fiscal 2025). The division web page names eight inspectors and two field supervisors.",
+          "label": "AEMS division staff (FTE), FY2024",
+          "scope": "all_livestock"
+        },
+        "inspection_policy": {
+          "value": null,
+          "source": "ok_swine_act_2024",
+          "asof": "2024-11-01",
+          "basis": "The Swine Feeding Operations Act requires ODAFF to make at least one unannounced inspection each year of every licensed swine feeding operation (2 O.S. 20-14(A)).",
+          "scope": "all_livestock"
+        },
+        "inspections_per_year": {
+          "value": null,
+          "not_published_by": "ODAFF",
+          "proxy": "No annual inspection count is published. The monthly AEMS report to the State Board of Agriculture includes inspection, complaint and technical-assistance counts but is not summarized annually.",
+          "source": "odaff_aems",
+          "asof": "2026-10-09"
+        },
+        "complaints_per_year": {
+          "value": null,
+          "not_published_by": "ODAFF",
+          "proxy": "Complaint investigations appear in the monthly AEMS board report only.",
+          "source": "odaff_aems",
+          "asof": "2026-10-09"
+        },
+        "violations_per_year": {
+          "value": null,
+          "not_published_by": "ODAFF",
+          "proxy": "No count is published. Individual enforcement stipulations appear on State Board of Agriculture agendas, for example four AEMS cases in July 2025 and four in April 2026.",
+          "source": "odaff_aems",
+          "asof": "2026-10-09"
+        },
+        "publication_note": "Oklahoma has the strictest inspection mandate in this set, one unannounced visit per licensed swine operation per year, but publishes no figure showing whether it is met, and in 2025 it repealed the violation points system that graded repeat offenders.",
+        "developments": [
+          {
+            "date": "2025-07-11",
+            "detail": "New swine rules took effect and revoked the violation points system (OAC 35:17-3-22), removing the graduated penalty scheme.",
+            "source": "ok_swine_rules_2025"
+          },
+          {
+            "date": "2024-11-01",
+            "detail": "Revised Swine Feeding Operations Act and CAFO Act took effect.",
+            "source": "ok_swine_act_2024"
+          },
+          {
+            "date": "2023-03-24",
+            "detail": "AgPDES CAFO general permit OKG010000 reissued for 2023 to 2028.",
+            "source": "ok_agpdes_gp_2023"
+          }
+        ]
+      }
+    ]
+  },
   "nc_statutory_structure": {
     "moratorium": {
       "statute": "N.C.G.S. 143-215.10I",
@@ -767,6 +1903,10 @@
     {
       "gap": "Statewide lagoon count",
       "detail": "No DEQ publication states one. Figures in the 3,000 to 3,500 range circulate, including from industry sources, but do not trace to a state dataset."
+    },
+    {
+      "gap": "Swine-specific enforcement counts outside North Carolina",
+      "detail": "No state in the top ten other than North Carolina publishes swine-specific inspection, complaint or violation counts. Indiana and Ohio publish all-species inspection tables; Iowa discloses counts to reporters on request; the rest publish none. See state_enforcement."
     }
   ],
   "reproducible_queries": {

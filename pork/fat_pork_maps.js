@@ -25,7 +25,11 @@
  *                 North Carolina legal record, ownership and integration, biogas,
  *                 and what reaches the label. It links to the supply view for the
  *                 inventory table rather than duplicating it.
- *   enforcement — North Carolina swine enforcement.
+ *   enforcement — swine enforcement, one state at a time. A selector at the top
+ *                 lists the ten largest hog states; North Carolina renders from
+ *                 the nc_* blocks, the other nine from state_enforcement. A
+ *                 figure an agency does not publish is shown as "Not published",
+ *                 never as zero. `?state=IA` or `#state-IA` preselects a state.
  *
  * Design follows the FAT map system used by the beef maps: Georgia serif body,
  * Arial for labels and figures, evergreen header band (#3a4a2d) on #f7f9f5,
@@ -211,6 +215,13 @@
     '.fat-btn:hover{background:var(--fat-panel)}',
     '.fat-btn[aria-pressed="true"]{background:' + C.band + ';color:#fff;border-color:' + C.band + '}',
     '.fat-jump{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}',
+    '.fat-pick{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}',
+    '.fat-pick .fat-btn{font-weight:600}',
+    '.fat-pick .fat-btn small{font-weight:400;color:var(--fat-muted);margin-left:5px}',
+    '.fat-pick .fat-btn[aria-pressed="true"] small{color:' + C.bandSub + '}',
+    '.fat-pick-label{font:11px/1.3 ' + SANS + ';color:' + C.olive + ';text-transform:uppercase;letter-spacing:.04em;margin:14px 0 0}',
+    '.fat-card-gap .fat-card-value{color:' + C.amber + ';font-size:16px}',
+    '.fat-scope{font-size:15px;color:var(--fat-fg);margin:0 0 6px}',
     '.fat-legend{display:flex;flex-wrap:wrap;gap:14px;font:12px/1.5 ' + SANS + ';color:var(--fat-fg);margin:10px 0 0}',
     '.fat-legend span.k{display:inline-flex;align-items:center;gap:6px}',
     '.fat-sw{width:11px;height:11px;border-radius:2px;display:inline-block;flex:0 0 auto;border:1px solid #333}',
@@ -516,7 +527,9 @@
   }
 
   // ---------------------------------------------------------------- views
-  function viewEnforcement(el, data) {
+  // The North Carolina record: the original enforcement page, unchanged in
+  // substance, returned as a fragment so the selector can swap it in.
+  function enforcementNC(data) {
     var e = data.nc_enforcement;
     var c = data.nc_facility_counts;
 
@@ -526,7 +539,7 @@
     var vioPct = e.violation_rate.value * 100;
     var vioCount = Math.round(e.complaints_investigated.value * e.violation_rate.value);
 
-    var html = '<div class="fat-wrap">';
+    var html = '';
 
     html += '<div class="fat-panel"><div class="fat-head"><div>' +
       '<h2 class="fat-h2">North Carolina swine enforcement</h2>' +
@@ -582,13 +595,184 @@
     html += '</tbody></table></div>' +
       '<p class="fat-foot">' + esc(c.reconciliation_gap.note) + '</p></div>';
 
+    return html;
+  }
+
+  // A metric that may be a figure or a documented gap ({value:null, not_published_by}).
+  function isGap(mt) { return !mt || mt.value == null; }
+
+  function gapCard(label, mt, data) {
+    var sub = mt
+      ? '<strong>Not published by ' + esc(mt.not_published_by || 'the agency') + '.</strong> ' + esc(mt.proxy || '')
+      : 'Not published.';
+    return card(label, 'Not published', sub, mt ? sourceChip(data, mt) : '', 'gap');
+  }
+
+  function metricCard(label, mt, data, fmt) {
+    if (isGap(mt)) return gapCard(label, mt, data);
+    var v = fmt ? fmt(mt.value) : num(mt.value);
+    var sub = esc(mt.basis || '') + (mt.asof ? ' <span class="fat-sub">(' + esc(fmtDate(mt.asof)) + ')</span>' : '');
+    return card(label, v, sub, sourceChip(data, mt));
+  }
+
+  // Latest as-of date among a state's published figures.
+  function latestAsOf(s) {
+    var keys = ['swine_operations', 'regulated_operations', 'inspectors', 'inspections_per_year',
+      'complaints_per_year', 'violations_per_year'];
+    var best = '';
+    keys.forEach(function (k) {
+      var mt = s[k];
+      if (mt && mt.value != null && mt.asof && mt.asof > best) best = mt.asof;
+    });
+    return best;
+  }
+
+  // One of the nine other states, rendered from state_enforcement.
+  function enforcementState(data, s) {
+    var html = '';
+    var asof = latestAsOf(s);
+
+    html += '<div class="fat-panel"><div class="fat-head"><div>' +
+      '<h2 class="fat-h2">' + esc(s.name) + ' swine enforcement</h2>' +
+      '<p class="fat-sub">Permitted operations, inspection capacity, and what ' + esc(s.regulator_short) + ' does and does not publish</p></div>' +
+      '<div><p class="fat-asof">' + esc(s.regulator) + '<br>' +
+      (asof ? 'Latest published figure ' + esc(fmtDate(asof)) : 'No annual figures published') + '</p></div></div>';
+
+    html += keyTerms(s.key_term || '');
+
+    // COMPUTED — NPDES share of the CAFOs the state reports to EPA.
+    var ep = s.epa_cafo_status;
+    var npdesPct = ep && ep.total_cafos ? 100 * ep.npdes_permitted / ep.total_cafos : null;
+
+    html += '<div class="fat-grid">';
+    html += metricCard('Swine operations', s.swine_operations, data);
+    html += metricCard('Permitted operations, all species', s.regulated_operations, data);
+    if (ep) {
+      html += card('CAFOs with a federal NPDES permit',
+        num(ep.npdes_permitted) + ' of ' + num(ep.total_cafos) +
+        (npdesPct != null ? ' <span class="fat-sub">(' + num(npdesPct, 0) + '%)</span>' : ''),
+        esc(ep.basis) + ' <span class="fat-sub">(' + esc(fmtDate(ep.asof)) + ')</span>', sourceChip(data, ep));
+    }
+    html += metricCard('Inspection staff', s.inspectors, data, function (v) { return num(v, v % 1 ? 1 : 0); });
+    html += metricCard('Inspections per year', s.inspections_per_year, data);
+    html += metricCard('Complaints per year', s.complaints_per_year, data);
+    html += metricCard('Violations per year', s.violations_per_year, data);
+    // Operations per inspector, only when both inputs are published.
+    if (!isGap(s.inspectors) && !isGap(s.regulated_operations)) {
+      var r = s.regulated_operations.value / s.inspectors.value;
+      html += card('Operations per inspector', num(r, 0) + ':1',
+        num(s.regulated_operations.value) + ' permitted operations (' + esc(fmtDate(s.regulated_operations.asof)) +
+        ') divided by ' + num(s.inspectors.value, s.inspectors.value % 1 ? 1 : 0) + ' staff (' + esc(fmtDate(s.inspectors.asof)) +
+        '). The two figures are from different dates, and the staff also work other programs, so this is a rough load, not a measured one.',
+        sourceChip(data, s.inspectors));
+    }
+    html += '</div>';
+
+    if (s.publication_note) {
+      html += '<div class="fat-note"><p class="fat-note-title">What ' + esc(s.regulator_short) + ' publishes</p>' +
+        '<p class="fat-note-body">' + esc(s.publication_note) + '</p></div>';
+    }
+    html += '</div>';
+
+    // Permit regime and inspection policy.
+    var rs = s.regime_source ? data.sources[s.regime_source] : null;
+    html += '<div class="fat-panel"><h3 class="fat-h3">What kind of permit the state requires</h3>' +
+      '<p class="fat-scope">' + esc(s.permit_regime_text) +
+      (rs ? ' <a class="fat-chip fat-chip-' + esc(rs.type) + '" href="' + esc(rs.url) +
+        '" target="_blank" rel="noopener noreferrer" title="' + esc(rs.label) + '">source</a>' : '') + '</p>' +
+      '<p class="fat-sub" style="margin-top:8px"><strong>Program.</strong> ' + esc(s.program) + '</p>';
+    if (s.inspection_policy) {
+      html += '<div class="fat-note" style="margin-top:14px"><p class="fat-note-title">Inspection policy</p>' +
+        '<p class="fat-note-body">' + esc(s.inspection_policy.basis) + ' ' + sourceChip(data, s.inspection_policy) + '</p></div>';
+    }
+    html += '</div>';
+
+    // Recent developments.
+    if (s.developments && s.developments.length) {
+      html += '<div class="fat-panel"><h3 class="fat-h3">Recent legal and enforcement developments</h3>' +
+        '<div class="fat-tablewrap"><table class="fat-table"><thead><tr><th>When</th><th>What</th></tr></thead><tbody>' +
+        s.developments.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).map(function (d) {
+          return '<tr><td style="white-space:nowrap">' + esc(fmtDate(d.date)) + '</td><td>' + esc(d.detail) + ' ' +
+            sourceChip(data, d) + '</td></tr>';
+        }).join('') + '</tbody></table></div></div>';
+    }
+
     html += permitWarning(data);
+    return html;
+  }
+
+  // Selector entries: the ten largest hog states in inventory order, each
+  // mapped to the block that renders it. Built from the data, never typed.
+  function enforcementStates(data) {
+    var byCode = {};
+    ((data.state_enforcement && data.state_enforcement.states) || []).forEach(function (s) { byCode[s.code] = s; });
+    return data.states.slice()
+      .sort(function (a, b) { return b.inventory - a.inventory; })
+      .filter(function (s) { return s.code === 'NC' || byCode[s.code]; })
+      .slice(0, 10)
+      .map(function (s) { return { code: s.code, name: s.name, inventory: s.inventory, entry: byCode[s.code] || null }; });
+  }
+
+  function requestedState() {
+    var m = /[?&]state=([A-Za-z]{2})/.exec(window.location.search) ||
+      /#state-([A-Za-z]{2})/.exec(window.location.hash);
+    return m ? m[1].toUpperCase() : '';
+  }
+
+  function viewEnforcement(el, data) {
+    var se = data.state_enforcement || {};
+    var copy = se.scope_copy || {};
+    var list = enforcementStates(data);
+
+    // COMPUTED — share of the national herd in the selectable states.
+    var natTotal = data.national.inventory_total.value;
+    var listed = list.reduce(function (t, s) { return t + s.inventory; }, 0);
+    var sharePct = 100 * listed / natTotal;
+
+    var html = '<div class="fat-wrap">';
+    html += '<div class="fat-panel"><div class="fat-head"><div>' +
+      '<h2 class="fat-h2">Pork enforcement, state by state</h2>' +
+      '<p class="fat-sub">' + esc(copy.headline || '') + '</p></div>' +
+      '<div><p class="fat-asof">Ranking: USDA National Agricultural Statistics Service (NASS)<br>' +
+      esc(nassAsOf(data)) + '</p></div></div>';
+    html += '<p class="fat-scope">' + esc(copy.body || '') + '</p>' +
+      '<p class="fat-sub">The ' + num(list.length) + ' states below held ' + headM(listed) + ' hogs and pigs on ' +
+      esc(nassAsOf(data)) + ', ' + num(sharePct, 0) + '% of the national herd. ' + sourceChip(data, data.national.inventory_total) + '</p>';
+    html += '<p class="fat-pick-label">Choose a state</p>' +
+      '<div class="fat-pick" role="group" aria-label="Choose a state">' +
+      list.map(function (s, i) {
+        return '<button class="fat-btn" type="button" data-state="' + esc(s.code) + '" aria-pressed="false" title="' +
+          esc(s.name) + ': ' + headM(s.inventory) + ' head, rank ' + (i + 1) + '">' + esc(s.name) +
+          '<small>' + headMShort(s.inventory) + '</small></button>';
+      }).join('') + '</div>';
+    html += '</div>';
+
+    html += '<div id="fat-enf-body" aria-live="polite"></div>';
     html += '<p class="fat-xref">Where the hogs are nationally, and which permit the state requires: ' +
       '<a href="' + SUPPLY_MAP_URL + '">Pork Supply Map</a>. Ownership, integration and the legal record in one view: ' +
       '<a href="' + INTEGRATED_MAP_URL + '">Pork Integrated Model Map</a>.</p>';
     html += footer(data) + '</div>';
-
     el.innerHTML = html;
+
+    var body = el.querySelector('#fat-enf-body');
+    function set(code, scroll) {
+      var s = null;
+      list.forEach(function (x) { if (x.code === code) s = x; });
+      if (!s) return;
+      body.innerHTML = s.code === 'NC' ? enforcementNC(data) : enforcementState(data, s.entry);
+      Array.prototype.forEach.call(el.querySelectorAll('.fat-btn[data-state]'), function (b) {
+        b.setAttribute('aria-pressed', String(b.getAttribute('data-state') === code));
+      });
+      if (scroll) {
+        try { body.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) { /* no-op */ }
+      }
+    }
+    Array.prototype.forEach.call(el.querySelectorAll('.fat-btn[data-state]'), function (b) {
+      b.addEventListener('click', function () { set(b.getAttribute('data-state'), true); });
+    });
+    var want = requestedState();
+    var has = list.some(function (x) { return x.code === want; });
+    set(has ? want : 'NC', false);
   }
 
   function viewSupply(el, data) {
@@ -623,7 +807,7 @@
     html += '<div class="fat-panel"><h3 class="fat-h3">States NASS publishes individually</h3>' +
       stateTable(data) + '</div>';
     html += '<p class="fat-xref">How much of this herd sits outside federal records, who owns the packers, and what reaches the label: ' +
-      '<a href="' + INTEGRATED_MAP_URL + '">Pork Integrated Model Map</a>. North Carolina permits, inspections and complaints: ' +
+      '<a href="' + INTEGRATED_MAP_URL + '">Pork Integrated Model Map</a>. Permits, inspections and complaints for the ten largest hog states, one state at a time: ' +
       '<a href="' + ENFORCEMENT_MAP_URL + '">Pork Enforcement Map</a>.</p>';
     html += footer(data) + '</div>';
 
@@ -738,7 +922,7 @@
       '<p class="fat-sub">' + esc(ss.moratorium.detail) + ' <a class="fat-chip fat-chip-primary" href="' +
       esc(data.sources[ss.moratorium.source].url) +
       '" target="_blank" rel="noopener noreferrer">' + esc(ss.moratorium.statute) + '</a></p></div>';
-    html += '<p class="fat-xref">Permits, inspection staffing and complaint outcomes for North Carolina: ' +
+    html += '<p class="fat-xref">Permits, inspection staffing and complaint outcomes for North Carolina and the nine other largest hog states: ' +
       '<a href="' + ENFORCEMENT_MAP_URL + '">Pork Enforcement Map</a>.</p></div>';
 
     // Ownership and integration.
