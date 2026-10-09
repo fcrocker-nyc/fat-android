@@ -1,6 +1,6 @@
-// State swine permit records near a pork plant (informational only).
-// Uses the published dataset itself (swine-permits/fat_swine_permits.json) and
-// real fat/v1/establishments fixtures. Numbers are pinned to that file.
+// Hog operations near a pork plant (informational only), from the published
+// per-plant aggregate file (swine-permits/fat_swine_nearby.json) and real
+// fat/v1/establishments fixtures. Numbers are pinned to that file.
 // Mirrors iOS FATAppMVP2Tests/SwinePermitServiceTests.swift.
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,102 +8,162 @@ import 'package:fat_app/models/fat_models.dart';
 import 'package:fat_app/services/establishments_service.dart';
 import 'package:fat_app/services/swine_permit_service.dart';
 
-import 'nc_hog_lagoon_notice_test.dart' show r413, r18079, meat;
+import 'nc_hog_lagoon_notice_test.dart' show r413, r18079, r79, meat;
 
 void main() {
   late SwinePermitData data;
+  late String raw;
 
   setUpAll(() {
-    data = SwinePermitData.parse(
-        File('swine-permits/fat_swine_permits.json').readAsStringSync())!;
+    raw = File('swine-permits/fat_swine_nearby.json').readAsStringSync();
+    data = SwinePermitData.parse(raw)!;
   });
 
-  (double, double) point(String json, String mark) {
+  String? key(String json, String mark) {
     final o = EstablishmentsService.scanOutcome(
         null, mark, EstablishmentsService.decode(json)!);
-    return EstablishmentsService.proximityPoint(o.record, o.shared)!;
+    return SwinePermitData.plantKey(o.record, o.shared);
   }
 
-  test('dataset: per-state counts and sources', () {
+  test('dataset: states, sources, NPDES flags', () {
     expect(data.states.keys.toSet(),
         {'NC', 'MN', 'MO', 'IA', 'NE', 'IN', 'MI'});
-    expect(data.states['NC']!.count, 1962);
-    expect(data.states['NC']!.date, '2026-04-23');
+    expect(data.radiusMiles, 50);
+    expect(data.states['NC']!.count, 1987);
+    expect(data.states['MN']!.count, 5543);
+    expect(data.states['IA']!.count, 8816);
     expect(data.states['NC']!.lagoonData, isTrue);
     expect(data.states['MO']!.lagoonData, isTrue);
-    expect(data.states['IA']!.ownerData, isFalse);
-    expect(data.records.length,
-        data.states.values.fold<int>(0, (a, s) => a + s.count));
-    expect(data.stateAt(34.9938, -78.3101), 'NC');
-    expect(data.stateAt(43.6773, -92.9671), 'MN');
+    expect(data.states['IA']!.lagoonData, isFalse);
+    for (final s in ['NC', 'MN', 'MO', 'IA', 'IN', 'MI']) {
+      expect(data.states[s]!.npdesData, isTrue, reason: s);
+    }
+    expect(data.states['NE']!.npdesData, isFalse);
   });
 
-  test('Clinton NC (413): count, lagoons, Murphy-Brown parent line (50 mi)', () {
-    final (lat, lon) = point(r413, '413');
-    final s = data.summarize(lat, lon, plantParentName: 'Smithfield Foods');
-    expect(s.total, 1484);
-    expect(s.lagoonCount, 1470);
-    expect(s.parentHoldings, 61);
-    expect(s.radiusMiles, 50);
+  test('privacy: aggregates only — no rows, names, coordinates or permit ids',
+      () {
+    expect(raw.contains('"r":'), isFalse);
+    expect(raw.contains('"lat"'), isFalse);
+    expect(raw.contains('"lon"'), isFalse);
+    // Company names appear only in the method notes (the parent mapping).
+    final plants = raw.substring(raw.lastIndexOf('"plants":{'));
+    for (final s in [
+      'Murphy', 'Seaboard Foods LLC', 'AWS3', 'AWI0', 'MNG44', 'MOG01',
+      'MOGS1', 'ING80', 'MIG01', 'NCA2', 'Farm', 'LLC'
+    ]) {
+      expect(plants.contains(s), isFalse, reason: s);
+    }
+  });
+
+  test('plant key: resolved plant, shared within 10 mi, mixed-state shared', () {
+    expect(key(r413, '413'), '560');
+    expect(key(r18079, '18079'), '728'); // both candidates in Tar Heel
+    // Kapolei HI + Wilson NC candidates: no location guess, no count.
+    expect(
+        SwinePermitData.plantKey(
+            null, EstablishmentsService.decode(r79)!.establishments),
+        isNull);
+    expect(data.summaryFor(null), isNull);
+    expect(data.summaryFor('no-such-plant'), isNull);
+  });
+
+  test('Clinton NC (413): count, lagoons, NPDES, Murphy-Brown parent line', () {
+    final s = data.summaryFor(key(r413, '413'),
+        plantParentName: 'Smithfield Foods')!;
+    expect(s.total, 1523);
+    expect(s.lagoonCount, 1431);
+    expect(s.npdesCount, 1);
+    expect(s.parentHoldings, 70);
     expect(s.countLine,
-        'State permit records list 1,484 hog operations within 50 miles of this plant (sources: NC DEQ, April 2026), 1,470 of them with at least one waste lagoon.');
+        'State permit records list 1,523 hog operations within 50 miles of this plant (sources: NC DEQ, January 2024), 1,431 of them with at least one waste lagoon.');
+    expect(s.npdesLine,
+        "Of these, 1 holds a federal Clean Water Act (NPDES) permit; the other 1,522 don't appear in EPA's database.");
     // South Carolina is beyond 50 miles of Clinton, so no not-published note.
     expect(s.unpublishedLine, isNull);
     expect(s.parentLine,
-        "The plant's parent company (Smithfield Foods) holds state permits for at least 61 hog farms within 50 miles (North Carolina permit records). Contract farms are listed under growers' own names, so this is a minimum.");
+        "The plant's parent company (Smithfield Foods) holds state permits for at least 70 hog farms within 50 miles (North Carolina permit records). Contract farms are listed under growers' own names, so this is a minimum.");
+    expect(s.cardLines, [s.countLine, s.npdesLine]);
   });
 
-  test('Tar Heel NC (shared 18079, both NC): point + parent line', () {
-    final (lat, lon) = point(r18079, '18079');
-    final s = data.summarize(lat, lon, plantParentName: 'Smithfield Foods');
-    expect(s.total, 935);
-    expect(s.lagoonCount, 924);
-    expect(s.parentHoldings, 75);
-    expect(s.parentLine, contains('at least 75 hog farms within 50 miles'));
+  test('Tar Heel NC (shared 18079, both NC): first candidate + parent line', () {
+    final s = data.summaryFor(key(r18079, '18079'),
+        plantParentName: 'Smithfield Foods')!;
+    expect(s.total, 952);
+    expect(s.lagoonCount, 899);
+    expect(s.npdesCount, 1);
+    expect(s.parentHoldings, 86);
+    expect(s.parentLine, contains('at least 86 hog farms within 50 miles'));
     expect(s.unpublishedLine,
         'Data not published by South Carolina — not counted.');
   });
 
   test('WH Group (on-device crosswalk name) maps to the same parent', () {
-    final (lat, lon) = point(r413, '413');
-    final s = data.summarize(lat, lon, plantParentName: 'WH Group Limited');
-    expect(s.parentHoldings, 61);
+    final s = data.summaryFor('560', plantParentName: 'WH Group Limited')!;
+    expect(s.parentHoldings, 70);
   });
 
-  test('MN plant (Austin, Hormel): MPCA count, no parent line', () {
-    final s = data.summarize(43.677287001013, -92.967141965855,
-        plantParentName: 'Hormel Foods');
-    expect(s.total, 1409);
-    expect(s.byState['MN'], 940);
-    expect(s.byState['IA'], 469);
-    expect(s.countLine, contains('MPCA, October 2026'));
-    expect(s.countLine, isNot(contains('lagoon')));
+  test('MN plant (Hormel, Austin): MPCA + Iowa DNR, NPDES line, no parent', () {
+    final s = data.summaryFor('2938', plantParentName: 'Hormel Foods')!;
+    expect(s.total, 1583);
+    expect(s.byState['MN'], 1136);
+    expect(s.byState['IA'], 447);
+    expect(s.countLine,
+        'State permit records list 1,583 hog operations within 50 miles of this plant (sources: Iowa DNR, April 2024; MPCA, October 2026).');
+    expect(s.npdesLine,
+        "Of these, 152 hold a federal Clean Water Act (NPDES) permit; the other 1,431 don't appear in EPA's database.");
     expect(s.parentLine, isNull);
     // Wisconsin is beyond 50 miles of Austin.
     expect(s.unpublishedLine, isNull);
   });
 
-  test('OK plant (Guymon): not-published note, no count line', () {
-    final s = data.summarize(36.71841292603, -101.449021704155,
-        plantParentName: 'Seaboard Foods');
+  test('IA plant (Seaboard Triumph, Sioux City): NE has no NPDES flag', () {
+    final s = data.summaryFor('6163274', plantParentName: 'Seaboard Foods')!;
+    expect(s.total, 1354);
+    expect(s.byState, {'IA': 947, 'NE': 407});
+    expect(s.npdesStates, ['IA']);
+    expect(s.npdesLine,
+        "In the Iowa records, 15 of 947 hold a federal Clean Water Act (NPDES) permit; the rest don't appear in EPA's database.");
+    expect(s.unpublishedLine,
+        'Data not published by South Dakota — not counted.');
+    expect(s.parentLine, isNull);
+  });
+
+  test('OK plant (Seaboard, Guymon): not-published note only', () {
+    final s = data.summaryFor('3907', plantParentName: 'Seaboard Foods')!;
     expect(s.total, 0);
     expect(s.countLine, isNull);
+    expect(s.npdesLine, isNull);
     expect(s.parentLine, isNull);
     expect(s.unpublishedLine,
         'Data not published by Colorado, Kansas, Oklahoma, or Texas — not counted.');
   });
 
-  test('KS / IL / OH / SD plants: not-published note', () {
-    for (final (lat, lon, st) in [
-      (37.9759, -100.8727, 'Kansas'), // Garden City KS
-      (39.9938, -90.4045, 'Illinois'), // Beardstown IL
-      (40.10, -82.98, 'Ohio'), // Columbus OH
-      (43.5446, -96.7311, 'South Dakota'), // Sioux Falls SD
-    ]) {
-      final s = data.summarize(lat, lon);
-      expect(s.unpublishedLine, contains(st), reason: st);
-      expect(s.parentLine, isNull);
-    }
+  test('NPDES sentence variants', () {
+    SwinePermitSummary mk(Map<String, int> by, int k) => SwinePermitSummary(
+          radiusMiles: 50,
+          total: by.values.fold(0, (a, b) => a + b),
+          byState: by,
+          lagoonStates: const [],
+          lagoonCount: 0,
+          npdesStates: by.keys
+              .where((c) => by[c]! > 0 && data.states[c]!.npdesData)
+              .toList()
+            ..sort(),
+          npdesCount: k,
+          sources: by.keys.map((c) => data.states[c]!).toList(),
+          unpublished: const [],
+          parent: null,
+          parentHoldings: 0,
+          parentStates: const [],
+        );
+    expect(mk({'MI': 3}, 3).npdesLine,
+        'All 3 hold a federal Clean Water Act (NPDES) permit.');
+    expect(mk({'MN': 2}, 1).npdesLine,
+        "Of these, 1 holds a federal Clean Water Act (NPDES) permit; the other one doesn't appear in EPA's database.");
+    expect(mk({'NE': 5}, 0).npdesLine, isNull);
+    expect(mk({'IA': 4, 'NE': 2}, 0).npdesLine,
+        "In the Iowa records, 0 of 4 hold a federal Clean Water Act (NPDES) permit; the rest don't appear in EPA's database.");
   });
 
   test('exact-name ownership: verified names map, look-alikes do not', () {
@@ -137,13 +197,6 @@ void main() {
     ]) {
       expect(SwinePermitOwnership.parentForOwner(n), isNull, reason: n);
     }
-    // MN Tyson buying stations and the Hormel Austin pens are not in the data.
-    expect(
-        data.records.where((r) =>
-            r.state == 'MN' &&
-            ((r.name ?? '').contains('Hog Buying Station') ||
-                (r.name ?? '').contains('Austin Plant'))),
-        isEmpty);
   });
 
   test('statuses and count unchanged by the permit lookup', () {
@@ -151,8 +204,7 @@ void main() {
     final before =
         FATCategory.values.map((c) => r.categories[c]?.status).toList();
     final count = r.knownCount;
-    final (lat, lon) = point(r413, '413');
-    final s = data.summarize(lat, lon, plantParentName: 'Smithfield Foods');
+    final s = data.summaryFor('560', plantParentName: 'Smithfield Foods')!;
     expect(s.parentLine, isNotNull);
     expect(FATCategory.values.map((c) => r.categories[c]?.status).toList(),
         before);
@@ -162,13 +214,9 @@ void main() {
   test('copy: banned words absent; never says the pork came from the farms',
       () {
     final lines = <String>[];
-    for (final (lat, lon) in [
-      (34.993816947096, -78.310104011702),
-      (40.2, -93.12),
-      (36.71841292603, -101.449021704155),
-    ]) {
-      final s = data.summarize(lat, lon, plantParentName: 'Smithfield Foods');
-      lines.addAll([s.countLine, s.unpublishedLine, s.parentLine]
+    for (final id in ['560', '728', '2938', '6163274', '3907', '3228']) {
+      final s = data.summaryFor(id, plantParentName: 'Smithfield Foods')!;
+      lines.addAll([s.countLine, s.npdesLine, s.unpublishedLine, s.parentLine]
           .whereType<String>());
     }
     final all = lines.join(' ').toLowerCase();

@@ -331,9 +331,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   ? shared.first.parentCompany
                   : null)
               : (_ownership?.parentName ?? rec?.resolvedPlant?.parentCompany);
-          final summary =
-              data.summarize(lat, lon, plantParentName: parent);
-          if (!summary.isEmpty) {
+          final summary = data.summaryFor(
+              SwinePermitData.plantKey(rec, shared),
+              plantParentName: parent);
+          if (summary != null && !summary.isEmpty) {
             setState(() {
               _swinePermits = summary;
               if (_proximityKind.isEmpty) _proximityKind = 'hog CAFO';

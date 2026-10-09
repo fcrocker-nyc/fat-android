@@ -1,39 +1,28 @@
 // State swine (hog) permit records near a pork plant — INFORMATIONAL only.
 // Never a score input: no category status, disclosure count, index or penalty
-// changes. Two outputs, both on pork meat-lane scans whose processing plant
-// has coordinates (EstablishmentsService.proximityPoint — a shared number only
-// when every candidate is within 10 miles):
-//   1. a count line on the "Nearby Hog Farm" card, next to the EPA-ECHO result;
+// changes. Outputs, all on pork meat-lane scans whose processing plant
+// resolves to one FSIS establishment_id (a shared number only when every
+// candidate is within 10 miles — then the first candidate's id):
+//   1. a count line on the "Nearby Hog Farm" card, next to the EPA-ECHO result,
+//      plus a federal-permit (NPDES) line where the states publish the flag;
 //   2. a Cat. 16 (Supply-Chain Intermediaries) detail line when permits within
 //      50 miles are held by an entity mapped to the plant's parent company.
 //      The line never changes Cat. 16's status: the label didn't disclose it.
 //
-// Dataset: fat-android/swine-permits/fat_swine_permits.json (served by
-// jsDelivr), built from NC DEQ, MPCA, MoDNR, Iowa DNR, NE DWEE, IDEM and EGLE
+// Dataset: fat-android/swine-permits/fat_swine_nearby.json (served by
+// jsDelivr) — PER-PLANT AGGREGATES only (no farm names, coordinates or permit
+// numbers), built from NC DEQ, MPCA, MoDNR, Iowa DNR, NE DWEE, IDEM and EGLE
 // public data. See swine-permits/README.md for sources, dates and filters.
 // Mirrors iOS FATAppMVP2/SwinePermitService.swift.
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 import 'establishments_service.dart';
-
-class SwinePermitRecord {
-  final String state;
-  final String id;
-  final String? name;
-  final String? owner;
-  final double lat;
-  final double lon;
-  final int? animals;
-  final bool? lagoon; // null when the state publishes no lagoon data
-  const SwinePermitRecord(this.state, this.id, this.name, this.owner, this.lat,
-      this.lon, this.animals, this.lagoon);
-}
+import 'processor_service.dart';
 
 class SwinePermitStateInfo {
   final String code;
@@ -43,9 +32,9 @@ class SwinePermitStateInfo {
   final String date; // YYYY-MM-DD, or a year
   final int count;
   final bool lagoonData;
-  final bool ownerData;
+  final bool npdesData; // the state's records carry an NPDES flag
   const SwinePermitStateInfo(this.code, this.agency, this.label, this.source,
-      this.date, this.count, this.lagoonData, this.ownerData);
+      this.date, this.count, this.lagoonData, this.npdesData);
 
   /// "NC DEQ, April 2026" / "EGLE, 2024".
   String get citation {
@@ -127,10 +116,15 @@ class SwinePermitOwnership {
 class SwinePermitSummary {
   final int radiusMiles;
   final int total;
+  /// Operations by published state the radius reaches (0 = reached, none).
   final Map<String, int> byState;
   /// States whose records carry lagoon data and contributed to [total].
   final List<String> lagoonStates;
   final int lagoonCount;
+  /// States whose records carry an NPDES flag and contributed to [total].
+  final List<String> npdesStates;
+  /// Operations in [npdesStates] holding an NPDES permit.
+  final int npdesCount;
   /// Dataset states the radius reaches (sources cited in the count line).
   final List<SwinePermitStateInfo> sources;
   /// States the radius reaches with no published data (not counted).
@@ -145,6 +139,8 @@ class SwinePermitSummary {
     required this.byState,
     required this.lagoonStates,
     required this.lagoonCount,
+    required this.npdesStates,
+    required this.npdesCount,
     required this.sources,
     required this.unpublished,
     required this.parent,
@@ -153,6 +149,9 @@ class SwinePermitSummary {
   });
 
   bool get isEmpty => sources.isEmpty && unpublished.isEmpty;
+
+  Set<String> get _contributing =>
+      byState.entries.where((e) => e.value > 0).map((e) => e.key).toSet();
 
   /// "State permit records list N hog operations within 50 miles of this
   /// plant (sources: …)" + the lagoon clause when lagoon data exists.
@@ -164,13 +163,45 @@ class SwinePermitSummary {
     final base =
         'State permit records list $n $ops within $radiusMiles miles of this plant (sources: $src)';
     if (lagoonStates.isEmpty || total == 0) return '$base.';
-    final contributing =
-        byState.entries.where((e) => e.value > 0).map((e) => e.key).toSet();
     final m = SwinePermitText.number(lagoonCount);
-    if (contributing.every(lagoonStates.contains)) {
+    if (_contributing.every(lagoonStates.contains)) {
       return '$base, $m of them with at least one waste lagoon.';
     }
     return '$base. In the ${SwinePermitText.stateList(lagoonStates)} records, $m list at least one waste lagoon.';
+  }
+
+  /// "Of these, K hold a federal Clean Water Act (NPDES) permit; the other
+  /// N−K don't appear in EPA's database." K and N cover only states whose
+  /// records carry an NPDES flag; when other states also contribute, the
+  /// sentence names the flagged states.
+  String? get npdesLine {
+    if (npdesStates.isEmpty || total == 0) return null;
+    final n = npdesStates.fold<int>(0, (a, c) => a + (byState[c] ?? 0));
+    if (n == 0) return null;
+    final k = npdesCount;
+    final rest = n - k;
+    final permit = 'a federal Clean Water Act (NPDES) permit';
+    if (_contributing.every(npdesStates.contains)) {
+      if (rest == 0) {
+        return n == 1
+            ? 'It holds $permit.'
+            : 'All ${SwinePermitText.number(n)} hold $permit.';
+      }
+      final hold = k == 1 ? 'holds' : 'hold';
+      final other = rest == 1
+          ? "the other one doesn't appear in EPA's database"
+          : "the other ${SwinePermitText.number(rest)} don't appear in EPA's database";
+      return 'Of these, ${SwinePermitText.number(k)} $hold $permit; $other.';
+    }
+    final where = 'In the ${SwinePermitText.stateList(npdesStates)} records';
+    if (rest == 0) {
+      return '$where, all ${SwinePermitText.number(n)} hold $permit.';
+    }
+    final hold = k == 1 ? 'holds' : 'hold';
+    final restText = rest == 1
+        ? "the other one doesn't appear in EPA's database"
+        : "the rest don't appear in EPA's database";
+    return '$where, ${SwinePermitText.number(k)} of ${SwinePermitText.number(n)} $hold $permit; $restText.';
   }
 
   /// "Data not published by South Carolina — not counted."
@@ -187,7 +218,7 @@ class SwinePermitSummary {
   }
 
   List<String> get cardLines =>
-      [countLine, unpublishedLine].whereType<String>().toList();
+      [countLine, npdesLine, unpublishedLine].whereType<String>().toList();
 }
 
 class SwinePermitText {
@@ -231,16 +262,29 @@ class SwinePermitText {
 
 // ── Dataset ────────────────────────────────────────────────────────────────
 
+/// One plant's aggregate (counts only).
+class SwinePlantAggregate {
+  final int total;
+  final Map<String, int> byState;
+  final int? lagoon;
+  final int? npdes;
+  final Map<String, Map<String, int>> parentHeld; // parent key → state → n
+  final List<String> unpublished;
+  const SwinePlantAggregate(this.total, this.byState, this.lagoon, this.npdes,
+      this.parentHeld, this.unpublished);
+}
+
 class SwinePermitData {
   final String generated;
+  final int radiusMiles;
   final Map<String, SwinePermitStateInfo> states;
-  final List<SwinePermitRecord> records;
-  final List<String> _gridCodes;
-  final double _lat0, _lon0, _step;
-  final List<List<int>> _rows; // per row: [code, runLength, ...]
+  final Map<String, SwinePlantAggregate> plants;
 
-  SwinePermitData._(this.generated, this.states, this.records, this._gridCodes,
-      this._lat0, this._lon0, this._step, this._rows);
+  SwinePermitData._(this.generated, this.radiusMiles, this.states, this.plants);
+
+  static Map<String, int> _counts(Object? m) => m is Map
+      ? m.map((k, v) => MapEntry('$k', (v as num).toInt()))
+      : <String, int>{};
 
   static SwinePermitData? parse(String body) {
     try {
@@ -257,117 +301,82 @@ class SwinePermitData {
           '${m['date'] ?? ''}',
           (m['count'] as num?)?.toInt() ?? 0,
           m['lagoon'] == true,
-          m['owner'] == true,
+          m['npdes'] == true,
         );
       });
-      final recs = <SwinePermitRecord>[];
-      for (final r in (d['r'] as List)) {
-        final a = r as List;
-        recs.add(SwinePermitRecord(
-          '${a[0]}',
-          '${a[1]}',
-          a[2] as String?,
-          a[3] as String?,
-          (a[4] as num).toDouble(),
-          (a[5] as num).toDouble(),
-          (a[6] as num?)?.toInt(),
-          a[7] == null ? null : a[7] == 1,
-        ));
-      }
-      final g = d['grid'] as Map;
-      return SwinePermitData._(
-        '${d['generated'] ?? ''}',
-        states,
-        recs,
-        (g['codes'] as List).map((e) => '$e').toList(),
-        (g['lat0'] as num).toDouble(),
-        (g['lon0'] as num).toDouble(),
-        (g['step'] as num).toDouble(),
-        (g['rows'] as List)
-            .map((row) => (row as List).map((e) => (e as num).toInt()).toList())
-            .toList(),
-      );
+      final plants = <String, SwinePlantAggregate>{};
+      (d['plants'] as Map).forEach((k, v) {
+        final m = v as Map;
+        final ph = <String, Map<String, int>>{};
+        if (m['ph'] is Map) {
+          (m['ph'] as Map).forEach((pk, pv) => ph['$pk'] = _counts(pv));
+        }
+        plants['$k'] = SwinePlantAggregate(
+          (m['n'] as num?)?.toInt() ?? 0,
+          _counts(m['s']),
+          (m['l'] as num?)?.toInt(),
+          (m['np'] as num?)?.toInt(),
+          ph,
+          ((m['u'] as List?) ?? const []).map((e) => '$e').toList(),
+        );
+      });
+      return SwinePermitData._('${d['generated'] ?? ''}',
+          (d['radiusMiles'] as num?)?.toInt() ?? 50, states, plants);
     } catch (_) {
       return null;
     }
   }
 
-  /// State whose 0.1° grid cell contains the point, or null outside the US.
-  String? stateAt(double lat, double lon) {
-    final r = ((lat - _lat0) / _step).floor();
-    final c = ((lon - _lon0) / _step).floor();
-    if (r < 0 || r >= _rows.length || c < 0) return null;
-    final row = _rows[r];
-    var end = 0;
-    for (var k = 0; k + 1 < row.length; k += 2) {
-      end += row[k + 1];
-      if (c < end) return row[k] < 0 ? null : _gridCodes[row[k]];
-    }
-    return null;
+  /// The FSIS establishment_id to look up: the resolved plant, or — for a
+  /// shared number — the first candidate, only when every candidate is within
+  /// 10 miles (same rule as the EPA proximity point). Null otherwise.
+  static String? plantKey(ProcessorRecord? record, List<FatEstablishment> shared) {
+    if (EstablishmentsService.proximityPoint(record, shared) == null) return null;
+    final id = shared.isNotEmpty
+        ? shared.first.establishmentId
+        : record?.resolvedPlant?.establishmentId;
+    return (id == null || id.trim().isEmpty) ? null : id.trim();
   }
 
-  /// States a [miles] radius reaches, sampled every 5 miles.
-  Set<String> statesWithin(double lat, double lon, int miles) {
-    final out = <String>{};
-    for (var rad = 0; rad <= miles; rad += 5) {
-      final n = math.max(1, (2 * math.pi * rad / 5).floor());
-      for (var k = 0; k < n; k++) {
-        final b = 2 * math.pi * k / n;
-        final dLat = rad * math.cos(b) / 69.0;
-        final dLon = rad * math.sin(b) / (69.0 * math.cos(lat * math.pi / 180));
-        final s = stateAt(lat + dLat, lon + dLon);
-        if (s != null) out.add(s);
-      }
-    }
-    return out;
-  }
-
-  List<SwinePermitRecord> near(double lat, double lon, int miles) {
-    final dLat = miles / 69.0 + 0.01;
-    return records
-        .where((r) =>
-            (r.lat - lat).abs() <= dLat &&
-            EstablishmentsService.miles(lat, lon, r.lat, r.lon) <= miles)
-        .toList();
-  }
-
-  SwinePermitSummary summarize(double lat, double lon,
-      {String? plantParentName, int miles = 50}) {
-    final near = this.near(lat, lon, miles);
-    final byState = <String, int>{};
-    for (final r in near) {
-      byState[r.state] = (byState[r.state] ?? 0) + 1;
-    }
-    final reached = statesWithin(lat, lon, miles)..addAll(byState.keys);
-    final sources = reached
+  /// Summary for one plant, or null when the plant isn't in the dataset (no
+  /// operation within the radius and no not-published state in range).
+  SwinePermitSummary? summaryFor(String? establishmentId,
+      {String? plantParentName}) {
+    final a = establishmentId == null ? null : plants[establishmentId];
+    if (a == null) return null;
+    final contributing =
+        a.byState.entries.where((e) => e.value > 0).map((e) => e.key);
+    final sources = a.byState.keys
         .where(states.containsKey)
         .map((c) => states[c]!)
         .toList()
-      ..sort((a, b) => a.code.compareTo(b.code));
-    final unpublished =
-        reached.where((c) => !states.containsKey(c)).toList()..sort();
-    final lagoonStates = byState.keys
-        .where((c) => byState[c]! > 0 && (states[c]?.lagoonData ?? false))
+      ..sort((x, y) => x.code.compareTo(y.code));
+    final lagoonStates = contributing
+        .where((c) => states[c]?.lagoonData ?? false)
         .toList()
       ..sort();
-    final lagoonCount = near.where((r) => r.lagoon == true).length;
+    final npdesStates = contributing
+        .where((c) => states[c]?.npdesData ?? false)
+        .toList()
+      ..sort();
     final parent = SwinePermitOwnership.parentForPlant(plantParentName);
     final held = parent == null
-        ? const <SwinePermitRecord>[]
-        : near
-            .where((r) => SwinePermitOwnership.parentForOwner(r.owner) == parent)
-            .toList();
+        ? const <String, int>{}
+        : (a.parentHeld[parent.name] ?? const <String, int>{});
     return SwinePermitSummary(
-      radiusMiles: miles,
-      total: near.length,
-      byState: byState,
+      radiusMiles: radiusMiles,
+      total: a.total,
+      byState: a.byState,
       lagoonStates: lagoonStates,
-      lagoonCount: lagoonCount,
+      lagoonCount: a.lagoon ?? 0,
+      npdesStates: npdesStates,
+      npdesCount: a.npdes ?? 0,
       sources: sources,
-      unpublished: unpublished,
+      unpublished: List.of(a.unpublished)..sort(),
       parent: parent,
-      parentHoldings: held.length,
-      parentStates: held.map((r) => r.state).toSet().toList()..sort(),
+      parentHoldings: held.values.fold<int>(0, (x, y) => x + y),
+      parentStates: (held.entries.where((e) => e.value > 0).map((e) => e.key).toList()
+        ..sort()),
     );
   }
 }
@@ -378,7 +387,7 @@ class SwinePermitService {
   SwinePermitService._();
 
   static const url =
-      'https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/swine-permits/fat_swine_permits.json';
+      'https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/swine-permits/fat_swine_nearby.json';
   static const _maxAge = Duration(days: 7);
   static SwinePermitData? _memory;
 
@@ -389,7 +398,7 @@ class SwinePermitService {
     File? file;
     try {
       final dir = await getApplicationSupportDirectory();
-      file = File('${dir.path}/fat_swine_permits.json');
+      file = File('${dir.path}/fat_swine_nearby.json');
     } catch (_) {}
     String? cached;
     var fresh = false;
