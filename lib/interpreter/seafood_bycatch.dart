@@ -170,7 +170,7 @@ class SeafoodBycatch {
       'Catch method: $phrase (stated on label)';
   static String contextLead(
           String country, String group, String gearPhrase, String asOf) =>
-      'NOAA has denied U.S. market access to some $country $group fisheries using $gearPhrase, because of marine-mammal bycatch (as of $asOf).';
+      'NOAA has denied U.S. market access to some $group fisheries in $country using $gearPhrase, because of marine-mammal bycatch (as of $asOf).';
   static String contextUnknownGear(String country, String group,
           String gearPhrase, String asOf, String species) =>
       "${contextLead(country, group, gearPhrase, asOf)} This label doesn't say how this $species was caught.";

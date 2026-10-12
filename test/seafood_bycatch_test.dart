@@ -44,7 +44,7 @@ _Scan _fx(int n) => _lines(seafoodBycatchFixtures[n]!);
 
 const _notStated = 'Catch method not stated on label';
 String _lead(String country, String group, String gear) =>
-    'NOAA has denied U.S. market access to some $country $group fisheries using $gear, because of marine-mammal bycatch (as of October 2026).';
+    'NOAA has denied U.S. market access to some $group fisheries in $country using $gear, because of marine-mammal bycatch (as of October 2026).';
 const _deniedTail =
     " Products sold in the U.S. must come from fisheries that were not denied; this label doesn't name the fishery.";
 
