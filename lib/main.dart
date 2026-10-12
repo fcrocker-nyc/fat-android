@@ -7,6 +7,7 @@ import 'screens/history_screen.dart';
 import 'screens/learn_screen.dart';
 import 'screens/lookup_screen.dart';
 import 'data/brand_resolver.dart';
+import 'interpreter/seafood_bycatch.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,6 +15,8 @@ void main() {
   // Load the brand-data feed (crosswalk + aliases + enforcement). Bundled
   // snapshot loads first; remote refresh rolls forward in the background.
   BrandResolver.instance.init();
+  // Bundled NOAA MMPA bycatch pairs for the seafood Cat. 10 context line.
+  MmpaBycatchData.ensureLoaded();
   runApp(const FATApp());
 }
 

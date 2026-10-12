@@ -13,6 +13,7 @@ import '../models/fat_models.dart';
 import 'est_number_guard.dart';
 import '../data/brand_resolver.dart';
 import 'product_type_detector.dart';
+import 'seafood_bycatch.dart';
 
 class SeafoodInterpretation {
   final Map<SeafoodCategory, FATCategoryResult> categories;
@@ -401,11 +402,11 @@ class SeafoodInterpreter {
   static FATCategoryResult _methodFeed(String t, SeafoodProductionMethod? m) {
     if (m == null) return const FATCategoryResult(status: DisclosureStatus.missing);
     if (m == SeafoodProductionMethod.wildCaught) {
-      for (final g in ['line caught', 'line-caught', 'pole caught', 'pole-caught',
-        'trawl', 'longline', 'gillnet', 'purse seine', 'hook and line']) {
-        if (t.contains(g)) {
-          return FATCategoryResult(status: DisclosureStatus.known, value: 'Wild-Caught ($g)');
-        }
+      // Gear type (longest match wins; see SeafoodGearDetector). The status
+      // is Known either way — gear only refines the value.
+      final gear = SeafoodGearDetector.detect(t);
+      if (gear != null) {
+        return FATCategoryResult(status: DisclosureStatus.known, value: gear.cat10Value);
       }
       return const FATCategoryResult(status: DisclosureStatus.known, value: 'Wild-Caught');
     }

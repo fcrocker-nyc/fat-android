@@ -59,3 +59,4 @@ flutter:
     - assets/images/
     - assets/data/brand_data.json
     - assets/data/fsis_establishment_names.json
+    - assets/data/mmpa_bycatch_pairs.json

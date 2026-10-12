@@ -1,0 +1,147 @@
+{
+  "source": "FAT Seafood Research Series, Paper No. 5 — FDA x NOAA bycatch crosswalk (Overlap_Pairs, lead strength \"Strong\"); NOAA MMPA comparability-finding denials (90 FR 42395; NOAA denial list May 11, 2026; 91 FR 12510, 25867, 37086)",
+  "asOf": "October 2026",
+  "asOfDate": "2026-10-12",
+  "asOfNote": "Sources: 90 FR 42395 (Sept 2, 2025); NOAA denial list (comp-finding-denials-fisheries_05-11-2026.pdf); 91 FR 12510, 25867, 37086 (2026). Active = import prohibited as of Oct 12, 2026. Species-group columns are FAT keyword classifications of target species (1 = fishery targets that group).",
+  "pairs": [
+    {
+      "country": "Ecuador",
+      "speciesGroup": "mahi mahi",
+      "workbookSpeciesGroup": "Mahi mahi (dolphinfish)",
+      "workbookGear": "Gillnets and entangling nets (not specified)",
+      "gearPhrase": "gillnets",
+      "deniedGears": [
+        "gillnet",
+        "driftGillnet",
+        "setNet",
+        "trammelNet"
+      ],
+      "activeDeniedFisheries": 1
+    },
+    {
+      "country": "Indonesia",
+      "speciesGroup": "shrimp",
+      "workbookSpeciesGroup": "Shrimp & prawns",
+      "workbookGear": "Trammel nets",
+      "gearPhrase": "trammel nets",
+      "deniedGears": [
+        "trammelNet"
+      ],
+      "activeDeniedFisheries": 1
+    },
+    {
+      "country": "Indonesia",
+      "speciesGroup": "tuna",
+      "workbookSpeciesGroup": "Tunas",
+      "workbookGear": "Gillnets and entangling nets (not specified)",
+      "gearPhrase": "gillnets",
+      "deniedGears": [
+        "gillnet",
+        "driftGillnet",
+        "setNet",
+        "trammelNet"
+      ],
+      "activeDeniedFisheries": 1
+    },
+    {
+      "country": "Indonesia",
+      "speciesGroup": "mahi mahi",
+      "workbookSpeciesGroup": "Mahi mahi (dolphinfish)",
+      "workbookGear": "Gillnets and entangling nets (not specified)",
+      "gearPhrase": "gillnets",
+      "deniedGears": [
+        "gillnet",
+        "driftGillnet",
+        "setNet",
+        "trammelNet"
+      ],
+      "activeDeniedFisheries": 1
+    },
+    {
+      "country": "Indonesia",
+      "speciesGroup": "grouper",
+      "workbookSpeciesGroup": "Grouper",
+      "workbookGear": "Gillnets and entangling nets (not specified)",
+      "gearPhrase": "gillnets",
+      "deniedGears": [
+        "gillnet",
+        "driftGillnet",
+        "setNet",
+        "trammelNet"
+      ],
+      "activeDeniedFisheries": 1
+    },
+    {
+      "country": "Indonesia",
+      "speciesGroup": "snapper",
+      "workbookSpeciesGroup": "Snapper",
+      "workbookGear": "Gillnets and entangling nets (not specified)",
+      "gearPhrase": "gillnets",
+      "deniedGears": [
+        "gillnet",
+        "driftGillnet",
+        "setNet",
+        "trammelNet"
+      ],
+      "activeDeniedFisheries": 1
+    },
+    {
+      "country": "Philippines",
+      "speciesGroup": "tuna",
+      "workbookSpeciesGroup": "Tunas",
+      "workbookGear": "Drift gillnets",
+      "gearPhrase": "drift gillnets",
+      "deniedGears": [
+        "driftGillnet",
+        "gillnet"
+      ],
+      "activeDeniedFisheries": 1
+    },
+    {
+      "country": "Vietnam",
+      "speciesGroup": "tuna",
+      "workbookSpeciesGroup": "Tunas",
+      "workbookGear": "Gillnets and entangling nets (not specified); Purse seines",
+      "gearPhrase": "gillnets or purse seines",
+      "deniedGears": [
+        "gillnet",
+        "driftGillnet",
+        "setNet",
+        "trammelNet",
+        "purseSeine"
+      ],
+      "activeDeniedFisheries": 2
+    },
+    {
+      "country": "Vietnam",
+      "speciesGroup": "mahi mahi",
+      "workbookSpeciesGroup": "Mahi mahi (dolphinfish)",
+      "workbookGear": "Gillnets and entangling nets (not specified); Longlines (not specified)",
+      "gearPhrase": "gillnets or longlines",
+      "deniedGears": [
+        "gillnet",
+        "driftGillnet",
+        "setNet",
+        "trammelNet",
+        "longline"
+      ],
+      "activeDeniedFisheries": 1
+    },
+    {
+      "country": "Vietnam",
+      "speciesGroup": "grouper",
+      "workbookSpeciesGroup": "Grouper",
+      "workbookGear": "Gillnets and entangling nets (not specified); Longlines (not specified); single and/or pair trawl",
+      "gearPhrase": "gillnets, longlines or trawls",
+      "deniedGears": [
+        "gillnet",
+        "driftGillnet",
+        "setNet",
+        "trammelNet",
+        "longline",
+        "trawl"
+      ],
+      "activeDeniedFisheries": 2
+    }
+  ]
+}

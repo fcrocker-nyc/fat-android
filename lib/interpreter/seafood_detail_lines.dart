@@ -9,10 +9,13 @@
 //   Cat. 4  Country / Origin       — "wild Atlantic salmon" tripwire
 //   Cat. 5  Farm / Vessel / Fishery — "Grown in: …" production-system line
 //   Cat. 7  Processor              — SIMP coverage public-record line
+//   Cat. 10 Production Method      — catch method + bycatch context
+//                                    (seafood_bycatch.dart)
 //
 // Spec: FAT_Seafood_Spec_Addendum_v1.1_2026-09-29 (changes A, C, D, F).
 
 import '../models/fat_models.dart';
+import 'seafood_bycatch.dart';
 import 'seafood_interpreter.dart';
 
 /// NOAA Fisheries' Seafood Import Monitoring Program covers imports of 13
@@ -251,6 +254,20 @@ class SeafoodDetailLines {
         scannedText: r.scannedText);
     if (simp != null) {
       add(SeafoodCategory.processor, SeafoodDetailLine(simp));
+    }
+
+    // Cat. 10 — catch method, then bycatch context (seafood_bycatch.dart).
+    final t = _norm(r.scannedText);
+    final method = SeafoodBycatch.catchMethodLine(r.productionMethod, t);
+    if (method != null) {
+      add(SeafoodCategory.productionMethodFeed, SeafoodDetailLine(method));
+    }
+    for (final line in SeafoodBycatch.contextLines(
+        species: species,
+        method: r.productionMethod,
+        origin: r.seafoodCategories[SeafoodCategory.countryOrigin],
+        text: t)) {
+      add(SeafoodCategory.productionMethodFeed, SeafoodDetailLine(line));
     }
     return out;
   }
