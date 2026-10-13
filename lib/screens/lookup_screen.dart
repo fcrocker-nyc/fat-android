@@ -60,7 +60,31 @@ class _LookupScreenState extends State<LookupScreen> {
   final _enforcementController = TextEditingController();
   List<SeafoodEnforcementEntity>? _enforcementResults;
 
+  /// Full mode names (match History's LookupCategory.shortName).
   static const _tabs = ['EST', 'Meat Brand', 'Seafood Brand', 'Seafood FDA'];
+
+  /// Short labels for the segmented control so it fits a phone-width screen
+  /// without truncation. Mirrors iOS LookupMode.pickerLabel.
+  static const _tabLabels = ['EST', 'Meat', 'Seafood', 'Seafood FDA'];
+
+  static const _tabIcons = [
+    Icons.tag,
+    Icons.apartment,
+    Icons.set_meal,
+    Icons.report,
+  ];
+
+  /// One-line descriptions for the "Four ways to look up" card.
+  /// Mirrors iOS LookupMode.overviewBlurb.
+  static const _tabBlurbs = [
+    'Find the USDA-inspected plant behind a meat or poultry label by its EST number or plant name.',
+    'Search a meat brand or company to see who owns it, with plant locations and related brands for major companies.',
+    'Most seafood packages carry no EST number; search the brand for its owner, certifications, and sourcing.',
+    'Search public FDA seafood enforcement (warning letters, import alerts, import refusals) by firm, country, product, or alert number.',
+  ];
+
+  /// "Four ways to look up" card: expanded by default, user can collapse it.
+  bool _overviewExpanded = true;
 
   Future<void> _openUrl(String url) async {
     final uri = Uri.tryParse(url);
@@ -355,6 +379,7 @@ class _LookupScreenState extends State<LookupScreen> {
           SliverToBoxAdapter(child: _hero()),
           SliverToBoxAdapter(child: _topRule()),
           SliverToBoxAdapter(child: _segmentedControl()),
+          SliverToBoxAdapter(child: _lookupOverviewCard()),
           SliverToBoxAdapter(child: _tabContent()),
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
@@ -427,7 +452,7 @@ class _LookupScreenState extends State<LookupScreen> {
                         : null,
                   ),
                   child: Center(
-                    child: Text(_tabs[i],
+                    child: Text(_tabLabels[i],
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
@@ -440,6 +465,102 @@ class _LookupScreenState extends State<LookupScreen> {
               ),
             );
           }),
+        ),
+      ),
+    );
+  }
+
+  /// Compact card under the picker explaining all four modes. The current
+  /// mode is highlighted; tapping a row switches to that mode.
+  Widget _lookupOverviewCard() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      child: Container(
+        key: const Key('lookupOverviewCard'),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: FATTheme.primaryGreen,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            InkWell(
+              key: const Key('lookupOverviewToggle'),
+              onTap: () =>
+                  setState(() => _overviewExpanded = !_overviewExpanded),
+              child: Row(
+                children: [
+                  const Expanded(
+                    child: Text('Four ways to look up',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w700)),
+                  ),
+                  Icon(
+                      _overviewExpanded
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: Colors.black54),
+                ],
+              ),
+            ),
+            if (_overviewExpanded)
+              for (int i = 0; i < _tabs.length; i++) ...[
+                const SizedBox(height: 4),
+                _lookupOverviewRow(i),
+              ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _lookupOverviewRow(int i) {
+    final selected = i == _selectedTab;
+    return Semantics(
+      selected: selected,
+      button: true,
+      child: InkWell(
+        key: Key('lookupOverviewRow_$i'),
+        borderRadius: BorderRadius.circular(10),
+        onTap: () => setState(() => _selectedTab = i),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          decoration: BoxDecoration(
+            color: selected ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+                color: selected ? FATTheme.scanGreen : Colors.transparent,
+                width: 1.5),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 22,
+                child: Icon(_tabIcons[i],
+                    size: 17,
+                    color: selected ? FATTheme.scanGreen : Colors.black54),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text.rich(
+                  TextSpan(children: [
+                    TextSpan(
+                        text: _tabs[i],
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, color: Colors.black)),
+                    TextSpan(
+                        text: '  ${_tabBlurbs[i]}',
+                        style: TextStyle(
+                            color: Colors.black.withValues(alpha: 0.8))),
+                  ]),
+                  style: const TextStyle(fontSize: 13, height: 1.25),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -762,7 +883,7 @@ class _LookupScreenState extends State<LookupScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('About Seafood FDA Enforcement',
+        const Text('About the Seafood FDA Lookup',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
         const SizedBox(height: 12),
         const Text(
@@ -1326,8 +1447,11 @@ class _LookupScreenState extends State<LookupScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('About USDA Establishment Numbers',
+        const Text('About the EST Lookup',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 10),
+        const Text('USDA Establishment Numbers',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
         const SizedBox(height: 14),
         const Text(
             'Many meat and poultry labels include a USDA establishment number, often shown as "EST. ####" near the inspection legend.',
@@ -1352,7 +1476,7 @@ class _LookupScreenState extends State<LookupScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('About Meat Brand Lookup',
+        const Text('About the Meat Brand Lookup',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
         const SizedBox(height: 12),
         const Text(
@@ -1383,7 +1507,7 @@ class _LookupScreenState extends State<LookupScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('About Seafood Brand Lookup',
+        const Text('About the Seafood Brand Lookup',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
         const SizedBox(height: 12),
         const Text(
