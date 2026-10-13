@@ -40,10 +40,19 @@ class SIMPCoverage {
 
 enum SeafoodDetailKind { info, flag }
 
+/// Optional tappable link shown under a detail line (opens in the browser).
+class SeafoodDetailLink {
+  final String label;
+  final String url;
+  const SeafoodDetailLink(this.label, this.url);
+}
+
 class SeafoodDetailLine {
   final String text;
   final SeafoodDetailKind kind;
-  const SeafoodDetailLine(this.text, [this.kind = SeafoodDetailKind.info]);
+  final SeafoodDetailLink? link;
+  const SeafoodDetailLine(this.text,
+      [this.kind = SeafoodDetailKind.info, this.link]);
 
   @override
   String toString() => text;
@@ -71,6 +80,11 @@ class SeafoodDetailLines {
       "$speciesGroup is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program.";
   static const String wildAtlanticSalmonTripwire =
       'Label says wild Atlantic salmon; U.S. supply of Atlantic salmon is farm-raised (NOAA) — unverified.';
+
+  /// Research link under each bycatch context line (never on the plain
+  /// catch-method line). FAT Seafood Research Series Paper No. 7.
+  static const SeafoodDetailLink researchLink = SeafoodDetailLink(
+      SeafoodBycatch.researchLinkLabel, SeafoodBycatch.researchUrl);
 
   /// Header line of a service-case (placard) capture saved to History. Those
   /// records carry a summary, not label text, so no v1.1 label lines apply.
@@ -267,7 +281,8 @@ class SeafoodDetailLines {
         method: r.productionMethod,
         origin: r.seafoodCategories[SeafoodCategory.countryOrigin],
         text: t)) {
-      add(SeafoodCategory.productionMethodFeed, SeafoodDetailLine(line));
+      add(SeafoodCategory.productionMethodFeed,
+          SeafoodDetailLine(line, SeafoodDetailKind.info, researchLink));
     }
     return out;
   }

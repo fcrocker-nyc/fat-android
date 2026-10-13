@@ -176,6 +176,55 @@ void main() {
     });
   });
 
+  group('research link (Paper No. 7)', () {
+    const url =
+        'https://farmanimaltransparency.com/seafood-research-series-7-bycatch-fda-noaa/';
+    const label = 'Read the research: What the FDA Cannot See';
+
+    Map<SeafoodCategory, List<SeafoodDetailLine>> detail(String text) {
+      final si = SeafoodInterpreter.interpret(text);
+      return SeafoodDetailLines.forResult(FATResult(
+        scannedText: text,
+        categories: const {},
+        productType: ProductType.seafood,
+        seafoodCategories: si.categories,
+        isSiluriformes: si.isSiluriformes,
+        productionMethod: si.productionMethod,
+        productionSystem: si.productionSystem,
+        detectedEstablishmentNumber: si.detectedEstablishmentNumber,
+      ));
+    }
+
+    test('Strong pair context line carries the Paper No. 7 link', () {
+      expect(SeafoodBycatch.researchUrl, url);
+      expect(SeafoodBycatch.researchLinkLabel, label);
+      // Indonesia tuna (Strong pair), no gear stated.
+      final l = detail(seafoodBycatchFixtures[1]!)[
+          SeafoodCategory.productionMethodFeed]!;
+      expect(l.length, 2);
+      expect(l[0].link, isNull, reason: 'plain catch-method line has no link');
+      expect(l[1].link?.label, label);
+      expect(l[1].link?.url, url);
+      // Denied gear stated (Indonesia tuna, gillnet) also links.
+      final g = detail(seafoodBycatchFixtures[3]!)[
+          SeafoodCategory.productionMethodFeed]!;
+      expect(g[0].link, isNull);
+      expect(g[1].link?.url, url);
+    });
+
+    test('non-pair scans show no research link', () {
+      // Pole-and-line (suppressed), farmed Vietnam shrimp, canned tuna (no
+      // country), Alaska pollock, FAD-free (suppressed), USA albacore.
+      for (final n in [2, 4, 5, 6, 8, 11]) {
+        final all = detail(seafoodBycatchFixtures[n]!)
+            .values
+            .expand((e) => e)
+            .toList();
+        expect(all.every((d) => d.link == null), isTrue, reason: 'fixture $n');
+      }
+    });
+  });
+
   test('gear detection', () {
     String? id(String t) => SeafoodGearDetector.detect(t.toLowerCase())?.id;
     String? phrase(String t) => SeafoodGearDetector.detect(t.toLowerCase())?.phrase;

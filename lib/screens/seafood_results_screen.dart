@@ -877,11 +877,29 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
           ),
           const SizedBox(width: 6),
           Expanded(
-            child: Text(line.text,
-                style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w600,
-                    color: isFlag ? flagColor : Colors.black)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(line.text,
+                    style: TextStyle(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: isFlag ? flagColor : Colors.black)),
+                // Same link pattern as NcHogLagoonCard (url_launcher, external).
+                if (line.link != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: GestureDetector(
+                      onTap: () => _launch(Uri.parse(line.link!.url)),
+                      child: Text(line.link!.label,
+                          style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue)),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ],
       ),

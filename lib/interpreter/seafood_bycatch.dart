@@ -5,11 +5,13 @@
 //    never changes a category status, the disclosure count, or the index.
 // 2. Bycatch context: when a wild (or unstated-method) product's species group
 //    and stated country match one of the 10 "Strong" country × species pairs in
-//    FAT Seafood Paper No. 5 (FDA × NOAA bycatch crosswalk), a public-record
+//    FAT Seafood Research Series Paper No. 7 ("What the FDA Cannot See",
+//    October 12, 2026; FDA × NOAA bycatch crosswalk), a public-record
 //    line says NOAA has denied U.S. market access to some of that country's
 //    fisheries for that species group, and with which gear. Pairs are bundled
 //    in assets/data/mmpa_bycatch_pairs.json (built from the workbook's
-//    Overlap_Pairs sheet).
+//    Overlap_Pairs sheet). Each context line carries a "Read the research"
+//    link to Paper No. 7.
 //
 // Strings and rules are kept identical to iOS (SeafoodBycatch.swift) for
 // parity.
@@ -178,6 +180,13 @@ class SeafoodBycatch {
           String country, String group, String gearPhrase, String asOf) =>
       "${contextLead(country, group, gearPhrase, asOf)} Products sold in the U.S. must come from fisheries that were not denied; this label doesn't name the fishery.";
 
+  // Research link shown under each bycatch context line (never on the
+  // plain catch-method line). FAT Seafood Research Series Paper No. 7.
+  static const String researchLinkLabel =
+      'Read the research: What the FDA Cannot See';
+  static const String researchUrl =
+      'https://farmanimaltransparency.com/seafood-research-series-7-bycatch-fda-noaa/';
+
   /// Cat. 10 catch-method line — wild-caught seafood only.
   static String? catchMethodLine(SeafoodProductionMethod? method, String t) {
     if (method != SeafoodProductionMethod.wildCaught) return null;
@@ -185,7 +194,7 @@ class SeafoodBycatch {
     return g != null ? catchMethodStated(g.phrase) : catchMethodNotStated;
   }
 
-  // Species groups used in Paper No. 5's Strong pairs.
+  // Species groups used in Paper No. 7's Strong pairs.
   static final List<MapEntry<String, RegExp>> _groupPatterns = [
     MapEntry('tuna',
         RegExp(r'\b(tunas?|albacore|skipjack|yellowfin|bigeye|ahi|bluefin)\b')),
