@@ -396,7 +396,7 @@ class _LookupScreenState extends State<LookupScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(18),
           child: SizedBox(
-            height: 200,
+            height: 140,
             width: double.infinity,
             child: Stack(
               alignment: Alignment.center,
