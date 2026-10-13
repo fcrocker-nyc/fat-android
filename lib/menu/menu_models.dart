@@ -1,0 +1,227 @@
+import 'dart:ui' show Rect;
+
+// Menu Claim Audit — data model. Dart port of the iOS Menu/ module.
+// Separate track from label scanning and loose-fish (service case) scanning:
+// nothing here references FATResult, Status, or any establishment lookup.
+// The menu component explains claims and suggests questions; it never
+// verifies, scores or grades.
+
+enum ProteinFamily {
+  beef('Beef', 'beef'),
+  pork('Pork', 'pork'),
+  lamb('Lamb', 'lamb'),
+  poultry('Poultry', 'chicken or duck'),
+  finfish('Fish', 'fish'),
+  shellfish('Shellfish', 'shellfish'),
+  other('Other meat', 'meat');
+
+  const ProteinFamily(this.displayName, this.questionNoun);
+  final String displayName;
+  final String questionNoun;
+
+  static ProteinFamily? parse(String s) {
+    for (final f in values) {
+      if (f.name == s) return f;
+    }
+    return null;
+  }
+}
+
+enum ClaimFamily {
+  speciesOrForm('Species & form', 0),
+  originRegion('Origin — region', 1),
+  originFarm('Origin — named source', 2),
+  productionMethod('How it was raised or caught', 3),
+  certification('Certification', 4),
+  gradeOrBreed('Grade & breed', 5);
+
+  const ClaimFamily(this.displayName, this.priority);
+  final String displayName;
+  final int priority;
+
+  static ClaimFamily parse(String s) =>
+      values.firstWhere((f) => f.name == s, orElse: () => productionMethod);
+}
+
+/// One row of the bundled glossary JSON.
+class ClaimEntry {
+  final String key;
+  final ClaimFamily family;
+  final List<String> phrases;
+  final List<String> patterns;
+  final List<ProteinFamily>? proteins;
+  final bool adjacentProtein;
+  final String meaning;
+  final String? authority;
+  final String gap;
+  final List<String> questions;
+  final Map<String, String>? stateNote;
+
+  const ClaimEntry({
+    required this.key,
+    required this.family,
+    required this.phrases,
+    required this.patterns,
+    required this.proteins,
+    required this.adjacentProtein,
+    required this.meaning,
+    required this.authority,
+    required this.gap,
+    required this.questions,
+    required this.stateNote,
+  });
+
+  factory ClaimEntry.fromJson(Map<String, dynamic> j) => ClaimEntry(
+        key: j['key'] as String,
+        family: ClaimFamily.parse(j['family'] as String),
+        phrases: List<String>.from(j['phrases'] as List),
+        patterns: List<String>.from((j['patterns'] as List?) ?? const []),
+        proteins: (j['proteins'] as List?)
+            ?.map((e) => ProteinFamily.parse(e as String))
+            .whereType<ProteinFamily>()
+            .toList(),
+        adjacentProtein: (j['adjacentProtein'] as bool?) ?? false,
+        meaning: j['meaning'] as String,
+        authority: j['authority'] as String?,
+        gap: j['gap'] as String,
+        questions: List<String>.from(j['questions'] as List),
+        stateNote: (j['stateNote'] as Map?)?.map(
+          (k, v) => MapEntry(k as String, v as String),
+        ),
+      );
+}
+
+class MenuGlossary {
+  final String version;
+  final String status;
+
+  /// Asked about every dish, claim or not. "{protein}" is replaced per dish.
+  final List<String> generalQuestions;
+  final List<ClaimEntry> entries;
+
+  const MenuGlossary({
+    required this.version,
+    required this.status,
+    required this.generalQuestions,
+    required this.entries,
+  });
+
+  factory MenuGlossary.fromJson(Map<String, dynamic> j) => MenuGlossary(
+        version: j['version'] as String,
+        status: (j['status'] as String?) ?? '',
+        generalQuestions: List<String>.from(j['generalQuestions'] as List),
+        entries: (j['entries'] as List)
+            .map((e) => ClaimEntry.fromJson(e as Map<String, dynamic>))
+            .toList(),
+      );
+
+  ClaimEntry? entry(String key) {
+    for (final e in entries) {
+      if (e.key == key) return e;
+    }
+    return null;
+  }
+}
+
+/// One recognized line with a normalized box (0…1, origin bottom-left, to
+/// match iOS Vision). Plain-text input uses synthetic boxes.
+class MenuOCRLine {
+  final String text;
+  final Rect box; // left=x, top=minY, right=x+w, bottom=maxY in bottom-left space
+  const MenuOCRLine(this.text, this.box);
+
+  double get minX => box.left;
+  double get maxX => box.right;
+  double get minY => box.top;
+  double get maxY => box.bottom;
+  double get midY => (box.top + box.bottom) / 2;
+  double get height => box.bottom - box.top;
+}
+
+class MenuPage {
+  final int index;
+  final List<MenuOCRLine> lines;
+  const MenuPage(this.index, this.lines);
+
+  /// Plain text → page, one OCR line per text line (used in tests).
+  factory MenuPage.fromPlainText(String text, {int index = 0}) {
+    final raw = text.split(RegExp(r'\r?\n'));
+    final step = 1.0 / (raw.isEmpty ? 2 : raw.length + 1);
+    final lines = <MenuOCRLine>[];
+    for (var i = 0; i < raw.length; i++) {
+      final t = raw[i].trim();
+      if (t.isEmpty) continue;
+      final top = 1.0 - (i + 1) * step;
+      lines.add(MenuOCRLine(t, Rect.fromLTRB(0.05, top, 0.95, top + step * 0.6)));
+    }
+    return MenuPage(index, lines);
+  }
+}
+
+class MenuClaim {
+  final String entryKey;
+  final String matchedText;
+  final bool inheritedFromHeader;
+  final ProteinFamily? appliesTo;
+  const MenuClaim({
+    required this.entryKey,
+    required this.matchedText,
+    required this.inheritedFromHeader,
+    this.appliesTo,
+  });
+}
+
+class MenuItem {
+  final String id;
+  String dishName;
+  String description;
+  String? section;
+  List<ProteinFamily> proteins;
+  List<MenuClaim> claims;
+  bool minorProteinOnly;
+  bool dismissed;
+  bool userCorrected;
+
+  MenuItem({
+    required this.id,
+    required this.dishName,
+    required this.description,
+    required this.section,
+    required this.proteins,
+    required this.claims,
+    required this.minorProteinOnly,
+    this.dismissed = false,
+    this.userCorrected = false,
+  });
+
+  String get fullText => description.isEmpty ? dishName : '$dishName\n$description';
+}
+
+class MenuResult {
+  final DateTime capturedAt;
+  final List<MenuPage> pages;
+  final List<String> headerStatements;
+  final List<MenuItem> items;
+  final String glossaryVersion;
+  final String? diningState;
+  final bool layoutUncertain;
+
+  MenuResult({
+    required this.capturedAt,
+    required this.pages,
+    required this.headerStatements,
+    required this.items,
+    required this.glossaryVersion,
+    required this.diningState,
+    required this.layoutUncertain,
+  });
+
+  /// Dishes the diner hasn't dismissed; garnish-level proteins sink to the end.
+  List<MenuItem> get visibleItems {
+    final live = items.where((i) => !i.dismissed).toList();
+    return [
+      ...live.where((i) => !i.minorProteinOnly),
+      ...live.where((i) => i.minorProteinOnly),
+    ];
+  }
+}

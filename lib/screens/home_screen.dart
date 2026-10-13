@@ -5,6 +5,7 @@ import '../data/lookup_router.dart';
 import 'about_screen.dart';
 import 'learn_screen.dart';
 import 'service_case_capture_screen.dart';
+import '../menu/menu_screens.dart';
 import 'how_fat_works_screen.dart';
 import 'fat100_screen.dart';
 
@@ -54,6 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     // LOOSE FISH — service-case scan, directly under the main
                     // scan pill and styled with the same forest-green fill.
                     _looseFishCTA(context),
+                    const SizedBox(height: 12),
+                    // MENU — restaurant menu claims; its own track (lib/menu/).
+                    _menuCTA(context),
                     const SizedBox(height: 20),
                     // QUICK LOOKUP — compact, directly under the scan CTA so a
                     // lookup can be started from Home without opening the tab.
@@ -326,6 +330,56 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Menu CTA (restaurant menu claims) ───────────────────────────────────
+  // Its own track (lib/menu/), separate from label and loose-fish scanning.
+
+  Widget _menuCTA(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const MenuScanScreen()),
+        ),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: const Color(0xFF2C3E50),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.restaurant_menu, color: Colors.white, size: 24),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text('Scan a Restaurant Menu',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w900,
+                            color: Colors.white)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'See what words like “grass-fed,” “Gulf shrimp” or “wild-caught” '
+                'mean on a menu — and get questions to ask your server or chef.',
+                style: TextStyle(
+                    fontSize: 14,
+                    height: 1.3,
+                    color: Colors.white.withValues(alpha: 0.92)),
               ),
             ],
           ),
