@@ -738,7 +738,7 @@
     html += '<p class="fat-scope">' + esc(copy.body || '') + '</p>' +
       '<p class="fat-sub">The ' + num(list.length) + ' states below held ' + headM(listed) + ' hogs and pigs on ' +
       esc(nassAsOf(data)) + ', ' + num(sharePct, 0) + '% of the national herd. ' + sourceChip(data, data.national.inventory_total) + '</p>';
-    html += '<p class="fat-pick-label">Choose a state</p>' +
+    html += '<p class="fat-pick-label">Choose a state — ' + num(list.length) + ' states, click any one to see its record</p>' +
       '<div class="fat-pick" role="group" aria-label="Choose a state">' +
       list.map(function (s, i) {
         return '<button class="fat-btn" type="button" data-state="' + esc(s.code) + '" aria-pressed="false" title="' +
@@ -772,7 +772,9 @@
     });
     var want = requestedState();
     var has = list.some(function (x) { return x.code === want; });
-    set(has ? want : 'NC', false);
+    // Open on the largest hog state (first in the list), not North Carolina,
+    // so the page does not read as a North Carolina-only map.
+    set(has ? want : list[0].code, false);
   }
 
   function viewSupply(el, data) {
@@ -867,7 +869,7 @@
 
     // Jump bar — every section is on the page; nothing is hidden behind a tab.
     html += '<div class="fat-jump" role="navigation" aria-label="Sections">' +
-      [['fat-int-map', 'Permit map'], ['fat-int-authority', 'Legal authority'],
+      [['fat-int-map', 'Permit map'], ['fat-int-authority', 'Legal authority (N.C.)'],
         ['fat-int-ownership', 'Ownership &amp; integration'], ['fat-int-biogas', 'Biogas'],
         ['fat-int-label', 'What reaches the label']].map(function (p) {
         return '<a class="fat-btn" href="#' + p[0] + '" data-jump="' + p[0] + '">' + p[1] + '</a>';
@@ -908,7 +910,8 @@
 
     // Legal authority — North Carolina.
     var la = data.nc_legal_authority;
-    html += '<div class="fat-panel" id="fat-int-authority"><h3 class="fat-h3">Legal authority — North Carolina</h3>' +
+    html += '<div class="fat-panel" id="fat-int-authority"><h3 class="fat-h3">North Carolina case study: legal authority</h3>' +
+      '<p class="fat-sub" style="margin-bottom:12px">North Carolina is the one state whose hog-waste legal record FAT has assembled in full. The other nine largest hog states are on the Pork Enforcement Map.</p>' +
       '<div class="fat-note"><p class="fat-note-title">' + esc(la.headline) + '</p>' +
       '<p class="fat-note-body">' + esc(la.body) + '</p></div>' + mechanismRows(data);
     var op = la.open_proceeding, ops = data.sources[op.source];
@@ -918,7 +921,7 @@
       (ops ? ' <a class="fat-chip fat-chip-' + esc(ops.type) + '" href="' + esc(ops.url) +
         '" target="_blank" rel="noopener noreferrer">source</a>' : '') + '</p></div>';
     var ss = data.nc_statutory_structure;
-    html += '<div style="margin-top:16px"><h3 class="fat-h3">Why the lagoons remain</h3>' +
+    html += '<div style="margin-top:16px"><h3 class="fat-h3">North Carolina: why the lagoons remain</h3>' +
       '<p class="fat-sub">' + esc(ss.moratorium.detail) + ' <a class="fat-chip fat-chip-primary" href="' +
       esc(data.sources[ss.moratorium.source].url) +
       '" target="_blank" rel="noopener noreferrer">' + esc(ss.moratorium.statute) + '</a></p></div>';
