@@ -916,7 +916,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         child: Row(
           children: [
             stat('$total', 'Scans'),
-            stat(pctMet, 'Regulatory Met'),
+            stat(pctMet, 'Met Regs'),
             stat('${ids.length}', 'Brands / EST'),
           ],
         ),
