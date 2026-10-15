@@ -294,6 +294,10 @@ class ServiceCaseParser {
   // FDA Seafood List resolution table (displayed placard name -> [acceptable market name,
   // scientific name, specific?]). Curated to common U.S. counter species; scientific names given
   // only where confidently known. TODO: reconcile against the official FDA Seafood List before ship.
+  /// Every placard name in the resolution table (used by the Lookup tab's
+  /// fish-name search to recognize a name).
+  static Iterable<String> get marketNames => _seafoodList.keys;
+
   static const Map<String, List<dynamic>> _seafoodList = {
     // Salmonids
     'atlantic salmon': ['salmon, Atlantic', 'Salmo salar', true],

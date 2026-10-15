@@ -9,6 +9,8 @@ import '../data/seafood_brand_database.dart';
 import '../data/pork_owner_database.dart';
 import '../data/montana_origin.dart';
 import '../data/seafood_enforcement_database.dart';
+import '../interpreter/fish_name_lookup.dart';
+import '../interpreter/seafood_detail_lines.dart';
 import '../models/lookup_record.dart';
 import '../services/scan_store.dart';
 import '../services/processor_service.dart';
@@ -56,6 +58,17 @@ class _LookupScreenState extends State<LookupScreen> {
   List<MeatBrandResult>? _meatResults;
   List<SeafoodBrandResult>? _seafoodResults;
 
+  // Seafood tab: 0 = Brand search, 1 = Fish-name search (loose / service-case
+  // fish). Mirrors iOS LookupView.SeafoodSearchKind.
+  static const _seafoodKinds = ['Brand', 'Fish name'];
+  int _seafoodKind = 0;
+  final _fishController = TextEditingController();
+  FishNameResult? _fishResult;
+
+  /// Seafood tab explainer paragraph for the fish-name search (iOS parity).
+  static const fishNameExplainer =
+      "No brand? For loose or service-case fish, switch to Fish name and type a market name (e.g. grouper) to see whether NOAA's Seafood Import Monitoring Program covers it, any marine-mammal bycatch import bans, and what the counter must tell you.";
+
   // Seafood FDA enforcement
   final _enforcementController = TextEditingController();
   List<SeafoodEnforcementEntity>? _enforcementResults;
@@ -79,7 +92,7 @@ class _LookupScreenState extends State<LookupScreen> {
   static const _tabBlurbs = [
     'Find the USDA-inspected plant behind a meat or poultry label by its EST number or plant name.',
     'Search a meat brand or company to see who owns it, with plant locations and related brands for major companies.',
-    'Most seafood packages carry no EST number; search the brand for its owner, certifications, and sourcing.',
+    'Search a seafood brand for its owner, certifications, and sourcing, or a loose fish by name for NOAA import monitoring and bycatch.',
     'Search public FDA seafood enforcement (warning letters, import alerts, import refusals) by firm, country, product, or alert number.',
   ];
 
@@ -312,6 +325,23 @@ class _LookupScreenState extends State<LookupScreen> {
     ));
   }
 
+  void _searchFishName() {
+    FocusScope.of(context).unfocus();
+    final r = FishNameLookup.resolve(_fishController.text);
+    if (r.query.isEmpty) return;
+    setState(() => _fishResult = r);
+    ScanStore.instance.saveLookup(LookupRecord(
+      id: '${DateTime.now().microsecondsSinceEpoch}-fish',
+      date: DateTime.now(),
+      category: LookupCategory.seafoodBrand,
+      query: r.query,
+      resultTitle: r.historyTitle,
+      resultSubtitle: FishNameLookup.historySubtitle,
+      matchCount: r.recognized ? 1 : 0,
+      flagged: r.hasBycatch || r.hasMisbrandingNote,
+    ));
+  }
+
   void _searchEnforcement() {
     FocusScope.of(context).unfocus();
     final query = _enforcementController.text.trim();
@@ -360,6 +390,7 @@ class _LookupScreenState extends State<LookupScreen> {
         if (q.isNotEmpty) _searchMeat();
         break;
       case 2:
+        _seafoodKind = 0;
         _seafoodController.text = q;
         if (q.isNotEmpty) _searchSeafood();
         break;
@@ -657,25 +688,185 @@ class _LookupScreenState extends State<LookupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Search Seafood Brand',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-          const SizedBox(height: 12),
-          _searchField(_seafoodController, "e.g. Gorton's, SeaPak, StarKist",
-              onSubmit: _searchSeafood),
-          const SizedBox(height: 14),
-          _actionButton('Search', _searchSeafood),
-          const SizedBox(height: 20),
-          if (_seafoodResults != null) ...[
-            if (_seafoodResults!.isEmpty)
-              _notFoundCard('Brand Not Found',
-                  'No results for "${_seafoodController.text}". This brand may not be in our database yet. Try searching by parent company name or a different spelling.')
-            else
-              for (final b in _seafoodResults!) ...[
-                _seafoodBrandCard(b),
-                const SizedBox(height: 14),
+          _seafoodKindToggle(),
+          const SizedBox(height: 16),
+          if (_seafoodKind == 1) _fishNameSearch() else _seafoodBrandSearch(),
+        ],
+      ),
+    );
+  }
+
+  Widget _seafoodBrandSearch() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text('Search Seafood Brand',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 12),
+        _searchField(_seafoodController, "e.g. Gorton's, SeaPak, StarKist",
+            onSubmit: _searchSeafood),
+        const SizedBox(height: 14),
+        _actionButton('Search', _searchSeafood),
+        const SizedBox(height: 20),
+        if (_seafoodResults != null) ...[
+          if (_seafoodResults!.isEmpty)
+            _notFoundCard('Brand Not Found',
+                'No results for "${_seafoodController.text}". This brand may not be in our database yet. Try searching by parent company name or a different spelling.')
+          else
+            for (final b in _seafoodResults!) ...[
+              _seafoodBrandCard(b),
+              const SizedBox(height: 14),
+            ],
+        ] else
+          _seafoodInfoSection(),
+      ],
+    );
+  }
+
+  /// Brand | Fish name toggle inside the Seafood tab (same look as the
+  /// top-level segmented control).
+  Widget _seafoodKindToggle() {
+    return Container(
+      key: const Key('seafoodSearchKindToggle'),
+      height: 40,
+      decoration: BoxDecoration(
+        color: const Color(0xFFEFEFEF),
+        borderRadius: BorderRadius.circular(9),
+      ),
+      child: Row(
+        children: List.generate(_seafoodKinds.length, (i) {
+          final selected = i == _seafoodKind;
+          return Expanded(
+            child: GestureDetector(
+              key: Key('seafoodSearchKind_$i'),
+              onTap: () => setState(() => _seafoodKind = i),
+              child: Container(
+                margin: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: selected ? Colors.white : Colors.transparent,
+                  borderRadius: BorderRadius.circular(7),
+                  boxShadow: selected
+                      ? [
+                          BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.12),
+                              blurRadius: 3)
+                        ]
+                      : null,
+                ),
+                child: Center(
+                  child: Text(_seafoodKinds[i],
+                      style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: selected ? Colors.black : Colors.black54)),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  // ── Fish-name search (loose / service-case fish) ──────────────────────
+  Widget _fishNameSearch() {
+    final r = _fishResult;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text(FishNameLookup.searchHeader,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+        const SizedBox(height: 12),
+        _searchField(_fishController, FishNameLookup.searchPlaceholder,
+            onSubmit: _searchFishName, capitalize: false),
+        const SizedBox(height: 14),
+        _actionButton('Search', _searchFishName),
+        const SizedBox(height: 20),
+        if (r != null) _fishNameCard(r) else _seafoodInfoSection(),
+      ],
+    );
+  }
+
+  Widget _fishNameCard(FishNameResult r) {
+    return _greenCard(
+      Column(
+        key: const Key('fishNameResultCard'),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [
+            Icon(r.recognized ? Icons.set_meal : Icons.search,
+                color: r.recognized ? Colors.black : Colors.orange),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(r.title,
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.w900)),
+            ),
+          ]),
+          if (r.recognized) ...[
+            const SizedBox(height: 4),
+            Text(FishNameLookup.subtitle,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black.withValues(alpha: 0.65))),
+          ],
+          for (int i = 0; i < r.sections.length; i++) ...[
+            if (i > 0) _cardDivider() else const SizedBox(height: 12),
+            _label(r.sections[i].title),
+            const SizedBox(height: 6),
+            for (final line in r.sections[i].lines) _fishLineRow(line),
+          ],
+          if (r.recognized) ...[
+            const SizedBox(height: 8),
+            Text(FishNameLookup.footer,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.black.withValues(alpha: 0.6))),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Same row + link pattern as the seafood results detail lines.
+  Widget _fishLineRow(SeafoodDetailLine line) {
+    final isFlag = line.kind == SeafoodDetailKind.flag;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(isFlag ? Icons.error : Icons.subdirectory_arrow_right,
+                size: 14, color: isFlag ? Colors.orange : Colors.black54),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(line.text,
+                    style: const TextStyle(
+                        fontSize: 13.5, fontWeight: FontWeight.w600)),
+                if (line.link != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: GestureDetector(
+                      onTap: () => _openUrl(line.link!.url),
+                      child: Text(line.link!.label,
+                          style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue)),
+                    ),
+                  ),
               ],
-          ] else
-            _seafoodInfoSection(),
+            ),
+          ),
         ],
       ),
     );
@@ -911,11 +1102,13 @@ class _LookupScreenState extends State<LookupScreen> {
 
   // ── Shared input widgets ──────────────────────────────────────────────
   Widget _searchField(TextEditingController c, String hint,
-      {TextInputType? keyboard, VoidCallback? onSubmit}) {
+      {TextInputType? keyboard,
+      VoidCallback? onSubmit,
+      bool capitalize = true}) {
     return TextField(
       controller: c,
       keyboardType: keyboard,
-      textCapitalization: keyboard == TextInputType.number
+      textCapitalization: keyboard == TextInputType.number || !capitalize
           ? TextCapitalization.none
           : TextCapitalization.words,
       style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
@@ -1507,7 +1700,7 @@ class _LookupScreenState extends State<LookupScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('About the Seafood Brand Lookup',
+        const Text('About the Seafood Lookup',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
         const SizedBox(height: 12),
         const Text(
@@ -1516,6 +1709,9 @@ class _LookupScreenState extends State<LookupScreen> {
         const SizedBox(height: 12),
         const Text(
             'Search by brand name to find corporate ownership, sourcing information, and sustainability certifications for major US retail seafood brands.',
+            style: TextStyle(fontSize: 16, height: 1.3)),
+        const SizedBox(height: 12),
+        const Text(fishNameExplainer,
             style: TextStyle(fontSize: 16, height: 1.3)),
         const SizedBox(height: 16),
         _iconInfoBox('What you can find:', const [
@@ -1712,6 +1908,7 @@ class _LookupScreenState extends State<LookupScreen> {
     _estController.dispose();
     _meatController.dispose();
     _seafoodController.dispose();
+    _fishController.dispose();
     _enforcementController.dispose();
     super.dispose();
   }

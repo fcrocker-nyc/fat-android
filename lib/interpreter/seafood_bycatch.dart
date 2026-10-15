@@ -204,7 +204,8 @@ class SeafoodBycatch {
     MapEntry('snapper', RegExp(r'\bsnappers?\b')),
   ];
 
-  static String? _group(String s) {
+  /// Paper No. 7 species group named in [s] (lowercase), or null.
+  static String? groupOf(String s) {
     for (final e in _groupPatterns) {
       if (e.value.hasMatch(s)) return e.key;
     }
@@ -247,10 +248,10 @@ class SeafoodBycatch {
     final String speciesName;
     if (species != null) {
       final s = species.toLowerCase();
-      speciesGroup = _group(s);
+      speciesGroup = groupOf(s);
       speciesName = s.endsWith('prawns') ? s.substring(0, s.length - 1) : s;
     } else {
-      speciesGroup = _group(text);
+      speciesGroup = groupOf(text);
       speciesName = speciesGroup ?? '';
     }
     if (speciesGroup == null) return const [];

@@ -40,6 +40,17 @@ void main() {
     expect(find.text('Seafood'), findsOneWidget);
   });
 
+  testWidgets('Seafood tab toggles to the fish-name search', (tester) async {
+    await pumpLookup(tester);
+    await tester.tap(find.byKey(const Key('lookupOverviewRow_2')));
+    await tester.pump();
+    expect(find.text('Search Seafood Brand'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('seafoodSearchKind_1')));
+    await tester.pump();
+    expect(find.text('Look up a fish by name'), findsOneWidget);
+    expect(find.text('Search Seafood Brand'), findsNothing);
+  });
+
   testWidgets('Overview card collapses', (tester) async {
     await pumpLookup(tester);
     await tester.tap(find.byKey(const Key('lookupOverviewToggle')));

@@ -1,0 +1,869 @@
+{
+  "note" : "Fish-name lookup output, shared verbatim by iOS and Android.",
+  "queries" : [
+    "grouper",
+    "mahi mahi",
+    "dolphinfish",
+    "Mahi-Mahi",
+    "salmon",
+    "Atlantic salmon",
+    "snapper",
+    "red snapper",
+    "rockfish",
+    "Pacific snapper",
+    "cod",
+    "black cod",
+    "crab",
+    "king crab",
+    "shrimp",
+    "groupers",
+    "tilapia",
+    "asdfgh"
+  ],
+  "results" : {
+    "asdfgh" : {
+      "historyTitle" : "Fish name not recognized",
+      "matchedName" : null,
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "FAT doesn't recognize that fish name yet."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "NOAA's SIMP covers imports of 13 species groups: abalone, Atlantic cod, blue crab (Atlantic), dolphinfish (mahi mahi), grouper, king crab (red), Pacific cod, red snapper, sea cucumber, sharks, shrimp, swordfish and tuna."
+            }
+          ],
+          "title" : "Try a SIMP species group"
+        }
+      ],
+      "simpStatus" : null,
+      "title" : "Fish Name Not Found"
+    },
+    "Atlantic salmon" : {
+      "historyTitle" : "Atlantic Salmon — not covered by SIMP",
+      "matchedName" : "atlantic salmon",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Salmon is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "notCovered",
+      "title" : "Atlantic Salmon"
+    },
+    "black cod" : {
+      "historyTitle" : "Black Cod — not covered by SIMP",
+      "matchedName" : "black cod",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Black Cod is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "notCovered",
+      "title" : "Black Cod"
+    },
+    "cod" : {
+      "historyTitle" : "Cod — covered by SIMP",
+      "matchedName" : "cod",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "SIMP covers both Atlantic cod and Pacific cod, so a placard that just says 'cod' is covered either way."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "covered",
+      "title" : "Cod"
+    },
+    "crab" : {
+      "historyTitle" : "Crab — SIMP coverage unclear",
+      "matchedName" : "crab",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "SIMP covers blue crab (Atlantic) and red king crab only; a placard that just says 'crab' doesn't say which species."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "unclear",
+      "title" : "Crab"
+    },
+    "dolphinfish" : {
+      "historyTitle" : "Mahi Mahi — covered by SIMP",
+      "matchedName" : "mahi mahi",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "NOAA has denied U.S. market access to some mahi mahi fisheries because of marine-mammal bycatch (as of October 2026):"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Ecuador — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Indonesia — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Vietnam — gillnets or longlines"
+            },
+            {
+              "kind" : "info",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "Products sold in the U.S. must come from fisheries that were not denied; a counter placard doesn't name the fishery."
+            }
+          ],
+          "title" : "Marine-mammal bycatch"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "covered",
+      "title" : "Mahi Mahi"
+    },
+    "grouper" : {
+      "historyTitle" : "Grouper — covered by SIMP",
+      "matchedName" : "grouper",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "NOAA has denied U.S. market access to some grouper fisheries because of marine-mammal bycatch (as of October 2026):"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Indonesia — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Vietnam — gillnets, longlines or trawls"
+            },
+            {
+              "kind" : "info",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "Products sold in the U.S. must come from fisheries that were not denied; a counter placard doesn't name the fishery."
+            }
+          ],
+          "title" : "Marine-mammal bycatch"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "covered",
+      "title" : "Grouper"
+    },
+    "groupers" : {
+      "historyTitle" : "Grouper — covered by SIMP",
+      "matchedName" : "grouper",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "NOAA has denied U.S. market access to some grouper fisheries because of marine-mammal bycatch (as of October 2026):"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Indonesia — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Vietnam — gillnets, longlines or trawls"
+            },
+            {
+              "kind" : "info",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "Products sold in the U.S. must come from fisheries that were not denied; a counter placard doesn't name the fishery."
+            }
+          ],
+          "title" : "Marine-mammal bycatch"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "covered",
+      "title" : "Grouper"
+    },
+    "king crab" : {
+      "historyTitle" : "King Crab — covered by SIMP",
+      "matchedName" : "king crab",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "covered",
+      "title" : "King Crab"
+    },
+    "mahi mahi" : {
+      "historyTitle" : "Mahi Mahi — covered by SIMP",
+      "matchedName" : "mahi mahi",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "NOAA has denied U.S. market access to some mahi mahi fisheries because of marine-mammal bycatch (as of October 2026):"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Ecuador — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Indonesia — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Vietnam — gillnets or longlines"
+            },
+            {
+              "kind" : "info",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "Products sold in the U.S. must come from fisheries that were not denied; a counter placard doesn't name the fishery."
+            }
+          ],
+          "title" : "Marine-mammal bycatch"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "covered",
+      "title" : "Mahi Mahi"
+    },
+    "Mahi-Mahi" : {
+      "historyTitle" : "Mahi Mahi — covered by SIMP",
+      "matchedName" : "mahi mahi",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "NOAA has denied U.S. market access to some mahi mahi fisheries because of marine-mammal bycatch (as of October 2026):"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Ecuador — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Indonesia — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Vietnam — gillnets or longlines"
+            },
+            {
+              "kind" : "info",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "Products sold in the U.S. must come from fisheries that were not denied; a counter placard doesn't name the fishery."
+            }
+          ],
+          "title" : "Marine-mammal bycatch"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "covered",
+      "title" : "Mahi Mahi"
+    },
+    "Pacific snapper" : {
+      "historyTitle" : "Pacific Snapper — not covered by SIMP",
+      "matchedName" : "pacific snapper",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Pacific Snapper is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
+            },
+            {
+              "kind" : "flag",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "FDA said in April 2026 that rockfish sold as \"snapper\" is misbranded (91 Fed. Reg. 16200, Apr. 1, 2026, as cited in FAT Seafood Paper No. 7)."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "notCovered",
+      "title" : "Pacific Snapper"
+    },
+    "red snapper" : {
+      "historyTitle" : "Red Snapper — covered by SIMP",
+      "matchedName" : "red snapper",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "NOAA has denied U.S. market access to some snapper fisheries because of marine-mammal bycatch (as of October 2026):"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Indonesia — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "Products sold in the U.S. must come from fisheries that were not denied; a counter placard doesn't name the fishery."
+            }
+          ],
+          "title" : "Marine-mammal bycatch"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "covered",
+      "title" : "Red Snapper"
+    },
+    "rockfish" : {
+      "historyTitle" : "Rockfish — not covered by SIMP",
+      "matchedName" : "rockfish",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Rockfish is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
+            },
+            {
+              "kind" : "flag",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "FDA said in April 2026 that rockfish sold as \"snapper\" is misbranded (91 Fed. Reg. 16200, Apr. 1, 2026, as cited in FAT Seafood Paper No. 7)."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "notCovered",
+      "title" : "Rockfish"
+    },
+    "salmon" : {
+      "historyTitle" : "Salmon — not covered by SIMP",
+      "matchedName" : "salmon",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Salmon is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "notCovered",
+      "title" : "Salmon"
+    },
+    "shrimp" : {
+      "historyTitle" : "Shrimp — covered by SIMP",
+      "matchedName" : "shrimp",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "NOAA has denied U.S. market access to some shrimp fisheries because of marine-mammal bycatch (as of October 2026):"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Indonesia — trammel nets"
+            },
+            {
+              "kind" : "info",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "Products sold in the U.S. must come from fisheries that were not denied; a counter placard doesn't name the fishery."
+            }
+          ],
+          "title" : "Marine-mammal bycatch"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "covered",
+      "title" : "Shrimp"
+    },
+    "snapper" : {
+      "historyTitle" : "Snapper — SIMP coverage unclear",
+      "matchedName" : "snapper",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "SIMP covers red snapper only; a placard that just says 'snapper' doesn't say which species."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "flag",
+              "link" : null,
+              "text" : "NOAA has denied U.S. market access to some snapper fisheries because of marine-mammal bycatch (as of October 2026):"
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Indonesia — gillnets"
+            },
+            {
+              "kind" : "info",
+              "link" : "https:\/\/farmanimaltransparency.com\/seafood-research-series-7-bycatch-fda-noaa\/",
+              "text" : "Products sold in the U.S. must come from fisheries that were not denied; a counter placard doesn't name the fishery."
+            }
+          ],
+          "title" : "Marine-mammal bycatch"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "unclear",
+      "title" : "Snapper"
+    },
+    "tilapia" : {
+      "historyTitle" : "Tilapia — not covered by SIMP",
+      "matchedName" : "tilapia",
+      "sections" : [
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Tilapia is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
+            }
+          ],
+          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+        },
+        {
+          "lines" : [
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised."
+            },
+            {
+              "kind" : "info",
+              "link" : null,
+              "text" : "COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely."
+            }
+          ],
+          "title" : "What the counter must tell you"
+        }
+      ],
+      "simpStatus" : "notCovered",
+      "title" : "Tilapia"
+    }
+  }
+}

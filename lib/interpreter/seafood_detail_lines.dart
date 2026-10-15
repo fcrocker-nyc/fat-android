@@ -22,20 +22,38 @@ import 'seafood_interpreter.dart';
 /// species groups: abalone, Atlantic cod, blue crab (Atlantic), dolphinfish
 /// (mahi mahi), grouper, king crab (red), Pacific cod, red snapper, sea
 /// cucumber, sharks, shrimp, swordfish and tuna.
+///
+/// Bare "snapper" is NOT covered (SIMP covers red snapper only), "black cod"
+/// is sablefish, and rockfish / "Pacific snapper" are not red snapper.
 class SIMPCoverage {
   SIMPCoverage._();
 
   static final RegExp _covered = RegExp(
-    r'\b(tuna|albacore|skipjack|ahi|bigeye|bluefin|yellowfin|cod|codfish|'
-    r'red snapper|snapper|grouper|mahi mahi|mahi-mahi|mahi|dolphinfish|'
+    r'\b(tuna|albacore|skipjack|ahi|bigeye|bluefin|yellowfin|(?<!black )cod|codfish|'
+    r'red snapper|grouper|mahi mahi|mahi-mahi|mahi|dolphinfish|'
     r'king crab|blue crab|abalone|sea cucumbers?|sharks?|shrimp|prawns?|'
     r'swordfish)\b',
   );
 
+  /// Rockfish names, including West Coast rockfish sold as "Pacific
+  /// (red) snapper". None of these is SIMP's red snapper.
+  static final RegExp rockfishPattern =
+      RegExp(r'\b(rockfish|pacific (red )?snapper)\b');
+
+  /// The 13 SIMP species groups, as NOAA lists them.
+  static const List<String> speciesGroups = [
+    'abalone', 'Atlantic cod', 'blue crab (Atlantic)', 'dolphinfish (mahi mahi)', 'grouper',
+    'king crab (red)', 'Pacific cod', 'red snapper', 'sea cucumber', 'sharks', 'shrimp',
+    'swordfish', 'tuna',
+  ];
+
   /// True when the detected species (e.g. "Yellowfin Tuna", "Atlantic Cod",
   /// "Shrimp") falls in one of the 13 SIMP species groups.
-  static bool isCovered(String species) =>
-      _covered.hasMatch(species.toLowerCase());
+  static bool isCovered(String species) {
+    final s = species.toLowerCase();
+    if (rockfishPattern.hasMatch(s)) return false;
+    return _covered.hasMatch(s);
+  }
 }
 
 enum SeafoodDetailKind { info, flag }
@@ -189,7 +207,7 @@ class SeafoodDetailLines {
 
   /// Species group named in the "not covered" line ("Salmon", "Trout",
   /// otherwise the detected species name).
-  static String _speciesGroup(String species) {
+  static String speciesGroup(String species) {
     final s = species.toLowerCase();
     if (s.contains('salmon')) return 'Salmon';
     if (s.contains('trout')) return 'Trout';
@@ -210,9 +228,19 @@ class SeafoodDetailLines {
       if (t.contains('king crab') || t.contains('blue crab')) return simpCovered;
       return null;
     }
+    // Same for snapper: SIMP covers red snapper only. A bare "Snapper" is
+    // covered only when the label says "red snapper"; rockfish sold as
+    // "Pacific (red) snapper" is never SIMP's red snapper. Stay silent
+    // rather than guess.
+    if (species.toLowerCase().contains('snapper')) {
+      if (SIMPCoverage.rockfishPattern.hasMatch(t)) return null;
+      if (species.toLowerCase() == 'snapper') {
+        return t.contains('red snapper') ? simpCovered : null;
+      }
+    }
     return SIMPCoverage.isCovered(species)
         ? simpCovered
-        : simpNotCovered(_speciesGroup(species));
+        : simpNotCovered(speciesGroup(species));
   }
 
   // ── Cat. 2 / Cat. 4 — wild Atlantic salmon tripwire ──
