@@ -9,11 +9,40 @@ import '../interpreter/label_interpreter.dart';
 import '../interpreter/prepared_food.dart';
 import '../interpreter/product_type_detector.dart';
 import '../interpreter/seafood_interpreter.dart';
+import '../menu/menu_screens.dart';
 import '../theme/fat_theme.dart';
 import '../services/scan_store.dart';
 import 'results_screen.dart';
 import 'seafood_results_screen.dart';
 import 'service_case_capture_screen.dart';
+
+/// Every camera-based scan the app offers. The Scan tab lists all of them;
+/// keep in step with the iOS `ScanOption` in ScanView.swift.
+enum ScanOption {
+  label(
+    'Scan Label',
+    'Point at the label on packaged meat, poultry, seafood or prepared food. '
+        'Add more panels if needed, then see what the label discloses.',
+    Icons.camera_alt_outlined,
+  ),
+  looseSeafood(
+    'Loose Seafood at a Counter',
+    'Point at the sign on a full-service seafood case. See the country of '
+        'origin and whether the fish is wild or farmed.',
+    Icons.storefront_outlined,
+  ),
+  menu(
+    'Restaurant Menu',
+    'Point at a restaurant menu. See what claims like grass-fed or '
+        'wild-caught mean, plus questions to ask your server.',
+    Icons.restaurant_menu,
+  );
+
+  const ScanOption(this.title, this.description, this.icon);
+  final String title;
+  final String description;
+  final IconData icon;
+}
 
 class ScanScreen extends StatefulWidget {
   final bool autoLaunch;
@@ -257,17 +286,70 @@ class _ScanScreenState extends State<ScanScreen> {
     }
   }
 
+  Widget _optionRow(ScanOption option, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Material(
+        color: FATTheme.primaryGreen,
+        borderRadius: BorderRadius.circular(14),
+        child: InkWell(
+          key: Key('scanOption.${option.name}'),
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(option.icon, color: FATTheme.scanGreen, size: 26),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        option.title,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        option.description,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          height: 1.3,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(top: 2),
+                  child: Icon(Icons.chevron_right, color: FATTheme.scanGreen),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 80),
+              const SizedBox(height: 40),
               const Text(
                 'Scan',
                 textAlign: TextAlign.center,
@@ -278,7 +360,7 @@ class _ScanScreenState extends State<ScanScreen> {
               ),
               const SizedBox(height: 18),
               const Text(
-                'Photograph one or more label panels, then evaluate what the label discloses.',
+                'Choose what you are pointing the camera at.',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.black,
@@ -286,7 +368,7 @@ class _ScanScreenState extends State<ScanScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 34),
+              const SizedBox(height: 24),
               if (_isProcessing) ...[
                 const Center(
                   child: CircularProgressIndicator(color: FATTheme.scanGreen),
@@ -299,12 +381,16 @@ class _ScanScreenState extends State<ScanScreen> {
                   ),
                 ),
               ] else ...[
+                // PRIMARY — packaged label scan (meat, poultry, seafood,
+                // prepared food; auto-routed after OCR).
                 ElevatedButton.icon(
+                  key: Key('scanOption.${ScanOption.label.name}'),
                   onPressed: _launchCamera,
-                  icon: const Icon(Icons.camera_alt_outlined, size: 26),
-                  label: const Text(
-                    'Scan Label',
-                    style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900),
+                  icon: Icon(ScanOption.label.icon, size: 26),
+                  label: Text(
+                    ScanOption.label.title,
+                    style: const TextStyle(
+                        fontSize: 23, fontWeight: FontWeight.w900),
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: FATTheme.scanGreen,
@@ -316,28 +402,12 @@ class _ScanScreenState extends State<ScanScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ServiceCaseCaptureScreen(),
-                    ),
-                  ),
-                  icon: const Icon(Icons.storefront_outlined, size: 20),
-                  label: const Text(
-                    'Loose seafood at a counter?',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: FATTheme.scanGreen,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    minimumSize: const Size.fromHeight(52),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
+                const SizedBox(height: 8),
+                Text(
+                  ScanOption.label.description,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontSize: 14, height: 1.3, color: Colors.black),
                 ),
               ],
               if (_errorMessage != null) ...[
@@ -363,6 +433,31 @@ class _ScanScreenState extends State<ScanScreen> {
                   ),
                 ),
               ],
+              // SECONDARY — every other camera-based scan in the app, reusing
+              // the same entries Home uses.
+              const SizedBox(height: 24),
+              const Text(
+                'Other scans',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 10),
+              _optionRow(
+                ScanOption.looseSeafood,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ServiceCaseCaptureScreen(),
+                  ),
+                ),
+              ),
+              _optionRow(
+                ScanOption.menu,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MenuScanScreen()),
+                ),
+              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
