@@ -92,7 +92,7 @@ class _LookupScreenState extends State<LookupScreen> {
   static const _tabBlurbs = [
     'Find the USDA-inspected plant behind a meat or poultry label by its EST number or plant name.',
     'Search a meat brand or company to see who owns it, with plant locations and related brands for major companies.',
-    'Search a seafood brand to see who owns it, which sustainability seals it carries (MSC, ASC, BAP), and where its fish come from. Or look up a loose fish by name for NOAA import monitoring and bycatch.',
+    'Enter a seafood brand name. The result shows who owns the brand, any sustainability seals it carries (MSC, ASC, BAP), and where its fish come from. No brand? Enter a loose fish's name instead.',
     'Search public FDA seafood enforcement (warning letters, import alerts, import refusals) by firm, country, product, or alert number.',
   ];
 
