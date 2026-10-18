@@ -44,7 +44,7 @@ class MainShell extends StatefulWidget {
   State<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
+class _MainShellState extends State<MainShell> with WidgetsBindingObserver {
   int _selectedIndex = 0;
   bool _autoLaunchCamera = false;
   LookupRequest? _pendingLookup;
@@ -53,11 +53,26 @@ class _MainShellState extends State<MainShell> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _recoverLostPhoto();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // The camera result can reach image_picker after initState's check;
+    // ask again whenever FAT comes back to the front. No-op unless a scan
+    // is pending and no pick is open in this process.
+    if (state == AppLifecycleState.resumed) _recoverLostPhoto();
+  }
+
   /// Android can kill FAT while the camera is open; the photo then comes back
-  /// on the next launch. Reopen the scan that took it, with the photo in it.
+  /// after the restart. Reopen the scan that took it, with the photo in it.
   Future<void> _recoverLostPhoto() async {
     final recovered = await LostPhotoRecovery.retrieve();
     if (recovered == null || !mounted) return;
