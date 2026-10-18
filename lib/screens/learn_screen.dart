@@ -906,6 +906,19 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'None of this is fraud — it is selective disclosure: producers advertise the attributes that flatter (dry-aging, breed, "100% grass-fed") and stay silent on the ones that carry tradeoffs. Unlike most transparency complaints, this one is directly measurable.\n\n'
             'Source: FAT research paper — Harvest Age, Grind Specification, and Named-Primal Grinds. Full paper at farmanimaltransparency.com/fat-research/. Regulatory sources: 9 CFR 310.22; USDA AMS grading standards; Texas A&M Meat Science on FSIS primal-name policy.'),
       ),
+      // 2.2h — cell-cultivated (lab-grown) meat (mirrors iOS
+      // "Is any ground beef lab-grown?")
+      _LearnTopic(
+        title: "Is any ground beef lab-grown?",
+        subtitle: "Cell-cultivated meat and how to check a package",
+        body: _text(
+            "No. As of October 2026, no cell-cultivated (lab-grown) beef has been cleared for sale in the United States.\n\n"
+            "U.S. clearances so far are chicken (UPSIDE Foods, GOOD Meat and Believer Meats, which has since closed), pork fat (Mission Barns) and salmon (Wildtype). Sales have been limited to a few restaurants and promotional retail sales.\n\n"
+            'USDA-FSIS must preapprove the label of any cell-cultivated meat or poultry product. Labels approved so far put "cell-cultivated" in front of the meat name, as in "cell-cultivated chicken."\n\n'
+            "Several states, including Montana, Florida, Alabama, Mississippi, Nebraska, Indiana and Texas, ban or restrict its sale.\n\n"
+            'How to check a package: real ground beef carries the USDA inspection mark and an establishment (EST) number. Scan it, and FAT names the plant that produced it. If a label ever says "cell-cultivated," the scan will tell you.\n\n'
+            "Videos claiming that store-brand ground beef is secretly lab-grown are false. Many are AI-generated."),
+      ),
       // 2.2c
       _LearnTopic(
         title: 'The Retail Exemption',

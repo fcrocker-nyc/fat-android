@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../services/big_four_ownership.dart';
 import '../widgets/corporate_structure_card.dart';
 import '../models/fat_models.dart';
+import '../interpreter/cell_cultivated_detail.dart';
 import '../interpreter/meat_seasoning_detail.dart';
 import '../interpreter/prepared_food.dart';
 import '../theme/fat_theme.dart';
@@ -380,6 +381,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   FATResult get result => widget.result;
+
+  /// Cat. 2 cell-cultivated awareness line, derived from the saved scanned
+  /// text (display-only; no status or count change).
+  List<String> get _cellCultivatedLines => CellCultivatedDetail.meatLines(result);
 
   /// Cat. 14 "seasoned / marinated" detail lines, derived from the saved
   /// scanned text (display-only; no status or count change).
@@ -2072,6 +2077,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     if (category == FATCategory.supplyChainIntermediary &&
                         _swinePermits?.parentLine != null)
                       _detailLine(_swinePermits!.parentLine!),
+                    if (category == FATCategory.species)
+                      for (final line in _cellCultivatedLines) _detailLine(line),
                     if (category == FATCategory.qualityPalatability)
                       for (final line in _seasoningLines) _detailLine(line),
                     // Same resolved name as the processor card (website →
@@ -2295,6 +2302,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
       var line = '${cat.displayName}: ${r.status.name.toUpperCase()}';
       if (r.displayCredibility != null) line += ' [${r.displayCredibility!.displayName}]';
       lines.add(line);
+      if (cat == FATCategory.species) {
+        for (final d in _cellCultivatedLines) {
+          lines.add('  $d');
+        }
+      }
       if (cat == FATCategory.qualityPalatability) {
         for (final d in _seasoningLines) {
           lines.add('  $d');

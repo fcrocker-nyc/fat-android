@@ -15,6 +15,7 @@
 // Spec: FAT_Seafood_Spec_Addendum_v1.1_2026-09-29 (changes A, C, D, F).
 
 import '../models/fat_models.dart';
+import 'cell_cultivated_detail.dart';
 import 'seafood_bycatch.dart';
 import 'seafood_interpreter.dart';
 
@@ -259,11 +260,25 @@ class SeafoodDetailLines {
   /// catfish / Siluriformes (fork unchanged), and for service-case captures.
   static Map<SeafoodCategory, List<SeafoodDetailLine>> forResult(FATResult r) {
     final out = <SeafoodCategory, List<SeafoodDetailLine>>{};
-    if (!r.isSeafood || r.isSiluriformes) return out;
+    if (!r.isSeafood) return out;
     if (r.scannedText.startsWith(serviceCaseHeader)) return out;
 
     void add(SeafoodCategory c, SeafoodDetailLine l) =>
         (out[c] ??= []).add(l);
+
+    // Cell-cultivated awareness (cell_cultivated_detail.dart) — Cat. 10,
+    // every seafood label incl. Siluriformes. Display only.
+    void addCellCultivated() {
+      if (CellCultivatedDetail.detect(r.scannedText)) {
+        add(SeafoodCategory.productionMethodFeed,
+            const SeafoodDetailLine(CellCultivatedDetail.line));
+      }
+    }
+
+    if (r.isSiluriformes) {
+      addCellCultivated();
+      return out;
+    }
 
     final speciesResult = r.seafoodCategories[SeafoodCategory.speciesIdentity];
     final species = speciesResult?.status == DisclosureStatus.known
@@ -312,6 +327,7 @@ class SeafoodDetailLines {
       add(SeafoodCategory.productionMethodFeed,
           SeafoodDetailLine(line, SeafoodDetailKind.info, researchLink));
     }
+    addCellCultivated();
     return out;
   }
 }
