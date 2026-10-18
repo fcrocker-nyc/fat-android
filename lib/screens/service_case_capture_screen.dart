@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/fat_models.dart';
 import '../models/service_case_schema.dart';
 import '../models/species_visual_classifier.dart';
+import '../services/lost_photo_recovery.dart';
 import '../services/scan_store.dart';
 import '../theme/fat_theme.dart';
 
@@ -17,7 +18,11 @@ import '../theme/fat_theme.dart';
 /// screen renders what the sign says with per-field confidence, and holds
 /// species identity open — never confirming what the photo cannot prove.
 class ServiceCaseCaptureScreen extends StatefulWidget {
-  const ServiceCaseCaptureScreen({super.key});
+  // A placard photo recovered after Android restarted the app mid-capture
+  // (LostPhotoRecovery); read as soon as the screen opens.
+  final String? recoveredPhotoPath;
+
+  const ServiceCaseCaptureScreen({super.key, this.recoveredPhotoPath});
 
   @override
   State<ServiceCaseCaptureScreen> createState() => _ServiceCaseCaptureScreenState();
@@ -35,14 +40,26 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
   bool _saving = false;
   bool _didSave = false;
 
-  Future<void> _capture(ImageSource source) async {
+  @override
+  void initState() {
+    super.initState();
+    final recovered = widget.recoveredPhotoPath;
+    if (recovered != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _capture(ImageSource.camera, recoveredPath: recovered));
+    }
+  }
+
+  Future<void> _capture(ImageSource source, {String? recoveredPath}) async {
     setState(() {
       _processing = true;
       _error = null;
     });
     try {
-      final picker = ImagePicker();
-      final xFile = await picker.pickImage(source: source, imageQuality: 90);
+      final xFile = recoveredPath != null
+          ? XFile(recoveredPath)
+          : await LostPhotoRecovery.pickImage(PhotoScan.serviceCase,
+              source: source);
       if (xFile == null) {
         setState(() => _processing = false);
         return;

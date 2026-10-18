@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../services/lost_photo_recovery.dart';
 import '../theme/fat_theme.dart';
 import 'menu_explainer.dart';
 import 'menu_interpreter.dart';
@@ -26,7 +27,11 @@ const _certPaleBlue = Color(0xFFEBF5FB);
 /// Entry screen for the menu track: photograph one or more menu pages (or
 /// import a screenshot of a QR-code menu), read them, and open Dishes found.
 class MenuScanScreen extends StatefulWidget {
-  const MenuScanScreen({super.key});
+  // Menu pages recovered after Android restarted the app mid-capture
+  // (LostPhotoRecovery); shown in the page strip, ready for Read Menu.
+  final List<String> recoveredPhotoPaths;
+
+  const MenuScanScreen({super.key, this.recoveredPhotoPaths = const []});
 
   @override
   State<MenuScanScreen> createState() => _MenuScanScreenState();
@@ -41,6 +46,7 @@ class _MenuScanScreenState extends State<MenuScanScreen> {
   @override
   void initState() {
     super.initState();
+    _pages.addAll(widget.recoveredPhotoPaths);
     SharedPreferences.getInstance().then((p) {
       if (mounted) setState(() => _state = p.getString('menuDiningState') ?? '');
     });
@@ -62,8 +68,8 @@ class _MenuScanScreenState extends State<MenuScanScreen> {
           _pages.addAll(files.map((f) => f.path));
         });
       } else {
-        final f = await picker.pickImage(source: source, imageQuality: 90);
-        if (f == null) return;
+        final f = await LostPhotoRecovery.pickImage(PhotoScan.menu, source: source);
+        if (f == null || !mounted) return;
         setState(() {
           _error = null;
           _pages.add(f.path);

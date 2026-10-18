@@ -7,6 +7,9 @@ import 'screens/history_screen.dart';
 import 'screens/learn_screen.dart';
 import 'screens/lookup_screen.dart';
 import 'data/brand_resolver.dart';
+import 'menu/menu_screens.dart';
+import 'screens/service_case_capture_screen.dart';
+import 'services/lost_photo_recovery.dart';
 import 'interpreter/seafood_bycatch.dart';
 
 void main() {
@@ -45,6 +48,36 @@ class _MainShellState extends State<MainShell> {
   int _selectedIndex = 0;
   bool _autoLaunchCamera = false;
   LookupRequest? _pendingLookup;
+  String? _recoveredLabelPhoto;
+
+  @override
+  void initState() {
+    super.initState();
+    _recoverLostPhoto();
+  }
+
+  /// Android can kill FAT while the camera is open; the photo then comes back
+  /// on the next launch. Reopen the scan that took it, with the photo in it.
+  Future<void> _recoverLostPhoto() async {
+    final recovered = await LostPhotoRecovery.retrieve();
+    if (recovered == null || !mounted) return;
+    switch (recovered.scan) {
+      case PhotoScan.label:
+        setState(() {
+          _recoveredLabelPhoto = recovered.paths.first;
+          _selectedIndex = 1;
+        });
+      case PhotoScan.serviceCase:
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) =>
+              ServiceCaseCaptureScreen(recoveredPhotoPath: recovered.paths.first),
+        ));
+      case PhotoScan.menu:
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => MenuScanScreen(recoveredPhotoPaths: recovered.paths),
+        ));
+    }
+  }
 
   void _onScanTap() {
     setState(() {
@@ -73,6 +106,9 @@ class _MainShellState extends State<MainShell> {
       ScanScreen(
         autoLaunch: _autoLaunchCamera,
         onAutoLaunchConsumed: _clearAutoLaunch,
+        recoveredPhotoPath: _recoveredLabelPhoto,
+        onRecoveredPhotoConsumed: () =>
+            setState(() => _recoveredLabelPhoto = null),
       ),
       LookupScreen(
         pending: _pendingLookup,
