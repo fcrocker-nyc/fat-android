@@ -917,7 +917,8 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'USDA-FSIS must preapprove the label of any cell-cultivated meat or poultry product. Labels approved so far put "cell-cultivated" in front of the meat name, as in "cell-cultivated chicken."\n\n'
             "Several states, including Montana, Florida, Alabama, Mississippi, Nebraska, Indiana and Texas, ban or restrict its sale.\n\n"
             'How to check a package: real ground beef carries the USDA inspection mark and an establishment (EST) number. Scan it, and FAT names the plant that produced it. If a label ever says "cell-cultivated," the scan will tell you.\n\n'
-            "Videos claiming that store-brand ground beef is secretly lab-grown are false. Many are AI-generated."),
+            "Videos claiming that store-brand ground beef is secretly lab-grown are false. Many are AI-generated.\n\n"
+            "Source: FAT research paper — Is My Ground Beef Lab-Grown? How to Check in 10 Seconds (Hamburger Research Series). Full paper at farmanimaltransparency.com/is-my-ground-beef-lab-grown/"),
       ),
       // 2.2c
       _LearnTopic(
