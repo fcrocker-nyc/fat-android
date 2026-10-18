@@ -11,6 +11,7 @@ import '../interpreter/product_type_detector.dart';
 import '../interpreter/seafood_interpreter.dart';
 import '../menu/menu_screens.dart';
 import '../theme/fat_theme.dart';
+import '../services/lost_photo_recovery.dart';
 import '../services/scan_store.dart';
 import 'results_screen.dart';
 import 'seafood_results_screen.dart';
@@ -47,11 +48,17 @@ enum ScanOption {
 class ScanScreen extends StatefulWidget {
   final bool autoLaunch;
   final VoidCallback onAutoLaunchConsumed;
+  // A label photo recovered after Android restarted the app mid-capture
+  // (LostPhotoRecovery); scanned as if it had just come back from the camera.
+  final String? recoveredPhotoPath;
+  final VoidCallback? onRecoveredPhotoConsumed;
 
   const ScanScreen({
     super.key,
     required this.autoLaunch,
     required this.onAutoLaunchConsumed,
+    this.recoveredPhotoPath,
+    this.onRecoveredPhotoConsumed,
   });
 
   @override
@@ -75,6 +82,11 @@ class _ScanScreenState extends State<ScanScreen> {
       widget.onAutoLaunchConsumed();
       _launchCamera();
     }
+    if (widget.recoveredPhotoPath != null && old.recoveredPhotoPath == null) {
+      // Post-frame: consuming it calls the parent's setState, not allowed
+      // mid-build.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scanRecovered());
+    }
   }
 
   @override
@@ -86,20 +98,31 @@ class _ScanScreenState extends State<ScanScreen> {
         _launchCamera();
       });
     }
+    if (widget.recoveredPhotoPath != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scanRecovered());
+    }
+  }
+
+  void _scanRecovered() {
+    final path = widget.recoveredPhotoPath;
+    if (path == null || !mounted) return;
+    widget.onRecoveredPhotoConsumed?.call();
+    _pickAndScan(ImageSource.camera, recoveredPath: path);
   }
 
   Future<void> _launchCamera() async {
     await _pickAndScan(ImageSource.camera);
   }
 
-  Future<void> _pickAndScan(ImageSource source) async {
+  Future<void> _pickAndScan(ImageSource source, {String? recoveredPath}) async {
     setState(() {
       _isProcessing = true;
       _errorMessage = null;
     });
     try {
-      final picker = ImagePicker();
-      final xFile = await picker.pickImage(source: source, imageQuality: 90);
+      final xFile = recoveredPath != null
+          ? XFile(recoveredPath)
+          : await LostPhotoRecovery.pickImage(PhotoScan.label, source: source);
       if (xFile == null) {
         setState(() => _isProcessing = false);
         return;
