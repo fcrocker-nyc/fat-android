@@ -27,6 +27,7 @@ import '../services/establishments_service.dart';
 import '../widgets/establishment_cards.dart';
 import '../services/feedlot_proximity_service.dart';
 import '../services/swine_permit_service.dart';
+import '../widgets/nearby_farms_section.dart';
 import '../widgets/share_card_renderer.dart';
 import 'certification_result_cards.dart';
 import '../widgets/label_image_viewer.dart';
@@ -86,6 +87,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
   // CAFOs 50mi). Fetched once the processor record supplies coordinates.
   ProximityResult? _proximity;
   String _proximityKind = ''; // 'feedlot' | 'hog CAFO'
+  bool _proximityLoading = false;
+  bool _proximityFinished = false;
   // State swine permit records within 50 mi of a pork plant (informational;
   // never a status/count input). Null until the dataset resolves.
   SwinePermitSummary? _swinePermits;
@@ -306,20 +309,26 @@ class _ResultsScreenState extends State<ResultsScreen> {
           .whereType<String>()
           .firstWhere((s) => s.trim().isNotEmpty, orElse: () => '')
           .toLowerCase();
-      ProximityResult? prox;
-      String kind = '';
-      if (sp.contains('beef') || sp.contains('cattle')) {
-        prox = await FeedlotProximityService.feedlot(lat, lon);
-        kind = 'feedlot';
-      } else if (sp.contains('pork') || sp.contains('hog') || sp.contains('swine')) {
-        prox = await FeedlotProximityService.hog(lat, lon);
-        kind = 'hog CAFO';
-      }
-      if (prox != null && mounted) {
+      final isBeef = sp.contains('beef') || sp.contains('cattle');
+      final isPork =
+          !isBeef && (sp.contains('pork') || sp.contains('hog') || sp.contains('swine'));
+      if ((isBeef || isPork) && mounted) {
+        // Show the section (heading + explainer + loading row) while the
+        // lookup runs; a null result then shows the "couldn't be loaded" card.
         setState(() {
-          _proximity = prox;
-          _proximityKind = kind;
+          _proximityKind = isBeef ? 'feedlot' : 'hog CAFO';
+          _proximityLoading = true;
         });
+        final prox = isBeef
+            ? await FeedlotProximityService.feedlot(lat, lon)
+            : await FeedlotProximityService.hog(lat, lon);
+        if (mounted) {
+          setState(() {
+            _proximity = prox;
+            _proximityLoading = false;
+            _proximityFinished = true;
+          });
+        }
       }
       // State permit records: pork meat-lane scans only.
       if (result.productType == ProductType.meat &&
@@ -338,7 +347,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
           if (summary != null && !summary.isEmpty) {
             setState(() {
               _swinePermits = summary;
-              if (_proximityKind.isEmpty) _proximityKind = 'hog CAFO';
+              if (_proximityKind.isEmpty) {
+                _proximityKind = 'hog CAFO';
+                _proximityFinished = true;
+              }
             });
           }
         }
@@ -503,7 +515,15 @@ class _ResultsScreenState extends State<ResultsScreen> {
               ..._estWarnings(),
               _disclosureSummary(),
               if (result.detectedEstablishmentNumber != null) _processorSection(),
-              if (_proximity != null || _swinePermits != null) _proximitySection(),
+              if (_proximityKind.isNotEmpty)
+                NearbyFarmsSection(
+                  isHog: _proximityKind == 'hog CAFO',
+                  isLoading: _proximityLoading,
+                  lookupFinished: _proximityFinished,
+                  result: _proximity,
+                  permitLines: _swinePermits?.cardLines ?? const [],
+                  onOpenUrl: _openUrl,
+                ),
               // Informational only — no status, count, index or penalty change.
               if (_showsNcHogLagoonCard) const NcHogLagoonCard(),
               _categorySection(),
@@ -1581,146 +1601,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
       ),
     ];
   }
-
-  /// Nearby feedlot / hog-CAFO environmental compliance (EPA ECHO). Mirrors iOS
-  /// feedlotProximitySection / hogProximitySection.
-  Widget _proximitySection() {
-    final p = _proximity;
-    final permits = _swinePermits;
-    final title = _proximityKind == 'hog CAFO'
-        ? 'Nearby Hog Farm Compliance'
-        : 'Nearby Feedlot Compliance';
-    final mapUrl = _proximityKind == 'hog CAFO'
-        ? 'https://farmanimaltransparency.com/pork-supply-chain/pork-enforcement-map/'
-        : 'https://farmanimaltransparency.com/beef-supply-chain/feedlot-enforcement-map/';
-    Color tierColor(String t) => switch (t) {
-          'red' => const Color(0xFFDC2626),
-          'orange' => const Color(0xFFEA580C),
-          _ => const Color(0xFFCA8A04),
-        };
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
-        const SizedBox(height: 10),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-              color: _fatGreen, borderRadius: BorderRadius.circular(16)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (p == null)
-                const SizedBox.shrink()
-              else if (!p.hasNearby)
-                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const Padding(
-                      padding: EdgeInsets.only(top: 1),
-                      child: Icon(Icons.verified_outlined,
-                          size: 16, color: FATTheme.scanGreen)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                        'No EPA-flagged $_proximityKind operations with environmental violations within ${p.radiusMiles} miles of this plant.',
-                        style: const TextStyle(fontSize: 13.5)),
-                  ),
-                ])
-              else ...[
-                Text(
-                    '${p.total} $_proximityKind operation${p.total > 1 ? 's' : ''} with environmental violations within ${p.radiusMiles} miles:',
-                    style: const TextStyle(
-                        fontSize: 13.5, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 8),
-                Row(children: [
-                  _tierPill('${p.red} formal', tierColor('red')),
-                  const SizedBox(width: 6),
-                  _tierPill('${p.orange} significant', tierColor('orange')),
-                  const SizedBox(width: 6),
-                  _tierPill('${p.yellow} other', tierColor('yellow')),
-                ]),
-                for (final v in p.violators.take(5)) ...[
-                  const SizedBox(height: 10),
-                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Padding(
-                        padding: const EdgeInsets.only(top: 3),
-                        child: Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                                color: tierColor(v.tier),
-                                shape: BoxShape.circle))),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                '${v.name.isEmpty ? v.permitId : v.name} · ${v.distanceMiles.toStringAsFixed(1)} mi',
-                                style: const TextStyle(
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w800)),
-                            Text('${v.tierLabel} — ${v.violationSummary}',
-                                style: const TextStyle(fontSize: 12.5)),
-                          ]),
-                    ),
-                  ]),
-                ],
-              ],
-              if (permits != null)
-                for (final line in permits.cardLines)
-                  Padding(
-                    padding: EdgeInsets.only(top: p == null ? 0 : 10),
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Padding(
-                              padding: EdgeInsets.only(top: 1),
-                              child: Icon(Icons.description_outlined,
-                                  size: 16, color: Colors.black54)),
-                          const SizedBox(width: 8),
-                          Expanded(
-                              child: Text(line,
-                                  style: const TextStyle(fontSize: 13.5))),
-                        ]),
-                  ),
-              const SizedBox(height: 12),
-              GestureDetector(
-                onTap: () => _openUrl(mapUrl),
-                child: const Row(mainAxisSize: MainAxisSize.min, children: [
-                  Icon(Icons.map_outlined, size: 16, color: Colors.blue),
-                  SizedBox(width: 6),
-                  Text('View the enforcement map on FAT website',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue)),
-                ]),
-              ),
-              if (p != null && p.dataDate.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 6),
-                  child: Text('${p.dataSource} · ${p.dataDate}',
-                      style: TextStyle(
-                          fontSize: 11, color: Colors.black.withValues(alpha: 0.55))),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _tierPill(String label, Color color) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-        decoration:
-            BoxDecoration(color: color, borderRadius: BorderRadius.circular(20)),
-        child: Text(label,
-            style: const TextStyle(
-                fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white)),
-      );
 
   /// FSIS public enforcement record (recalls, humane-handling, Salmonella
   /// category, residues) fetched from the FAT backend. Food-safety public
