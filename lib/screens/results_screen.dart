@@ -8,6 +8,7 @@ import '../widgets/corporate_structure_card.dart';
 import '../models/fat_models.dart';
 import '../interpreter/cell_cultivated_detail.dart';
 import '../interpreter/meat_seasoning_detail.dart';
+import '../interpreter/meter_card_text.dart';
 import '../interpreter/prepared_food.dart';
 import '../theme/fat_theme.dart';
 import '../data/pork_owner_database.dart';
@@ -621,9 +622,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   static const int _totalCategories = 16;
 
-  int _credCount(ClaimCredibility tier) =>
-      result.categories.values.where((r) => r.displayCredibility == tier).length;
-
   List<FATCategory> get _silentCategories => FATCategory.values
       .where((c) =>
           (result.categories[c]?.status ?? DisclosureStatus.missing) ==
@@ -660,20 +658,19 @@ class _ResultsScreenState extends State<ResultsScreen> {
     return s;
   }
 
+  // Raising-claim pill: names the claims and their tier (MeterCardText). The
+  // tier → color/icon mapping is unchanged; it reads the strongest tier among
+  // the claims the pill names, so text and color always agree.
   ({String line, IconData icon, Color color}) get _verification {
-    if (_credCount(ClaimCredibility.verified) > 0) {
-      return (line: 'Independently verified claims present', icon: Icons.verified, color: _disclosureGreen);
+    final line = MeterCardText.claimPillText(result.categories);
+    switch (MeterCardText.strongestClaimTier(result.categories)) {
+      case ClaimCredibility.verified:
+        return (line: line, icon: Icons.verified, color: _disclosureGreen);
+      case ClaimCredibility.usdaApproved:
+        return (line: line, icon: Icons.verified_user, color: _fatAmber);
+      default:
+        return (line: line, icon: Icons.info_outline, color: Colors.black54);
     }
-    if (_credCount(ClaimCredibility.usdaApproved) > 0) {
-      return (line: 'USDA Process Verified Program claims present', icon: Icons.verified_user, color: _fatAmber);
-    }
-    if (_credCount(ClaimCredibility.producerAffidavit) > 0) {
-      return (line: 'Producer-affidavit claims only', icon: Icons.info_outline, color: Colors.black54);
-    }
-    if (_credCount(ClaimCredibility.labelClaimOnly) > 0) {
-      return (line: 'Unverified marketing claims only', icon: Icons.info_outline, color: Colors.black54);
-    }
-    return (line: 'No backed claims disclosed', icon: Icons.info_outline, color: Colors.black54);
   }
 
   int get _notApplicableCount => result.categories.values
@@ -686,6 +683,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
     final notApplicable = _notApplicableCount;
     final silent = _silentCategories;
     final v = _verification;
+    final naLine = MeterCardText.notApplicableLine(result.categories);
+    final ingredientLine = MeterCardText.ingredientStatementLine(
+      isPreparedFood: result.isPreparedFood,
+      scannedText: result.scannedText,
+    );
 
     return Container(
       width: double.infinity,
@@ -698,6 +700,24 @@ class _ResultsScreenState extends State<ResultsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Prepared / multi-ingredient lane: lead with the ingredients
+          // statement (9 CFR 317.2(c)(2), 381.118). Informational only — it
+          // changes no count, status, or score.
+          if (ingredientLine != null) ...[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.list_alt, size: 16, color: _disclosureBlue),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(ingredientLine,
+                      style: const TextStyle(
+                          fontSize: 13.5, fontWeight: FontWeight.w600)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
           // FSIS baseline — the neutrality anchor, stated for every product.
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -757,10 +777,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ],
           ),
-          if (notApplicable > 0) ...[
+          if (naLine != null) ...[
             const SizedBox(height: 4),
-            Text(
-                '$notApplicable not applicable — retail exemption (no establishment number is required on an in-store cut)',
+            Text(naLine,
                 style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -793,11 +812,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
               children: [
                 Icon(v.icon, size: 13, color: v.color),
                 const SizedBox(width: 6),
-                Text(v.line,
-                    style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: v.color)),
+                Flexible(
+                  child: Text(v.line,
+                      style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: v.color)),
+                ),
               ],
             ),
           ),

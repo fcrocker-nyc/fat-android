@@ -83,6 +83,24 @@ class PreparedFoodDetector {
     'federally inspected', 'inspected for wholesomeness',
   ];
 
+  // Lane gate: the word "ingredients" followed by a comma list.
+  static final RegExp _ingredientGate =
+      RegExp(r'ingredients\b[\s\S]{0,200}?,[\s\S]{0,120}?,');
+
+  // OCR-tolerant form for the meter-card line only: "INGREDlENTS:",
+  // "1ngredients", singular "Ingredient:" — followed by a list (a comma).
+  static final RegExp _ingredientOcrTolerant =
+      RegExp(r'(?<![a-z])[il1|!]ngred[il1|!]ents?\b\s*[:;.]?[\s\S]{0,200}?,');
+
+  /// True when the scanned text contains an ingredients statement. Reuses the
+  /// lane's own gate test and adds an OCR-tolerant form. Display only — it
+  /// never feeds [detect], so lane routing, counts and scoring are unchanged.
+  static bool hasIngredientStatement(String scannedText) {
+    final text = scannedText.toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+    return _ingredientGate.hasMatch(text) ||
+        _ingredientOcrTolerant.hasMatch(text);
+  }
+
   static bool _wordHit(String text, String kw) =>
       RegExp('\\b${RegExp.escape(kw)}\\b').hasMatch(text);
 
@@ -108,8 +126,7 @@ class PreparedFoodDetector {
     if (identityHit != null) signals.add('identity:$identityHit');
 
     // Ingredient statement: the word "ingredients" followed by a comma list.
-    final hasIngredientStatement =
-        RegExp(r'ingredients\b[\s\S]{0,200}?,[\s\S]{0,120}?,').hasMatch(text);
+    final hasIngredientStatement = _ingredientGate.hasMatch(text);
     if (hasIngredientStatement) signals.add('ingredient-statement');
 
     // Distinct species named anywhere on the label.
@@ -146,7 +163,7 @@ class PreparedFoodDetector {
     return _fsisLegend.any(t.contains);
   }
 
-  static const String _gapNote =
+  static const String gapNote =
       'Not required for multi-ingredient products — no U.S. labeling '
       'regulation requires a prepared-food maker to disclose this for the '
       'meat, poultry, or seafood used as an ingredient. A regulatory gap, '
@@ -204,7 +221,7 @@ class PreparedFoodDetector {
       if (out[cat]?.status == DisclosureStatus.missing) {
         out[cat] = const FATCategoryResult(
           status: DisclosureStatus.notRequired,
-          value: _gapNote,
+          value: gapNote,
         );
       }
     }
