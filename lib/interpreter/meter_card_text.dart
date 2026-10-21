@@ -256,8 +256,11 @@ class MeterCardText {
     final names = claims.take(2).map((c) => '"${c.name}"').join(', ');
     final more = n > 2 ? ' +${n - 2} more' : '';
     final tiers = claims.map((c) => c.tier).toSet();
+    // Dolphin Safe is NOAA's program (Tuna Tracking and Verification
+    // Program), so name it that way when it is the only claim in its tier.
+    final onlyDolphin = claims.every((c) => c.name == 'Dolphin Safe');
     final tierPart = tiers.length == 1
-        ? tierName(tiers.first, seafood: true)
+        ? (onlyDolphin ? 'NOAA program' : tierName(tiers.first, seafood: true))
         : 'mixed verification';
     return '$n sourcing claim${n == 1 ? '' : 's'}: $names$more — $tierPart';
   }

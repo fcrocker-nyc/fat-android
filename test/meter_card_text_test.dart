@@ -360,7 +360,7 @@ PRODUCT OF THAILAND
 
     test('dolphin safe → government-program tier', () {
       final (p, t) = pill(dolphinTuna);
-      expect(p, '1 sourcing claim: "Dolphin Safe" — USDA / FDA program');
+      expect(p, '1 sourcing claim: "Dolphin Safe" — NOAA program');
       expect(t, ClaimCredibility.usdaApproved);
     });
 
