@@ -30,6 +30,9 @@ import '../services/feedlot_proximity_service.dart';
 import '../services/swine_permit_service.dart';
 import '../widgets/nearby_farms_section.dart';
 import '../widgets/share_card_renderer.dart';
+import '../widgets/market_concentration_block.dart';
+import '../data/market_concentration.dart';
+import '../data/brand_resolver.dart';
 import 'certification_result_cards.dart';
 import '../widgets/label_image_viewer.dart';
 
@@ -510,6 +513,15 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: _withSpacing(18, [
               _header(),
               if (_panelPaths.isNotEmpty) _imageCarousel(),
+              // Market concentration for the label's species, near the top
+              // (iOS: directly under the Responsible Company card).
+              if (_concentration != null)
+                MarketConcentrationBlock(
+                  summary: _concentration!,
+                  onSeeDetails: result.detectedEstablishmentNumber != null
+                      ? _scrollToOwnership
+                      : null,
+                ),
               _atAGlanceCard(),
               // Montana call-out — processed-in-MT and/or Abundant Montana brand.
               ...[MontanaOriginCard.maybeFrom(_montanaResult())].whereType<Widget>(),
@@ -1428,11 +1440,38 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
+  /// Market-concentration summary (informational only — no count, score or
+  /// status reads it). Label species; parent from the brand resolution, then
+  /// the plant's parent, then the bundled brand/EST tables.
+  MarketConcentrationSummary? get _concentration {
+    if (result.isSeafood) return null;
+    return MarketConcentrationSummary.resolve(
+      labelSpecies: result.categories[FATCategory.species]?.value,
+      brandCompany:
+          BrandResolver.instance.resolve(result.scannedText)?.primaryResponsibleCompany,
+      estParentName: _ownership?.parentName,
+      scannedText: result.scannedText,
+      establishmentNumber:
+          _sharedPlants.isEmpty ? result.detectedEstablishmentNumber : null,
+    );
+  }
+
+  final GlobalKey _ownershipKey = GlobalKey();
+
+  void _scrollToOwnership() {
+    final ctx = _ownershipKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(ctx,
+          duration: const Duration(milliseconds: 400), alignment: 0.0);
+    }
+  }
+
   Widget _processorSection() {
     final est = result.detectedEstablishmentNumber!;
     final owner = _scanCardOwner(est);
 
     return Column(
+      key: _ownershipKey,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text('Who Stands Behind the Label',
@@ -1865,9 +1904,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
               style:
                   const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
           const SizedBox(height: 2),
+          // Share is stated in the Market concentration block at the top when
+          // that block names this owner — don't repeat it here.
           Text(
-              '${o.country} · ${o.marketSharePct.toStringAsFixed(0)}% market share'
-              '${o.isTop3 ? ' · Top 3' : ''}',
+              _concentration?.ownerId == o.id
+                  ? o.country
+                  : '${o.country} · ${o.marketSharePct.toStringAsFixed(0)}% market share'
+                      '${o.isTop3 ? ' · Top 3' : ''}',
               style:
                   const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),

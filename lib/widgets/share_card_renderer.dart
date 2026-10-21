@@ -17,6 +17,22 @@ import 'disclosure_share_card.dart';
 ///
 /// Returns `true` if the image was rendered and the share sheet invoked;
 /// `false` on any failure so callers can fall back to the text share.
+/// Most label photos attached to one share.
+const int maxShareLabelImages = 4;
+
+/// Share payload: up to [maxShareLabelImages] label photos (the camera
+/// originals, full color) followed by the color evaluation PNG.
+List<XFile> buildShareFiles({
+  required List<String> labelImagePaths,
+  required String evaluationImagePath,
+}) {
+  return <XFile>[
+    for (final p in labelImagePaths.take(maxShareLabelImages))
+      XFile(p, mimeType: 'image/jpeg'),
+    XFile(evaluationImagePath, mimeType: 'image/png'),
+  ];
+}
+
 Future<bool> shareDisclosureCard(
   BuildContext context,
   FATResult result, {
@@ -37,7 +53,14 @@ Future<bool> shareDisclosureCard(
           type: MaterialType.transparency,
           child: RepaintBoundary(
             key: boundaryKey,
-            child: DisclosureShareCard(result: result),
+            // Force light theme so nothing in the card follows dark mode.
+            child: Theme(
+              data: ThemeData.light(),
+              child: MediaQuery(
+                data: const MediaQueryData(platformBrightness: Brightness.light),
+                child: DisclosureShareCard(result: result),
+              ),
+            ),
           ),
         ),
       ),
@@ -75,13 +98,13 @@ Future<bool> shareDisclosureCard(
         '${dir.path}/fat_disclosure_card_${DateTime.now().millisecondsSinceEpoch}.png');
     await file.writeAsBytes(bytes, flush: true);
 
-    // Share the scanned label photo(s) too, plus the card image, with the full
-    // evaluation as the accompanying text.
-    final files = <XFile>[
-      for (final p in extraImagePaths)
-        if (File(p).existsSync()) XFile(p, mimeType: 'image/jpeg'),
-      XFile(file.path, mimeType: 'image/png'),
-    ];
+    // ONE share: the captured color label photo(s) (capped), then the color
+    // evaluation image, with the full evaluation as the accompanying text.
+    final files = buildShareFiles(
+      labelImagePaths:
+          extraImagePaths.where((p) => File(p).existsSync()).toList(),
+      evaluationImagePath: file.path,
+    );
     await Share.shareXFiles(
       files,
       text: shareText,
