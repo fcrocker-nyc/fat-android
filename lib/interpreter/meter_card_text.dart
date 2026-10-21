@@ -1,11 +1,12 @@
 // Meter-card (at-a-glance card) text — pure functions so the strings are
 // unit-testable. Mirrors iOS MeterCardText.swift; output strings are identical.
 //
-// Three lines are built here:
+// Four lines are built here:
 //   • the "N not applicable — …" reason, chosen from WHY each category is
 //     not applicable (retail exemption vs prepared / multi-ingredient lane);
 //   • the raising-claim pill, which names the claims and their credibility tier;
-//   • the prepared-lane ingredient-statement line (informational only).
+//   • the prepared-lane ingredient-statement line (informational only);
+//   • the seafood sourcing-claim pill (same shape, seafood tier names).
 // None of them changes a count, a category status, or the score.
 
 import '../models/fat_models.dart';
@@ -123,6 +124,106 @@ class MeterCardText {
   static ClaimCredibility? strongestClaimTier(
       Map<FATCategory, FATCategoryResult> categories) {
     final tiers = raisingClaims(categories).map((c) => c.tier).toSet();
+    for (final t in const [
+      ClaimCredibility.verified,
+      ClaimCredibility.usdaApproved,
+      ClaimCredibility.producerAffidavit,
+      ClaimCredibility.labelClaimOnly,
+    ]) {
+      if (tiers.contains(t)) return t;
+    }
+    return null;
+  }
+
+  // ── 4. Seafood sourcing-claim pill ───────────────────────────────────────
+
+  static const String noSourcingClaimsLine =
+      'No sourcing claims on this label (such as MSC, ASC, BAP or "sustainably caught")';
+
+  /// Cat. 5 values that are voluntary sourcing claims (marketing language).
+  /// "Vessel name disclosed" / "Fishery disclosed" are source-identity
+  /// disclosures, not claims, and are left out. Value → pill name.
+  static const Map<String, String> _seafoodSourcingFarmValues = {
+    'Responsibly Sourced': 'Responsibly Sourced',
+    'Family farm disclosed': 'Family Farm',
+  };
+
+  /// Seafood categories whose tiered results are voluntary sourcing,
+  /// sustainability or handling claims. Cat. 1 (required language), 2
+  /// (species), 4 (origin / COOL), 10 (wild vs farmed, required by COOL),
+  /// 14 (quality) and 16 (intermediaries named) are not claims.
+  static const List<SeafoodCategory> sourcingCategories = [
+    SeafoodCategory.farmVesselFishery,
+    SeafoodCategory.animalWelfare,
+    SeafoodCategory.medicineAntibioticsChemicals,
+    SeafoodCategory.hormones,
+    SeafoodCategory.organic,
+  ];
+
+  /// MSC on the label. The seafood interpreter records ASC / BAP / GlobalGAP
+  /// (Cat. 11) and organic (Cat. 15) but has no MSC slot; the app's
+  /// credibility model already rates MSC Third-Party Audited, so the pill
+  /// reads it here. Pill-only: no category, count, status or tier changes.
+  static final RegExp _msc =
+      RegExp(r'\bmsc\b|marine stewardship council', caseSensitive: false);
+
+  static bool labelShowsMSC(String scannedText) => _msc.hasMatch(scannedText);
+
+  /// The sourcing claims on a seafood label, in category order (MSC sits
+  /// with Cat. 15 Organic / Certification), with the interpreter's tiers.
+  static List<({String name, ClaimCredibility tier})> sourcingClaims(
+      Map<SeafoodCategory, FATCategoryResult> categories, String scannedText) {
+    final out = <({String name, ClaimCredibility tier})>[];
+    void add(String name, ClaimCredibility tier) {
+      if (!out.any((c) => c.name == name)) out.add((name: name, tier: tier));
+    }
+
+    for (final c in sourcingCategories) {
+      final r = categories[c];
+      if (r != null &&
+          (r.status == DisclosureStatus.known ||
+              r.status == DisclosureStatus.partial)) {
+        final tier = r.displayCredibility;
+        final value = r.value;
+        if (tier != null && value != null && value.isNotEmpty) {
+          if (c == SeafoodCategory.farmVesselFishery) {
+            final name = _seafoodSourcingFarmValues[value];
+            if (name != null) add(name, tier);
+          } else if (c == SeafoodCategory.organic) {
+            add(value.startsWith('"Organic"') ? 'Organic' : shortClaimName(value),
+                tier);
+          } else {
+            add(shortClaimName(value), tier);
+          }
+        }
+      }
+      if (c == SeafoodCategory.organic && labelShowsMSC(scannedText)) {
+        add('MSC Certified', ClaimCredibility.verified);
+      }
+    }
+    return out;
+  }
+
+  /// Seafood pill text — same shape as the meat pill, seafood tier names.
+  static String seafoodClaimPillText(
+      Map<SeafoodCategory, FATCategoryResult> categories, String scannedText) {
+    final claims = sourcingClaims(categories, scannedText);
+    if (claims.isEmpty) return noSourcingClaimsLine;
+    final n = claims.length;
+    final names = claims.take(2).map((c) => '"${c.name}"').join(', ');
+    final more = n > 2 ? ' +${n - 2} more' : '';
+    final tiers = claims.map((c) => c.tier).toSet();
+    final tierPart = tiers.length == 1
+        ? tierName(tiers.first, seafood: true)
+        : 'mixed verification';
+    return '$n sourcing claim${n == 1 ? '' : 's'}: $names$more — $tierPart';
+  }
+
+  /// Strongest tier among the named seafood claims — same color mapping as meat.
+  static ClaimCredibility? seafoodStrongestClaimTier(
+      Map<SeafoodCategory, FATCategoryResult> categories, String scannedText) {
+    final tiers =
+        sourcingClaims(categories, scannedText).map((c) => c.tier).toSet();
     for (final t in const [
       ClaimCredibility.verified,
       ClaimCredibility.usdaApproved,

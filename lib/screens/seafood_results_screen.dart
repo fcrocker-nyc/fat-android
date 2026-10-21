@@ -15,6 +15,7 @@ import '../services/establishments_service.dart';
 import '../widgets/establishment_cards.dart';
 import '../widgets/share_card_renderer.dart';
 import '../interpreter/seafood_detail_lines.dart';
+import '../interpreter/meter_card_text.dart';
 
 /// Seafood scan result screen — Flutter port of iOS SeafoodResultsView.
 ///
@@ -451,9 +452,6 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
               DisclosureStatus.missing)
       .toList();
 
-  int _credCount(ClaimCredibility tier) =>
-      result.seafoodCategories.values.where((r) => r.credibility == tier).length;
-
   // OSHA is keyed by the number's digits — not attributable when the number
   // is shared. EPA is matched to the resolved plant only.
   bool get _hasEnforcement =>
@@ -489,20 +487,21 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     return s;
   }
 
+  // Sourcing-claim pill: names the claims and their seafood tier
+  // (MeterCardText). Same tier → color/icon mapping as the meat pill, read
+  // from the strongest tier among the claims the pill names.
   ({String line, IconData icon, Color color}) get _seafoodVerification {
-    if (_credCount(ClaimCredibility.verified) > 0) {
-      return (line: 'Independently verified claims present', icon: Icons.verified, color: _disclosureGreen);
+    final line = MeterCardText.seafoodClaimPillText(
+        result.seafoodCategories, result.scannedText);
+    switch (MeterCardText.seafoodStrongestClaimTier(
+        result.seafoodCategories, result.scannedText)) {
+      case ClaimCredibility.verified:
+        return (line: line, icon: Icons.verified, color: _disclosureGreen);
+      case ClaimCredibility.usdaApproved:
+        return (line: line, icon: Icons.verified_user, color: _fatAmber);
+      default:
+        return (line: line, icon: Icons.info_outline, color: Colors.black54);
     }
-    if (_credCount(ClaimCredibility.usdaApproved) > 0) {
-      return (line: 'USDA / FDA program claims present', icon: Icons.verified_user, color: _fatAmber);
-    }
-    if (_credCount(ClaimCredibility.producerAffidavit) > 0) {
-      return (line: 'Producer-affidavit claims only', icon: Icons.info_outline, color: Colors.black54);
-    }
-    if (_credCount(ClaimCredibility.labelClaimOnly) > 0) {
-      return (line: 'Unverified marketing claims only', icon: Icons.info_outline, color: Colors.black54);
-    }
-    return (line: 'No backed claims disclosed', icon: Icons.info_outline, color: Colors.black54);
   }
 
   Widget _atAGlanceCard() {
@@ -594,11 +593,13 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
               children: [
                 Icon(v.icon, size: 13, color: v.color),
                 const SizedBox(width: 6),
-                Text(v.line,
-                    style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w600,
-                        color: v.color)),
+                Flexible(
+                  child: Text(v.line,
+                      style: TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                          color: v.color)),
+                ),
               ],
             ),
           ),

@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fat_app/interpreter/label_interpreter.dart';
 import 'package:fat_app/interpreter/meter_card_text.dart';
 import 'package:fat_app/interpreter/prepared_food.dart';
+import 'package:fat_app/interpreter/seafood_interpreter.dart';
 import 'package:fat_app/models/fat_models.dart';
 
 /// Same meat-lane steps as ScanScreen: interpret → prepared transform.
@@ -234,6 +235,95 @@ PACKED ON 09/12 SELL BY 09/15
               isPreparedFood: false,
               scannedText: 'INGREDIENTS: PORK, WATER, SALT'),
           isNull);
+    });
+  });
+
+  group('Seafood sourcing-claim pill', () {
+    const mscSalmon = '''
+WILD ALASKA SOCKEYE SALMON
+MSC CERTIFIED SUSTAINABLE SEAFOOD
+PRODUCT OF USA
+''';
+    const bapShrimp = '''
+FARM RAISED SHRIMP
+BAP CERTIFIED
+PRODUCT OF INDIA
+''';
+    const plainCod = '''
+WILD CAUGHT COD FILLETS
+PRODUCT OF USA
+''';
+    const mixedSalmon = '''
+FARM RAISED ATLANTIC SALMON
+BAP CERTIFIED
+RESPONSIBLY SOURCED
+NO ANTIBIOTICS
+PRODUCT OF CHILE
+''';
+
+    (String, ClaimCredibility?) pill(String text) {
+      final cats = SeafoodInterpreter.interpret(text).categories;
+      return (
+        MeterCardText.seafoodClaimPillText(cats, text),
+        MeterCardText.seafoodStrongestClaimTier(cats, text)
+      );
+    }
+
+    test('none', () {
+      final (p, t) = pill(plainCod);
+      expect(p,
+          'No sourcing claims on this label (such as MSC, ASC, BAP or "sustainably caught")');
+      expect(t, isNull);
+    });
+
+    test('Wild Caught / Product of USA alone is the none string', () {
+      const text = 'Wild Caught / Product of USA';
+      final cats = SeafoodInterpreter.interpret(text).categories;
+      expect(cats[SeafoodCategory.countryOrigin]?.status, DisclosureStatus.known);
+      expect(cats[SeafoodCategory.productionMethodFeed]?.status,
+          DisclosureStatus.known);
+      expect(pill(text).$1, MeterCardText.noSourcingClaimsLine);
+    });
+
+    test('one MSC → Third-Party Audited', () {
+      final (p, t) = pill(mscSalmon);
+      expect(p, '1 sourcing claim: "MSC Certified" — Third-Party Audited');
+      expect(t, ClaimCredibility.verified);
+    });
+
+    test('one BAP', () {
+      final (p, t) = pill(bapShrimp);
+      expect(p, '1 sourcing claim: "BAP Certified" — Third-Party Audited');
+      expect(t, ClaimCredibility.verified);
+    });
+
+    test('multiple, mixed tiers', () {
+      final (p, t) = pill(mixedSalmon);
+      expect(p,
+          '3 sourcing claims: "Responsibly Sourced", "BAP Certified" +1 more — mixed verification');
+      expect(t, ClaimCredibility.verified);
+    });
+
+    test('single unverified uses the seafood tier name', () {
+      final (p, t) =
+          pill('FARM RAISED TILAPIA NO ANTIBIOTICS PRODUCT OF ECUADOR');
+      expect(p, '1 sourcing claim: "No Antibiotics" — Unverified Marketing');
+      expect(t, ClaimCredibility.labelClaimOnly);
+    });
+
+    test('pill leaves categories unchanged; MSC is pill-only', () {
+      final before = SeafoodInterpreter.interpret(mixedSalmon).categories;
+      MeterCardText.seafoodClaimPillText(before, mixedSalmon);
+      final after = SeafoodInterpreter.interpret(mixedSalmon).categories;
+      for (final c in SeafoodCategory.values) {
+        expect(after[c]?.status, before[c]?.status);
+        expect(after[c]?.credibility, before[c]?.credibility);
+        expect(after[c]?.value, before[c]?.value);
+      }
+      final msc = SeafoodInterpreter.interpret(mscSalmon).categories;
+      expect(msc[SeafoodCategory.organic]?.status, DisclosureStatus.missing);
+      expect(msc[SeafoodCategory.animalWelfare]?.status,
+          DisclosureStatus.missing);
     });
   });
 }
