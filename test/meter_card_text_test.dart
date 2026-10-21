@@ -326,4 +326,116 @@ PRODUCT OF CHILE
           DisclosureStatus.missing);
     });
   });
+
+
+  group('Seafood pill: Dolphin Safe / Fair Trade (pill-only)', () {
+    const dolphinTuna = '''
+CHUNK LIGHT TUNA IN WATER
+DOLPHIN SAFE / PRODUCT OF THAILAND
+''';
+    const fairTradeShrimp = '''
+FARM RAISED SHRIMP
+FAIR TRADE CERTIFIED
+PRODUCT OF ECUADOR
+''';
+    const bareFairTradeShrimp = '''
+FARM RAISED SHRIMP
+fair trade
+PRODUCT OF ECUADOR
+''';
+    const mscDolphinTuna = '''
+WILD CAUGHT SKIPJACK TUNA
+MSC CERTIFIED SUSTAINABLE SEAFOOD
+DOLPHIN SAFE
+PRODUCT OF THAILAND
+''';
+
+    (String, ClaimCredibility?) pill(String text) {
+      final cats = SeafoodInterpreter.interpret(text).categories;
+      return (
+        MeterCardText.seafoodClaimPillText(cats, text),
+        MeterCardText.seafoodStrongestClaimTier(cats, text)
+      );
+    }
+
+    test('dolphin safe → government-program tier', () {
+      final (p, t) = pill(dolphinTuna);
+      expect(p, '1 sourcing claim: "Dolphin Safe" — USDA / FDA program');
+      expect(t, ClaimCredibility.usdaApproved);
+    });
+
+    test('dolphin safe variants, OCR-tolerant', () {
+      for (final t in [
+        'Dolphin-Safe',
+        'dolphin safe',
+        'DOLPHINSAFE',
+        'Dolphin Friendly',
+        'dolphin-friendly',
+        'DOLPHlN SAFE',
+        'Dolph1n-Safe',
+      ]) {
+        expect(MeterCardText.labelShowsDolphinSafe(t), isTrue, reason: t);
+      }
+      expect(MeterCardText.labelShowsDolphinSafe('MAHI MAHI (DOLPHINFISH)'),
+          isFalse);
+    });
+
+    test('Fair Trade Certified → Third-Party Audited', () {
+      final (p, t) = pill(fairTradeShrimp);
+      expect(
+          p, '1 sourcing claim: "Fair Trade Certified" — Third-Party Audited');
+      expect(t, ClaimCredibility.verified);
+      for (final s in [
+        'Fair Trade USA',
+        'fairtrade certified',
+        'FAIR-TRADE CERTIFIED',
+      ]) {
+        expect(MeterCardText.fairTradeClaim(s),
+            (name: 'Fair Trade Certified', tier: ClaimCredibility.verified),
+            reason: s);
+      }
+    });
+
+    test('bare fair trade → Unverified Marketing', () {
+      final (p, t) = pill(bareFairTradeShrimp);
+      expect(p, '1 sourcing claim: "Fair Trade" — Unverified Marketing');
+      expect(t, ClaimCredibility.labelClaimOnly);
+      expect(MeterCardText.fairTradeClaim('UNFAIR TRADES'), isNull);
+    });
+
+    test('MSC + dolphin safe → 2 claims, mixed, green', () {
+      final (p, t) = pill(mscDolphinTuna);
+      expect(p,
+          '2 sourcing claims: "MSC Certified", "Dolphin Safe" — mixed verification');
+      expect(t, ClaimCredibility.verified);
+    });
+
+    test('dolphin safe / fair trade leave categories unchanged', () {
+      for (final text in [
+        dolphinTuna,
+        fairTradeShrimp,
+        bareFairTradeShrimp,
+        mscDolphinTuna,
+      ]) {
+        final before = SeafoodInterpreter.interpret(text).categories;
+        MeterCardText.seafoodClaimPillText(before, text);
+        MeterCardText.seafoodStrongestClaimTier(before, text);
+        final after = SeafoodInterpreter.interpret(text).categories;
+        // Read by the pill only — no category records them.
+        final stripped = text
+            .replaceAll('DOLPHIN SAFE', '')
+            .replaceAll('FAIR TRADE CERTIFIED', '')
+            .replaceAll('fair trade', '');
+        final base = SeafoodInterpreter.interpret(stripped).categories;
+        for (final c in SeafoodCategory.values) {
+          expect(after[c]?.status, before[c]?.status, reason: '$c');
+          expect(after[c]?.credibility, before[c]?.credibility, reason: '$c');
+          expect(after[c]?.value, before[c]?.value, reason: '$c');
+          expect(before[c]?.status, base[c]?.status, reason: '$c');
+          expect(before[c]?.credibility, base[c]?.credibility, reason: '$c');
+          expect(before[c]?.value, base[c]?.value, reason: '$c');
+        }
+      }
+    });
+  });
 }

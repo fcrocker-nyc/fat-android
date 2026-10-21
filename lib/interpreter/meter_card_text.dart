@@ -169,8 +169,44 @@ class MeterCardText {
 
   static bool labelShowsMSC(String scannedText) => _msc.hasMatch(scannedText);
 
-  /// The sourcing claims on a seafood label, in category order (MSC sits
-  /// with Cat. 15 Organic / Certification), with the interpreter's tiers.
+  /// Dolphin-safe on the label. The term is defined by federal law (Dolphin
+  /// Protection Consumer Information Act, 16 U.S.C. 1385) and verified by
+  /// NOAA's Tuna Tracking and Verification Program, not a private auditor,
+  /// so it sits in the government-program tier (seafood display name
+  /// "USDA / FDA program"). OCR-tolerant: i/l/1 confusion, space, hyphen or
+  /// no separator. Pill-only: no category, count, status or tier changes.
+  static final RegExp _dolphinSafe = RegExp(
+      r'\bdolph[il1]n[\s\-_]*(safe|fr[il1]endly)\b',
+      caseSensitive: false);
+
+  /// Certified Fair Trade (Fair Trade USA / Fairtrade) — Third-Party Audited.
+  static final RegExp _fairTradeCertified = RegExp(
+      r'\bfair[\s\-_]*trade[\s\-_]*(certified|usa)\b',
+      caseSensitive: false);
+
+  /// Bare "fair trade" with no certifier wording — Unverified Marketing.
+  static final RegExp _fairTrade =
+      RegExp(r'\bfair[\s\-_]*trade\b', caseSensitive: false);
+
+  static bool labelShowsDolphinSafe(String scannedText) =>
+      _dolphinSafe.hasMatch(scannedText);
+
+  /// The Fair Trade claim on the label, if any. The certified form wins, so
+  /// a certified label is never also counted as bare "Fair Trade".
+  static ({String name, ClaimCredibility tier})? fairTradeClaim(
+      String scannedText) {
+    if (_fairTradeCertified.hasMatch(scannedText)) {
+      return (name: 'Fair Trade Certified', tier: ClaimCredibility.verified);
+    }
+    if (_fairTrade.hasMatch(scannedText)) {
+      return (name: 'Fair Trade', tier: ClaimCredibility.labelClaimOnly);
+    }
+    return null;
+  }
+
+  /// The sourcing claims on a seafood label, in category order (MSC, Dolphin
+  /// Safe and Fair Trade sit with Cat. 15 Organic / Certification), with the
+  /// interpreter's tiers.
   static List<({String name, ClaimCredibility tier})> sourcingClaims(
       Map<SeafoodCategory, FATCategoryResult> categories, String scannedText) {
     final out = <({String name, ClaimCredibility tier})>[];
@@ -197,8 +233,15 @@ class MeterCardText {
           }
         }
       }
-      if (c == SeafoodCategory.organic && labelShowsMSC(scannedText)) {
-        add('MSC Certified', ClaimCredibility.verified);
+      if (c == SeafoodCategory.organic) {
+        if (labelShowsMSC(scannedText)) {
+          add('MSC Certified', ClaimCredibility.verified);
+        }
+        if (labelShowsDolphinSafe(scannedText)) {
+          add('Dolphin Safe', ClaimCredibility.usdaApproved);
+        }
+        final ft = fairTradeClaim(scannedText);
+        if (ft != null) add(ft.name, ft.tier);
       }
     }
     return out;
