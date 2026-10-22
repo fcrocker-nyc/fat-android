@@ -2992,3 +2992,156 @@ class GroundBeefContextCard extends StatelessWidget {
     );
   }
 }
+
+// ══════════════════════════════════════════════════════════════════════════
+// MECHANICALLY TENDERIZED  (port of iOS MechanicalTenderizationView)
+// Raw blade- / needle-tenderized BEEF must say so in the product name and
+// carry validated cooking instructions — 9 CFR 317.2(e)(3), in force since
+// May 17, 2016; FSIS Directive 8150.1 covers beef tenderized at retail. The
+// rule is beef-only. The card does not score the claim.
+// ══════════════════════════════════════════════════════════════════════════
+
+class MechanicalTenderizationCard extends StatelessWidget {
+  final List<_ChillBlock> _blocks;
+  const MechanicalTenderizationCard._(this._blocks);
+
+  static MechanicalTenderizationCard? maybeFrom(
+      FATResult result, String scannedText) {
+    final t = scannedText
+        .toLowerCase()
+        .replaceAll('-', ' ')
+        .replaceAll('tenderised', 'tenderized')
+        .replaceAll(RegExp(r'\s+'), ' ');
+
+    String? method;
+    if (t.contains('blade tenderized')) {
+      method = 'Blade tenderized';
+    } else if (t.contains('needle tenderized')) {
+      method = 'Needle tenderized';
+    } else if (t.contains('mechanically tenderized') ||
+        t.contains('mech tenderized') ||
+        t.contains('mech. tenderized')) {
+      method = 'Mechanically tenderized';
+    }
+    if (method == null) return null;
+
+    final s = (result.categories[FATCategory.species]?.value ?? '').toLowerCase();
+    final required = s.isEmpty || s.contains('beef') || s.contains('veal');
+
+    // 130–179 °F only, so weights, prices and dates never match.
+    final tm = RegExp(r'(?<!\d)(1[3-7]\d)\s?(?:°|º|˚|degrees?|deg\.?)?\s?f(?![a-z])')
+        .firstMatch(t);
+    final temp = tm == null ? null : int.tryParse(tm.group(1) ?? '');
+    int? rest;
+    for (final p in [
+      r'(?:rest|stand|hold)[a-z ]{0,20}?(\d{1,2})\s?(?:minutes?|mins?)',
+      r'(\d{1,2})\s?(?:minutes?|mins?)\s(?:rest|stand|hold)',
+    ]) {
+      final m = RegExp(p).firstMatch(t);
+      if (m != null) {
+        rest = int.tryParse(m.group(1) ?? '');
+        break;
+      }
+    }
+
+    final blocks = <_ChillBlock>[
+      _ChillBlock(
+          method,
+          "Before packaging, rows of thin blades or needles were pushed through this cut to break up the muscle fiber so it eats more tender. You can't see the cuts afterward. The catch: the blades can carry bacteria from the surface into the center, where searing doesn't reach.",
+          _CertColors.fatOrange,
+          _CertColors.fatOrangeTint),
+    ];
+    if (temp != null) {
+      final restText =
+          rest == null ? '' : ', then rest $rest minute${rest == 1 ? '' : 's'}';
+      blocks.add(_ChillBlock(
+          'Cook to $temp°F',
+          "The label's cooking instructions call for $temp°F internal$restText. Use a thermometer. Rare or medium-rare is not the safe choice for tenderized beef the way it is for an intact steak.",
+          _CertColors.danger,
+          _CertColors.fatRedTint));
+    } else {
+      blocks.add(_ChillBlock(
+          'Check the cooking instructions',
+          required
+              ? "Federal rules require validated cooking instructions on this package — a minimum internal temperature and any rest time. The scan didn't capture them, so check the label. USDA's guidance for whole beef cuts is 145°F with a 3-minute rest."
+              : "The scan didn't capture cooking instructions. Cook tenderized meat through to a safe internal temperature measured with a thermometer.",
+          _CertColors.danger,
+          _CertColors.fatRedTint));
+    }
+    blocks.add(required
+        ? const _ChillBlock(
+            'A required disclosure',
+            "Since May 2016, raw tenderized beef must say so in the product name, with cooking instructions (9 CFR 317.2(e)(3)). That includes beef tenderized in a store's own meat department. This label is doing what the law requires.",
+            _CertColors.fatBlue,
+            _CertColors.systemGray6)
+        : const _ChillBlock(
+            'Voluntary for this species',
+            'The federal tenderization labeling rule covers beef only. Pork, lamb and poultry can be tenderized without saying so — this label is telling you more than it has to.',
+            _CertColors.successGreen,
+            _CertColors.successGreenSoft));
+    blocks.add(const _ChillBlock(
+        "What the label doesn't tell you",
+        "Tenderizing changes how a cut eats, not its USDA grade — the grade reflects the carcass before tenderizing. And restaurants don't have to tell you a steak was tenderized at all.",
+        _CertColors.fatDarkBlue,
+        _CertColors.systemGray6));
+
+    return MechanicalTenderizationCard._(blocks);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _CertColors.systemGray6,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: _CertColors.systemGray4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(children: const [
+              Icon(Icons.thermostat, size: 18, color: _CertColors.fatOrange),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text('Mechanically Tenderized',
+                    style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: _CertColors.fatDarkBlue)),
+              ),
+            ]),
+          ),
+          ..._blocks.map((b) => Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: b.bg,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: b.accent.withValues(alpha: 0.35)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(b.title,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: b.accent)),
+                      const SizedBox(height: 4),
+                      Text(b.body,
+                          style: const TextStyle(
+                              fontSize: 13.5, color: Colors.black, height: 1.4)),
+                    ],
+                  ),
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+}

@@ -546,6 +546,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 CertificationResultCard.maybeFrom(result, result.scannedText),
                 GrassFedResultCard.maybeFrom(result, result.scannedText),
                 PoultryChillCard.maybeFrom(result, result.scannedText),
+                MechanicalTenderizationCard.maybeFrom(result, result.scannedText),
                 GroundBeefContextCard.maybeFrom(result, result.scannedText),
                 PastureResultCard.maybeFrom(result, result.scannedText),
                 RegenerativeResultCard.maybeFrom(result, result.scannedText),
