@@ -393,9 +393,17 @@ class _DishRow extends StatelessWidget {
               Text(item.description,
                   maxLines: 2,
                   style: const TextStyle(fontSize: 13, color: FATTheme.textSecondary)),
+            if (item.addOns.isNotEmpty)
+              Text('Optional add-on: ${item.addOns.join('; ')}',
+                  maxLines: 2,
+                  style: const TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w500, color: FATTheme.textSecondary)),
             const SizedBox(height: 6),
             Wrap(spacing: 6, runSpacing: 6, children: [
-              for (final p in item.proteins) _Chip(p.displayName, _ChipStyle.protein),
+              for (final p in item.proteins)
+                item.addOnProteins.contains(p)
+                    ? _Chip('${p.displayName} · add-on', _ChipStyle.addOn)
+                    : _Chip(p.displayName, _ChipStyle.protein),
               if (item.proteins.isEmpty) const _Chip('protein unknown', _ChipStyle.muted),
               if (item.minorProteinOnly) const _Chip('minor ingredient', _ChipStyle.muted),
               for (final c in item.claims)
@@ -411,7 +419,7 @@ class _DishRow extends StatelessWidget {
   }
 }
 
-enum _ChipStyle { protein, claim, inherited, muted }
+enum _ChipStyle { protein, addOn, claim, inherited, muted }
 
 class _Chip extends StatelessWidget {
   final String text;
@@ -422,13 +430,19 @@ class _Chip extends StatelessWidget {
   Widget build(BuildContext context) {
     final (fg, bg) = switch (style) {
       _ChipStyle.protein => (Colors.white, FATTheme.scanGreen),
+      _ChipStyle.addOn => (FATTheme.scanGreen, Colors.transparent),
       _ChipStyle.claim => (_certBlue, _certPaleBlue),
       _ChipStyle.inherited => (_certBlue, _certPaleBlue.withValues(alpha: 0.5)),
       _ChipStyle.muted => (FATTheme.textSecondary, const Color(0xFFE6E6E4)),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+          color: bg,
+          borderRadius: BorderRadius.circular(20),
+          border: style == _ChipStyle.addOn
+              ? Border.all(color: FATTheme.scanGreen, width: 1.5)
+              : null),
       child: Text(text, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: fg)),
     );
   }
@@ -495,6 +509,12 @@ class MenuDishScreen extends StatelessWidget {
           if (item.description.isNotEmpty)
             Text(item.description,
                 style: const TextStyle(fontSize: 15, color: FATTheme.textSecondary)),
+          if (item.addOns.isNotEmpty)
+            Text(
+                'Optional add-on: ${item.addOns.join('; ')}'
+                '${item.addOnProteins.isEmpty ? '' : ' (${item.addOnProteins.map((p) => p.displayName).join(', ')})'}',
+                style: const TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w500, color: FATTheme.textSecondary)),
           if (item.section != null)
             Text(item.section!.toUpperCase(),
                 style: const TextStyle(

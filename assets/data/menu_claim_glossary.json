@@ -698,15 +698,30 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "For meat and poultry, USDA Organic requires organic feed, no antibiotics or hormones, and outdoor access (7 CFR Part 205). USDA has no organic standard for seafood.",
+      "meaning": "For meat and poultry, USDA Organic requires organic feed, no antibiotics or hormones, and outdoor access (7 CFR Part 205).",
       "authority": "USDA National Organic Program",
-      "gap": "‘Organic’ seafood follows a foreign or private standard, not USDA’s. The dish and the restaurant are not certified — only the ingredient as bought.",
+      "gap": "The dish and the restaurant are not certified — only the ingredient as bought.",
       "questions": [
         "Is it USDA Organic certified? Which supplier?",
-        "For fish — whose organic standard is it?"
+        "Is the whole dish organic, or just this ingredient?"
       ],
       "stateNote": null,
-      "adjacentProtein": true
+      "adjacentProtein": true,
+      "variants": [
+        {
+          "proteins": [
+            "finfish",
+            "shellfish"
+          ],
+          "meaning": "The USDA National Organic Program has no standard for seafood, so ‘organic’ on fish or shellfish can’t mean USDA Organic. Organic seafood sold in the U.S. may carry an EU or other foreign organic certification.",
+          "authority": "No USDA standard — foreign or private certification",
+          "gap": "The menu doesn’t say whose organic standard applies or who certified it.",
+          "questions": [
+            "Whose organic standard is it — EU or another certifier?",
+            "Where was it farmed, and by whom?"
+          ]
+        }
+      ]
     },
     {
       "key": "welfare_cert",

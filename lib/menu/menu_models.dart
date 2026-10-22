@@ -57,6 +57,9 @@ class ClaimEntry {
   final List<String> questions;
   final Map<String, String>? stateNote;
 
+  /// Protein-specific wording, e.g. "organic" on fish (no USDA standard).
+  final List<ClaimVariant> variants;
+
   const ClaimEntry({
     required this.key,
     required this.family,
@@ -69,7 +72,20 @@ class ClaimEntry {
     required this.gap,
     required this.questions,
     required this.stateNote,
+    this.variants = const [],
   });
+
+  /// The wording for the protein the claim sits next to.
+  ClaimText textFor(ProteinFamily? protein) {
+    if (protein != null) {
+      for (final v in variants) {
+        if (v.proteins.contains(protein)) {
+          return ClaimText(v.meaning, v.authority, v.gap, v.questions);
+        }
+      }
+    }
+    return ClaimText(meaning, authority, gap, questions);
+  }
 
   factory ClaimEntry.fromJson(Map<String, dynamic> j) => ClaimEntry(
         key: j['key'] as String,
@@ -88,7 +104,35 @@ class ClaimEntry {
         stateNote: (j['stateNote'] as Map?)?.map(
           (k, v) => MapEntry(k as String, v as String),
         ),
+        variants: ((j['variants'] as List?) ?? const [])
+            .map((v) => ClaimVariant.fromJson(v as Map<String, dynamic>))
+            .toList(),
       );
+}
+
+class ClaimVariant {
+  final List<ProteinFamily> proteins;
+  final String meaning;
+  final String? authority;
+  final String gap;
+  final List<String> questions;
+  const ClaimVariant(this.proteins, this.meaning, this.authority, this.gap, this.questions);
+
+  factory ClaimVariant.fromJson(Map<String, dynamic> j) => ClaimVariant(
+        (j['proteins'] as List).map((e) => ProteinFamily.parse(e as String)).whereType<ProteinFamily>().toList(),
+        j['meaning'] as String,
+        j['authority'] as String?,
+        j['gap'] as String,
+        List<String>.from(j['questions'] as List),
+      );
+}
+
+class ClaimText {
+  final String meaning;
+  final String? authority;
+  final String gap;
+  final List<String> questions;
+  const ClaimText(this.meaning, this.authority, this.gap, this.questions);
 }
 
 class MenuGlossary {
@@ -182,6 +226,12 @@ class MenuItem {
   bool dismissed;
   bool userCorrected;
 
+  /// Optional add-ons printed under the dish ("Lobster", "Seared Duck Foie Gras").
+  List<String> addOns;
+
+  /// Proteins that reach the dish only through an add-on; also listed in [proteins].
+  List<ProteinFamily> addOnProteins;
+
   MenuItem({
     required this.id,
     required this.dishName,
@@ -192,9 +242,13 @@ class MenuItem {
     required this.minorProteinOnly,
     this.dismissed = false,
     this.userCorrected = false,
-  });
+    List<String>? addOns,
+    List<ProteinFamily>? addOnProteins,
+  })  : addOns = addOns ?? <String>[],
+        addOnProteins = addOnProteins ?? <ProteinFamily>[];
 
-  String get fullText => description.isEmpty ? dishName : '$dishName\n$description';
+  String get fullText =>
+      [dishName, description, ...addOns].where((s) => s.isNotEmpty).join('\n');
 }
 
 class MenuResult {

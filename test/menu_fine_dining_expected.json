@@ -1,0 +1,160 @@
+[
+  {
+    "dish": "GRILLED BLACK ANGUS FILET MIGNON* (GF)",
+    "species": [
+      "beef",
+      "poultry"
+    ],
+    "addOnSpecies": [
+      "poultry"
+    ],
+    "addOns": [
+      "Seared Duck Foie Gras"
+    ],
+    "claims": [
+      "angus",
+      "foie_gras"
+    ],
+    "claimText": [
+      "black angus",
+      "foie gras"
+    ]
+  },
+  {
+    "dish": "PROVENÇALE CRUSTED RACK OF LAMB",
+    "species": [
+      "lamb"
+    ],
+    "addOnSpecies": [],
+    "addOns": [],
+    "claims": [],
+    "claimText": []
+  },
+  {
+    "dish": "SPAGHETTI AL NERO FRUTTI DI MARE",
+    "species": [
+      "finfish",
+      "shellfish"
+    ],
+    "addOnSpecies": [],
+    "addOns": [],
+    "claims": [
+      "wild_caught",
+      "shrimp"
+    ],
+    "claimText": [
+      "wild",
+      "tiger shrimp"
+    ]
+  },
+  {
+    "dish": "BOUILLABAISSE",
+    "species": [
+      "finfish",
+      "shellfish"
+    ],
+    "addOnSpecies": [],
+    "addOns": [],
+    "claims": [
+      "wild_caught",
+      "shrimp"
+    ],
+    "claimText": [
+      "wild",
+      "tiger shrimp"
+    ]
+  },
+  {
+    "dish": "CAVATELLI PASTA, BERKSHIRE PORK OSSO BUCO RAGU",
+    "species": [
+      "pork"
+    ],
+    "addOnSpecies": [],
+    "addOns": [],
+    "claims": [
+      "heritage_breed"
+    ],
+    "claimText": [
+      "berkshire"
+    ]
+  },
+  {
+    "dish": "ORGANIC GLEN CAIRN SALMON* (GF)",
+    "species": [
+      "finfish",
+      "shellfish"
+    ],
+    "addOnSpecies": [],
+    "addOns": [],
+    "claims": [
+      "organic",
+      "atlantic_salmon",
+      "wild_caught",
+      "shrimp"
+    ],
+    "claimText": [
+      "organic",
+      "salmon",
+      "wild",
+      "tiger shrimp"
+    ]
+  },
+  {
+    "dish": "OVEN ROASTED CRYSTAL VALLEY CHICKEN (GF)",
+    "species": [
+      "poultry"
+    ],
+    "addOnSpecies": [],
+    "addOns": [],
+    "claims": [],
+    "claimText": []
+  },
+  {
+    "dish": "GRILLED PRIME ALLEN BROTHERS PORTERHOUSE FOR TWO* 32oz (GF)",
+    "species": [
+      "beef"
+    ],
+    "addOnSpecies": [],
+    "addOns": [],
+    "claims": [
+      "usda_grade"
+    ],
+    "claimText": [
+      "prime"
+    ]
+  },
+  {
+    "dish": "ROASTED CRESCENT FARMS DUCK BREAST* (GF)",
+    "species": [
+      "poultry"
+    ],
+    "addOnSpecies": [],
+    "addOns": [],
+    "claims": [],
+    "claimText": []
+  },
+  {
+    "dish": "GRILLED VENISON LOIN",
+    "species": [
+      "other"
+    ],
+    "addOnSpecies": [],
+    "addOns": [],
+    "claims": [],
+    "claimText": []
+  },
+  {
+    "dish": "THAI VEGETABLE STEW (GF) (Ve)",
+    "species": [
+      "shellfish"
+    ],
+    "addOnSpecies": [
+      "shellfish"
+    ],
+    "addOns": [
+      "Lobster"
+    ],
+    "claims": [],
+    "claimText": []
+  }
+]

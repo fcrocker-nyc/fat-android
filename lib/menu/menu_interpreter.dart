@@ -29,8 +29,17 @@ class MenuInterpreter {
       if (proteins.isEmpty && (block.sectionProteins?.isNotEmpty ?? false)) {
         proteins = List.of(block.sectionProteins!);
       }
+      // "(Add Lobster $35 Supplement)" — an optional protein still belongs to
+      // the dish, but is labeled as an add-on.
+      final addOnProteins = <ProteinFamily>[];
+      if (block.addOns.isNotEmpty) {
+        for (final f in MenuProteinClassifier.classify(block.addOnText).proteins) {
+          if (!proteins.contains(f)) addOnProteins.add(f);
+        }
+        proteins.addAll(addOnProteins);
+      }
 
-      final claims = extractor.extract(block.text, proteins, inherited: false);
+      final claims = extractor.extract(block.fullText, proteins, inherited: false);
       for (final statement in block.headerStatements) {
         for (final c in extractor.extract(statement, proteins, inherited: true)) {
           if (claims.any((x) => x.entryKey == c.entryKey)) continue;
@@ -49,7 +58,12 @@ class MenuInterpreter {
         section: block.section,
         proteins: proteins,
         claims: claims,
-        minorProteinOnly: cls.minorOnly,
+        minorProteinOnly: cls.minorOnly && addOnProteins.isEmpty,
+        addOns: [
+          for (final a in block.addOns)
+            if (MenuText.addOnLabel(a).isNotEmpty) MenuText.addOnLabel(a)
+        ],
+        addOnProteins: addOnProteins,
       ));
     }
 
@@ -78,6 +92,7 @@ class MenuInterpreter {
       }
     }
     item.claims = claims;
+    item.addOnProteins = item.addOnProteins.where(item.proteins.contains).toList();
     item.minorProteinOnly = false;
     item.userCorrected = true;
     return item;
@@ -91,7 +106,12 @@ class MenuBlock {
   final String? section;
   final List<ProteinFamily>? sectionProteins;
   final List<String> headerStatements;
-  MenuBlock(this.lines, this.section, this.sectionProteins, this.headerStatements);
+
+  /// Add-on / supplement lines attached to this dish, as printed.
+  final List<String> addOns;
+  MenuBlock(this.lines, this.section, this.sectionProteins, this.headerStatements,
+      [List<String>? addOns])
+      : addOns = addOns ?? <String>[];
 
   String get title => MenuText.stripPrice(lines.isEmpty ? '' : lines.first);
   String get description => lines
@@ -100,6 +120,10 @@ class MenuBlock {
       .where((s) => s.isNotEmpty)
       .join(', ');
   String get text => [title, description].where((s) => s.isNotEmpty).join('\n');
+  String get addOnText => addOns.join('\n');
+
+  /// Dish text plus add-on lines — what claims are extracted from.
+  String get fullText => addOns.isEmpty ? text : '$text\n$addOnText';
 }
 
 class MenuSegmentation {
@@ -125,6 +149,7 @@ class MenuSegmenter {
       final pageLevel = <String>[];
 
       for (final column in columns) {
+        final columnFirstBlock = pageBlocks.length;
         final lines = [...column]..sort((a, b) {
             if ((a.maxY - b.maxY).abs() > 0.004) return b.maxY.compareTo(a.maxY);
             return a.minX.compareTo(b.minX);
@@ -136,6 +161,7 @@ class MenuSegmenter {
         var sectionStatements = <String>[];
         var afterLastDish = <String>[];
         var current = <String>[];
+        var addOns = <String>[];
         var priced = false;
         var hasDescription = false;
         MenuOCRLine? previous;
@@ -143,10 +169,11 @@ class MenuSegmenter {
         void close() {
           if (current.isNotEmpty) {
             pageBlocks.add(MenuBlock(List.of(current), section, sectionProteins,
-                List.of(sectionStatements)));
+                List.of(sectionStatements), List.of(addOns)));
             afterLastDish = [];
           }
           current = [];
+          addOns = [];
           priced = false;
           hasDescription = false;
         }
@@ -157,14 +184,22 @@ class MenuSegmenter {
           afterLastDish = [];
         }
 
-        for (final line in lines) {
+        for (var lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+          final line = lines[lineIndex];
           final text = line.text.trim();
           if (text.isEmpty) continue;
 
           if (previous != null && previous.minY - line.maxY > medianH * 1.2) close();
           previous = line;
 
-          final header = MenuText.sectionHeader(text);
+          String? nextText;
+          for (final l in lines.skip(lineIndex + 1)) {
+            if (l.text.trim().isNotEmpty) {
+              nextText = l.text.trim();
+              break;
+            }
+          }
+          final header = MenuText.sectionHeader(text) ?? MenuText.genericSectionHeader(text, nextText);
           if (header != null) {
             close();
             endSection();
@@ -191,13 +226,29 @@ class MenuSegmenter {
             continue;
           }
 
+          if (MenuText.isAddOn(text)) {
+            // Supplements belong to the dish above, never a dish of their own.
+            if (current.isNotEmpty) {
+              addOns.add(text);
+              continue;
+            } else if (pageBlocks.length > columnFirstBlock) {
+              pageBlocks.last.addOns.add(text);
+              continue;
+            }
+          }
+
           final title = MenuText.looksLikeTitle(text);
+          // "CAVATELLI PASTA, BERKSHIRE PORK OSSO BUCO RAGU": an upper-case dish
+          // name can carry commas, and still starts a new dish.
+          final capsTitle = MenuText.isCapsTitle(text);
           bool startsNew;
           if (current.isEmpty) {
             startsNew = false;
           } else if (priced) {
             startsNew = title || MenuText.hasTrailingPrice(text);
           } else if (title && hasDescription) {
+            startsNew = true;
+          } else if (capsTitle && hasDescription && current.any((l) => !MenuText.isCapsTitle(l))) {
             startsNew = true;
           } else if (title && MenuText.isAllCaps(current.first) && MenuText.isAllCaps(text)) {
             // Consecutive ALL-CAPS course names on an unpriced tasting menu.
@@ -209,7 +260,7 @@ class MenuSegmenter {
 
           current.add(text);
           if (MenuText.hasTrailingPrice(text)) priced = true;
-          if (current.length > 1 && !title) hasDescription = true;
+          if (current.length > 1 && !title && !capsTitle) hasDescription = true;
           if (current.length > 1 && title && !MenuText.isAllCaps(text) && MenuText.isAllCaps(current[0])) {
             hasDescription = true;
           }
@@ -372,12 +423,86 @@ class MenuText {
     'tasting menu', "chef's tasting", 'the menu', 'caviar', 'oysters', 'shellfish', 'meat',
     'meats', 'first course', 'second course', 'third course', "hors d'oeuvres", 'à la carte',
     'a la carte', 'prix fixe', 'kids', 'beverages', 'drinks',
+    'classics', 'the classics', 'seasonal', 'seasonal specials', 'specials', 'daily specials',
+    "chef's specials", 'features', 'signatures', 'house specialties', 'sides to share', 'shared sides',
+    'small bites', 'bites', 'snacks', 'shareables', 'large format', 'accompaniments', 'enhancements',
+    'add-ons', 'vegetables', 'greens', 'from the garden', 'pizza', 'pizzas', 'noodles', 'sweets',
+    'cheese', 'cheeses', 'entrée', 'entree', 'main plates', 'kids menu', "children's menu",
   };
+
+  /// "C L A S S I C S" → "CLASSICS"; "S I D E S  T O  S H A R E" → "SIDES TO SHARE".
+  /// Words are separated by two or more spaces; anything else is returned unchanged.
+  static String collapseLetterSpacing(String text) {
+    final t = text.trim();
+    final groups = t.split('  ').map((g) => g.trim()).where((g) => g.isNotEmpty).toList();
+    final split = [for (final g in groups) g.split(' ').where((p) => p.isNotEmpty).toList()];
+    if (split.isEmpty ||
+        !split.every((g) => g.every((p) => p.runes.length == 1)) ||
+        split.fold<int>(0, (n, g) => n + g.length) < 4) {
+      return t;
+    }
+    return split.map((g) => g.join()).join(' ');
+  }
 
   /// Returns the header text if the whole line is a known section name.
   static String? sectionHeader(String text) {
-    final cleaned = _trim(text.toLowerCase().replaceAll('’', "'"), ' .,:;!?-–—*()[]"\'\t');
-    return _sectionWords.contains(cleaned) ? text.trim() : null;
+    final collapsed = collapseLetterSpacing(text);
+    final cleaned = _trim(collapsed.toLowerCase().replaceAll('’', "'"), ' .,:;!?-–—*()[]"\'\t');
+    return _sectionWords.contains(cleaned) ? collapsed : null;
+  }
+
+  /// An unlisted section name: a short ALL-CAPS line (1–3 words) with no
+  /// digits, punctuation or protein word, directly followed by an upper-case
+  /// dish title rather than a description.
+  static String? genericSectionHeader(String text, String? next) {
+    final t = collapseLetterSpacing(text);
+    if (next == null || !isCapsTitle(next) || !isAllCaps(t)) return null;
+    final words = t.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    if (words < 1 || words > 3) return null;
+    if (RegExp(r'[\p{Nd},()*$:]', unicode: true).hasMatch(t)) return null;
+    if (MenuProteinClassifier.classify(t).proteins.isNotEmpty) return null;
+    return t;
+  }
+
+  /// Strips "(GF)"-style tags, footnote stars and tokens with digits ("32oz").
+  static String _titleCore(String text) {
+    final t = stripPrice(text).replaceAll(RegExp(r'\([^)]*\)'), ' ');
+    return t
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty && !RegExp(r'\p{N}', unicode: true).hasMatch(w))
+        .join(' ');
+  }
+
+  /// The part before the first comma is upper case ("BAKED JAPANESE SWEET
+  /// POTATO, Miso Butter"), so the line is a dish title even with commas.
+  static bool isCapsTitle(String text) {
+    final first = _titleCore(text).split(',').first;
+    if (!isAllCaps(first)) return false;
+    return first.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length <= 10;
+  }
+
+  static final _addOnStart = RegExp(
+      r'^[\(\[]?\s*(\+\s*[$£€]?\s*\d|\+\s*\p{L}|add\b|add-on|supplement\b|enhance\b|with the addition)',
+      unicode: true);
+  static final _addOnParen = RegExp(r'^\(.*\b(add|supplement)\b.*\)$');
+
+  /// "(Add Lobster $35 Supplement)", "Add foie gras +18", "+ $12 shrimp", "Supplement: truffle".
+  static bool isAddOn(String text) {
+    final t = text.trim().toLowerCase();
+    return _addOnStart.hasMatch(t) || _addOnParen.hasMatch(t);
+  }
+
+  /// "(Add 2oz Seared Duck Foie Gras for $15 Supplement)" → "Seared Duck Foie Gras".
+  static String addOnLabel(String text) {
+    var t = text.replaceAll(RegExp(r'[\(\)\[\]]'), ' ');
+    t = t.replaceAll(RegExp(r'\+?\s*[$£€]\s?\d+(?:[.,]\d{1,2})?'), ' ');
+    t = t.replaceAll(RegExp(r'\b\d+\s?(?:oz|g|pc|pcs|piece|pieces)\b', caseSensitive: false), ' ');
+    t = t.replaceAll(
+        RegExp(r'\b(?:add-on|add|supplement|for|extra|optional|enhance|with the addition of)\b',
+            caseSensitive: false),
+        ' ');
+    t = t.replaceAll(RegExp(r'\s+'), ' ');
+    return _trim(t, ' +:;,.-–—*\t');
   }
 
   static final _statementPatterns = [
@@ -508,6 +633,19 @@ class ProteinClassification {
 }
 
 class MenuProteinClassifier {
+  /// Dish names whose usual species ("osso buco" → veal) yields to a species word in front.
+  static const speciesDefaultDishes = <String>{
+    'osso buco', 'ragu', 'ragù', 'bolognese', 'meatball', 'meatballs', 'burger', 'burgers',
+    'sausage', 'sausages', 'chorizo', 'hot dog',
+  };
+
+  /// Plain species words that can modify those dish names.
+  static const speciesModifiers = <String>{
+    'beef', 'veal', 'pork', 'berkshire', 'kurobuta', 'wagyu', 'angus', 'lamb', 'mutton', 'goat',
+    'chicken', 'duck', 'turkey', 'rabbit', 'venison', 'boar', 'wild boar', 'bison', 'elk',
+    'lobster', 'crab', 'shrimp', 'octopus', 'fish', 'seafood', 'tuna', 'salmon',
+  };
+
   static final List<(String, RegExp, List<ProteinFamily>)> _lexicon = () {
     final rows = [...kProteinLexiconRaw]..sort((a, b) => b.$1.length.compareTo(a.$1.length));
     return [
@@ -533,8 +671,19 @@ class MenuProteinClassifier {
     }
     final hits = MenuMatcher.matches(pairs, tok, taken);
 
+    // "PORK OSSO BUCO", "lamb ragù", "chicken sausage": a species word just
+    // before a dish name decides the species, not the dish's usual default.
+    final modifierHits = [
+      for (final h in hits)
+        if (speciesModifiers.contains(h.$1.toLowerCase())) h.$2
+    ];
     final all = <ProteinHit>[];
     for (final (phrase, m) in hits) {
+      if (speciesDefaultDishes.contains(phrase.toLowerCase()) &&
+          modifierHits.any((mod) =>
+              mod.clause == m.clause && mod.wordEnd < m.wordStart && m.wordStart - mod.wordEnd <= 3)) {
+        continue;
+      }
       final minor = garnish.any((g) => g.$2.overlaps(m));
       all.add(ProteinHit(familyFor[phrase] ?? [ProteinFamily.other], m, minor));
     }

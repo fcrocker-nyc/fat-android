@@ -1,0 +1,215 @@
+{
+ "source": "Real Apple Vision OCR (VNRecognizeTextRequest revision 3, accurate, language correction on, en/fr/es/it) of a user-photographed fine-dining menu, 2026-10-22. Boxes are normalized, origin bottom-left.",
+ "lines": [
+  {
+   "text": "CLASSICS",
+   "x": 0.0676,
+   "y": 0.9531,
+   "w": 0.1749,
+   "h": 0.0188
+  },
+  {
+   "text": "GRILLED BLACK ANGUS FILET MIGNON* (GF)",
+   "x": 0.0655,
+   "y": 0.9047,
+   "w": 0.4698,
+   "h": 0.0253
+  },
+  {
+   "text": "Black Truffle Whipped Potatoes, Spinach, Cognac Peppercorn Sauce",
+   "x": 0.0655,
+   "y": 0.879,
+   "w": 0.6287,
+   "h": 0.0298
+  },
+  {
+   "text": "(Add 2oz Seared Duck Foie Gras for $15 Supplement)",
+   "x": 0.0635,
+   "y": 0.8613,
+   "w": 0.4583,
+   "h": 0.0288
+  },
+  {
+   "text": "PROVENÇALE CRUSTED RACK OF LAMB*",
+   "x": 0.0637,
+   "y": 0.8289,
+   "w": 0.4269,
+   "h": 0.0224
+  },
+  {
+   "text": "Crushed Yukon Gold Potatoes, Broccoli Rabe, Roasted Peppers, Fennel Pollen, Sage Jus",
+   "x": 0.0635,
+   "y": 0.7993,
+   "w": 0.7992,
+   "h": 0.032
+  },
+  {
+   "text": "SPAGHETTI AL NERO FRUTTI DI MARE",
+   "x": 0.0618,
+   "y": 0.771,
+   "w": 0.4056,
+   "h": 0.0209
+  },
+  {
+   "text": "Cuttlefish Ink Pasta, Calamari, Wild Tiger Shrimp, Lobster, Grape Tomato Sauce, Orange Olive Oil, Re",
+   "x": 0.0617,
+   "y": 0.7392,
+   "w": 0.9366,
+   "h": 0.0306
+  },
+  {
+   "text": "BOUILLABAISSE",
+   "x": 0.062,
+   "y": 0.7166,
+   "w": 0.1686,
+   "h": 0.0145
+  },
+  {
+   "text": "Provençale Fish Stew, Swordfish, Wild Tiger Shrimp, Calamari, Codfish, Mussels, Pugliese Bread, Rou",
+   "x": 0.0618,
+   "y": 0.6841,
+   "w": 0.9364,
+   "h": 0.0274
+  },
+  {
+   "text": "CAVATELLI PASTA, BERKSHIRE PORK OSSO BUCO RAGU",
+   "x": 0.0601,
+   "y": 0.6495,
+   "w": 0.5853,
+   "h": 0.0177
+  },
+  {
+   "text": "Parmesan Cheese, Toasted Breadcrumbs",
+   "x": 0.0599,
+   "y": 0.6263,
+   "w": 0.386,
+   "h": 0.0213
+  },
+  {
+   "text": "ORGANIC GLEN CAIRN SALMON* (GF)",
+   "x": 0.0601,
+   "y": 0.59,
+   "w": 0.407,
+   "h": 0.0176
+  },
+  {
+   "text": "Whipped Potatoes, Baby Carrots, Wild Tiger Shrimp, Lemon Beurre Blanc",
+   "x": 0.062,
+   "y": 0.5669,
+   "w": 0.6899,
+   "h": 0.0191
+  },
+  {
+   "text": "OVEN ROASTED CRYSTAL VALLEY CHICKEN (GF)",
+   "x": 0.0581,
+   "y": 0.532,
+   "w": 0.5194,
+   "h": 0.016
+  },
+  {
+   "text": "Butternut Squash Purée, Mushrooms, Cauliflower, Whole Grain Mustard Jus",
+   "x": 0.0581,
+   "y": 0.5057,
+   "w": 0.7211,
+   "h": 0.0226
+  },
+  {
+   "text": "SEASONAL",
+   "x": 0.0578,
+   "y": 0.4348,
+   "w": 0.1964,
+   "h": 0.0195
+  },
+  {
+   "text": "GRILLED PRIME ALLEN BROTHERS PORTERHOUSE FOR TWO* 32oz (GF)",
+   "x": 0.0562,
+   "y": 0.391,
+   "w": 0.7404,
+   "h": 0.0177
+  },
+  {
+   "text": "Broccoli Rabe, Truffle Mashed Potatoes, Cognac Peppercorn Sauce",
+   "x": 0.0561,
+   "y": 0.3649,
+   "w": 0.632,
+   "h": 0.0219
+  },
+  {
+   "text": "ROASTED CRESCENT FARMS DUCK BREAST* (GF)",
+   "x": 0.0561,
+   "y": 0.3299,
+   "w": 0.5176,
+   "h": 0.0182
+  },
+  {
+   "text": "Brussel Sprouts, Chanterelle Mushrooms, Chestnuts, Honey Lavender Jus",
+   "x": 0.0561,
+   "y": 0.3042,
+   "w": 0.7019,
+   "h": 0.0232
+  },
+  {
+   "text": "GRILLED VENISON LOIN*",
+   "x": 0.0559,
+   "y": 0.2685,
+   "w": 0.2719,
+   "h": 0.0185
+  },
+  {
+   "text": "Savoy Cabbage, Spätzle, Black Garlic Sauce",
+   "x": 0.054,
+   "y": 0.2419,
+   "w": 0.4191,
+   "h": 0.0238
+  },
+  {
+   "text": "THAI VEGETABLE STEW (GF) (Ve)",
+   "x": 0.054,
+   "y": 0.2049,
+   "w": 0.3533,
+   "h": 0.0213
+  },
+  {
+   "text": "Crispy Rice, Coconut, Green Curry",
+   "x": 0.054,
+   "y": 0.181,
+   "w": 0.3396,
+   "h": 0.0224
+  },
+  {
+   "text": "(Add Lobster $35 Supplement)",
+   "x": 0.0523,
+   "y": 0.1613,
+   "w": 0.2752,
+   "h": 0.0177
+  },
+  {
+   "text": "SIDES TO SHARE",
+   "x": 0.0538,
+   "y": 0.1003,
+   "w": 0.2646,
+   "h": 0.0242
+  },
+  {
+   "text": "BLACK TRUFFLE MAC AND CHEESE",
+   "x": 0.052,
+   "y": 0.0599,
+   "w": 0.3883,
+   "h": 0.0223
+  },
+  {
+   "text": "BAKED JAPANESE SWEET POTATO, Miso Butter (GF)",
+   "x": 0.052,
+   "y": 0.0233,
+   "w": 0.5435,
+   "h": 0.0281
+  },
+  {
+   "text": "DOACTED CALL LOWER, Raisins, Pine Nuts (GF)",
+   "x": 0.0523,
+   "y": 0.0015,
+   "w": 0.5097,
+   "h": 0.016
+  }
+ ]
+}

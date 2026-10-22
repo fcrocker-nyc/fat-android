@@ -74,10 +74,10 @@ class MenuClaimExplainer {
           matchedText: claim.matchedText,
           inheritedFromHeader: claim.inheritedFromHeader,
           title: '“${claim.matchedText}”',
-          meaning: entry.meaning,
-          authority: entry.authority,
-          gap: entry.gap,
-          questions: entry.questions,
+          meaning: entry.textFor(claim.appliesTo).meaning,
+          authority: entry.textFor(claim.appliesTo).authority,
+          gap: entry.textFor(claim.appliesTo).gap,
+          questions: entry.textFor(claim.appliesTo).questions,
           stateNote: diningState == null ? null : entry.stateNote?[diningState],
         ),
     ];
@@ -87,7 +87,7 @@ class MenuClaimExplainer {
   /// priority order (species and origin first), then second questions, then
   /// the general questions to fill. De-duplicated.
   static List<String> topQuestions(MenuItem item, MenuGlossary glossary, {int limit = 3}) {
-    final entries = _ordered(item, glossary).map((e) => e.$2).toList();
+    final entries = _ordered(item, glossary).map((e) => e.$2.textFor(e.$1.appliesTo)).toList();
     final out = <String>[];
     void push(String q) {
       if (out.length < limit && !out.contains(q)) out.add(q);
