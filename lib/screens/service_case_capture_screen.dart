@@ -181,7 +181,7 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
     if (r.fsisEstablishmentNumber != null) {
       cats[SeafoodCategory.processor] = FATCategoryResult(
           status: DisclosureStatus.known,
-          value: 'FSIS ${r.fsisEstablishmentNumber}');
+          value: 'USDA est. ${r.fsisEstablishmentNumber}');
     } else if (r.shellfishCertNumber != null) {
       cats[SeafoodCategory.processor] = FATCategoryResult(
           status: DisclosureStatus.known,
@@ -243,7 +243,7 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
       lines.add('Shellfish cert: ${r.shellfishCertNumber}');
     }
     if (r.fsisEstablishmentNumber != null) {
-      lines.add('FSIS establishment: ${r.fsisEstablishmentNumber}');
+      lines.add('USDA establishment: ${r.fsisEstablishmentNumber}');
     }
     if (r.pricePerLb != null) {
       lines.add('Price: \$${r.pricePerLb!.toStringAsFixed(2)}/lb');
@@ -288,7 +288,7 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Loose seafood at the counter has no package to scan — only a USDA AMS placard. Pick the venue, photograph the placard, and FAT reads what the sign discloses.',
+                'Loose seafood at the counter has no package to scan — only a USDA-required placard. Pick the venue, photograph the placard, and FAT reads what the sign discloses.',
                 style: TextStyle(fontSize: 15, height: 1.3),
               ),
               const SizedBox(height: 18),

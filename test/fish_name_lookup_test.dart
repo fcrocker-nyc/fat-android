@@ -55,7 +55,7 @@ void main() {
     expect(g.title, 'Grouper');
     expect(g.simpStatus, FishSimpStatus.covered);
     expect(texts(g, FishNameLookup.simpTitle), [
-      "Covered by NOAA's Seafood Import Monitoring Program (SIMP).",
+      "Covered by NOAA's Seafood Import Monitoring Program.",
       FishNameLookup.simpCoveredDetail,
     ]);
     expect(texts(g, FishNameLookup.bycatchTitle), [
@@ -76,7 +76,7 @@ void main() {
       texts(g, FishNameLookup.coolTitle).first,
       FishNameLookup.coolRequirement,
     );
-    expect(g.historyTitle, 'Grouper — covered by SIMP');
+    expect(g.historyTitle, 'Grouper — covered by NOAA\'s Seafood Import Monitoring Program');
   });
 
   test('mahi mahi / dolphinfish: covered + bycatch', () {
@@ -111,9 +111,9 @@ void main() {
     final s = r('snapper');
     expect(s.simpStatus, FishSimpStatus.unclear);
     expect(texts(s, FishNameLookup.simpTitle), [
-      "SIMP covers red snapper only; a placard that just says 'snapper' doesn't say which species.",
+      "The import monitoring program covers red snapper only; a placard that just says 'snapper' doesn't say which species.",
     ]);
-    expect(s.historyTitle, 'Snapper — SIMP coverage unclear');
+    expect(s.historyTitle, 'Snapper — coverage by NOAA\'s Seafood Import Monitoring Program unclear');
   });
 
   test('red snapper covered', () {
@@ -168,7 +168,7 @@ void main() {
     );
     expect(
       u.sections.first.lines.last.text,
-      "NOAA's SIMP covers imports of 13 species groups: abalone, Atlantic cod, blue crab (Atlantic), dolphinfish (mahi mahi), grouper, king crab (red), Pacific cod, red snapper, sea cucumber, sharks, shrimp, swordfish and tuna.",
+      "NOAA's Seafood Import Monitoring Program covers imports of 13 species groups: abalone, Atlantic cod, blue crab (Atlantic), dolphinfish (mahi mahi), grouper, king crab (red), Pacific cod, red snapper, sea cucumber, sharks, shrimp, swordfish and tuna.",
     );
     expect(u.historyTitle, 'Fish name not recognized');
   });

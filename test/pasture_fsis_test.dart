@@ -16,26 +16,26 @@ void main() {
   const fsisBeef = 'Ground Beef\nPasture Raised\nRaised Without Antibiotics\n'
       'EST. 45029\nProduct of USA';
 
-  test('FSIS pasture raised → Producer Affidavit in both rows', () {
+  test('USDA pasture raised → Producer Affidavit in both rows', () {
     final c = interp(fsisBeef);
     expect(c[FATCategory.feed]?.status, DisclosureStatus.known);
     expect(c[FATCategory.feed]?.credibility, ClaimCredibility.producerAffidavit);
     expect(
         c[FATCategory.feed]?.credibilityNote,
         contains(
-            'This label uses "pasture raised." FSIS has no regulation defining the term, but it approves the claim on an inspected label only after the producer submits documentation; its 2024 guideline asks for evidence that the animals spent the majority of their lives on pasture, and the label must name who set the standard. Label approval is a paperwork review, not verification: FSIS does not audit the farm or check that the practice continues, so the claim rests on the producer\'s own documentation. No third-party certification mark was found. For beef, bison, lamb, and goat, FAT looks for lifetime pasture or rangeland access with managed grazing and pasture- or range-finishing — not feedlot finishing.'));
+            'This label uses "pasture raised." USDA has no regulation defining the term, but it approves the claim on an inspected label only after the producer submits documentation; its 2024 guideline asks for evidence that the animals spent the majority of their lives on pasture, and the label must name who set the standard. Label approval is a paperwork review, not verification: USDA does not audit the farm or check that the practice continues, so the claim rests on the producer\'s own documentation. No third-party certification mark was found. For beef, bison, lamb, and goat, FAT looks for lifetime pasture or rangeland access with managed grazing and pasture- or range-finishing — not feedlot finishing.'));
     expect(c[FATCategory.animalWelfare]?.status, DisclosureStatus.known);
     expect(c[FATCategory.animalWelfare]?.value, 'Raised Outdoors / Pasture Access');
     expect(c[FATCategory.animalWelfare]?.credibility,
         ClaimCredibility.producerAffidavit);
     expect(c[FATCategory.animalWelfare]?.credibilityNote,
-        'The label claims the animal was raised outdoors with pasture (or woodland) access — a meaningful welfare positive versus cage or indoor confinement. FSIS approved the claim after reviewing the producer\'s documentation, but label approval is not verification — FSIS does not audit the farm. No third-party welfare certification (e.g. Certified Humane, Animal Welfare Approved, Global Animal Partnership) was found, so the claim rests on the producer\'s documentation.');
+        'The label claims the animal was raised outdoors with pasture (or woodland) access — a meaningful welfare positive versus cage or indoor confinement. USDA approved the claim after reviewing the producer\'s documentation, but label approval is not verification — USDA does not audit the farm. No third-party welfare certification (e.g. Certified Humane, Animal Welfare Approved, Global Animal Partnership) was found, so the claim rests on the producer\'s documentation.');
     expect(c[FATCategory.medicine]?.credibility, ClaimCredibility.producerAffidavit);
     expect(c[FATCategory.medicine]?.credibilityNote,
-        'FSIS-approved claim based on the producer\'s documentation — label approval is a paperwork review, not an on-farm audit or residue test.');
+        'USDA-approved claim based on the producer\'s documentation — label approval is a paperwork review, not an on-farm audit or residue test.');
   });
 
-  test('FSIS gating changes tier only, not status', () {
+  test('USDA gating changes tier only, not status', () {
     final withEst = interp(fsisBeef);
     final noEst = interp(fsisBeef.replaceAll('EST. 45029', ''));
     for (final cat in FATCategory.values) {
@@ -58,7 +58,7 @@ void main() {
     expect(
         note,
         contains(
-            'This label uses "pasture raised" without a third-party certification mark. There is no FSIS regulatory definition of the term, and with no establishment number or inspection legend found on the scanned panels, FAT cannot tie the claim to an FSIS label approval.'));
+            'This label uses "pasture raised" without a third-party certification mark. There is no USDA regulatory definition of the term, and with no establishment number or inspection legend found on the scanned panels, FAT cannot tie the claim to a USDA label approval.'));
     expect(note.contains('no audit or monitoring'), isFalse);
     expect(c[FATCategory.animalWelfare]?.credibility,
         ClaimCredibility.labelClaimOnly);
@@ -81,7 +81,7 @@ void main() {
         ClaimCredibility.producerAffidavit);
   });
 
-  test('Inspection legend alone counts as FSIS-inspected', () {
+  test('Inspection legend alone counts as USDA-inspected', () {
     final c = interp(
         'Pork Chops Pasture Raised Inspected and Passed by Department of Agriculture');
     expect(c[FATCategory.feed]?.credibility, ClaimCredibility.producerAffidavit);

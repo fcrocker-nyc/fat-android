@@ -412,7 +412,7 @@ class SeafoodBrandDatabase {
       fdaEnforcementURL:
           "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/avanti-frozen-foods-recalls-frozen-cooked-shrimp-because-possible-health-risk-0",
       regulatoryNotes:
-          "Involved in 2010-2013 canned tuna price-fixing conspiracy. Thai Union parent has faced scrutiny over labor conditions on fishing vessels and in processing facilities in Southeast Asia. Chicken of the Sea frozen cooked shrimp named in June–August 2021 Avanti Frozen Foods recalls tied to a Salmonella Weltevreden outbreak; Avanti added to FDA Import Alert 16-120 (fish and fishery products; seafood HACCP) on March 4, 2025.",
+          "Involved in 2010-2013 canned tuna price-fixing conspiracy. Thai Union parent has faced scrutiny over labor conditions on fishing vessels and in processing facilities in Southeast Asia. Chicken of the Sea frozen cooked shrimp named in June–August 2021 Avanti Frozen Foods recalls tied to a Salmonella Weltevreden outbreak; Avanti added to FDA Import Alert 16-120 (fish and fishery products; seafood food-safety plan rules) on March 4, 2025.",
     ),
 
     SeafoodBrandResult(

@@ -194,7 +194,7 @@ class DisclosureShareCard extends StatelessWidget {
             SizedBox(width: 8),
             Expanded(
               child: Text(
-                  'Meets USDA FSIS minimums — as is required of all federally inspected meat and catfish.',
+                  'Meets USDA minimums — as is required of all federally inspected meat and catfish.',
                   style: TextStyle(
                       fontSize: 12.5,
                       fontWeight: FontWeight.w600,

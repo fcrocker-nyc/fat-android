@@ -148,7 +148,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('FSIS Public Record',
+        const Text('USDA Inspection Record',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
         const SizedBox(height: 10),
         Container(
@@ -314,7 +314,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('FSIS Public Record',
+        const Text('USDA Inspection Record',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
         const SizedBox(height: 10),
         Container(
@@ -417,7 +417,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
                 const SizedBox(height: 2),
                 Text(
                     result.isSiluriformes
-                        ? 'Catfish / Siluriformes — USDA/FSIS regulated'
+                        ? 'Catfish / Siluriformes — USDA regulated'
                         : 'FDA regulated',
                     style: const TextStyle(
                         fontSize: 14, fontWeight: FontWeight.w600)),

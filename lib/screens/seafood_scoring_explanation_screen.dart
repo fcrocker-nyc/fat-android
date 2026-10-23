@@ -109,7 +109,7 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
           ),
           const SizedBox(height: 6),
           const Text(
-            'Catfish and all other Siluriformes are regulated by USDA FSIS — not FDA. Every other seafood product falls under FDA. This split affects which inspection mark to look for, which establishment number unlocks enforcement data, which banned-substance testing regime applies, and which species-naming rules govern the label. FAT scores this fork explicitly in Categories 1, 2, 7, and 12.',
+            'Catfish and all other Siluriformes are regulated by USDA — not FDA. Every other seafood product falls under FDA. This split affects which inspection mark to look for, which establishment number unlocks enforcement data, which banned-substance testing regime applies, and which species-naming rules govern the label. FAT scores this fork explicitly in Categories 1, 2, 7, and 12.',
             style: TextStyle(fontSize: 14, color: _ink, height: 1.35),
           ),
         ],
@@ -143,7 +143,7 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         const Text(
-          'Steps 1 and 2 score the label itself. Step 3 surfaces the processor\'s FDA or FSIS enforcement record (catfish/Siluriformes is FSIS — see the regulatory fork above), the brand owner and corporate parent, foreign-ownership status, and economic-concentration / HHI context for the seafood supply chain. Same model as meat.',
+          'Steps 1 and 2 score the label itself. Step 3 surfaces the processor\'s FDA or USDA enforcement record (catfish/Siluriformes is USDA — see the regulatory fork above), the brand owner and corporate parent, foreign-ownership status, and economic-concentration / HHI context for the seafood supply chain. Same model as meat.',
           style: TextStyle(fontSize: 14, color: _muted, height: 1.35),
         ),
         const SizedBox(height: 10),
@@ -212,14 +212,14 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
             color: _amber,
             title: 'USDA / FDA program',
             detail:
-                'USDA-administered program with audit teeth — primarily relevant for catfish and other Siluriformes under FSIS inspection, plus USDA Process-Verified Program where applied to seafood operations.'),
+                'USDA-administered program with audit teeth — primarily relevant for catfish and other Siluriformes under USDA inspection, plus USDA Process-Verified Program where applied to seafood operations.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '📄',
             color: _amber,
             title: 'Producer Affidavit',
             detail:
-                'FDA or FSIS approved the label language, backed by producer-maintained records and affidavits. No independent on-site audit. Examples: a country of origin that meets U.S. labeling rules, FSIS-approved species name claims.'),
+                'FDA or USDA approved the label language, backed by producer-maintained records and affidavits. No independent on-site audit. Examples: a country of origin that meets U.S. labeling rules, USDA-approved species name claims.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '⚠',
@@ -247,7 +247,7 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
             color: _green,
             title: 'Processor & Enforcement Record',
             detail:
-                'The processor or facility is identified on the label (FSIS establishment number for catfish/Siluriformes, FDA registration elsewhere). Its public record — recalls, import alerts, HACCP enforcement, and processor warning letters — is tied to that identifier.'),
+                'The processor or facility is identified on the label (USDA establishment number for catfish/Siluriformes, FDA registration elsewhere). Its public record — recalls, import alerts, food-safety plan enforcement, and processor warning letters — is tied to that identifier.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '🏢',
@@ -350,7 +350,7 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
             color: _amber,
             label: 'Amber',
             detail:
-                'Partially disclosed, or government-reviewed but not independently audited — including a USDA Process Verified Program, the USDA FSIS catfish inspection mark, or a country of origin that meets U.S. labeling rules but names no farm or vessel.'),
+                'Partially disclosed, or government-reviewed but not independently audited — including a USDA Process Verified Program, the USDA catfish inspection mark, or a country of origin that meets U.S. labeling rules but names no farm or vessel.'),
         const SizedBox(height: 10),
         _colorRow(
             color: _red,

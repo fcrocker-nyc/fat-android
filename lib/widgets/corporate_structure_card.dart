@@ -176,7 +176,7 @@ class _CorporateStructureCardState extends State<CorporateStructureCard> {
           if (d.disclosedEntities.length > 1) ...[
             const SizedBox(height: 10),
             Text(
-              'Entities on the FSIS record: ${d.disclosedEntities.join(' • ')}',
+              'Entities on the USDA inspection record: ${d.disclosedEntities.join(' • ')}',
               style: const TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w600,

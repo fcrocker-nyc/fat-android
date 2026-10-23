@@ -57,7 +57,7 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "A place where the animal was raised or the seafood was caught or farmed. Country-of-origin labeling rules define origin for meat and seafood sold in stores (USDA AMS).",
+      "meaning": "A place where the animal was raised or the seafood was caught or farmed. Country-of-origin labeling rules define origin for meat and seafood sold in stores (USDA's Agricultural Marketing Service).",
       "authority": "USDA country-of-origin labeling rule — stores only, not restaurants",
       "gap": "Restaurants don’t have to follow country-of-origin labeling rules, so a place name on a menu can describe a style or a past supplier rather than what is in the kitchen today.",
       "questions": [
@@ -111,8 +111,8 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "A statement about country. On a retail label, ‘Product of USA’ now means born, raised, slaughtered and processed in the U.S. (FSIS rule, effective 2026).",
-      "authority": "USDA FSIS — applies to labels, not menu copy",
+      "meaning": "A statement about country. On a retail label, ‘Product of USA’ now means born, raised, slaughtered and processed in the U.S. (USDA rule, effective 2026).",
+      "authority": "USDA — applies to labels, not menu copy",
       "gap": "On a menu nobody checks the wording, and ‘domestic’ may mean processed here rather than raised here.",
       "questions": [
         "Which country was it raised or caught in?",
@@ -217,8 +217,8 @@
         "beef",
         "lamb"
       ],
-      "meaning": "The animal ate grass. On a retail label FSIS requires documentation for the claim; the old AMS grass-fed standard was withdrawn in 2016.",
-      "authority": "USDA FSIS animal-raising claims guideline (2024) — labels only",
+      "meaning": "The animal ate grass. On a retail label USDA requires documentation for the claim; the old USDA grass-fed standard was withdrawn in 2016.",
+      "authority": "USDA animal-raising claims guideline (2024) — labels only",
       "gap": "Grass-fed doesn’t say whether the animal was finished on grain, or how much of its life was on pasture.",
       "questions": [
         "Grass-fed and grass-finished, or finished on grain?",
@@ -243,8 +243,8 @@
         "beef",
         "lamb"
       ],
-      "meaning": "The animal ate grass and forage through to slaughter, with no grain finishing. On labels FSIS asks for documentation; third parties (AGA, PCO) certify it.",
-      "authority": "USDA FSIS animal-raising claims guideline (2024) — labels only",
+      "meaning": "The animal ate grass and forage through to slaughter, with no grain finishing. On labels USDA asks for documentation; third parties (AGA, PCO) certify it.",
+      "authority": "USDA animal-raising claims guideline (2024) — labels only",
       "gap": "On a menu nobody checks the claim, and it doesn’t say where the animal was raised. Much grass-finished beef sold in the U.S. is imported.",
       "questions": [
         "Is it certified grass-fed by anyone, or is that the supplier’s description?",
@@ -265,8 +265,8 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "Raised with time on pasture. FSIS approves the claim on labels from the producer’s own documentation; certifiers like Certified Humane set outdoor-space minimums.",
-      "authority": "USDA FSIS animal-raising claims guideline (2024) — labels only",
+      "meaning": "Raised with time on pasture. USDA approves the claim on labels from the producer’s own documentation; certifiers like Certified Humane set outdoor-space minimums.",
+      "authority": "USDA animal-raising claims guideline (2024) — labels only",
       "gap": "There’s no federal minimum for days or space on pasture, and the claim says nothing about feed.",
       "questions": [
         "Is the supplier certified for pasture-raised, or is that their own description?",
@@ -290,8 +290,8 @@
         "poultry",
         "pork"
       ],
-      "meaning": "For poultry, FSIS requires that birds had access to the outdoors. ‘Cage-free’ means not raised in cages; meat chickens in the U.S. are not caged anyway.",
-      "authority": "USDA FSIS — labels only",
+      "meaning": "For poultry, USDA requires that birds had access to the outdoors. ‘Cage-free’ means not raised in cages; meat chickens in the U.S. are not caged anyway.",
+      "authority": "USDA — labels only",
       "gap": "Free range sets no minimum for outdoor time or space, and ‘access’ can be a door the birds rarely use.",
       "questions": [
         "Who raises the chicken?",
@@ -314,8 +314,8 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "The animal received no antibiotics. On labels FSIS requires documentation for the claim (2024 guideline).",
-      "authority": "USDA FSIS animal-raising claims guideline (2024) — labels only",
+      "meaning": "The animal received no antibiotics. On labels USDA requires documentation for the claim (2024 guideline).",
+      "authority": "USDA animal-raising claims guideline (2024) — labels only",
       "gap": "It doesn’t say anything else about how the animal was raised. Sick animals that need treatment are usually moved to a different program.",
       "questions": [
         "Is that verified by a third party, or the supplier’s claim?",
@@ -337,8 +337,8 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "No growth hormones were used. Federal rules already ban hormones in pork and poultry, so FSIS requires those labels to say so. For beef the claim needs documentation.",
-      "authority": "USDA FSIS — labels only",
+      "meaning": "No growth hormones were used. Federal rules already ban hormones in pork and poultry, so USDA requires those labels to say so. For beef the claim needs documentation.",
+      "authority": "USDA — labels only",
       "gap": "For chicken and pork the claim is true of all of it. For beef it doesn’t say anything about feed, antibiotics, or how the animal was raised.",
       "questions": [
         "Is the beef from a certified program, or the supplier’s description?",
@@ -358,8 +358,8 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "On a retail label, FSIS ‘natural’ means minimally processed with no artificial ingredients. It is about processing, not how the animal lived.",
-      "authority": "USDA FSIS — labels only",
+      "meaning": "On a retail label, USDA ‘natural’ means minimally processed with no artificial ingredients. It is about processing, not how the animal lived.",
+      "authority": "USDA — labels only",
       "gap": "‘Natural’ says nothing about feed, antibiotics, outdoor access or where the animal came from.",
       "questions": [
         "What does natural mean for this dish — how was the animal raised?",
@@ -382,7 +382,7 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "A welfare statement. On labels FSIS requires documentation, usually a third-party standard. On a menu there is no definition.",
+      "meaning": "A welfare statement. On labels USDA requires documentation, usually a third-party standard. On a menu there is no definition.",
       "authority": "No legal definition on menus",
       "gap": "It doesn’t say whose standard is used or what it requires.",
       "questions": [
@@ -404,7 +404,7 @@
         "poultry"
       ],
       "meaning": "The birds were cooled with cold air after slaughter instead of in chilled water baths.",
-      "authority": "USDA FSIS — labels only",
+      "authority": "USDA — labels only",
       "gap": "It describes processing only — not how or where the birds were raised.",
       "questions": [
         "Who raises the chicken?",
@@ -449,7 +449,7 @@
         "beef"
       ],
       "meaning": "Meat from young calves, usually male dairy calves. Housing ranges from group pens to individual stalls.",
-      "authority": "USDA FSIS",
+      "authority": "USDA",
       "gap": "‘Veal’ alone doesn’t say how the calves were housed or fed.",
       "questions": [
         "Were the calves raised in group housing?",
@@ -799,7 +799,7 @@
         "beef"
       ],
       "meaning": "A breed name. In the U.S. ‘Angus’ usually means mostly black-hided cattle, not a DNA test.",
-      "authority": "USDA AMS (Angus claims for live cattle)",
+      "authority": "USDA's Agricultural Marketing Service (Angus claims for live cattle)",
       "gap": "Breed says nothing about where or how the animal was raised, or its grade.",
       "questions": [
         "What grade is it — Prime, Choice?",
@@ -824,7 +824,7 @@
         "lamb"
       ],
       "meaning": "USDA quality grades (Prime, Choice, Select) measure marbling and maturity. Prime is the top grade.",
-      "authority": "USDA AMS quality grading",
+      "authority": "USDA quality grading",
       "gap": "Grade is about eating quality only — not breed, feed, origin, or how the animal was raised. ‘Prime rib’ is a cut and need not be Prime grade.",
       "questions": [
         "Is it USDA-graded Prime, or is ‘prime’ the name of the cut?",

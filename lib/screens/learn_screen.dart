@@ -553,9 +553,9 @@ final List<_LearnSection> _sections = <_LearnSection>[
         body: _text(
             'A FAT read is built in three steps. Each step asks a different question.\n\n'
             'Step 1 — What was disclosed?\n'
-            'We read the label and check which transparency categories are present. For meat, there are 16 categories (species, breed, country of origin, farm/ranch, processor, feed, animal welfare, pasture/outdoor access, regenerative/land use, quality, dietary attributes, medicine, age at slaughter, USDA/FSIS required language, the establishment number, and supply-chain intermediaries). For seafood, there is a partly overlapping set of 16 categories with seafood-specific additions. Each category gets one of three states: Disclosed (green), Partially disclosed (amber), or Not disclosed (red).\n\n'
+            'We read the label and check which transparency categories are present. For meat, there are 16 categories (species, breed, country of origin, farm/ranch, processor, feed, animal welfare, pasture/outdoor access, regenerative/land use, quality, dietary attributes, medicine, age at slaughter, USDA required language, the establishment number, and supply-chain intermediaries). For seafood, there is a partly overlapping set of 16 categories with seafood-specific additions. Each category gets one of three states: Disclosed (green), Partially disclosed (amber), or Not disclosed (red).\n\n'
             'Step 2 — How credible is what was disclosed?\n'
-            'Disclosure alone isn\'t proof. A claim can be Third-Party Audited (independently audited on-farm by an organization that is neither the producer nor the regulator), USDA Process Verified Program (a USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim; government-backed, but not an independent third-party audit), Producer Affidavit (claims FSIS approved on the producer\'s documentation — label approval is not verification; e.g. Grass Fed, Pasture Raised, Free Range, No Antibiotics Ever without a certifier — no on-farm audit), or Unverified Marketing (the words are on the package with no audit and no government label-language approval). The same disclosure can carry very different weight depending on which of those four credibility tiers applies.\n\n'
+            'Disclosure alone isn\'t proof. A claim can be Third-Party Audited (independently audited on-farm by an organization that is neither the producer nor the regulator), USDA Process Verified Program (a USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim; government-backed, but not an independent third-party audit), Producer Affidavit (claims USDA approved on the producer\'s documentation — label approval is not verification; e.g. Grass Fed, Pasture Raised, Free Range, No Antibiotics Ever without a certifier — no on-farm audit), or Unverified Marketing (the words are on the package with no audit and no government label-language approval). The same disclosure can carry very different weight depending on which of those four credibility tiers applies.\n\n'
             'Step 3 — Who is behind this product, and what does the public record say?\n'
             'The label is one source of information. The processor\'s enforcement history, the parent company\'s ownership and concentration in the category, foreign ownership status, recall history, humane-handling violations, pathogen testing results, and HHI for the relevant supply chain are all relevant facts that don\'t appear on the label but do affect what the consumer is actually buying. FAT surfaces these facts when they are available in public records.\n\n'
             'FAT reports how many of the 16 categories a label discloses (Step 1) and how credible those disclosures are (Step 2). Step 3 sits alongside as public-record context — not part of the count. It is a count of what the label tells you, not a grade of the food. Step 3 can flag a product even when its label discloses a lot: a well-disclosed label whose processor has a recent recall, or whose parent corporation holds an HHI-flagged share of the market, is a different consumer story than the same label without that history.'),
@@ -583,7 +583,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Dietary attributes',
             'Medicine / antibiotics',
             'Age at slaughter',
-            'USDA / FSIS required language',
+            'USDA required language',
             'Establishment number',
             'Supply-chain intermediaries',
           ]),
@@ -614,21 +614,21 @@ final List<_LearnSection> _sections = <_LearnSection>[
             color: FATTheme.successGreen,
             title: 'Third-Party Audited',
             description:
-                'Independent on-farm audit by an organization that is neither the producer nor the regulator. Examples: USDA Organic (NOP-accredited annual audit), A Greener World (AGW), Certified Humane, Global Animal Partnership, American Grassfed Association, Regenerative Organic Certified. For seafood: MSC, ASC, BAP. Highest score weight.',
+                'Independent on-farm audit by an organization that is neither the producer nor the regulator. Examples: USDA Organic (annual audit by a USDA-accredited certifier), A Greener World (AGW), Certified Humane, Global Animal Partnership, American Grassfed Association, Regenerative Organic Certified. For seafood: MSC, ASC, BAP. Highest score weight.',
           ),
           const _TierRow(
             icon: Icons.verified,
             color: FATTheme.usdaApprovedBlue,
             title: 'USDA Process Verified Program',
             description:
-                'A USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim. Government-backed, but not an independent third-party audit. Examples: USDA AMS Process Verified Program (PVP, the producer\'s own standard audited by USDA), USDA quality-grade shields (Prime, Choice, Select) determined by USDA graders. FSIS label approval alone does not qualify. Strong score weight.',
+                'A USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim. Government-backed, but not an independent third-party audit. Examples: USDA Process Verified Program (PVP, the producer\'s own standard audited by USDA), USDA quality-grade shields (Prime, Choice, Select) determined by USDA graders. USDA label approval alone does not qualify. Strong score weight.',
           ),
           const _TierRow(
             icon: Icons.description_outlined,
             color: FATTheme.fatOrange,
             title: 'Producer Affidavit',
             description:
-                'Claims FSIS approved on the producer\'s documentation (label approval is not verification): FSIS reviewed and approved the wording on the label, backed by the producer\'s affidavit and internal records — no independent on-farm audit. Examples: "Grass Fed," "Pasture Raised," "Free Range," or "No Antibiotics Ever" without a third-party cert mark, "No Hormones Administered" (beef), "Raised using Regenerative Agriculture Practices." Government oversight exists at the label-approval stage only. Moderate score weight.',
+                'Claims USDA approved on the producer\'s documentation (label approval is not verification): USDA reviewed and approved the wording on the label, backed by the producer\'s affidavit and internal records — no independent on-farm audit. Examples: "Grass Fed," "Pasture Raised," "Free Range," or "No Antibiotics Ever" without a third-party cert mark, "No Hormones Administered" (beef), "Raised using Regenerative Agriculture Practices." Government oversight exists at the label-approval stage only. Moderate score weight.',
           ),
           const _TierRow(
             icon: Icons.info_outline,
@@ -638,7 +638,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
                 'Printed on the label with no third-party audit and no government label-language approval. The claim may still be true, but the consumer has no external confirmation. Examples: "Family Farm," "Humanely Raised" (without a certification logo), "All Natural," "Farm Fresh," "Sustainably Sourced." Lowest score weight.',
           ),
           const _Para(
-              'Required label basics carry no tier. What FSIS requires on the label — the inspection legend and establishment number, the product name and species, and FSIS poultry class names such as Broiler, Fryer, Roaster, Capon or Cornish Game Hen (9 CFR 381.170) — is counted when present, but it is a required naming standard, not a verified claim, so it shows without a credibility tier. A class name implies an age range; a stated age or a USDA Process Verified Program claim on the same label still shows its own tier.'),
+              'Required label basics carry no tier. What USDA requires on the label — the inspection legend and establishment number, the product name and species, and USDA poultry class names such as Broiler, Fryer, Roaster, Capon or Cornish Game Hen (9 CFR 381.170) — is counted when present, but it is a required naming standard, not a verified claim, so it shows without a credibility tier. A class name implies an age range; a stated age or a USDA Process Verified Program claim on the same label still shows its own tier.'),
           const _Rule(),
           const _Head('What FAT Does Not Do'),
           const _Para(
@@ -653,7 +653,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         body: _text(
             'The label is one source of information. The entities behind the label are another. Step 3 surfaces what the public record says about them — a separate panel on the results screen, not part of the disclosure count. Step 3 can flag a product even when its label discloses a lot.\n\n'
             'Processor & enforcement record\n'
-            'The processor is identified on the label by establishment number (FSIS for meat, poultry, and catfish; FDA for other seafood). FAT pulls the processor\'s public enforcement record from the relevant regulator\'s files: recalls, humane-handling violations, quarterly enforcement actions, Salmonella performance categories, beef pathogen sampling results, chemical-residue findings, and FDA import alerts. A clean record looks different from a record with multiple recent recalls — same brand on the package either way.\n\n'
+            'The processor is identified on the label by establishment number (USDA for meat, poultry, and catfish; FDA for other seafood). FAT pulls the processor\'s public enforcement record from the relevant regulator\'s files: recalls, humane-handling violations, quarterly enforcement actions, Salmonella performance categories, beef pathogen sampling results, chemical-residue findings, and FDA import alerts. A clean record looks different from a record with multiple recent recalls — same brand on the package either way.\n\n'
             'Brand owner & corporate parent\n'
             'Many shelf brands are subsidiary product lines of much larger corporations. Eckrich and Nathan\'s Famous are Smithfield brands. Hillshire Farm and Jimmy Dean are Tyson brands. The brand on the package is what the consumer sees first; the parent corporation is what governs procurement, contract terms, and corporate policy. FAT discloses both.\n\n'
             'Beneficial & foreign ownership\n'
@@ -802,35 +802,35 @@ final List<_LearnSection> _sections = <_LearnSection>[
       // 2.2
       _LearnTopic(
         title: 'Grass-Fed and Grass-Finished Claims',
-        subtitle: 'What FSIS actually requires — and what it doesn\'t',
+        subtitle: 'What USDA actually requires — and what it doesn\'t',
         body: _text(
-            '"Grass-fed" and "grass-finished" sound similar, but under FSIS rules they mean very different things — and the difference is the opposite of what most consumers expect.\n\n'
+            '"Grass-fed" and "grass-finished" sound similar, but under USDA rules they mean very different things — and the difference is the opposite of what most consumers expect.\n\n'
             'Grass-Fed (the stronger claim):\n'
-            'FSIS Guideline FSIS-GD-2024-0006 (August 2024) states it directly: "FSIS considers Grass Fed, Grassfed, Grass-Fed and 100% Grass-Fed to be synonymous terms. These claims may be applied to meat and meat product labels derived from cattle that were only (100%) fed forage (e.g., grass) after being weaned from their mother\'s milk. This means such animals are never confined to a feedlot." The guideline adds that "Grass Fed animals cannot be fed grain or grain by-products and must have continuous access to pasture during the growing season until slaughter."\n\n'
-            'Note that "100% Grass-Fed" is NOT a stronger claim than "Grass Fed" — FSIS treats the four spellings as the same claim.\n\n'
+            'USDA guideline FSIS-GD-2024-0006 (August 2024) states it directly: "[USDA] considers Grass Fed, Grassfed, Grass-Fed and 100% Grass-Fed to be synonymous terms. These claims may be applied to meat and meat product labels derived from cattle that were only (100%) fed forage (e.g., grass) after being weaned from their mother\'s milk. This means such animals are never confined to a feedlot." The guideline adds that "Grass Fed animals cannot be fed grain or grain by-products and must have continuous access to pasture during the growing season until slaughter."\n\n'
+            'Note that "100% Grass-Fed" is NOT a stronger claim than "Grass Fed" — USDA treats the four spellings as the same claim.\n\n'
             'Grass-Finished (the weaker claim):\n'
             'The same guideline: "Grass Finished… is not synonymous with Grass Fed. Animals that are Grass Finished can be fed grain, in which case the claim \'Grain Fed, Grass Finished\' would be truthful and not misleading." Only the final finishing phase must be forage, so grain earlier in life is permitted.\n\n'
             'Partial Claims:\n'
-            'FSIS also permits partial grass-fed claims such as "75% grass-fed" or "90% grass-fed" as long as the percentage is disclosed on the label. These products appear alongside 100% grass-fed products on store shelves with no standardized visual distinction.\n\n'
+            'USDA also permits partial grass-fed claims such as "75% grass-fed" or "90% grass-fed" as long as the percentage is disclosed on the label. These products appear alongside 100% grass-fed products on store shelves with no standardized visual distinction.\n\n'
             'How enforcement works:\n'
-            'FSIS approves grass-fed labels based on a producer affidavit — a written statement that the feeding practices meet the standard. Most operations are never independently audited. Without a third-party certification, there is no on-farm verification.\n\n'
+            'USDA approves grass-fed labels based on a producer affidavit — a written statement that the feeding practices meet the standard. Most operations are never independently audited. Without a third-party certification, there is no on-farm verification.\n\n'
             'Third-party certifications:\n'
             'Two independent programs audit grass-fed claims on farms:\n\n'
             '• American Grassfed Association (AGA) — Requires 100% forage diet, no feedlot confinement, no antibiotics or hormones, born and raised in the USA. Independent inspection every 15 months.\n\n'
             '• Certified Grassfed by A Greener World (AGW) — Requires 100% forage diet with birth-to-slaughter traceability. Can only be awarded to farms that also hold Animal Welfare Approved certification.\n\n'
             'A third option, USDA Process Verified, is not a standard — the producer defines their own grass-fed protocol and USDA audits compliance with that self-defined standard. Two Process Verified operations may have materially different practices.\n\n'
             'How FAT scores the Feed category:\n'
-            'Because FSIS defines "Grass Fed" as 100% forage after weaning with no feedlot confinement, a Grass Fed claim earns the Feed category. Weaker or mixed claims do not:\n\n'
+            'Because USDA defines "Grass Fed" as 100% forage after weaning with no feedlot confinement, a Grass Fed claim earns the Feed category. Weaker or mixed claims do not:\n\n'
             '• Grass Fed / Grassfed / Grass-Fed / 100% Grass-Fed — earns the category (all four are the same claim)\n'
-            '• Grass Finished alone — no credit; FSIS permits grain earlier in life\n'
+            '• Grass Finished alone — no credit; USDA permits grain earlier in life\n'
             '• "Grain Fed, Grass Finished" or any mixed diet — no credit; grain is disclosed\n'
-            '• A disclosed percentage under 100% (e.g. "75% grass fed") — no credit; a partial claim by FSIS\'s own terms\n\n'
+            '• A disclosed percentage under 100% (e.g. "75% grass fed") — no credit; a partial claim by USDA\'s own terms\n\n'
             'An uncredited claim still appears on your scan with the reason it earned nothing — FAT tells you what the label said and why it does not count.\n\n'
-            'The real limitation is verification, not meaning. FSIS substantiates a grass-fed claim through documentation reviewed at label approval, not an on-farm audit. That is why certification changes the tier:\n\n'
+            'The real limitation is verification, not meaning. USDA substantiates a grass-fed claim through documentation reviewed at label approval, not an on-farm audit. That is why certification changes the tier:\n\n'
             '• Claims backed by AGA or AGW certification are flagged as third-party audited\n'
             '• Claims with USDA Process Verified are flagged as producer-defined standards\n'
             '• Claims with no certification are flagged as affidavit only — no independent audit\n'
-            '• "Grass-finished" claims trigger a warning explaining that this is the weaker claim under FSIS rules\n'
+            '• "Grass-finished" claims trigger a warning explaining that this is the weaker claim under USDA rules\n'
             '• Partial claims display the disclosed percentage\n\n'
             'Source: FAT Research Paper No. 6 — Grass-Fed vs. Grass-Finished: What FSIS Actually Recognizes, and What Consumers Don\'t Know. Full paper available at farmanimaltransparency.org.'),
       ),
@@ -851,7 +851,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'EFSA (EU), a joint FAO/WHO expert meeting, and a New Zealand government review all put dietary exposure to these chemicals far below safety limits. USDA and the EU find no evidence the wash harms the person eating the chicken. FAT\'s concern is disclosure, not danger.\n\n'
             'Not an OSHA violation.\n'
             'Using these sprays is not, in itself, an OSHA violation — there is no OSHA airborne limit for peracetic acid for a plant to break. Worker exposure is real but governed only by a voluntary industry guideline: a gap in the rules, not a citation. A plant\'s actual safety-enforcement record, if any, is shown separately.\n\n'
-            'Two caveats. Every air-chill claim is self-reported and unaudited. And the high end of the retained-water range ("up to 12%") appears in FSIS guidance rather than on any package we could find — which is itself telling.\n\n'
+            'Two caveats. Every air-chill claim is self-reported and unaudited. And the high end of the retained-water range ("up to 12%") appears in USDA guidance rather than on any package we could find — which is itself telling.\n\n'
             'Source: FAT research paper — The Chemistry That Isn\'t on the Label: Antimicrobial Washes in U.S. Broiler Processing. Full paper at farmanimaltransparency.com/fat-research/.'),
       ),
       // 2.2d — ground beef blending (mirrors iOS "How Ground Beef Is Blended")
@@ -874,8 +874,8 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Effective January 1, 2026, USDA tightened the standard for the voluntary "Product of USA" / "Made in the USA" claim: every animal contributing meat to the product — including any imported trim blended into ground beef — must have been born, raised, slaughtered, and processed entirely in the United States. That closed a loophole that had let imported cattle merely slaughtered or repackaged in the U.S. carry the claim.\n\n'
             'The catch: the rule only governs companies that choose to make the claim. It does not require anyone to disclose origin. So a blended ground-beef product can simply carry no claim at all and face no additional labeling consequence — which is now the norm for most ground beef, not a gap limited to a few packages.\n\n'
             'What the silence means: under the 2026 rule, an unlabeled package is one of exactly two things — fully domestic product where the packer skipped the optional paperwork, or a blend containing imported trim that is legally barred from the claim. Current law gives a shopper no way to tell which from the shelf.\n\n'
-            'A bill to reinstate mandatory country-of-origin labeling — the American Beef Labeling Act, S.421 — advanced further than any effort to restore mandatory labeling since the 2015 repeal when the Senate Agriculture Committee adopted its language into the farm bill markup on a bipartisan 17–6 vote in August 2026, though it still faces a Senate floor fight, a House bill that omits it, and eventual trade-challenge risk.\n\n'
-            'Source: "Lean Beef in America" research briefing v.4, §§1, 6, 7; National Agricultural Law Center — "USDA Finalizes Voluntary \'Product of USA\' Rule"; Congress.gov, S.421.'),
+            'A bill to reinstate mandatory country-of-origin labeling — the American Beef Labeling Act, S.421 — advanced further than any effort to restore mandatory labeling since the 2015 repeal when the Senate Agriculture Committee adopted its language into the farm bill markup on a bipartisan 17–6 vote in August 2026, according to press reports, though it still faces a Senate floor fight, a House bill that omits it, and eventual trade-challenge risk.\n\n'
+            'Source: "Lean Beef in America" research briefing v.4, §§1, 6, 7; National Agricultural Law Center — "USDA Finalizes Voluntary \'Product of USA\' Rule"; Congress.gov, S.421; R-CALF USA and Ag Bull press reports (not yet confirmed in the committee\'s official record).'),
       ),
       // 2.2f — LFTB
       _LearnTopic(
@@ -885,7 +885,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Lean Finely Textured Beef (LFTB), popularly known as "pink slime," is beef fat and connective tissue that has been centrifuged, warmed, and treated with ammonium hydroxide or citric acid to kill pathogens.\n\n'
             'In December 2018, USDA reclassified LFTB as "ground beef" itself rather than a separate additive. That means a package can legitimately be labeled "100% beef" while containing up to 15% LFTB, with no separate disclosure required anywhere on the label.\n\n'
             'Usage collapsed after 2012 media coverage — from roughly 70% of ground beef in March 2012 to about 5% by 2013 — but has partially recovered as beef prices have climbed. BPI, Cargill, and Tyson are the main producers.\n\n'
-            'There is no way to detect LFTB content from a label. FAT surfaces this as a standing disclosure gap on every ground-beef scan, not a finding specific to the package in hand — the same way FAT states the FSIS baseline on every meat scan.\n\n'
+            'There is no way to detect LFTB content from a label. FAT surfaces this as a standing disclosure gap on every ground-beef scan, not a finding specific to the package in hand — the same way FAT states the USDA baseline on every meat scan.\n\n'
             'Source: "Lean Beef in America" research briefing v.4, §1; USDA 2018 LFTB reclassification.'),
       ),
       // 2.2g — GFW Appendix A (mirrors iOS "Harvest Age, Grind, and Primal Names")
@@ -895,16 +895,16 @@ final List<_LearnSection> _sections = <_LearnSection>[
         body: _text(
             'Three attributes materially change what a ground-beef buyer receives — and almost no producer discloses any of them. In FAT\'s national survey of 724 direct-market operations (August 2026), harvest age appears on 9 producer sites (1.2%), grind specification on 2, and only two of the twelve producers selling named-primal grinds state a lean percentage next to the name.\n\n'
             'Harvest age — and why 30 months is a hard line.\n'
-            'Grass finishing takes 18 to 30-plus months against roughly 14–18 for grain. A "grass-finished" claim says nothing about where in that range an animal fell, yet a 20-month and a 34-month carcass are different products. Under FSIS rules adopted after BSE (9 CFR 310.22), the specified-risk-material list expands sharply at 30 months to include the brain, skull, eyes, spinal cord, vertebral column, and dorsal root ganglia — all of which must be removed and destroyed.\n\n'
+            'Grass finishing takes 18 to 30-plus months against roughly 14–18 for grain. A "grass-finished" claim says nothing about where in that range an animal fell, yet a 20-month and a 34-month carcass are different products. Under USDA rules adopted after BSE (9 CFR 310.22), the specified-risk-material list expands sharply at 30 months to include the brain, skull, eyes, spinal cord, vertebral column, and dorsal root ganglia — all of which must be removed and destroyed.\n\n'
             'The practical consequence: a T-bone is a vertebra. From a 30-month-or-older animal, T-bone and porterhouse cannot be produced at all; bone-in ribeye and standing rib roast must have the chine bone removed. Ground beef, boneless steaks, and roasts are unaffected (tail vertebrae are excluded, so oxtail survives too).\n\n'
             'The grade falls as well. USDA maturity is judged physiologically — cartilage ossification along the vertebrae — approximating age as A (≈9–30 months) or B (≈30–42). Select requires A maturity; a Slight-marbling carcass grades Select at A and drops to Standard at B. Slow forage finishing is penalized twice: the loss of premium bone-in cuts, and a grade drop independent of eating quality.\n\n'
             'By contrast, 15% of surveyed producers advertise dry-aging. A carcass that hung 21 days is disclosed; an animal that lived 32 months is not. Both are "aging." Only one is treated as a selling point.\n\n'
             'Grind specification — real, unregulated, unmeasured.\n'
             'Ground-beef texture is set by the grinder-plate hole diameter (from a coarse 3/8" chili grind down to the standard 3/16" commercial hamburger grind) and by single vs. double grinding. Commercial burger is typically double-ground; a coarse single grind produces steakhouse texture. Same meat, materially different product — and it is not a required label element, appears in no USDA reporting, and matters most for lean grass-finished beef, whose fat renders differently.\n\n'
             '"Ground chuck" and "ground sirloin" — narrower than assumed.\n'
-            'The FSIS rule is real: when a ground product carries a primal name, both the lean and the fat must come only from that primal. What the rule does NOT require is any lean-to-fat ratio — no fat-percentage requirement attaches to the name, only the universal 30%-fat cap. The name guarantees provenance within the carcass, not composition. Surveyed named-primal grinds carried premiums of 6–66% over plain ground from the same animal. Related: "ground beef" may not contain added fat; "hamburger" may. Both cap at 30%.\n\n'
+            'The USDA rule is real: when a ground product carries a primal name, both the lean and the fat must come only from that primal. What the rule does NOT require is any lean-to-fat ratio — no fat-percentage requirement attaches to the name, only the universal 30%-fat cap. The name guarantees provenance within the carcass, not composition. Surveyed named-primal grinds carried premiums of 6–66% over plain ground from the same animal. Related: "ground beef" may not contain added fat; "hamburger" may. Both cap at 30%.\n\n'
             'None of this is fraud — it is selective disclosure: producers advertise the attributes that flatter (dry-aging, breed, "100% grass-fed") and stay silent on the ones that carry tradeoffs. Unlike most transparency complaints, this one is directly measurable.\n\n'
-            'Source: FAT research paper — Harvest Age, Grind Specification, and Named-Primal Grinds. Full paper at farmanimaltransparency.com/fat-research/. Regulatory sources: 9 CFR 310.22; USDA AMS grading standards; Texas A&M Meat Science on FSIS primal-name policy.'),
+            'Source: FAT research paper — Harvest Age, Grind Specification, and Named-Primal Grinds. Full paper at farmanimaltransparency.com/fat-research/. Regulatory sources: 9 CFR 310.22; USDA grading standards; Texas A&M Meat Science on USDA primal-name policy.'),
       ),
       // 2.2h — cell-cultivated (lab-grown) meat (mirrors iOS
       // "Is any ground beef lab-grown?")
@@ -914,7 +914,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         body: _text(
             "No. As of October 2026, no cell-cultivated (lab-grown) beef has been cleared for sale in the United States.\n\n"
             "U.S. clearances so far are chicken (UPSIDE Foods, GOOD Meat and Believer Meats, which has since closed), pork fat (Mission Barns) and salmon (Wildtype). Sales have been limited to a few restaurants and promotional retail sales.\n\n"
-            'USDA-FSIS must preapprove the label of any cell-cultivated meat or poultry product. Labels approved so far put "cell-cultivated" in front of the meat name, as in "cell-cultivated chicken."\n\n'
+            'USDA must preapprove the label of any cell-cultivated meat or poultry product. Labels approved so far put "cell-cultivated" in front of the meat name, as in "cell-cultivated chicken."\n\n'
             "Several states, including Montana, Florida, Alabama, Mississippi, Nebraska, Indiana and Texas, ban or restrict its sale.\n\n"
             'How to check a package: real ground beef carries the USDA inspection mark and an establishment (EST) number. Scan it, and FAT names the plant that produced it. If a label ever says "cell-cultivated," the scan will tell you.\n\n'
             "Videos claiming that store-brand ground beef is secretly lab-grown are false. Many are AI-generated.\n\n"
@@ -929,11 +929,11 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Why the number disappears.\n'
             'The retail store exemption — 21 U.S.C. 661(c)(2), spelled out at 9 CFR 303.1(d) — covers the ordinary work of a retail meat counter: cutting a wholesale cut into retail cuts, and grinding. A store doing that work is not an "official establishment," so it has no establishment number of its own, and nothing obliges it to carry forward the number of the plant that supplied the box.\n\n'
             'What FAT does with it.\n'
-            'When FAT detects a store-cut or store-ground package — an in-store scale label, a store-grind statement, a random-weight barcode, and no EST number — it does not flag the missing number as a violation. It marks the establishment-dependent categories — Processor, the FSIS legend, and Supply-Chain Intermediaries — "not applicable" (shown in blue) rather than "not disclosed" (red), and sets them aside from the disclosed count. The information was never required to travel to the store scale label, so its absence says nothing about the store. Scoring it like a national-brand package the company controls would blame the store for a gap that belongs to the regulation.\n\n'
+            'When FAT detects a store-cut or store-ground package — an in-store scale label, a store-grind statement, a random-weight barcode, and no EST number — it does not flag the missing number as a violation. It marks the establishment-dependent categories — Processor, the USDA inspection mark, and Supply-Chain Intermediaries — "not applicable" (shown in blue) rather than "not disclosed" (red), and sets them aside from the disclosed count. The information was never required to travel to the store scale label, so its absence says nothing about the store. Scoring it like a national-brand package the company controls would blame the store for a gap that belongs to the regulation.\n\n'
             'The one thing the store must keep.\n'
             'For ground beef, a 2015 rule (9 CFR 320.1) requires the store to record its supplier establishment numbers, lot numbers, and grind dates in a grinder\'s log, kept for one year. So even when the number isn\'t on the tray, the answer exists behind the counter — it is fair to ask for it.\n\n'
             'Not a safety flag.\n'
-            'A store-cut tray still meets every USDA FSIS minimum. The retail exemption is about who has to print an identifier, not about whether the meat was inspected.\n\n'
+            'A store-cut tray still meets every USDA minimum. The retail exemption is about who has to print an identifier, not about whether the meat was inspected.\n\n'
             'Source: FAT research paper — The Retail Exemption. Full paper at farmanimaltransparency.com/fat-research/.'),
       ),
       // 2.2d
@@ -943,11 +943,11 @@ final List<_LearnSection> _sections = <_LearnSection>[
         body: _text(
             'A canned beef stew, a frozen pepperoni pizza, or a chicken noodle soup is not a single-animal product. Scoring it against the per-animal questions — what breed, what farm, what age, what feed — would paint a fully legal product as a transparency failure for answers no regulation ever required it to give. So FAT scans these in a separate Prepared / Multi-Ingredient lane.\n\n'
             'Two regulators, one grocery aisle.\n'
-            'Whether USDA or FDA governs a prepared food depends on how much meat is in it. Products with enough meat or poultry (roughly 3% raw or 2% cooked, under FSIS jurisdiction rules) are USDA/FSIS-regulated: they carry the round inspection legend and an establishment number, like any package of meat. Below those thresholds — many frozen pizzas, soups, and sauces — the product is FDA-regulated and legally carries neither mark. The same shelf holds both, and nothing on the front of the package says which is which.\n\n'
+            'Whether USDA or FDA governs a prepared food depends on how much meat is in it. Products with enough meat or poultry (roughly 3% raw or 2% cooked, under USDA jurisdiction rules) are USDA-regulated: they carry the round inspection legend and an establishment number, like any package of meat. Below those thresholds — many frozen pizzas, soups, and sauces — the product is FDA-regulated and legally carries neither mark. The same shelf holds both, and nothing on the front of the package says which is which.\n\n'
             'Where the terms and thresholds come from.\n'
-            '"Prepared / Multi-Ingredient" is FAT\'s consumer-facing name, not a legal term. The law\'s own term for the USDA branch is "meat food product" — defined in the Federal Meat Inspection Act (21 U.S.C. 601(j)) as any food made wholly or in part from meat, EXCEPT products containing meat "only in a relatively small proportion," as USDA prescribes. Poultry runs under a different statute entirely: the Poultry Products Inspection Act defines "poultry product" at 21 U.S.C. 453(f). The working thresholds — generally, less than 3% raw or less than 2% cooked meat or poultry puts a product on the FDA side — come from USDA\'s implementing definitions (9 CFR 301.2) and FSIS\'s published jurisdiction policy (the FSIS Food Standards and Labeling Policy Book). FAT does not use "meat food product" as the lane name because it would be wrong for half the lane: a below-threshold pizza or soup is, by definition, NOT a meat food product — it is an FDA food — and chicken soup is a "poultry product" under a separate act.\n\n'
+            '"Prepared / Multi-Ingredient" is FAT\'s consumer-facing name, not a legal term. The law\'s own term for the USDA branch is "meat food product" — defined in the Federal Meat Inspection Act (21 U.S.C. 601(j)) as any food made wholly or in part from meat, EXCEPT products containing meat "only in a relatively small proportion," as USDA prescribes. Poultry runs under a different statute entirely: the Poultry Products Inspection Act defines "poultry product" at 21 U.S.C. 453(f). The working thresholds — generally, less than 3% raw or less than 2% cooked meat or poultry puts a product on the FDA side — come from USDA\'s implementing definitions (9 CFR 301.2) and USDA\'s published jurisdiction policy (the USDA Food Standards and Labeling Policy Book). FAT does not use "meat food product" as the lane name because it would be wrong for half the lane: a below-threshold pizza or soup is, by definition, NOT a meat food product — it is an FDA food — and chicken soup is a "poultry product" under a separate act.\n\n'
             'The establishment number names the assembler.\n'
-            'On a prepared food under FSIS jurisdiction, the EST number identifies the plant that assembled the product — the cannery, the pizza plant — not the slaughterhouse of the meat inside. Upstream sourcing is not disclosed on the label, and no rule requires it to be. FAT still runs its processor, OSHA, and EPA lookups against that assembler EST, because the assembler\'s own record is real information.\n\n'
+            'On a prepared food under USDA jurisdiction, the EST number identifies the plant that assembled the product — the cannery, the pizza plant — not the slaughterhouse of the meat inside. Upstream sourcing is not disclosed on the label, and no rule requires it to be. FAT still runs its processor, OSHA, and EPA lookups against that assembler EST, because the assembler\'s own record is real information.\n\n'
             'What FAT does with it.\n'
             'Species is read as a list of every meat, poultry, or seafood ingredient named — "Contains: Beef, Pork" — instead of forcing one animal. The per-animal categories (breed, farm, age at slaughter, feed, welfare, medicine, hormones) are marked "not applicable" in blue and set aside from the disclosed count: the gap belongs to the regulatory design, not the brand. When no legend or EST number is found on a prepared food, FAT infers FDA jurisdiction — labels don\'t state the meat percentage, so this is an inference, and the legend may simply be on a panel that wasn\'t scanned. The missing marks are shown as "not required" rather than counted as a violation. And anything the brand voluntarily discloses ("made with organic chicken") still counts and still earns its credibility tier.\n\n'
             'The bigger point.\n'
@@ -990,7 +990,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'In practice, the gap matters a lot. The National Chicken Council\'s annual Broiler Performance Report shows that average commercial slaughter age has fallen from 112 days in 1925 to 47.4 days in 2024. A label saying "Broiler" legally means "under 70 days" — the typical bird is closer to 47. The compression is driven by selective breeding for growth rate, not feed or management alone: a 2014 University of Alberta study (Zuidhof et al., Poultry Science 93:12) found that the modern broiler strain grows to market weight more than 400% faster than the 1957 strain raised under identical conditions.\n\n'
             'The Stewing Hen class is a different supply chain entirely. These birds are not raised for meat — they are egg-production hens removed from laying flocks when output declines, typically at 12 to 18 months.\n\n'
             'How FAT reads it:\n'
-            'FAT counts a class-name disclosure as Known on Category 6, but not as a verified claim. A class name is an FSIS naming standard (9 CFR 381.170), not an audited program, so FAT shows it the way it shows the other label basics FSIS requires — with no credibility tier. The ceiling is legally binding, and the result card states explicitly that the class name is a ceiling, not the actual age, and displays the NCC 47-day industry benchmark. A label bearing only "chicken breast" or "chicken thighs" with no class term scores Missing on Category 6.\n\n'
+            'FAT counts a class-name disclosure as Known on Category 6, but not as a verified claim. A class name is a USDA naming standard (9 CFR 381.170), not an audited program, so FAT shows it the way it shows the other label basics USDA requires — with no credibility tier. The ceiling is legally binding, and the result card states explicitly that the class name is a ceiling, not the actual age, and displays the NCC 47-day industry benchmark. A label bearing only "chicken breast" or "chicken thighs" with no class term scores Missing on Category 6.\n\n'
             'Source: 9 CFR 381.170; 76 FR 68064 (final rule, eff. Jan 1, 2014); 81 FR 21709 (2016 amendment); NCC 2024 Broiler Performance Report; Zuidhof et al. 2014, Poultry Science 93(12):2970–2982.'),
       ),
       // 2.6 (was 2.5)
@@ -1027,8 +1027,8 @@ final List<_LearnSection> _sections = <_LearnSection>[
             '"Animal welfare" and "animal husbandry" describe how animals are housed, handled, fed, and slaughtered. The two terms are often used interchangeably on labels, but neither has a single federal definition that applies across species.\n\n'
             'What labels usually say:\n'
             'Common claims include "humanely raised," "humanely handled," "responsibly raised," "animal-welfare certified," "pasture-raised," "free-range," and "cage-free." Some terms have USDA-reviewed definitions; most do not. Claims vary widely in what they actually require on the farm.\n\n'
-            'How FSIS handles welfare claims:\n'
-            'The Humane Methods of Slaughter Act (HMSA) covers livestock slaughter but does not cover poultry. FSIS inspects humane handling at slaughter and publishes enforcement actions when violations occur — this is the only on-site federal welfare oversight. On-farm practices (space, outdoor access, handling, most of the animal\'s life) are outside FSIS\'s direct reach. FSIS typically approves welfare-related label language on the basis of a producer affidavit rather than an independent on-farm audit.\n\n'
+            'How USDA handles welfare claims:\n'
+            'The Humane Methods of Slaughter Act (HMSA) covers livestock slaughter but does not cover poultry. USDA inspects humane handling at slaughter and publishes enforcement actions when violations occur — this is the only on-site federal welfare oversight. On-farm practices (space, outdoor access, handling, most of the animal\'s life) are outside USDA\'s direct reach. USDA typically approves welfare-related label language on the basis of a producer affidavit rather than an independent on-farm audit.\n\n'
             'Third-party welfare certifications:\n'
             'A small number of independent programs audit on-farm welfare. They differ materially in what they require:\n\n'
             '• Animal Welfare Approved (A Greener World) — among the most rigorous; pasture-based requirements, independent annual audits, birth-to-slaughter traceability\n\n'
@@ -1039,8 +1039,8 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'How FAT interprets welfare and husbandry claims:\n'
             '• Claims backed by independent welfare certification are treated as third-party verified\n'
             '• "Humanely raised" or "animal welfare" language without certification is flagged as label claim only\n'
-            '• FSIS humane-handling enforcement data for the processing establishment is shown when available\n'
-            '• "Cage-free," "free-range," and "pasture-raised" are scored separately based on the specific term used and whether a certifier is identified. On an FSIS-inspected label (establishment number or inspection legend) with no certifier, "pasture raised" and "free range" are rated Producer Affidavit: FSIS approved them on the producer’s documentation, and label approval is not verification — FSIS does not audit the farm\n'
+            '• USDA humane-handling enforcement data for the processing establishment is shown when available\n'
+            '• "Cage-free," "free-range," and "pasture-raised" are scored separately based on the specific term used and whether a certifier is identified. On a USDA-inspected label (establishment number or inspection legend) with no certifier, "pasture raised" and "free range" are rated Producer Affidavit: USDA approved them on the producer’s documentation, and label approval is not verification — USDA does not audit the farm\n'
             '• Missing welfare disclosure is flagged as missing information — not evidence of poor welfare or good welfare\n\n'
             'Source: FAT Animal Welfare Research Series. Full papers available at farmanimaltransparency.com/fat-research/#fat-topic-animal-welfare-research-series.'),
       ),
@@ -1061,7 +1061,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'You can look up any USDA establishment number without scanning a label.\n\n'
             'The Lookup tab lets you enter an establishment number manually to view:\n'
             '• Processor name, location, and contact information\n'
-            '• Processing activities and HACCP size category\n'
+            '• Processing activities and plant size category\n'
             '• Complete enforcement history (recalls, violations, actions)\n'
             '• Pathogen testing results\n'
             '• Links to full processor profiles on the FAT website\n\n'
@@ -1074,10 +1074,10 @@ final List<_LearnSection> _sections = <_LearnSection>[
       ),
       // 2.10
       _LearnTopic(
-        title: 'Understanding FSIS Enforcement Data',
+        title: 'Understanding USDA Enforcement Data',
         subtitle: 'Recalls, violations, and what they mean',
         body: _text(
-            'When you scan a label, FAT may show enforcement and safety information about the processing establishment. This data comes from USDA\'s Food Safety and Inspection Service (FSIS) public records.\n\n'
+            'When you scan a label, FAT may show enforcement and safety information about the processing establishment. This data comes from USDA\'s Food Safety and Inspection Service public records.\n\n'
             'What the data shows:\n'
             '• Recalls — Product recalls due to contamination, mislabeling, or safety concerns\n'
             '• Administrative Actions — Enforcement actions like warnings or compliance issues\n'
@@ -1104,7 +1104,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'A separate axis from food safety:\n'
             'Worker safety is kept deliberately distinct from the food-safety record above (recalls, residue, humane handling) and is never blended into one number. An OSHA citation says nothing about whether the meat is safe to eat, and a food-safety recall says nothing about how the plant treats its workers — they are two different questions.\n\n'
             'How the match works:\n'
-            'OSHA records carry no FSIS establishment number, so FAT matches them to the plant by name and address. A name-and-address (or ZIP) confirmed match is shown as the plant\'s record; a name-only match is labeled a "possible" match, not confirmed. Worker injury or illness reports are not violations unless OSHA issued a citation, and figures can change after employer contests or settlements.\n\n'
+            'OSHA records carry no USDA establishment number, so FAT matches them to the plant by name and address. A name-and-address (or ZIP) confirmed match is shown as the plant\'s record; a name-only match is labeled a "possible" match, not confirmed. Worker injury or illness reports are not violations unless OSHA issued a citation, and figures can change after employer contests or settlements.\n\n'
             'Source: OSHA Enforcement data, U.S. Department of Labor.'),
       ),
       _LearnTopic(
@@ -1128,7 +1128,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         title: 'Product Recalls',
         subtitle: 'Class I, II, and III severity levels',
         body: _text(
-            'FSIS issues recalls when meat or poultry products pose a health risk or violate federal regulations. Recalls are classified by severity:\n\n'
+            'USDA issues recalls when meat or poultry products pose a health risk or violate federal regulations. Recalls are classified by severity:\n\n'
             '• Class I — Serious health hazard (e.g., deadly pathogens like E. coli O157:H7, Listeria)\n'
             '• Class II — May cause temporary health problems (e.g., undeclared allergens, foreign material)\n'
             '• Class III — Unlikely to cause health problems (e.g., minor labeling issues)\n\n'
@@ -1137,22 +1137,22 @@ final List<_LearnSection> _sections = <_LearnSection>[
       // 2.12 — custom("humane_handling")
       _LearnTopic(
         title: 'Humane Handling Enforcement',
-        subtitle: 'FSIS humane slaughter compliance actions',
+        subtitle: 'USDA humane slaughter compliance actions',
         body: [
           const _Para(
-              'The Humane Methods of Slaughter Act (HMSA) requires that livestock be rendered insensible to pain before slaughter. FSIS enforces this requirement through in-plant inspection and takes enforcement action when violations are identified.'),
+              'The Humane Methods of Slaughter Act (HMSA) requires that livestock be rendered insensible to pain before slaughter. USDA enforces this requirement through in-plant inspection and takes enforcement action when violations are identified.'),
           const _Rule(),
           _Box(
-            heading: 'What FSIS Enforces',
+            heading: 'What USDA Enforces',
             children: [
               const _Para(
-                  'FSIS inspectors are present during slaughter operations and monitor compliance with humane handling requirements. The key areas of enforcement include:',
+                  'USDA inspectors are present during slaughter operations and monitor compliance with humane handling requirements. The key areas of enforcement include:',
                   size: 15),
               const _Bullets([
                 'Stunning effectiveness — Animals must be rendered unconscious with a single application of the stunning device before shackling, hoisting, or cutting',
                 'Handling during movement — Animals must not be dragged, beaten, or subjected to excessive force while being moved through the facility',
                 'Holding pen conditions — Animals in holding pens must have access to water and must not be held in conditions that cause injury or distress',
-                'Non-ambulatory (downer) animals — Animals that cannot walk must be handled according to specific FSIS requirements; in cattle, non-ambulatory animals are condemned and may not enter the food supply',
+                'Non-ambulatory (downer) animals — Animals that cannot walk must be handled according to specific USDA requirements; in cattle, non-ambulatory animals are condemned and may not enter the food supply',
               ]),
             ],
           ),
@@ -1160,13 +1160,13 @@ final List<_LearnSection> _sections = <_LearnSection>[
             heading: 'Types of Enforcement Actions',
             children: [
               const _Para(
-                  'When FSIS identifies a humane handling violation, it can take several types of action:',
+                  'When USDA identifies a humane handling violation, it can take several types of action:',
                   size: 15),
               const _Bullets([
                 'Regulatory Control Action (RCA) — Immediate suspension of slaughter operations. This is the most severe on-the-spot response and is used when an inspector witnesses an egregious violation or imminent animal suffering.',
                 'Noncompliance Record (NR) — A documented finding that the establishment failed to meet humane handling requirements. NRs accumulate in the establishment\'s compliance record.',
-                'Notice of Intended Enforcement (NOIE) — A formal notice that FSIS may suspend or withdraw inspection, effectively shutting the plant down. NOIEs related to humane handling are among the most serious enforcement signals.',
-                'Suspension — Temporary withdrawal of FSIS inspection, halting all operations until corrective actions are verified.',
+                'Notice of Intended Enforcement (NOIE) — A formal notice that USDA may suspend or withdraw inspection, effectively shutting the plant down. NOIEs related to humane handling are among the most serious enforcement signals.',
+                'Suspension — Temporary withdrawal of USDA inspection, halting all operations until corrective actions are verified.',
               ]),
             ],
           ),
@@ -1177,7 +1177,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
                   'The Humane Methods of Slaughter Act applies to cattle, pigs, sheep, goats, horses, and other livestock slaughtered in federally inspected establishments.',
                   size: 15),
               _Para(
-                  'Poultry (chickens, turkeys, ducks) are not covered by the HMSA. There is no federal humane slaughter law for poultry. FSIS does have a policy requiring that poultry be treated humanely, but this is a regulatory policy rather than a statutory requirement, and enforcement is less rigorous than for livestock.',
+                  'Poultry (chickens, turkeys, ducks) are not covered by the HMSA. There is no federal humane slaughter law for poultry. USDA does have a policy requiring that poultry be treated humanely, but this is a regulatory policy rather than a statutory requirement, and enforcement is less rigorous than for livestock.',
                   size: 15),
               _Para(
                   'This means that humane handling enforcement data in the FAT App primarily reflects beef and pork establishments. The absence of humane handling violations at a poultry plant does not indicate good welfare practices — it reflects the lack of a legal standard.',
@@ -1188,7 +1188,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             heading: 'How FAT Displays Humane Handling Data',
             children: [
               const _Para(
-                  'When you scan a label or look up an establishment, FAT shows humane handling enforcement history if any actions exist in the FSIS public record. This includes:',
+                  'When you scan a label or look up an establishment, FAT shows humane handling enforcement history if any actions exist in the USDA inspection record. This includes:',
                   size: 15),
               const _Bullets([
                 'The type of enforcement action (RCA, NR, NOIE, suspension)',
@@ -1197,7 +1197,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
                 'The regulatory citation (typically 9 CFR 313 for livestock stunning and handling)',
               ]),
               const _Para(
-                  'An establishment with humane handling violations on record may have corrected its practices. Conversely, the absence of violations does not guarantee exemplary animal welfare — it means FSIS did not document a violation during the reporting period.',
+                  'An establishment with humane handling violations on record may have corrected its practices. Conversely, the absence of violations does not guarantee exemplary animal welfare — it means USDA did not document a violation during the reporting period.',
                   size: 15),
             ],
           ),
@@ -1208,8 +1208,8 @@ final List<_LearnSection> _sections = <_LearnSection>[
               _Bullets([
                 'Humane Methods of Slaughter Act (7 U.S.C. § 1901–1907)',
                 '9 CFR Part 313 — Humane Slaughter of Livestock',
-                'FSIS Directive 6900.2 — Humane Handling and Slaughter of Livestock',
-                'FSIS Quarterly Enforcement Reports',
+                'USDA Food Safety and Inspection Service Directive 6900.2 — Humane Handling and Slaughter of Livestock',
+                'USDA Quarterly Enforcement Reports',
               ], size: 13),
             ],
           ),
@@ -1220,12 +1220,12 @@ final List<_LearnSection> _sections = <_LearnSection>[
         title: 'Quarterly Enforcement Reports',
         subtitle: 'NOIEs, suspensions, and closures',
         body: _text(
-            'Every quarter, FSIS publishes enforcement actions taken against establishments. These include:\n\n'
-            '• NOIEs (Notices of Intended Enforcement) — Formal notices that FSIS may suspend operations\n'
+            'Every quarter, USDA publishes enforcement actions taken against establishments. These include:\n\n'
+            '• NOIEs (Notices of Intended Enforcement) — Formal notices that USDA may suspend operations\n'
             '• Suspensions — Temporary shutdown of operations due to serious violations\n'
             '• Suspensions Held in Abeyance — Suspensions deferred while the establishment corrects problems\n'
             '• Closures — Permanent termination of operations\n\n'
-            'The Quarterly Enforcement Report breaks down actions by establishment size (large, small, very small) and includes the regulatory basis for each action (e.g., HACCP violations, sanitation issues, humane handling failures).\n\n'
+            'The Quarterly Enforcement Report breaks down actions by establishment size (large, small, very small) and includes the regulatory basis for each action (e.g., food-safety plan violations, sanitation issues, humane handling failures).\n\n'
             'When FAT shows quarterly enforcement data, it includes the quarter, action type, basis codes, and whether actions remain open or have been closed.'),
       ),
       // 2.14
@@ -1233,14 +1233,14 @@ final List<_LearnSection> _sections = <_LearnSection>[
         title: 'Salmonella Performance Categories',
         subtitle: 'Poultry establishment pathogen ratings',
         body: _text(
-            'Salmonella is one of the most important food safety concerns in poultry. FSIS assigns performance categories to chicken and turkey establishments based on Salmonella testing results.\n\n'
+            'Salmonella is one of the most important food safety concerns in poultry. USDA assigns performance categories to chicken and turkey establishments based on Salmonella testing results.\n\n'
             'The Categories:\n'
             '• Category 1 — Best performance: Low Salmonella rates\n'
             '• Category 2 — Acceptable: Meets standards but room for improvement\n'
             '• Category 3 — Fails to meet standards: Exceeds acceptable Salmonella levels\n\n'
             'Why This Matters:\n'
             'Salmonella is the leading cause of bacterial foodborne illness in the United States. Category 3 establishments have failed to adequately control this pathogen. While proper cooking kills Salmonella, cross-contamination in the kitchen remains a serious risk.\n\n'
-            'FSIS updates these categories regularly. An establishment in Category 3 may improve over time, or it may indicate persistent process control problems.\n\n'
+            'USDA updates these categories regularly. An establishment in Category 3 may improve over time, or it may indicate persistent process control problems.\n\n'
             'When FAT shows a Category 3 rating, this is a significant food safety signal. Category 1 establishments demonstrate better pathogen control, though no poultry is risk-free without proper handling and cooking.'),
       ),
       // 2.15
@@ -1248,7 +1248,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         title: 'Beef E. coli & Salmonella Sampling',
         subtitle: 'Pathogen testing for beef establishments',
         body: _text(
-            'For beef slaughter establishments, FSIS conducts routine microbiological testing for:\n\n'
+            'For beef slaughter establishments, USDA conducts routine microbiological testing for:\n\n'
             '• E. coli STEC (Shiga toxin-producing E. coli) — Including the deadly O157:H7 strain\n'
             '• Salmonella — A common bacterial pathogen\n\n'
             'FAT may show sampling data including:\n'
@@ -1467,22 +1467,22 @@ final List<_LearnSection> _sections = <_LearnSection>[
       // 3.1 — custom("seafood_scoring") → FATSeafoodScoringExplanationView (not detailed in spec)
       _LearnTopic(
         title: 'How FAT Reads Seafood Labels',
-        subtitle: '16 categories, two-question model, FDA vs FSIS regulatory fork',
+        subtitle: '16 categories, two-question model, FDA vs USDA regulatory fork',
         body: [
           const _Para(
               'FAT reads a seafood label with the same two-question model used for meat: what did the label disclose (Step 1), and how credible is that claim (Step 2)? The disclosure statuses — Disclosed, Partial, Not disclosed — and the four credibility tiers work identically. What changes is the category list and one structural fact: the regulatory agency itself.'),
-          const _Head('The FDA vs FSIS regulatory fork'),
+          const _Head('The FDA vs USDA regulatory fork'),
           const _Para(
-              'Almost all seafood is regulated by the FDA, which does not put an inspection mark or establishment number on consumer packaging. The single exception is Siluriformes (catfish, basa, swai, pangasius), regulated by USDA\'s FSIS exactly like meat — with an EST. number, inspection mark, and full enforcement pipeline. This fork determines which categories can be scored as Disclosed and which score as Not Required.'),
+              'Almost all seafood is regulated by the FDA, which does not put an inspection mark or establishment number on consumer packaging. The single exception is Siluriformes (catfish, basa, swai, pangasius), regulated by USDA exactly like meat — with an EST. number, inspection mark, and full enforcement pipeline. This fork determines which categories can be scored as Disclosed and which score as Not Required.'),
           const _Head('The 16 seafood transparency categories'),
           const _Bullets([
-            'Regulatory Required Language — FSIS inspection mark for catfish; Not Required for all other seafood',
+            'Regulatory Required Language — USDA inspection mark for catfish; Not Required for all other seafood',
             'Species Identity — verified against the FDA Seafood List',
             'Strain / Variety',
             'Country / Origin — country of harvest plus production method (wild or farmed)',
             'Farm / Vessel / Fishery',
             'Harvest Timing / Age',
-            'Processor — FSIS establishment number and enforcement records for catfish; Not Required for other seafood',
+            'Processor — USDA establishment number and enforcement records for catfish; Not Required for other seafood',
             'Who (Owner / Parent)',
             'Brand',
             'Feed / Production Method',
@@ -1505,19 +1505,19 @@ final List<_LearnSection> _sections = <_LearnSection>[
           const _Para(
               'FAT evaluates seafood labels using the same two-question model used for meat: what does the label disclose, and how credible is the claim?'),
           const _Para(
-              'The disclosure statuses (Known, Partial, Missing) and the four credibility tiers (Third-Party Audited, USDA / FDA program, Producer Affidavit, Unverified Marketing) work identically — on seafood the government-program tier is labeled "USDA / FDA program" because seafood programs such as FSIS catfish inspection are not Process Verified Programs. What changes are the 16 categories themselves, adapted for the regulatory, supply-chain, and species-identification realities of seafood.'),
+              'The disclosure statuses (Known, Partial, Missing) and the four credibility tiers (Third-Party Audited, USDA / FDA program, Producer Affidavit, Unverified Marketing) work identically — on seafood the government-program tier is labeled "USDA / FDA program" because seafood programs such as USDA catfish inspection are not Process Verified Programs. What changes are the 16 categories themselves, adapted for the regulatory, supply-chain, and species-identification realities of seafood.'),
           const _Rule(),
           _Box(
             heading: '16 Seafood Transparency Categories',
             children: const [
               _Bullets([
-                'Regulatory Required Language — FSIS inspection mark (catfish); Not Required for all other seafood — FDA facility registration is an internal record and does not appear on consumer packaging',
+                'Regulatory Required Language — USDA inspection mark (catfish); Not Required for all other seafood — FDA facility registration is an internal record and does not appear on consumer packaging',
                 'Species Identity — Common and scientific name verified against the FDA Seafood List',
                 'Strain / Variety — Specific strain (channel catfish, Atlantic salmon) or wild stock',
                 'Country / Origin — Country of harvest plus production method (wild or farmed)',
                 'Farm / Vessel / Fishery — Named source: farm (aquaculture) or vessel and fishery (wild)',
                 'Harvest Timing / Age — Grow-out period (farmed) or harvest season (wild)',
-                'Processor — FSIS establishment number (catfish); Not Required for all other seafood — no consumer-label equivalent to the USDA EST number exists for non-catfish seafood. Public enforcement records sit here: the full FSIS pipeline for catfish (recalls, admin actions, humane handling, residue testing); for other seafood, SIMP (Seafood Import Monitoring Program) covers only 13 imported species groups and domestic non-catfish seafood has no equivalent federal program',
+                'Processor — USDA establishment number (catfish); Not Required for all other seafood — no consumer-label equivalent to the USDA EST number exists for non-catfish seafood. Public enforcement records sit here: the full USDA pipeline for catfish (recalls, admin actions, humane handling, residue testing); for other seafood, NOAA\'s Seafood Import Monitoring Program covers only 13 imported species groups and domestic non-catfish seafood has no equivalent federal program',
                 'Who (Owner / Parent) — The legal owner and ultimate corporate parent behind the product',
                 'Brand — The consumer-facing brand on the package',
                 'Feed / Production Method — Wild-caught gear type or farmed system and feed',
@@ -1546,14 +1546,14 @@ final List<_LearnSection> _sections = <_LearnSection>[
                 color: FATTheme.usdaApprovedBlue,
                 title: 'USDA / FDA program',
                 description:
-                    'USDA-administered program with audit teeth — primarily the FSIS catfish (and other Siluriformes) inspection mark. USDA Process-Verified Program where it applies to seafood operations.',
+                    'USDA-administered program with audit teeth — primarily the USDA catfish (and other Siluriformes) inspection mark. USDA Process-Verified Program where it applies to seafood operations.',
               ),
               _TierRow(
                 icon: Icons.description_outlined,
                 color: FATTheme.fatOrange,
                 title: 'Producer Affidavit',
                 description:
-                    'FDA or FSIS approved the label language, backed by producer-maintained records and affidavits. No independent audit. Examples: a country of origin and production method that meet U.S. labeling rules, FSIS-approved species name claims.',
+                    'FDA or USDA approved the label language, backed by producer-maintained records and affidavits. No independent audit. Examples: a country of origin and production method that meet U.S. labeling rules, USDA-approved species name claims.',
               ),
               _TierRow(
                 icon: Icons.info_outline,
@@ -1573,7 +1573,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
                 'Country-of-origin labeling rules for seafood require disclosure of production method (wild or farmed) alongside country of origin — the rules for meat do not',
                 'Quality scoring includes fresh/frozen/previously-frozen status — labeling previously frozen product as fresh is a regulated violation',
                 'Additives scoring includes phosphate glazing (STPP) and added water — chronic underdisclosure issues specific to seafood',
-                'The regulatory agency itself is a scored disclosure — catfish uses FSIS with full enforcement data; all other seafood scores Processor and Regulatory Language as Not Required because no consumer-facing equivalent exists',
+                'The regulatory agency itself is a scored disclosure — catfish uses USDA with full enforcement data; all other seafood scores Processor and Regulatory Language as Not Required because no consumer-facing equivalent exists',
               ]),
             ],
           ),
@@ -1592,14 +1592,14 @@ final List<_LearnSection> _sections = <_LearnSection>[
           const _Para(
               'Catfish and all other Siluriformes (the biological order that includes catfish, basa, swai, and pangasius) are the only seafood regulated by USDA\'s Food Safety and Inspection Service rather than FDA.'),
           const _Para(
-              'This means catfish products carry USDA FSIS inspection marks, USDA establishment numbers, and are subject to the same enforcement protocols as beef, pork, and poultry — including recalls, administrative actions, humane handling enforcement, quarterly enforcement reports, and chemical residue testing.'),
+              'This means catfish products carry USDA inspection marks, USDA establishment numbers, and are subject to the same enforcement protocols as beef, pork, and poultry — including recalls, administrative actions, humane handling enforcement, quarterly enforcement reports, and chemical residue testing.'),
           const _Rule(),
           _Box(
             heading: 'Why This Matters',
             children: const [
               _Bullets([
-                'When FAT detects a catfish or Siluriformes product, it routes to the FSIS enforcement data pipeline — the same data used for meat',
-                'For all other seafood, there is no equivalent enforcement pipeline — SIMP traceability covers only 13 imported species groups and has no domestic equivalent; FDA facility registration numbers are internal records not printed on consumer labels',
+                'When FAT detects a catfish or Siluriformes product, it routes to the USDA inspection enforcement data pipeline — the same data used for meat',
+                'For all other seafood, there is no equivalent enforcement pipeline — NOAA\'s Seafood Import Monitoring Program covers only 13 imported species groups and has no domestic equivalent; FDA facility registration numbers are internal records not printed on consumer labels',
                 'The establishment number on a catfish label is a USDA EST. number; on other seafood, it is an FDA facility registration',
                 'This regulatory split affects which inspection mark to look for, which enforcement database to query, and which banned-substance testing regime applies',
               ]),
@@ -1624,7 +1624,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             heading: 'Import Enforcement',
             children: const [
               _Para(
-                  'FSIS conducts residue testing on imported Siluriformes for banned substances including malachite green, nitrofurans, and other compounds prohibited in U.S. aquaculture but documented in Southeast Asian imports. Imported catfish products must pass FSIS reinspection before entering U.S. commerce.',
+                  'USDA conducts residue testing on imported Siluriformes for banned substances including malachite green, nitrofurans, and other compounds prohibited in U.S. aquaculture but documented in Southeast Asian imports. Imported catfish products must pass USDA reinspection before entering U.S. commerce.',
                   size: 15),
             ],
           ),
@@ -1755,7 +1755,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         screenBuilder: (_) => const ServiceCaseSchemaScreen(),
         body: [
           const _Para(
-              'Loose seafood at the full-service counter has no package to scan — it is governed by a USDA AMS placard, not an FDA package label, and whether any disclosure exists depends on the venue. This is the field schema FAT uses to capture it: what to read off the sign, how each field is normalized, and how confidence is assigned so the App never confirms more than a photo can prove.'),
+              'Loose seafood at the full-service counter has no package to scan — it is governed by a USDA-required placard, not an FDA package label, and whether any disclosure exists depends on the venue. This is the field schema FAT uses to capture it: what to read off the sign, how each field is normalized, and how confidence is assigned so the App never confirms more than a photo can prove.'),
           const _Para(
               'Try it: on the Scan tab, tap "Loose seafood at a counter?" to photograph a placard and see it resolved live.',
               size: 14,
@@ -1809,11 +1809,11 @@ final List<_LearnSection> _sections = <_LearnSection>[
             children: const [
               _Bullets([
                 'Gate — exempt venue or processed item → not_applicable (capture name + advisory, no finding).',
-                'Tier 1 Direct — a hard key (shellfish cert → ICSSL, or FSIS estab. # for Siluriformes) → known direct match.',
+                'Tier 1 Direct — a hard key (shellfish cert → ICSSL, or USDA estab. # for Siluriformes) → known direct match.',
                 'Tier 1 Disclosure — origin + method posted → known; required but absent → missing.',
                 'Tier 2 Species name — Seafood List match → partial (name maps, fish unverified).',
                 'Tier 3 Advisory — species = unverified + substitution-risk note.',
-                'Lanes — USDA country-of-origin labeling · FDA integrity · (NOAA SIMP if imported).',
+                'Lanes — USDA country-of-origin labeling · FDA integrity · (NOAA\'s Seafood Import Monitoring Program if imported).',
               ]),
             ],
           ),

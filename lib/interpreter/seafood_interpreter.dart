@@ -225,7 +225,7 @@ class SeafoodInterpreter {
       if (fsis.any(t.contains)) {
         return const FATCategoryResult(
             status: DisclosureStatus.known,
-            value: 'USDA/FSIS inspection language detected');
+            value: 'USDA inspection language detected');
       }
       if (extractEstablishmentNumber(t) != null) {
         return const FATCategoryResult(
@@ -237,7 +237,7 @@ class SeafoodInterpreter {
     return const FATCategoryResult(
       status: DisclosureStatus.notRequired,
       value:
-          'FDA-regulated seafood — no processor registration number or HACCP compliance mark is required on retail consumer packaging.',
+          'FDA-regulated seafood — no processor registration number or food-safety plan compliance mark is required on retail consumer packaging.',
     );
   }
 

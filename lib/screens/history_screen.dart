@@ -761,7 +761,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w600)),
                     subtitle: const Text(
-                        'Records where USDA / FSIS disclosure was not detected',
+                        'Records where USDA inspection info was not detected',
                         style: TextStyle(fontSize: 12, color: Colors.black54)),
                     value: enforcementOnly,
                     onChanged: (v) => setSheet(() => enforcementOnly = v),
@@ -1071,8 +1071,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                       child: Text(
                         regMet
-                            ? 'USDA / FSIS disclosure detected'
-                            : 'USDA / FSIS disclosure not detected',
+                            ? 'USDA inspection info detected'
+                            : 'USDA inspection info not detected',
                         style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.bold,

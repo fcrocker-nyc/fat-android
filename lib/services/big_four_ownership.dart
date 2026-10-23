@@ -366,7 +366,7 @@ class BigFourOwnership {
         ...dbaEntries,
       ],
       basis:
-          'Matched on "${bestCandidate.key}" in $field of the USDA/FSIS establishment record for EST $establishmentNumber.',
+          'Matched on "${bestCandidate.key}" in $field of the USDA establishment record for EST $establishmentNumber.',
       source: OwnershipSource.localCrosswalk,
       siblings: const [],
       totalRelated: null,
@@ -487,7 +487,7 @@ class ParentCompanyService {
                 .where((s) => s.isNotEmpty),
           ],
           basis:
-              'Establishment $estNumber ($name, ${[city, state].where((s) => s.isNotEmpty).join(', ')}) is recorded under this parent in FAT\'s parent-company database, built from the USDA/FSIS establishment directory.',
+              'Establishment $estNumber ($name, ${[city, state].where((s) => s.isNotEmpty).join(', ')}) is recorded under this parent in FAT\'s parent-company database, built from the USDA establishment directory.',
           source: OwnershipSource.siteDatabase,
           siblings: siblings,
           totalRelated: (d['total_related'] as num?)?.toInt(),

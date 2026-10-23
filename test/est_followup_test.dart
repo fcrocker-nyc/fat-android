@@ -126,7 +126,7 @@ void main() {
       expect(r.status, DisclosureStatus.partial);
       expect(r.value, 'One of: Tyson Foods; JBS; no parent mapping on file');
       expect(r.credibilityNote,
-          "This number belongs to 4 FSIS plants with different owners — match the city on the package's USDA mark to know which.");
+          "This number belongs to 4 USDA-inspected plants with different owners — match the city on the package's USDA mark to know which.");
     });
 
     test('one shared parent (245) or no mapping at all → unchanged path', () {

@@ -131,7 +131,7 @@ extension _GrassFedCredibilityLabel on _GrassFedCredibility {
       case _GrassFedCredibility.usdaProcessVerified:
         return 'USDA Process Verified';
       case _GrassFedCredibility.fsisApproved:
-        return 'FSIS Label Approved (Affidavit Only)';
+        return 'USDA Label Approved (Affidavit Only)';
       case _GrassFedCredibility.partialClaim:
         return 'Partial Claim';
       case _GrassFedCredibility.weakerThanExpected:
@@ -166,10 +166,10 @@ class _GrassFedKB {
 
   static const alertGrassFedNoCert =
       'This label says "grass-fed" but has no third-party certification. '
-      'Under FSIS rules, this claim is backed only by a producer affidavit — no audit.';
+      'Under USDA rules, this claim is backed only by a producer affidavit — no audit.';
 
   static const alertGrassFinished =
-      '"Grass-finished" is the WEAKER claim under FSIS rules. '
+      '"Grass-finished" is the WEAKER claim under USDA rules. '
       'The animal may have been fed grain for most of its life. '
       'Only the final finishing phase was on grass.';
 
@@ -179,7 +179,7 @@ class _GrassFedKB {
 
   static const alertPartialGrassFed =
       'This is a partial grass-fed claim. The animal received grain for a portion of its diet. '
-      'FSIS permits this labeling as long as the percentage is disclosed.';
+      'USDA permits this labeling as long as the percentage is disclosed.';
 
   static const alertAGACertified =
       'AGA-certified: 100% forage diet, no feedlot, no antibiotics, no hormones, '
@@ -195,22 +195,22 @@ class _GrassFedKB {
       'No uniform baseline — two PVP operations may have different practices.';
 
   static const explainGrassFedFSIS =
-      'Under current FSIS guidance (FSIS-GD-2024-0006), "grass-fed" requires that cattle '
+      'Under current USDA guidance (FSIS-GD-2024-0006), "grass-fed" requires that cattle '
       'were fed exclusively forage after weaning. The diet must be 100% derived from grass, '
       'forbs, legumes, hay, haylage, baleage, silage, corn silage (vegetative stage), and '
       'other roughage. Animals cannot be fed grain or grain by-products, must have continuous '
       'access to pasture during the growing season, and cannot be confined to a feedlot. '
-      'However, FSIS approval is based on a producer affidavit — most farms are never audited.';
+      'However, USDA approval is based on a producer affidavit — most farms are never audited.';
 
   static const explainGrassFinishedFSIS =
-      'FSIS treats "grass-finished" as a distinct and weaker claim than "grass-fed." '
-      'Under FSIS rules, grass-finished animals CAN receive grain during their lifetime — '
+      'USDA treats "grass-finished" as a distinct and weaker claim than "grass-fed." '
+      'Under USDA rules, grass-finished animals CAN receive grain during their lifetime — '
       'only the final finishing phase must be on grass. A label stating "Grain Fed, Grass '
-      'Finished" is considered truthful and not misleading by FSIS. This is the inverse of '
+      'Finished" is considered truthful and not misleading by USDA. This is the inverse of '
       'how most consumers interpret these terms.';
 
   static const explainPartialClaim =
-      'FSIS permits partial grass-fed claims when producers disclose the percentage: '
+      'USDA permits partial grass-fed claims when producers disclose the percentage: '
       '"90 percent grassfed," "75 percent grassfed," or even "10 percent grassfed." '
       'While technically transparent, these partial claims appear alongside 100% grass-fed '
       'products on store shelves with no standardized visual hierarchy.';
@@ -236,15 +236,15 @@ class _GrassFedKB {
       'materially different practices while both carrying USDA verification.';
 
   static const fsisReqGrassFed =
-      'FSIS requires: 100% forage diet after weaning; no grain or grain by-products; '
+      'USDA requires: 100% forage diet after weaning; no grain or grain by-products; '
       'continuous pasture access during growing season; no feedlot confinement.';
 
   static const fsisReqGrassFinished =
-      'FSIS requires only that the finishing phase be on grass/forage. '
+      'USDA requires only that the finishing phase be on grass/forage. '
       'Grain feeding earlier in life is permitted.';
 
   static const fsisReqPartial =
-      'FSIS requires the percentage of grass in the diet to be disclosed on the label.';
+      'USDA requires the percentage of grass in the diet to be disclosed on the label.';
 }
 
 /// Port of GrassFedDetector.detect(in:).
@@ -630,7 +630,7 @@ class _GrassFedClaimCardState extends State<_GrassFedClaimCard> {
           ),
           if (_expanded) ...[
             const SizedBox(height: 4),
-            _detailRow(Icons.account_balance, 'FSIS Requirement',
+            _detailRow(Icons.account_balance, 'USDA Requirement',
                 claim.fsisRequirement),
             const SizedBox(height: 8),
             _detailRow(
@@ -1037,7 +1037,7 @@ const List<_UnverifiedClaim> _unverifiedClaims = [
     claimText: 'Pasture Raised',
     alternateTexts: ['Pasture-Raised', 'Pastured'],
     whatItActuallyMeans:
-        "No USDA regulation defines pasture raised. FSIS approves the claim on an inspected label after reviewing the producer's documentation, but label approval is not verification — FSIS does not audit the farm. Without an accompanying third-party certification (like Certified Humane Pasture Raised), the claim rests on the producer's documentation and may mean very little.",
+        "No USDA regulation defines pasture raised. USDA approves the claim on an inspected label after reviewing the producer's documentation, but label approval is not verification — USDA does not audit the farm. Without an accompanying third-party certification (like Certified Humane Pasture Raised), the claim rests on the producer's documentation and may mean very little.",
   ),
 ];
 
@@ -1554,13 +1554,13 @@ extension _PastureCredibilityLabel on _PastureCredibility {
       case _PastureCredibility.thirdPartyAudited:
         return 'Third-Party Audited';
       case _PastureCredibility.usdaOrganicNOP:
-        return 'USDA Organic (NOP Pasture Rule)';
+        return 'USDA Organic (Pasture Rule)';
       case _PastureCredibility.usdaProcessVerified:
         return 'USDA Process Verified';
       case _PastureCredibility.fsisLabelApproved:
-        return 'FSIS Label Approved (Producer Documentation)';
+        return 'USDA Label Approved (Producer Documentation)';
       case _PastureCredibility.fsisAffidavitOnly:
-        return 'FSIS Label Approved (Affidavit Only)';
+        return 'USDA Label Approved (Affidavit Only)';
       case _PastureCredibility.marketingClaimOnly:
         return 'Marketing Claim Only';
     }
@@ -1590,7 +1590,7 @@ extension _PastureApplicabilityNote on _PastureApplicability {
         return 'For poultry, pasture-raised should mean year-round outdoor '
             'access on managed vegetated land at densities that maintain '
             'ground cover — and explicitly rejects "a pop-door to a worn '
-            'dirt run." "Free range" under FSIS only requires some '
+            'dirt run." "Free range" under USDA rules only requires some '
             'outdoor access — a much weaker standard.';
       case _PastureApplicability.notApplicable:
         return '';
@@ -1666,10 +1666,10 @@ class _PastureKB {
       'the Grass-Fed Assessment for the feed-side detail.)';
 
   static const alertOrganicNOP =
-      'USDA Organic (NOP) ruminant pasture rule: cattle, sheep, and goats must obtain at '
+      'USDA Organic ruminant pasture rule: cattle, sheep, and goats must obtain at '
       'least 30% of their dry-matter intake from pasture during a grazing season of at '
       'least 120 days per year. This is a statutory federal floor — meaningful for ruminants, '
-      'but for pigs and poultry the NOP only requires general outdoor access, not pasture-'
+      'but for pigs and poultry USDA organic standards only require general outdoor access, not pasture-'
       'specific access.';
 
   static const alertPVPPasture =
@@ -1680,15 +1680,15 @@ class _PastureKB {
 
 
   static const verifyFSISLabelApproval =
-      'FSIS label (sketch) approval supported by producer documentation '
+      'USDA label (sketch) approval supported by producer documentation '
       '(FSIS-GD-2024-0006). No independent on-farm audit required.';
 
   static const alertHumanelyRaisedUnverified =
-      'There is no FSIS regulatory definition of "humanely raised." Without third-party '
+      'There is no USDA regulatory definition of "humanely raised." Without third-party '
       'certification (e.g., Certified Humane, Animal Welfare Approved, GAP), the claim is unverified.';
 
   static const explainNoFSISPastureDefinition =
-      'FSIS does not define "pasture raised" in regulation. FSIS reviews the claim '
+      'USDA does not define "pasture raised" in regulation. USDA reviews the claim '
       'as a voluntary marketing claim under FSIS-GD-2024-0006 and strongly encourages '
       'third-party certification. "Free range," by contrast, is loosely defined for '
       'poultry as outdoor access only — with no minimum time, density, or outdoor-condition '
@@ -1723,7 +1723,7 @@ class _PastureKB {
       'Under the USDA National Organic Program, ruminants must obtain ≥30% of their '
       'dry-matter intake from pasture during a grazing season of at least 120 days per '
       'year (7 CFR §205.237, §205.240). This is a statutory federal floor — the only '
-      'binding pasture rule in U.S. labeling law. For pigs and poultry, the NOP requires '
+      'binding pasture rule in U.S. labeling law. For pigs and poultry, USDA organic standards require '
       'general outdoor access but does not specify pasture, density, or rotation.';
 
   static const verifyThirdParty =
@@ -1738,7 +1738,7 @@ class _PastureKB {
   static const verifyOrganicNOP =
       'USDA Organic certification by an accredited certifying agent, with the producer\'s '
       'Organic System Plan documenting pasture management. Annual on-site inspection. '
-      'Note: the NOP pasture rule applies to ruminants only.';
+      'Note: the USDA Organic pasture rule applies to ruminants only.';
 }
 
 /// Port of PastureDetector.detect(in:detectedSpecies:fsisInspected:).
@@ -1857,7 +1857,7 @@ class _PastureKB {
                 ? _PastureClaimType.fsisPastureRaisedAffidavit
                 : _PastureClaimType.pastureMarketingOnly),
         title: fsisInspected
-            ? '${c.$2} (FSIS Label Approved)'
+            ? '${c.$2} (USDA Label Approved)'
             : '${c.$2} (No Certification)',
         credibility: fsisInspected
             ? _PastureCredibility.fsisLabelApproved
@@ -1950,13 +1950,13 @@ String _pastureTitle(_PastureClaimType t) {
     case _PastureClaimType.agaPastureRuminant:
       return 'American Grassfed Association';
     case _PastureClaimType.usdaOrganicNOPRuminant:
-      return 'USDA Organic — NOP Pasture Rule';
+      return 'USDA Organic — Pasture Rule';
     case _PastureClaimType.usdaPVPPasture:
       return 'USDA Process Verified — Pasture / Outdoor Access';
     case _PastureClaimType.fsisFreeRange:
-      return 'Free Range (FSIS Affidavit)';
+      return 'Free Range (Affidavit Only)';
     case _PastureClaimType.fsisPastureRaisedAffidavit:
-      return 'Pasture Raised (FSIS Affidavit)';
+      return 'Pasture Raised (Affidavit Only)';
     case _PastureClaimType.humanelyRaisedUnverified:
       return 'Humanely Raised (Unverified)';
     case _PastureClaimType.pastureMarketingOnly:
@@ -2167,7 +2167,7 @@ extension _RegenCredibilityLabel on _RegenCredibility {
       case _RegenCredibility.usdaProcessVerified:
         return 'USDA Process Verified';
       case _RegenCredibility.fsisAffidavitOnly:
-        return 'FSIS Label Approved (Affidavit Only)';
+        return 'USDA Label Approved (Affidavit Only)';
       case _RegenCredibility.marketingClaimOnly:
         return 'Marketing Claim Only';
     }
@@ -2216,13 +2216,13 @@ class _RegenKB {
       'No uniform baseline — two PVP operations may have very different practices.';
 
   static const alertFSISAffidavit =
-      '"Raised using Regenerative Agriculture Practices" was approved by FSIS '
-      'based on a producer affidavit. There is no FSIS regulatory definition of '
+      '"Raised using Regenerative Agriculture Practices" was approved by USDA '
+      'based on a producer affidavit. There is no USDA regulatory definition of '
       'regenerative and no independent audit is required.';
 
   static const alertMarketingOnly =
       'This label uses the word "regenerative" without a certification mark. '
-      'There is no FSIS, USDA, or scientific standard for the term — and no '
+      'There is no USDA or scientific standard for the term — and no '
       'audit or monitoring documentation has been surfaced.';
 
   static const alertGrassFedMisuseOnNonRuminant =
@@ -2231,11 +2231,11 @@ class _RegenKB {
       'or outdoor-access claims with documented feed sourcing.';
 
   static const explainNoFederalDefinition =
-      'There is no FSIS regulatory definition of regenerative agriculture. '
+      'There is no USDA regulatory definition of regenerative agriculture. '
       'USDA-NRCS treats it as a conservation management approach centered on '
       'four soil-health principles (maximize living roots, minimize disturbance, '
       'maximize soil cover, maximize biodiversity), but those principles are not '
-      'a labeling standard. FSIS reviews "regenerative" claims on meat and '
+      'a labeling standard. USDA reviews "regenerative" claims on meat and '
       'poultry as voluntary marketing claims (FSIS-GD-2024-0006) and strongly '
       'encourages third-party certification.';
 
@@ -2255,7 +2255,7 @@ class _RegenKB {
       'self-defined standard and the audit scope.';
 
   static const verifyAffidavit =
-      'FSIS label-approval record. No independent on-farm audit required.';
+      'USDA label-approval record. No independent on-farm audit required.';
 }
 
 /// Port of RegenerativeDetector.detect(in:detectedSpecies:).
@@ -2418,7 +2418,7 @@ String _regenTitle(_RegenClaimType t) {
     case _RegenClaimType.usdaPVPRegenerative:
       return 'USDA Process Verified — Regenerative';
     case _RegenClaimType.fsisRaisedUsingRegen:
-      return 'Raised Using Regenerative Practices (FSIS)';
+      return 'Raised Using Regenerative Practices (USDA label approval)';
     case _RegenClaimType.regenerativeUnspecified:
       return 'Regenerative (No Certification)';
   }
@@ -2891,7 +2891,7 @@ class GroundBeefContextCard extends StatelessWidget {
           w[0].toUpperCase() + w.substring(1)).join(' ');
       blocks.add(_ChillBlock(
         '"$display" names the source, not the leanness',
-        'The FSIS rule behind a primal name is real and enforceable: both the lean and the fat must come only from that primal. What the rule does NOT require is any particular lean-to-fat ratio — no fat-percentage requirement attaches to the name, only the general 30%-fat cap on all ground beef. Market convention puts ground chuck near 80–85% lean and ground sirloin leaner, but that is convention, not regulation. In FAT\'s national survey of 724 direct-market producers, named-primal grinds commanded premiums of 6–66% over plain ground from the same animal — and only two of twelve sellers stated a lean percentage alongside the name.',
+        'The USDA rule behind a primal name is real and enforceable: both the lean and the fat must come only from that primal. What the rule does NOT require is any particular lean-to-fat ratio — no fat-percentage requirement attaches to the name, only the general 30%-fat cap on all ground beef. Market convention puts ground chuck near 80–85% lean and ground sirloin leaner, but that is convention, not regulation. In FAT\'s national survey of 724 direct-market producers, named-primal grinds commanded premiums of 6–66% over plain ground from the same animal — and only two of twelve sellers stated a lean percentage alongside the name.',
         _CertColors.fatAmber, _CertColors.fatAmberTint));
     }
 

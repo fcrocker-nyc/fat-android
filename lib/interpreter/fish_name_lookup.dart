@@ -59,11 +59,11 @@ class FishNameResult {
     }
     switch (simpStatus!) {
       case FishSimpStatus.covered:
-        return '$title — covered by SIMP';
+        return '$title — covered by NOAA\'s Seafood Import Monitoring Program';
       case FishSimpStatus.notCovered:
-        return '$title — not covered by SIMP';
+        return '$title — not covered by NOAA\'s Seafood Import Monitoring Program';
       case FishSimpStatus.unclear:
-        return '$title — SIMP coverage unclear';
+        return '$title — coverage by NOAA\'s Seafood Import Monitoring Program unclear';
     }
   }
 }
@@ -81,20 +81,20 @@ class FishNameLookup {
   static const String historyNotRecognized = 'Fish name not recognized';
 
   static const String simpTitle =
-      'SIMP (NOAA Seafood Import Monitoring Program)';
+      'NOAA\'s Seafood Import Monitoring Program';
   static const String bycatchTitle = 'Marine-mammal bycatch';
   static const String coolTitle = 'What the counter must tell you';
   static const String unknownTitle = 'Fish Name Not Found';
-  static const String unknownSectionTitle = 'Try a SIMP species group';
+  static const String unknownSectionTitle = 'Try a species group NOAA monitors on import';
 
   static const String simpCoveredDetail =
-      'Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood.';
+      'Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood.';
   static const String snapperUnclear =
-      "SIMP covers red snapper only; a placard that just says 'snapper' doesn't say which species.";
+      "The import monitoring program covers red snapper only; a placard that just says 'snapper' doesn't say which species.";
   static const String crabUnclear =
-      "SIMP covers blue crab (Atlantic) and red king crab only; a placard that just says 'crab' doesn't say which species.";
+      "The import monitoring program covers blue crab (Atlantic) and red king crab only; a placard that just says 'crab' doesn't say which species.";
   static const String codNote =
-      "SIMP covers both Atlantic cod and Pacific cod, so a placard that just says 'cod' is covered either way.";
+      "The import monitoring program covers both Atlantic cod and Pacific cod, so a placard that just says 'cod' is covered either way.";
   static const String rockfishMisbranding =
       'FDA said in April 2026 that rockfish sold as "snapper" is misbranded (91 Fed. Reg. 16200, Apr. 1, 2026, as cited in FAT Seafood Paper No. 7).';
   static String bycatchLead(String group, String asOf) =>
@@ -112,7 +112,7 @@ class FishNameLookup {
   static const String unknownLine = "FAT doesn't recognize that fish name yet.";
   static String get simpGroupsLine {
     const g = SIMPCoverage.speciesGroups;
-    return "NOAA's SIMP covers imports of 13 species groups: "
+    return "NOAA's Seafood Import Monitoring Program covers imports of 13 species groups: "
         '${g.sublist(0, g.length - 1).join(', ')} and ${g.last}.';
   }
 

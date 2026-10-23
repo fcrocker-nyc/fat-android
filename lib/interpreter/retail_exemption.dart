@@ -160,7 +160,7 @@ class RetailExemptionDetector {
   /// overrides every in-store signal. Returns a reason, or null.
   static String? nationalPackageEvidence(String text) {
     for (final p in _inspectionLegendPhrases) {
-      if (text.contains(p)) return 'FSIS inspection legend ("$p")';
+      if (text.contains(p)) return 'USDA inspection mark ("$p")';
     }
     final brand = nationalBrandOnLabel(text);
     if (brand != null) return 'national brand on label ($brand)';

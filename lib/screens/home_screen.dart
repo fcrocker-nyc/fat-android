@@ -300,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Text(
                 '“Loose fish” is seafood sold from a full-service case with no '
                 'package to scan. FAT reads the counter placard instead — the '
-                'USDA AMS sign that shows country of origin and wild vs. farmed.',
+                'USDA sign that shows country of origin and wild vs. farmed.',
                 style: TextStyle(
                     fontSize: 14,
                     height: 1.3,

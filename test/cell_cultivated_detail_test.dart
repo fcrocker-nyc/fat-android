@@ -10,7 +10,7 @@ import 'package:fat_app/interpreter/seafood_interpreter.dart';
 import 'package:fat_app/models/fat_models.dart';
 
 const expectedLine =
-    'This label says the product is cell-cultivated: grown from animal cells rather than from a slaughtered animal. USDA-FSIS must preapprove the labels of cell-cultivated meat and poultry; FDA oversees cell-cultivated seafood.';
+    'This label says the product is cell-cultivated: grown from animal cells rather than from a slaughtered animal. USDA must preapprove the labels of cell-cultivated meat and poultry; FDA oversees cell-cultivated seafood.';
 
 const positives = <String>[
   'Cell-Cultivated Chicken',

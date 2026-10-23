@@ -112,7 +112,7 @@ class EstablishmentPlantCard extends StatelessWidget {
                     color: Colors.white)),
           ),
           if (p.fullAddress.isNotEmpty) _line(Icons.location_on, p.fullAddress),
-          if (p.size != null) _line(Icons.business, 'HACCP Size: ${p.size}'),
+          if (p.size != null) _line(Icons.business, 'Plant size: ${p.size}'),
           if (p.activityList.isNotEmpty)
             _line(Icons.settings, p.activityList.join(', ')),
           if (p.dba != null && p.dba != p.name)
@@ -133,7 +133,7 @@ class EstablishmentPlantCard extends StatelessWidget {
               child: const Row(mainAxisSize: MainAxisSize.min, children: [
                 Icon(Icons.public, size: 16, color: Colors.blue),
                 SizedBox(width: 6),
-                Text('Full FSIS record',
+                Text('Full USDA inspection record',
                     style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,

@@ -123,7 +123,7 @@ class ScoringExplanationScreen extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         const Text(
-          'Steps 1 and 2 score the label itself. Step 3 surfaces FSIS / FDA enforcement history, the brand owner and corporate parent, foreign-ownership status, and economic-concentration / HHI context for the supply chain. Together they produce the 0–100 FAT Score.',
+          'Steps 1 and 2 score the label itself. Step 3 surfaces USDA / FDA enforcement history, the brand owner and corporate parent, foreign-ownership status, and economic-concentration / HHI context for the supply chain. Together they produce the 0–100 FAT Score.',
           style: TextStyle(fontSize: 14, color: _muted, height: 1.35),
         ),
         const SizedBox(height: 10),
@@ -182,7 +182,7 @@ class ScoringExplanationScreen extends StatelessWidget {
         const Padding(
           padding: EdgeInsets.only(top: 8),
           child: Text(
-            'Nine categories are all-or-nothing — full credit if disclosed, 0 if not, with no partial credit. Three are legally mandatory (pass/fail): the Required Basics, Species (the common or usual product name), and the Processor identifier (the FSIS establishment number, or for FDA seafood the name and place of business). Six more are inherently binary: Breed (3 pts), Country of Origin (4 pts), Farm / Ranch (5 pts), Age at Slaughter (4 pts), Who (4 pts), and Brand (3 pts) — a specific disclosure earns full credit, while a vague marketing term (a generic “family farm”, an unspecified “young”) earns 0. Separately, a plant\'s environmental and worker-safety enforcement record applies as a penalty against the Processor category\'s disclosure score, and the two penalties stack: EPA violations −3, OSHA violations −2 (no record = 0).',
+            'Nine categories are all-or-nothing — full credit if disclosed, 0 if not, with no partial credit. Three are legally mandatory (pass/fail): the Required Basics, Species (the common or usual product name), and the Processor identifier (the USDA establishment number, or for FDA seafood the name and place of business). Six more are inherently binary: Breed (3 pts), Country of Origin (4 pts), Farm / Ranch (5 pts), Age at Slaughter (4 pts), Who (4 pts), and Brand (3 pts) — a specific disclosure earns full credit, while a vague marketing term (a generic “family farm”, an unspecified “young”) earns 0. Separately, a plant\'s environmental and worker-safety enforcement record applies as a penalty against the Processor category\'s disclosure score, and the two penalties stack: EPA violations −3, OSHA violations −2 (no record = 0).',
             style: TextStyle(fontSize: 14, color: _ink, height: 1.35),
           ),
         ),
@@ -275,21 +275,21 @@ class ScoringExplanationScreen extends StatelessWidget {
             color: _green,
             title: 'Third-Party Audited',
             detail:
-                'Independent on-farm audit by an organization that is neither the producer nor the regulator. Examples: USDA Organic (NOP-accredited annual audit), Certified Humane, AWA, GAP, American Grassfed Association, MSC / ASC / BAP for seafood. Highest weight.'),
+                'Independent on-farm audit by an organization that is neither the producer nor the regulator. Examples: USDA Organic (annual audit by a USDA-accredited certifier), Certified Humane, AWA, GAP, American Grassfed Association, MSC / ASC / BAP for seafood. Highest weight.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '🏛',
             color: _amber,
             title: 'USDA Process Verified Program',
             detail:
-                'A USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim. Government-backed, but not an independent third-party audit. Examples: USDA AMS Process Verified Program (PVP), USDA quality-grade shields (Prime / Choice / Select). FSIS label approval alone does not qualify. Strong weight.'),
+                'A USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim. Government-backed, but not an independent third-party audit. Examples: USDA Process Verified Program (PVP), USDA quality-grade shields (Prime / Choice / Select). USDA label approval alone does not qualify. Strong weight.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '📄',
             color: _amber,
             title: 'Producer Affidavit',
             detail:
-                'Claims FSIS approved on the producer\'s documentation (label approval is not verification): FSIS approved the wording on the label, backed by the producer\'s own affidavit and internal records. No independent on-farm audit. Examples: "Grass Fed," "Pasture Raised," "Free Range," or "No Antibiotics Ever" without a third-party cert mark, "Raised using Regenerative Agriculture Practices." Government oversight exists at the label-approval stage only. Moderate weight.'),
+                'Claims USDA approved on the producer\'s documentation (label approval is not verification): USDA approved the wording on the label, backed by the producer\'s own affidavit and internal records. No independent on-farm audit. Examples: "Grass Fed," "Pasture Raised," "Free Range," or "No Antibiotics Ever" without a third-party cert mark, "Raised using Regenerative Agriculture Practices." Government oversight exists at the label-approval stage only. Moderate weight.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '⚠',
@@ -317,7 +317,7 @@ class ScoringExplanationScreen extends StatelessWidget {
             color: _green,
             title: 'Processor & Enforcement Record',
             detail:
-                'The processor is identified by FSIS establishment number on the label (or, for FDA seafood, by name and place of business). Its public enforcement record — recalls, residue violations, humane-handling actions, FDA import alerts, plus EPA environmental violations and OSHA worker-safety citations — is tied to that establishment. EPA (−3) and OSHA (−2) violations apply as stacking penalties against the Processor category\'s disclosure score.'),
+                'The processor is identified by USDA establishment number on the label (or, for FDA seafood, by name and place of business). Its public enforcement record — recalls, residue violations, humane-handling actions, FDA import alerts, plus EPA environmental violations and OSHA worker-safety citations — is tied to that establishment. EPA (−3) and OSHA (−2) violations apply as stacking penalties against the Processor category\'s disclosure score.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '🏢',
@@ -365,7 +365,7 @@ class ScoringExplanationScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: _intersperse(
             <Widget>[
-              _categoryRow(1, 'USDA / FSIS Required Basics',
+              _categoryRow(1, 'USDA Required Basics',
                   appScored: true, passFail: true),
               _categoryRow(2, 'Species', appScored: true, passFail: true),
               _categoryRow(3, 'Breed', appScored: true),
@@ -380,7 +380,7 @@ class ScoringExplanationScreen extends StatelessWidget {
               _categoryRow(12, 'Medicine / Antibiotics', appScored: true),
               _categoryRow(13, 'Hormones', appScored: true),
               _categoryRow(14, 'Quality / Palatability', appScored: true),
-              _categoryRow(15, 'Organic (USDA NOP)', appScored: true),
+              _categoryRow(15, 'Organic (USDA)', appScored: true),
               _categoryRow(16, 'Supply-Chain Intermediaries', appScored: true),
             ],
             const SizedBox(height: 6),

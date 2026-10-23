@@ -210,7 +210,7 @@ class LabelInterpreter {
           value: 'Harvest age disclosed: $ageText',
           credibility: ClaimCredibility.labelClaimOnly,
           credibilityNote:
-              'One of the rarest disclosures in beef — only 9 of 724 direct-market producers surveyed (1.2%) state harvest age anywhere (FAT national producer survey, Aug 2026). Context: 30 months is a regulatory cliff, not a preference — at 30 months the FSIS specified-risk-material list (9 CFR 310.22) expands to include the vertebral column, so T-bone and porterhouse cannot be cut from a 30-month-or-older animal, and USDA maturity grading drops Slight-marbling carcasses from Select to Standard.',
+              'One of the rarest disclosures in beef — only 9 of 724 direct-market producers surveyed (1.2%) state harvest age anywhere (FAT national producer survey, Aug 2026). Context: 30 months is a regulatory cliff, not a preference — at 30 months the USDA specified-risk-material list (9 CFR 310.22) expands to include the vertebral column, so T-bone and porterhouse cannot be cut from a 30-month-or-older animal, and USDA maturity grading drops Slight-marbling carcasses from Select to Standard.',
         );
       }
     }
@@ -601,7 +601,7 @@ class LabelInterpreter {
           value: '$partialPercent% grass fed — partial claim, no credit',
           credibility: ClaimCredibility.labelClaimOnly,
           credibilityNote:
-              'FSIS treats a diet under 100% forage as a partial Grass Fed claim that '
+              'USDA treats a diet under 100% forage as a partial Grass Fed claim that '
               'must reflect the actual circumstances of raising. The animal ate grain, '
               'so this does not earn the feed category.',
         );
@@ -612,7 +612,7 @@ class LabelInterpreter {
           value: 'Mixed diet (grass + grain) — no credit',
           credibility: ClaimCredibility.labelClaimOnly,
           credibilityNote:
-              "The label also discloses grain. Under FSIS's Mixed Diet and Partially "
+              "The label also discloses grain. Under USDA's Mixed Diet and Partially "
               'Grass Fed guidance this is not a Grass Fed claim, so it does not earn '
               'the feed category.',
         );
@@ -623,7 +623,7 @@ class LabelInterpreter {
           value: 'Grass Fed (100% forage)',
           credibility: ClaimCredibility.labelClaimOnly,
           credibilityNote:
-              'FSIS: "Grass Fed, Grassfed, Grass-Fed and 100% Grass-Fed" are synonymous '
+              'USDA: "Grass Fed, Grassfed, Grass-Fed and 100% Grass-Fed" are synonymous '
               '— cattle fed only forage after weaning, never confined to a feedlot, with '
               'continuous pasture access until slaughter. Substantiated by documentation '
               'at label approval, not an on-farm audit, unless a third-party certifier '
@@ -635,7 +635,7 @@ class LabelInterpreter {
         value: 'Grass Finished only — no credit',
         credibility: ClaimCredibility.labelClaimOnly,
         credibilityNote:
-            'FSIS: "Grass Finished … is not synonymous with Grass Fed. Animals that are '
+            'USDA: "Grass Finished … is not synonymous with Grass Fed. Animals that are '
             'Grass Finished can be fed grain." Because grain is permitted earlier in '
             'life, this claim does not earn the feed category. "Grass Fed" is the '
             'stronger term.',
@@ -682,9 +682,9 @@ class LabelInterpreter {
 
   static const outdoorWelfareFsisNote =
       'The label claims the animal was raised outdoors with pasture (or woodland) access — '
-      'a meaningful welfare positive versus cage or indoor confinement. FSIS approved the claim '
+      'a meaningful welfare positive versus cage or indoor confinement. USDA approved the claim '
       "after reviewing the producer's documentation, but label approval is not verification — "
-      'FSIS does not audit the farm. No third-party welfare certification (e.g. Certified '
+      'USDA does not audit the farm. No third-party welfare certification (e.g. Certified '
       'Humane, Animal Welfare Approved, Global Animal Partnership) was found, so the claim '
       "rests on the producer's documentation.";
 
@@ -711,7 +711,7 @@ class LabelInterpreter {
         status: DisclosureStatus.known,
         value: 'Cage Free',
         credibility: ClaimCredibility.labelClaimOnly,
-        credibilityNote: 'FSIS defines cage free as not confined to a cage — birds may still be in crowded indoor barns with no outdoor access.',
+        credibilityNote: 'USDA defines cage free as not confined to a cage — birds may still be in crowded indoor barns with no outdoor access.',
       );
     }
     // Outdoor / pasture / woodland RAISING is a welfare disclosure (how the animal
@@ -771,20 +771,20 @@ class LabelInterpreter {
   /// FSIS-inspected label (EST/P number or inspection legend) carrying an
   /// animal-raising claim with no third-party seal / PVP → Producer Affidavit.
   static String pastureAlertFsisLabelApproved(String phrase) =>
-      'This label uses "$phrase." FSIS has no regulation defining the term, but it '
+      'This label uses "$phrase." USDA has no regulation defining the term, but it '
       'approves the claim on an inspected label only after the producer submits '
       'documentation; its 2024 guideline asks for evidence that the animals spent the '
       'majority of their lives on pasture, and the label must name who set the standard. '
-      'Label approval is a paperwork review, not verification: FSIS does not audit the '
+      'Label approval is a paperwork review, not verification: USDA does not audit the '
       "farm or check that the practice continues, so the claim rests on the producer's own "
       'documentation. No third-party certification mark was found.';
 
   /// No EST/P number or inspection legend read → Unverified Marketing.
   static String pastureAlertNoInspectionMark(String phrase) =>
       'This label uses "$phrase" without a third-party certification mark. '
-      'There is no FSIS regulatory definition of the term, and with no establishment '
+      'There is no USDA regulatory definition of the term, and with no establishment '
       'number or inspection legend found on the scanned panels, FAT cannot tie the '
-      'claim to an FSIS label approval.';
+      'claim to a USDA label approval.';
 
   static String pastureSpeciesNote(String? species) {
     switch (species?.toLowerCase()) {
@@ -798,7 +798,7 @@ class LabelInterpreter {
         return 'For poultry, pasture-raised should mean year-round outdoor '
             'access on managed vegetated land at densities that maintain '
             'ground cover — and explicitly rejects "a pop-door to a worn '
-            'dirt run." "Free range" under FSIS only requires some '
+            'dirt run." "Free range" under USDA rules only requires some '
             'outdoor access — a much weaker standard.';
       default:
         return 'For beef, bison, lamb, and goat, FAT looks for lifetime '
@@ -926,7 +926,7 @@ class LabelInterpreter {
         status: DisclosureStatus.known,
         value: 'Regenerative claim',
         credibility: ClaimCredibility.producerAffidavit,
-        credibilityNote: 'FSIS-approved label language backed by producer affidavit only; no on-farm audit.',
+        credibilityNote: 'USDA-approved label language backed by producer affidavit only; no on-farm audit.',
       );
     }
     return FATCategoryResult.missing;
@@ -960,7 +960,7 @@ class LabelInterpreter {
         value: 'All Natural',
         credibility: ClaimCredibility.producerAffidavit,
         credibilityNote:
-            'FSIS “natural” claim: minimally processed, no artificial ingredients or added color. It is NOT a raising claim — it says nothing about feed, welfare, antibiotics, or hormones — and carries no independent audit.',
+            'USDA “natural” claim: minimally processed, no artificial ingredients or added color. It is NOT a raising claim — it says nothing about feed, welfare, antibiotics, or hormones — and carries no independent audit.',
       );
     }
     return FATCategoryResult.missing;
@@ -969,7 +969,7 @@ class LabelInterpreter {
   /// Antibiotic / hormone raising claims: FSIS approves the label on the
   /// producer's documentation — Producer Affidavit, not verification.
   static const fsisLabelApprovalNote =
-      "FSIS-approved claim based on the producer's documentation — label approval is a "
+      "USDA-approved claim based on the producer's documentation — label approval is a "
       'paperwork review, not an on-farm audit or residue test.';
 
   static const pvpBackedClaimNote =
@@ -1060,7 +1060,7 @@ class LabelInterpreter {
           status: DisclosureStatus.known,
           value: 'USDA Certified Organic',
           credibility: ClaimCredibility.verified,
-          credibilityNote: 'USDA NOP — independent accredited certifier required; annual on-farm audit.',
+          credibilityNote: 'USDA Organic — independent accredited certifier required; annual on-farm audit.',
         );
       }
     }
@@ -1069,7 +1069,7 @@ class LabelInterpreter {
         status: DisclosureStatus.partial,
         value: 'Organic claim (uncertified)',
         credibility: ClaimCredibility.labelClaimOnly,
-        credibilityNote: 'Contains "organic" but no USDA NOP seal or certifier identified.',
+        credibilityNote: 'Contains "organic" but no USDA Organic seal or certifier identified.',
       );
     }
     return FATCategoryResult.missing;
@@ -1175,7 +1175,7 @@ class LabelInterpreter {
       'inspected for wholesomeness'];
     for (final p in patterns) {
       if (text.contains(p)) {
-        return FATCategoryResult(status: DisclosureStatus.known, value: 'USDA/FSIS required language detected');
+        return FATCategoryResult(status: DisclosureStatus.known, value: 'USDA required language detected');
       }
     }
     if (extractEstablishmentNumber(text) != null) {
@@ -1258,7 +1258,7 @@ class LabelInterpreter {
         (species == 'pork' || species == 'beef' || species == 'lamb')) {
       return (
         true,
-        'EST. $estNumber is registered by FSIS as a poultry establishment, '
+        'EST. $estNumber is registered by USDA as a poultry establishment, '
             'but this product appears to be ${speciesResult.value ?? "a different species"}. '
             'The establishment number on the label may have been misread by OCR. '
             'Please verify the EST number manually.'
@@ -1269,7 +1269,7 @@ class LabelInterpreter {
         (species == 'chicken' || species == 'turkey')) {
       return (
         true,
-        'EST. $estNumber is registered by FSIS as a pork/beef establishment, '
+        'EST. $estNumber is registered by USDA as a pork/beef establishment, '
             'but this product appears to be ${speciesResult.value ?? "poultry"}. '
             'The establishment number on the label may have been misread by OCR. '
             'Please verify the EST number manually.'

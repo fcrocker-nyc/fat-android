@@ -205,7 +205,7 @@ class _LookupScreenState extends State<LookupScreen> {
     } else if (plants.isEmpty) {
       title = 'No establishment found';
     } else {
-      title = '${plants.length} FSIS plants';
+      title = '${plants.length} USDA-inspected plants';
       subtitle = plants
           .map((p) => '${p.establishmentNumber} ${p.cityState}')
           .join(' · ');
@@ -238,7 +238,7 @@ class _LookupScreenState extends State<LookupScreen> {
         const SizedBox(height: 14),
       ],
       if (resp.establishments.isEmpty)
-        _notFoundCard('No FSIS establishment matched \u201C${resp.query}\u201D.',
+        _notFoundCard('No USDA establishment matched \u201C${resp.query}\u201D.',
             'Check the number on the USDA mark of inspection (e.g. EST. 245C or P-39928), or try part of the plant name.'),
       for (final p in resp.establishments) ...[
         EstablishmentPlantCard(plant: p),
@@ -1651,7 +1651,7 @@ class _LookupScreenState extends State<LookupScreen> {
             style: TextStyle(fontSize: 16, height: 1.3)),
         const SizedBox(height: 14),
         const Text(
-            "This number identifies the federally inspected facility where the product was processed, as listed by the U.S. Department of Agriculture's Food Safety and Inspection Service (FSIS).",
+            "This number identifies the federally inspected facility where the product was processed, as listed by the U.S. Department of Agriculture's Food Safety and Inspection Service.",
             style: TextStyle(fontSize: 16, height: 1.3)),
         const SizedBox(height: 16),
         _infoBox('What you can find:', const [

@@ -156,7 +156,7 @@ class MontanaOriginCard extends StatelessWidget {
         ],
         const SizedBox(height: 4),
         Text(
-            'This is where the product was slaughtered/processed under USDA/FSIS '
+            'This is where the product was slaughtered/processed under USDA '
             'inspection. Where the animal was born or raised may be elsewhere — '
             'the label’s Country/State-of-origin claim, not the plant location, '
             'tells you that.',
@@ -193,7 +193,7 @@ class MontanaOriginCard extends StatelessWidget {
 
     children.addAll([
       const SizedBox(height: 8),
-      Text('Source: USDA/FSIS establishment directory · abundantmontana.com',
+      Text('Source: USDA establishment directory · abundantmontana.com',
           style: TextStyle(fontSize: 10, color: Colors.black.withValues(alpha: 0.5))),
     ]);
 
@@ -219,7 +219,7 @@ class MontanaOriginCard extends StatelessWidget {
     }
     var line = parts.join(' — ');
     if ((origin.establishmentNumber ?? '').isNotEmpty) {
-      line += ' (USDA/FSIS Est. ${origin.establishmentNumber})';
+      line += ' (USDA Est. ${origin.establishmentNumber})';
     }
     return line;
   }

@@ -89,7 +89,7 @@ class ServiceCaseSchemaScreen extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Loose seafood at the full-service counter is governed by a USDA AMS placard, not an FDA package label — and whether any disclosure exists depends on the venue. This is the field schema that operationalizes that finding: the fields to capture, how each is normalized, and how confidence is assigned so the App never confirms more than a photo can prove.',
+          'Loose seafood at the full-service counter is governed by a USDA-required placard, not an FDA package label — and whether any disclosure exists depends on the venue. This is the field schema that operationalizes that finding: the fields to capture, how each is normalized, and how confidence is assigned so the App never confirms more than a photo can prove.',
           style: TextStyle(fontSize: 16, height: 1.35, color: _ink),
         ),
       ],
@@ -192,7 +192,7 @@ class ServiceCaseSchemaScreen extends StatelessWidget {
         ]),
         const SizedBox(height: 10),
         const Text(
-          'Lane routing: Siluriformes names (catfish, basa, swai, tra) → FSIS lane; molluscan shellfish → shellfish/ICSSL lane; everything else stays FDA.',
+          'Lane routing: Siluriformes names (catfish, basa, swai, tra) → USDA lane; molluscan shellfish → shellfish/ICSSL lane; everything else stays FDA.',
           style: TextStyle(fontSize: 14, height: 1.35, color: _muted),
         ),
       ],
@@ -306,7 +306,7 @@ class ServiceCaseSchemaScreen extends StatelessWidget {
           _tierRow('Gate',
               'exempt or processed → not_applicable (capture name + advisory, no finding)'),
           _tierRow('Tier 1 — Direct',
-              'hard key (shellfish cert → ICSSL, or FSIS estab.) → known direct match'),
+              'hard key (shellfish cert → ICSSL, or USDA estab.) → known direct match'),
           _tierRow('Tier 1 — Disclosure',
               'origin + method posted → known; required but absent → missing'),
           _tierRow('Tier 2 — Species name',
@@ -314,7 +314,7 @@ class ServiceCaseSchemaScreen extends StatelessWidget {
           _tierRow('Tier 3 — Advisory',
               'species = unverified + substitution-risk note'),
           _tierRow('Lanes',
-              'USDA country-of-origin labeling · FDA integrity · (NOAA SIMP if imported)'),
+              'USDA country-of-origin labeling · FDA integrity · (NOAA\'s Seafood Import Monitoring Program if imported)'),
         ]),
       ],
     );

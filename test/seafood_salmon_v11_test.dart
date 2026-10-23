@@ -115,7 +115,7 @@ void main() {
       expect(s.linesFor(_cat2), isEmpty);
       expect(s.linesFor(_cat4), isEmpty);
       expect(s.linesFor(_cat7),
-          ["Covered by NOAA's Seafood Import Monitoring Program (SIMP)."]);
+          ["Covered by NOAA's Seafood Import Monitoring Program."]);
     });
 
     test('#7 cold smoked, no origin → Cat. 4 notRequired', () {
@@ -163,7 +163,7 @@ void main() {
     test('#12 farm-raised shrimp, Ecuador', () {
       final s = _scanFixture(12);
       expect(s.linesFor(_cat7),
-          ["Covered by NOAA's Seafood Import Monitoring Program (SIMP)."]);
+          ["Covered by NOAA's Seafood Import Monitoring Program."]);
       expect(s.linesFor(_cat1), isEmpty);
     });
   });
@@ -329,19 +329,19 @@ void main() {
     expect(EstablishmentType.exemptButcher.isVoluntaryDisclosureVenue, isFalse);
   });
 
-  test('Glance-card baseline: FDA for most seafood, FSIS only for catfish, AMS for the counter', () {
+  test('Glance-card baseline: FDA for most seafood, USDA only for catfish, AMS for the counter', () {
     expect(SeafoodDetailLines.baselineLine(_scanFixture(12).result),
         'Meets FDA labeling requirements — as is required of all seafood sold in the United States.');
     expect(SeafoodDetailLines.baselineLine(_scanFixture(1).result),
         'Meets FDA labeling requirements — as is required of all seafood sold in the United States.');
     expect(SeafoodDetailLines.baselineLine(_scanFixture(11).result),
-        'Meets USDA FSIS minimums — as is required of federally inspected catfish.');
+        'Meets USDA minimums — as is required of federally inspected catfish.');
     final counter = FATResult(
       scannedText: '${SeafoodDetailLines.serviceCaseHeader}\nSalmon · Farm-raised · Product of Chile',
       categories: const {},
       productType: ProductType.seafood,
     );
     expect(SeafoodDetailLines.baselineLine(counter),
-        'Meets AMS retail placard requirements — as is required of loose seafood.');
+        'Meets USDA retail placard requirements — as is required of loose seafood.');
   });
 }

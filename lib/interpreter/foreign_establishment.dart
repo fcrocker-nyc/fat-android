@@ -172,7 +172,7 @@ class ForeignEstablishmentDetector {
   static String processorNote(ForeignEstablishment f) =>
       'Imported product — the label carries ${f.countryName}’s establishment '
       'mark (${f.display}) rather than a USDA establishment number. FAT’s '
-      'processor lookup decodes domestic FSIS establishment numbers from the MPI '
+      'processor lookup decodes domestic USDA establishment numbers from the MPI '
       'directory, so it cannot resolve this one; foreign establishments are '
-      'listed by FSIS on its eligible foreign establishment lists.';
+      'listed by USDA on its eligible foreign establishment lists.';
 }

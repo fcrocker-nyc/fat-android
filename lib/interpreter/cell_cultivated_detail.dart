@@ -22,7 +22,7 @@ class CellCultivatedDetail {
 
   // ── User-facing string (kept verbatim for iOS parity) ──
   static const String line =
-      'This label says the product is cell-cultivated: grown from animal cells rather than from a slaughtered animal. USDA-FSIS must preapprove the labels of cell-cultivated meat and poultry; FDA oversees cell-cultivated seafood.';
+      'This label says the product is cell-cultivated: grown from animal cells rather than from a slaughtered animal. USDA must preapprove the labels of cell-cultivated meat and poultry; FDA oversees cell-cultivated seafood.';
 
   /// Species / meat words that make a bare "cultivated" or "cultured" count.
   static const List<String> speciesWords = [

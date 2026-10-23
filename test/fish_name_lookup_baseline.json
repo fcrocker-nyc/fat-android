@@ -35,17 +35,17 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "NOAA's SIMP covers imports of 13 species groups: abalone, Atlantic cod, blue crab (Atlantic), dolphinfish (mahi mahi), grouper, king crab (red), Pacific cod, red snapper, sea cucumber, sharks, shrimp, swordfish and tuna."
+              "text" : "NOAA's Seafood Import Monitoring Program covers imports of 13 species groups: abalone, Atlantic cod, blue crab (Atlantic), dolphinfish (mahi mahi), grouper, king crab (red), Pacific cod, red snapper, sea cucumber, sharks, shrimp, swordfish and tuna."
             }
           ],
-          "title" : "Try a SIMP species group"
+          "title" : "Try a species group NOAA monitors on import"
         }
       ],
       "simpStatus" : null,
       "title" : "Fish Name Not Found"
     },
     "Atlantic salmon" : {
-      "historyTitle" : "Atlantic Salmon — not covered by SIMP",
+      "historyTitle" : "Atlantic Salmon — not covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "atlantic salmon",
       "sections" : [
         {
@@ -56,7 +56,7 @@
               "text" : "Salmon is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -78,7 +78,7 @@
       "title" : "Atlantic Salmon"
     },
     "black cod" : {
-      "historyTitle" : "Black Cod — not covered by SIMP",
+      "historyTitle" : "Black Cod — not covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "black cod",
       "sections" : [
         {
@@ -89,7 +89,7 @@
               "text" : "Black Cod is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -111,7 +111,7 @@
       "title" : "Black Cod"
     },
     "cod" : {
-      "historyTitle" : "Cod — covered by SIMP",
+      "historyTitle" : "Cod — covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "cod",
       "sections" : [
         {
@@ -119,20 +119,20 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "SIMP covers both Atlantic cod and Pacific cod, so a placard that just says 'cod' is covered either way."
+              "text" : "The import monitoring program covers both Atlantic cod and Pacific cod, so a placard that just says 'cod' is covered either way."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -154,7 +154,7 @@
       "title" : "Cod"
     },
     "crab" : {
-      "historyTitle" : "Crab — SIMP coverage unclear",
+      "historyTitle" : "Crab — coverage by NOAA's Seafood Import Monitoring Program unclear",
       "matchedName" : "crab",
       "sections" : [
         {
@@ -162,10 +162,10 @@
             {
               "kind" : "flag",
               "link" : null,
-              "text" : "SIMP covers blue crab (Atlantic) and red king crab only; a placard that just says 'crab' doesn't say which species."
+              "text" : "The import monitoring program covers blue crab (Atlantic) and red king crab only; a placard that just says 'crab' doesn't say which species."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -187,7 +187,7 @@
       "title" : "Crab"
     },
     "dolphinfish" : {
-      "historyTitle" : "Mahi Mahi — covered by SIMP",
+      "historyTitle" : "Mahi Mahi — covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "mahi mahi",
       "sections" : [
         {
@@ -195,15 +195,15 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -255,7 +255,7 @@
       "title" : "Mahi Mahi"
     },
     "grouper" : {
-      "historyTitle" : "Grouper — covered by SIMP",
+      "historyTitle" : "Grouper — covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "grouper",
       "sections" : [
         {
@@ -263,15 +263,15 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -318,7 +318,7 @@
       "title" : "Grouper"
     },
     "groupers" : {
-      "historyTitle" : "Grouper — covered by SIMP",
+      "historyTitle" : "Grouper — covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "grouper",
       "sections" : [
         {
@@ -326,15 +326,15 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -381,7 +381,7 @@
       "title" : "Grouper"
     },
     "king crab" : {
-      "historyTitle" : "King Crab — covered by SIMP",
+      "historyTitle" : "King Crab — covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "king crab",
       "sections" : [
         {
@@ -389,15 +389,15 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -419,7 +419,7 @@
       "title" : "King Crab"
     },
     "mahi mahi" : {
-      "historyTitle" : "Mahi Mahi — covered by SIMP",
+      "historyTitle" : "Mahi Mahi — covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "mahi mahi",
       "sections" : [
         {
@@ -427,15 +427,15 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -487,7 +487,7 @@
       "title" : "Mahi Mahi"
     },
     "Mahi-Mahi" : {
-      "historyTitle" : "Mahi Mahi — covered by SIMP",
+      "historyTitle" : "Mahi Mahi — covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "mahi mahi",
       "sections" : [
         {
@@ -495,15 +495,15 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -555,7 +555,7 @@
       "title" : "Mahi Mahi"
     },
     "Pacific snapper" : {
-      "historyTitle" : "Pacific Snapper — not covered by SIMP",
+      "historyTitle" : "Pacific Snapper — not covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "pacific snapper",
       "sections" : [
         {
@@ -571,7 +571,7 @@
               "text" : "FDA said in April 2026 that rockfish sold as \"snapper\" is misbranded (91 Fed. Reg. 16200, Apr. 1, 2026, as cited in FAT Seafood Paper No. 7)."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -593,7 +593,7 @@
       "title" : "Pacific Snapper"
     },
     "red snapper" : {
-      "historyTitle" : "Red Snapper — covered by SIMP",
+      "historyTitle" : "Red Snapper — covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "red snapper",
       "sections" : [
         {
@@ -601,15 +601,15 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -651,7 +651,7 @@
       "title" : "Red Snapper"
     },
     "rockfish" : {
-      "historyTitle" : "Rockfish — not covered by SIMP",
+      "historyTitle" : "Rockfish — not covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "rockfish",
       "sections" : [
         {
@@ -667,7 +667,7 @@
               "text" : "FDA said in April 2026 that rockfish sold as \"snapper\" is misbranded (91 Fed. Reg. 16200, Apr. 1, 2026, as cited in FAT Seafood Paper No. 7)."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -689,7 +689,7 @@
       "title" : "Rockfish"
     },
     "salmon" : {
-      "historyTitle" : "Salmon — not covered by SIMP",
+      "historyTitle" : "Salmon — not covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "salmon",
       "sections" : [
         {
@@ -700,7 +700,7 @@
               "text" : "Salmon is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -722,7 +722,7 @@
       "title" : "Salmon"
     },
     "shrimp" : {
-      "historyTitle" : "Shrimp — covered by SIMP",
+      "historyTitle" : "Shrimp — covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "shrimp",
       "sections" : [
         {
@@ -730,15 +730,15 @@
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Covered by NOAA's Seafood Import Monitoring Program (SIMP)."
+              "text" : "Covered by NOAA's Seafood Import Monitoring Program."
             },
             {
               "kind" : "info",
               "link" : null,
-              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. SIMP does not apply to domestic seafood."
+              "text" : "Imports of this species group must report harvest records to NOAA, including the vessel, catch area and fishing gear. The program does not apply to domestic seafood."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -780,7 +780,7 @@
       "title" : "Shrimp"
     },
     "snapper" : {
-      "historyTitle" : "Snapper — SIMP coverage unclear",
+      "historyTitle" : "Snapper — coverage by NOAA's Seafood Import Monitoring Program unclear",
       "matchedName" : "snapper",
       "sections" : [
         {
@@ -788,10 +788,10 @@
             {
               "kind" : "flag",
               "link" : null,
-              "text" : "SIMP covers red snapper only; a placard that just says 'snapper' doesn't say which species."
+              "text" : "The import monitoring program covers red snapper only; a placard that just says 'snapper' doesn't say which species."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [
@@ -833,7 +833,7 @@
       "title" : "Snapper"
     },
     "tilapia" : {
-      "historyTitle" : "Tilapia — not covered by SIMP",
+      "historyTitle" : "Tilapia — not covered by NOAA's Seafood Import Monitoring Program",
       "matchedName" : "tilapia",
       "sections" : [
         {
@@ -844,7 +844,7 @@
               "text" : "Tilapia is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program."
             }
           ],
-          "title" : "SIMP (NOAA Seafood Import Monitoring Program)"
+          "title" : "NOAA's Seafood Import Monitoring Program"
         },
         {
           "lines" : [

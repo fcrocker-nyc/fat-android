@@ -28,7 +28,7 @@ enum ClaimCredibility {
       case usdaApproved:
         return 'A USDA Process Verified Program — or another USDA program that audits or grades the claim, such as USDA grade marks — stands behind the claim. Government-backed, but not an independent third-party audit. (Also used for identity substantiated via EPA NPDES CAFO permit or qualifying state CAFO permit, per FAT DSA v1.1.)';
       case producerAffidavit:
-        return 'Claim FSIS approved on the producer\'s documentation (label approval is not verification) — the producer\'s affidavit and records are the only backing; no independent on-farm audit.';
+        return 'Claim USDA approved on the producer\'s documentation (label approval is not verification) — the producer\'s affidavit and records are the only backing; no independent on-farm audit.';
       case labelClaimOnly:
         return 'Printed on the label with no known third-party audit and no government label-language approval.';
     }
@@ -109,7 +109,7 @@ class FATCategoryResult {
   /// Neutral line shown in place of a credibility tier chip for a
   /// class-name-only Age at Slaughter disclosure. Mirrors iOS.
   static const String fsisClassNameLine =
-      'FSIS class name (9 CFR 381.170) — a required naming standard that implies an age range, not a verified claim.';
+      'USDA class name (9 CFR 381.170) — a required naming standard that implies an age range, not a verified claim.';
 
   /// True for an FSIS poultry class-name disclosure (9 CFR 381.170). A class
   /// name is an FSIS-defined naming standard, not an audited program, so it is
@@ -151,7 +151,7 @@ enum FATCategory {
 
   String get displayName {
     switch (this) {
-      case usdaFsisRequiredLanguage: return 'USDA / FSIS Required Language';
+      case usdaFsisRequiredLanguage: return 'USDA Required Language';
       case species:                  return 'Species';
       case breed:                    return 'Breed';
       case countryOrigin:            return 'Country / Origin';
@@ -165,7 +165,7 @@ enum FATCategory {
       case medicine:                 return 'Medicine / Antibiotics';
       case hormones:                 return 'Hormones';
       case qualityPalatability:      return 'Quality / Palatability';
-      case organic:                  return 'Organic (USDA NOP)';
+      case organic:                  return 'Organic (USDA)';
       case supplyChainIntermediary:  return 'Supply-Chain Intermediaries';
     }
   }

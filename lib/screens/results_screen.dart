@@ -223,7 +223,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
       value: owner,
       credibility: ClaimCredibility.usdaApproved,
       credibilityNote:
-          'Owner/operator on record in the USDA/FSIS establishment directory '
+          'Owner/operator on record in the USDA establishment directory '
           'for EST $est. Identified from the establishment number printed on '
           'the label.',
     );
@@ -739,7 +739,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Meets USDA FSIS minimums — as is required of all federally inspected meat and catfish.',
+                  'Meets USDA minimums — as is required of all federally inspected meat and catfish.',
                   style:
                       TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600),
                 ),
@@ -1066,7 +1066,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             : 'Retail Exemption',
         titleColor: _disclosureBlue,
         body:
-            'This item appears to have been cut, ground, or packed in-store. Under the USDA retail store exemption (21 U.S.C. 661(c)(2); 9 CFR 303.1(d)), a store doing traditional retail cutting and grinding is not an official establishment and has no establishment number to display — so the missing EST number is not a compliance failure. The Processor, USDA/FSIS legend, and Supply-Chain categories are marked “not applicable” rather than “not disclosed”: the information was never required to travel from the source plant to the store scale label. For ground beef, the store must still keep the supplier establishment numbers in its grinder’s log (9 CFR 320.1) — ask at the counter.',
+            'This item appears to have been cut, ground, or packed in-store. Under the USDA retail store exemption (21 U.S.C. 661(c)(2); 9 CFR 303.1(d)), a store doing traditional retail cutting and grinding is not an official establishment and has no establishment number to display — so the missing EST number is not a compliance failure. The Processor, USDA inspection mark, and Supply-Chain categories are marked “not applicable” rather than “not disclosed”: the information was never required to travel from the source plant to the store scale label. For ground beef, the store must still keep the supplier establishment numbers in its grinder’s log (9 CFR 320.1) — ask at the counter.',
       ));
     }
     // Imported product — the label carries a foreign establishment mark
@@ -1088,12 +1088,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
         body:
             'This package carries ${result.foreignCountry}’s mark of inspection '
             '(${result.foreignEstablishment}) rather than a USDA establishment '
-            'number — which is what an imported FSIS-regulated product bears, so '
+            'number — which is what an imported USDA-regulated product bears, so '
             'the absence of a USDA number here is not a compliance failure. FAT’s '
             'processor lookup decodes domestic establishment numbers from the USDA '
-            'MPI directory and cannot resolve a foreign one; FSIS publishes the '
+            'MPI directory and cannot resolve a foreign one; USDA publishes the '
             'eligible foreign establishments by country in its Import & Export '
-            'Library. Imported meat is re-inspected by FSIS at the port before it '
+            'Library. Imported meat is re-inspected by USDA at the port before it '
             'enters commerce — that re-inspection is where problems with imported '
             'product are usually caught.',
       ));
@@ -1130,7 +1130,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
         title: 'Prepared / Multi-Ingredient Product',
         titleColor: _disclosureBlue,
         body: result.preparedFsisJurisdiction
-            ? 'This looks like a multi-ingredient prepared food under USDA/FSIS jurisdiction (it carries a USDA legend or establishment number). On a prepared food the establishment number identifies the final assembler — the cannery or plant that made the product — not the slaughterhouse of the meat inside. The per-animal categories (breed, farm, age, feed, welfare, medicine, hormones) are marked “not applicable” rather than “not disclosed”: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat — a regulatory gap, not a brand failure. Anything the brand voluntarily discloses (e.g., “made with organic chicken”) still counts and still earns its credibility tier.'
+            ? 'This looks like a multi-ingredient prepared food under USDA jurisdiction (it carries a USDA legend or establishment number). On a prepared food the establishment number identifies the final assembler — the cannery or plant that made the product — not the slaughterhouse of the meat inside. The per-animal categories (breed, farm, age, feed, welfare, medicine, hormones) are marked “not applicable” rather than “not disclosed”: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat — a regulatory gap, not a brand failure. Anything the brand voluntarily discloses (e.g., “made with organic chicken”) still counts and still earns its credibility tier.'
             : PreparedFoodDetector.fdaBannerText,
       ));
     }
@@ -1189,9 +1189,9 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 child: Text(
                   live
                       ? (active.length == 1
-                          ? 'Active FSIS recall on this establishment'
-                          : '${active.length} active FSIS recalls on this establishment')
-                      : 'Past FSIS recall on this establishment (closed)',
+                          ? 'Active USDA recall on this establishment'
+                          : '${active.length} active USDA recalls on this establishment')
+                      : 'Past USDA recall on this establishment (closed)',
                   style: TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w800, color: color),
                 ),
@@ -1229,7 +1229,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 padding: const EdgeInsets.only(top: 4, bottom: 8),
                 child: GestureDetector(
                   onTap: () => _openUrl(r.url),
-                  child: const Text('Read the FSIS recall notice →',
+                  child: const Text('Read the USDA recall notice →',
                       style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
@@ -1239,12 +1239,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ],
           Text(
             live
-                ? 'Matched on the establishment identifier printed on this label. Check the lot number and use-by date in the FSIS notice against your package — a recall covers specific production lots, not everything the plant makes.'
+                ? 'Matched on the establishment identifier printed on this label. Check the lot number and use-by date in the USDA notice against your package — a recall covers specific production lots, not everything the plant makes.'
                 : 'This notice is closed. It is shown as history for the establishment on this label, not a current warning.',
             style: const TextStyle(fontSize: 12.5, color: Colors.black54),
           ),
           const Text(
-            'Source: USDA FSIS Recall & Public Health Alert API.',
+            'Source: USDA Recall & Public Health Alert API.',
             style: TextStyle(fontSize: 11.5, color: Colors.black45),
           ),
         ],
@@ -1311,14 +1311,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   fontSize: 15, fontWeight: FontWeight.w800, color: Colors.black)),
           Text(
             '${p.country} · est ${p.est}'
-            '${p.dateListed.isNotEmpty ? " · FSIS-listed ${p.dateListed}" : ""}',
+            '${p.dateListed.isNotEmpty ? " · USDA-listed ${p.dateListed}" : ""}',
             style: const TextStyle(fontSize: 13, color: Colors.black54),
           ),
           if (delisted)
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                'FSIS DELISTED this establishment'
+                'USDA DELISTED this establishment'
                 '${p.dateDelisted.isNotEmpty ? " on ${p.dateDelisted}" : ""} and has not '
                 'relisted it — it is not currently eligible to export to the '
                 'United States. Product already in U.S. commerce may predate the '
@@ -1332,8 +1332,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
           const SizedBox(height: 2),
           Text(
             delisted
-                ? 'Source: USDA FSIS eligible foreign establishment lists.'
-                : 'Listed by FSIS as eligible to export ${p.scope.toLowerCase()} to the United States. Source: USDA FSIS eligible foreign establishment lists.',
+                ? 'Source: USDA eligible foreign establishment lists.'
+                : 'Listed by USDA as eligible to export ${p.scope.toLowerCase()} to the United States. Source: USDA eligible foreign establishment lists.',
             style: const TextStyle(fontSize: 11.5, color: Colors.black45),
           ),
         ],
@@ -1543,7 +1543,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   !_processorLoading) ...[
                 const SizedBox(height: 10),
                 Text(
-                  'EST $est isn’t in the current USDA/FSIS directory — the '
+                  'EST $est isn’t in the current USDA directory — the '
                   'number may have been misread. Re-scan the inspection legend '
                   '(“USDA / P. …” or “EST. …”) for a cleaner read.',
                   style: const TextStyle(
@@ -1677,7 +1677,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               child: CircularProgressIndicator(
                   strokeWidth: 2, color: FATTheme.scanGreen)),
           SizedBox(width: 8),
-          Text('Checking FSIS public record…',
+          Text('Checking USDA inspection record…',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ]),
       );
@@ -1694,7 +1694,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           const SizedBox(height: 14),
           const Divider(height: 1, color: Colors.black26),
           const SizedBox(height: 10),
-          const Text('FSIS Public Record',
+          const Text('USDA Inspection Record',
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
           EstablishmentRecordRows(plant: plant),
         ],
@@ -1756,7 +1756,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
         const SizedBox(height: 14),
         const Divider(height: 1, color: Colors.black26),
         const SizedBox(height: 10),
-        const Text('FSIS Public Record',
+        const Text('USDA Inspection Record',
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900)),
         if (rows.isEmpty)
           Padding(
@@ -1780,7 +1780,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           if (asOf.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Text('FSIS data$asOf.',
+              child: Text('USDA inspection data$asOf.',
                   style: TextStyle(
                       fontSize: 11.5, color: Colors.black.withValues(alpha: 0.55))),
             ),
@@ -1833,11 +1833,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
         if (result.categories[FATCategory.species]?.value == 'Pork') ...[
           if (_betaAgonists != null)
             row(Icons.verified_outlined, FATTheme.scanGreen,
-                'USDA AMS Verified — Never Fed Beta Agonists (ractopamine): a verified product line at this establishment'
+                'USDA Verified — Never Fed Beta Agonists (ractopamine): a verified product line at this establishment'
                 '${_betaAgonists!.markets.isEmpty ? '' : ' · verified for ${_betaAgonists!.markets.join(' & ')}'}')
           else
             row(Icons.info_outline, const Color(0xFF6B7280),
-                'Ractopamine (beta-agonists): no AMS “never fed” verification on file — FSIS requires no label disclosure of use either way'),
+                'Ractopamine (beta-agonists): no USDA “never fed” verification on file — USDA requires no label disclosure of use either way'),
         ],
       ],
     );

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../models/fat_models.dart';
 
 import 'processor_service.dart';
+import '../util/plain_language.dart';
 
 // Collision-safe FSIS establishment lookup — fat/v1/establishments/<q>.
 //
@@ -202,7 +203,7 @@ class FatEstablishment {
     return p.map((x) {
       final c = (x.category ?? '').trim();
       if (c.isEmpty || c == '0') {
-        return '${x.product}: not categorized (FSIS lists NA)';
+        return '${x.product}: not categorized (USDA lists NA)';
       }
       return '${x.product}: Category $c';
     }).join('; ');
@@ -299,7 +300,7 @@ class EstablishmentsService {
           for (final e in obj['establishments'] as List)
             if (e is Map) FatEstablishment.fromJson(e),
         ].whereType<FatEstablishment>().toList(),
-        note: note,
+        note: PlainLanguage.consumerTextOrNull(note),
       );
     } catch (_) {
       return null;
@@ -434,7 +435,7 @@ class EstablishmentsService {
   static const noParentMappingText = 'no parent mapping on file';
 
   static String sharedOwnerNote(int n) =>
-      'This number belongs to $n FSIS plants with different owners — match the city on the package\'s USDA mark to know which.';
+      'This number belongs to $n USDA-inspected plants with different owners — match the city on the package\'s USDA mark to know which.';
 
   /// Who/Owner for a shared number the label didn't resolve, when the
   /// candidate plants map to different parent companies: Partial, value
@@ -520,5 +521,5 @@ class EstablishmentsService {
 
   /// Scan-results headline when several plants share the number.
   static String sharedHeadline(int n) =>
-      'This number belongs to $n FSIS plants — match the city on the package\'s USDA mark';
+      'This number belongs to $n USDA-inspected plants — match the city on the package\'s USDA mark';
 }

@@ -39,7 +39,7 @@ void main() {
       final r = resp(r245);
       expect(r.mode, 'number');
       expect(r.count, 3);
-      expect(r.note, contains('more than one FSIS establishment'));
+      expect(r.note, contains('more than one USDA establishment'));
       expect(r.establishments.map((e) => e.establishmentNumber).toList(),
           ['M245J', 'M245C+V245C', 'M245E']);
       expect(r.establishments.map((e) => e.city).toList(),
@@ -115,7 +115,7 @@ void main() {
       expect(r.kind, ResolutionKind.ambiguous);
       expect(r.plants.length, 3);
       expect(EstablishmentsService.sharedHeadline(3),
-          "This number belongs to 3 FSIS plants — match the city on the package's USDA mark");
+          "This number belongs to 3 USDA-inspected plants — match the city on the package's USDA mark");
     });
 
     test('scanned 4033 → Bianco Inc.', () {
@@ -244,10 +244,10 @@ void main() {
     final strings = [
       EstablishmentsService.sharedHeadline(3),
       'No parent mapping on file',
-      'Full FSIS record',
+      'Full USDA inspection record',
       plant.salmonellaLine ?? '',
       plant.latestRecallLine ?? '',
-      'No FSIS establishment matched',
+      'No USDA establishment matched',
       'Check the number on the USDA mark of inspection (e.g. EST. 245C or P-39928), or try part of the plant name.',
       'Enter USDA Establishment Number or Plant Name',
       'Recalls:',

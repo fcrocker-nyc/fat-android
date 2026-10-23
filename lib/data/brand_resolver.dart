@@ -12,6 +12,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../util/plain_language.dart';
 
 // ─────────────────────────────────────────────
 // Resolution + enforcement value types
@@ -245,7 +246,8 @@ class BrandResolver {
               ((cw['fda_bridge_entities'] as List?) ?? const [])
                   .map((e) => e.toString())
                   .toList(),
-          appDisplayCaveat: cw['app_display_caveat'] as String?,
+          appDisplayCaveat: PlainLanguage.consumerTextOrNull(
+              cw['app_display_caveat'] as String?),
           confidenceLabel: (cw['confidence_label'] as String?) ?? '',
           brandOwnerSourceURL: cw['brand_owner_source_url'] as String?,
         );

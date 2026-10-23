@@ -94,7 +94,7 @@ class SeafoodDetailLines {
   static const String colorNotFound =
       'No color-additive statement found on this label.';
   static const String simpCovered =
-      "Covered by NOAA's Seafood Import Monitoring Program (SIMP).";
+      "Covered by NOAA's Seafood Import Monitoring Program.";
   static String simpNotCovered(String speciesGroup) =>
       "$speciesGroup is not one of the 13 species groups covered by NOAA's Seafood Import Monitoring Program.";
   static const String wildAtlanticSalmonTripwire =
@@ -115,10 +115,10 @@ class SeafoodDetailLines {
   /// at a service case is held to the AMS retail placard.
   static String baselineLine(FATResult r) {
     if (r.scannedText.startsWith(serviceCaseHeader)) {
-      return 'Meets AMS retail placard requirements — as is required of loose seafood.';
+      return 'Meets USDA retail placard requirements — as is required of loose seafood.';
     }
     if (r.isSiluriformes) {
-      return 'Meets USDA FSIS minimums — as is required of federally inspected catfish.';
+      return 'Meets USDA minimums — as is required of federally inspected catfish.';
     }
     return 'Meets FDA labeling requirements — as is required of all seafood sold in the United States.';
   }

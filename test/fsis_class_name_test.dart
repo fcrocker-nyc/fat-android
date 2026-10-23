@@ -32,7 +32,7 @@ void main() {
     expect(age.displayCredibility, isNull);
     expect(age.credibilityNote, startsWith(FATCategoryResult.fsisClassNameLine));
     expect(FATCategoryResult.fsisClassNameLine,
-        'FSIS class name (9 CFR 381.170) — a required naming standard that implies an age range, not a verified claim.');
+        'USDA class name (9 CFR 381.170) — a required naming standard that implies an age range, not a verified claim.');
     // No category displays "USDA Process Verified Program" on this label.
     expect(
         c.values.where(
