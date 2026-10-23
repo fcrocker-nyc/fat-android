@@ -470,7 +470,7 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
               Text(
                   r.establishmentType.isVoluntaryDisclosureVenue
                       ? EstablishmentType.voluntaryDisclosureNote
-                      : 'This venue (or a processed item) is exempt from COOL, so a missing origin placard is not a compliance finding.',
+                      : 'Country-of-origin labeling rules do not apply to this venue (or a processed item), so a missing origin placard is not a compliance finding.',
                   style: const TextStyle(fontSize: 13, height: 1.3)),
             ],
           ]),

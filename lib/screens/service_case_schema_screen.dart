@@ -125,7 +125,7 @@ class ServiceCaseSchemaScreen extends StatelessWidget {
       title: 'The gate: establishment classification',
       children: [
         const Text(
-          'COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. The gate derives two values used everywhere downstream: whether a COOL placard is owed here, and which enforcement lane applies. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely.',
+          'Country-of-origin labeling rules apply to larger grocery retailers (those licensed under the Perishable Agricultural Commodities Act) and exempt fish markets, butcher shops, and food-service establishments. The gate derives two values used everywhere downstream: whether a country-of-origin placard is owed here, and which enforcement lane applies. A processed or value-added item (breaded, marinated, crab cakes) is not covered by these rules at all.',
           style: TextStyle(fontSize: 15, height: 1.35, color: _ink),
         ),
         const SizedBox(height: 10),
@@ -135,7 +135,7 @@ class ServiceCaseSchemaScreen extends StatelessWidget {
           _fieldRow('disclosure_required',
               'boolean (derived) — gates Cluster A scoring'),
           _fieldRow('processed_value_added',
-              'boolean — if true, COOL not applicable'),
+              'boolean — if true, country-of-origin labeling rules do not apply'),
           _fieldRow(
               'category_lane', 'fda · fsis_siluriformes · shellfish_icssl'),
         ]),
@@ -148,7 +148,7 @@ class ServiceCaseSchemaScreen extends StatelessWidget {
   Widget _clusterASection() {
     return _section(
       number: '1',
-      title: 'Cluster A — mandated disclosure (COOL)',
+      title: 'Cluster A — mandated disclosure (country-of-origin labeling)',
       children: [
         const Text(
           'The two facts a covered retailer must post for non-processed fish: country of origin and method of production. Legally required, so a legible capture is the App\'s strongest service-case signal — eligible for known. Required but absent resolves to missing; exempt venues resolve to not_applicable.',
@@ -314,7 +314,7 @@ class ServiceCaseSchemaScreen extends StatelessWidget {
           _tierRow('Tier 3 — Advisory',
               'species = unverified + substitution-risk note'),
           _tierRow('Lanes',
-              'AMS COOL · FDA integrity · (NOAA SIMP if imported)'),
+              'USDA country-of-origin labeling · FDA integrity · (NOAA SIMP if imported)'),
         ]),
       ],
     );

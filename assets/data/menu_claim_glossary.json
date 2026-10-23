@@ -57,9 +57,9 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "A place where the animal was raised or the seafood was caught or farmed. Country-of-origin labeling (COOL) defines origin for meat and seafood sold at retail (USDA AMS).",
-      "authority": "USDA AMS — COOL applies to retail, not restaurants",
-      "gap": "Restaurants are exempt from COOL, so a place name on a menu can describe a style or a past supplier rather than what is in the kitchen today.",
+      "meaning": "A place where the animal was raised or the seafood was caught or farmed. Country-of-origin labeling rules define origin for meat and seafood sold in stores (USDA AMS).",
+      "authority": "USDA country-of-origin labeling rule — stores only, not restaurants",
+      "gap": "Restaurants don’t have to follow country-of-origin labeling rules, so a place name on a menu can describe a style or a past supplier rather than what is in the kitchen today.",
       "questions": [
         "Is it coming from there right now, or does that change with the season?",
         "Who do you buy it from?"
@@ -473,9 +473,9 @@
         "finfish",
         "shellfish"
       ],
-      "meaning": "Caught in the wild rather than farmed. COOL requires the wild-or-farmed method on retail seafood (7 CFR Part 60).",
-      "authority": "USDA AMS COOL — retail only, not restaurants",
-      "gap": "Restaurants are exempt from COOL. Wild doesn’t say where it was caught, how, or whether that fishery is well managed.",
+      "meaning": "Caught in the wild rather than farmed. U.S. country-of-origin labeling rules require stores to say whether seafood is wild or farmed (7 CFR Part 60).",
+      "authority": "USDA country-of-origin labeling rule — stores only, not restaurants",
+      "gap": "Restaurants don’t have to follow country-of-origin labeling rules. Wild doesn’t say where it was caught, how, or whether that fishery is well managed.",
       "questions": [
         "Where was it caught, and how — line, net, or trap?",
         "Is it wild today, or does that change with the season?"
@@ -500,8 +500,8 @@
         "finfish",
         "shellfish"
       ],
-      "meaning": "Raised on a fish or shellfish farm. COOL requires the method on retail seafood.",
-      "authority": "USDA AMS COOL — retail only, not restaurants",
+      "meaning": "Raised on a fish or shellfish farm. U.S. country-of-origin labeling rules require stores to say whether seafood is wild or farmed.",
+      "authority": "USDA country-of-origin labeling rule — stores only, not restaurants",
       "gap": "Farmed doesn’t say which country, what kind of farm (net pens, ponds, tanks), or whether it’s certified.",
       "questions": [
         "Which country is the farm in?",

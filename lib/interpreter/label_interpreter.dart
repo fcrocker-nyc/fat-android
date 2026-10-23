@@ -180,7 +180,7 @@ class LabelInterpreter {
         map[FATCategory.countryOrigin] = const FATCategoryResult(
           status: DisclosureStatus.missing,
           credibilityNote:
-              'No origin claim on ground beef means one of exactly two things under the 2026 "Product of USA" rule: the packer has fully domestic product but skipped the optional claim paperwork, or the product contains imported trim and is legally barred from the claim. Nothing on the package tells you which — origin labeling has been voluntary since mandatory COOL was repealed in 2015.',
+              'No origin claim on ground beef means one of exactly two things under the 2026 "Product of USA" rule: the packer has fully domestic product but skipped the optional claim paperwork, or the product contains imported trim and is legally barred from the claim. Nothing on the package tells you which — origin labeling has been voluntary since mandatory country-of-origin labeling for beef and pork was repealed in 2015.',
         );
       } else if (co != null && co.status == DisclosureStatus.known) {
         map[FATCategory.countryOrigin] = FATCategoryResult(

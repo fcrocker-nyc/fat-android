@@ -104,11 +104,11 @@ class FishNameLookup {
   static const String bycatchTail =
       "Products sold in the U.S. must come from fisheries that were not denied; a counter placard doesn't name the fishery.";
   static const String coolRequirement =
-      "Under USDA country-of-origin labeling (COOL, 7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised.";
+      "Under USDA country-of-origin labeling rules (7 CFR Part 60), a covered retailer must show the fish's country of origin and whether it is wild-caught or farm-raised.";
 
   /// Same wording as the service-case schema (service_case_schema_screen).
   static const String coolExemptions =
-      'COOL binds PACA-licensed retailers and exempts fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is excluded from COOL entirely.';
+      'Country-of-origin labeling rules apply to larger grocery retailers (those licensed under the Perishable Agricultural Commodities Act) and exempt fish markets, butcher shops, and food-service establishments. A processed or value-added item (breaded, marinated, crab cakes) is not covered by these rules at all.';
   static const String unknownLine = "FAT doesn't recognize that fish name yet.";
   static String get simpGroupsLine {
     const g = SIMPCoverage.speciesGroups;

@@ -219,7 +219,7 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
             color: _amber,
             title: 'Producer Affidavit',
             detail:
-                'FDA or FSIS approved the label language, backed by producer-maintained records and affidavits. No independent on-site audit. Examples: COOL-compliant country of origin, FSIS-approved species name claims.'),
+                'FDA or FSIS approved the label language, backed by producer-maintained records and affidavits. No independent on-site audit. Examples: a country of origin that meets U.S. labeling rules, FSIS-approved species name claims.'),
         const SizedBox(height: 10),
         _statusRow(
             symbol: '⚠',
@@ -350,7 +350,7 @@ class SeafoodScoringExplanationScreen extends StatelessWidget {
             color: _amber,
             label: 'Amber',
             detail:
-                'Partially disclosed, or government-reviewed but not independently audited — including a USDA Process Verified Program, the USDA FSIS catfish inspection mark, or COOL-compliant origin without farm or vessel named.'),
+                'Partially disclosed, or government-reviewed but not independently audited — including a USDA Process Verified Program, the USDA FSIS catfish inspection mark, or a country of origin that meets U.S. labeling rules but names no farm or vessel.'),
         const SizedBox(height: 10),
         _colorRow(
             color: _red,

@@ -874,7 +874,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Effective January 1, 2026, USDA tightened the standard for the voluntary "Product of USA" / "Made in the USA" claim: every animal contributing meat to the product — including any imported trim blended into ground beef — must have been born, raised, slaughtered, and processed entirely in the United States. That closed a loophole that had let imported cattle merely slaughtered or repackaged in the U.S. carry the claim.\n\n'
             'The catch: the rule only governs companies that choose to make the claim. It does not require anyone to disclose origin. So a blended ground-beef product can simply carry no claim at all and face no additional labeling consequence — which is now the norm for most ground beef, not a gap limited to a few packages.\n\n'
             'What the silence means: under the 2026 rule, an unlabeled package is one of exactly two things — fully domestic product where the packer skipped the optional paperwork, or a blend containing imported trim that is legally barred from the claim. Current law gives a shopper no way to tell which from the shelf.\n\n'
-            'A bill to reinstate mandatory country-of-origin labeling — the American Beef Labeling Act, S.421 — advanced further than any MCOOL effort since the 2015 repeal when the Senate Agriculture Committee adopted its language into the farm bill markup on a bipartisan 17–6 vote in August 2026, though it still faces a Senate floor fight, a House bill that omits it, and eventual trade-challenge risk.\n\n'
+            'A bill to reinstate mandatory country-of-origin labeling — the American Beef Labeling Act, S.421 — advanced further than any effort to restore mandatory labeling since the 2015 repeal when the Senate Agriculture Committee adopted its language into the farm bill markup on a bipartisan 17–6 vote in August 2026, though it still faces a Senate floor fight, a House bill that omits it, and eventual trade-challenge risk.\n\n'
             'Source: "Lean Beef in America" research briefing v.4, §§1, 6, 7; National Agricultural Law Center — "USDA Finalizes Voluntary \'Product of USA\' Rule"; Congress.gov, S.421.'),
       ),
       // 2.2f — LFTB
@@ -1553,7 +1553,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
                 color: FATTheme.fatOrange,
                 title: 'Producer Affidavit',
                 description:
-                    'FDA or FSIS approved the label language, backed by producer-maintained records and affidavits. No independent audit. Examples: COOL-compliant country of origin with production method, FSIS-approved species name claims.',
+                    'FDA or FSIS approved the label language, backed by producer-maintained records and affidavits. No independent audit. Examples: a country of origin and production method that meet U.S. labeling rules, FSIS-approved species name claims.',
               ),
               _TierRow(
                 icon: Icons.info_outline,
@@ -1570,7 +1570,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             children: const [
               _Bullets([
                 'Species identity is verified against the FDA Seafood List — species mislabeling is a documented fraud vector in seafood but not in meat',
-                'Seafood COOL requires disclosure of production method (wild or farmed) alongside country of origin — meat COOL does not',
+                'Country-of-origin labeling rules for seafood require disclosure of production method (wild or farmed) alongside country of origin — the rules for meat do not',
                 'Quality scoring includes fresh/frozen/previously-frozen status — labeling previously frozen product as fresh is a regulated violation',
                 'Additives scoring includes phosphate glazing (STPP) and added water — chronic underdisclosure issues specific to seafood',
                 'The regulatory agency itself is a scored disclosure — catfish uses FSIS with full enforcement data; all other seafood scores Processor and Regulatory Language as Not Required because no consumer-facing equivalent exists',
@@ -1641,7 +1641,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         subtitle: 'Production method and what it means',
         body: [
           const _Para(
-              'Under COOL (Country of Origin Labeling) requirements, seafood labels must disclose whether the product is wild-caught or farm-raised alongside the country of origin. This is a combined disclosure not required for meat.'),
+              'Under U.S. country-of-origin labeling requirements, seafood labels must disclose whether the product is wild-caught or farm-raised alongside the country of origin. This is a combined disclosure not required for meat.'),
           const _Rule(),
           _Box(
             heading: 'Wild-Caught Seafood',
@@ -1813,7 +1813,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
                 'Tier 1 Disclosure — origin + method posted → known; required but absent → missing.',
                 'Tier 2 Species name — Seafood List match → partial (name maps, fish unverified).',
                 'Tier 3 Advisory — species = unverified + substitution-risk note.',
-                'Lanes — AMS COOL · FDA integrity · (NOAA SIMP if imported).',
+                'Lanes — USDA country-of-origin labeling · FDA integrity · (NOAA SIMP if imported).',
               ]),
             ],
           ),

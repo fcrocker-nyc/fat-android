@@ -705,7 +705,7 @@ class MenuLearnScreen extends StatelessWidget {
 
   static const _sections = <(String, String)>[
     ('Why FAT explains instead of checking',
-        'Nothing on a menu can be checked at the table. The USDA inspection mark and establishment number are on the wholesale case in the kitchen, not on your plate. Country-of-origin labeling (COOL) exempts restaurants. The USDA’s rules for claims like “grass-fed” or “raised without antibiotics” cover product labels, not menu copy. And words like “local,” “Wagyu” and “heritage” have no federal definition at all.'),
+        'Nothing on a menu can be checked at the table. The USDA inspection mark and establishment number are on the wholesale case in the kitchen, not on your plate. Country-of-origin labeling rules don’t apply to restaurants. The USDA’s rules for claims like “grass-fed” or “raised without antibiotics” cover product labels, not menu copy. And words like “local,” “Wagyu” and “heritage” have no federal definition at all.'),
     ('So the question is the tool',
         'If you know that “grass-fed” doesn’t say whether the animal was finished on grain, or that “Gulf shrimp” names a body of water rather than a country, you can ask a better question. The kitchen’s answer is the disclosure. FAT supplies the words and the questions; the restaurant supplies the facts.'),
     ('What a menu usually leaves out',
