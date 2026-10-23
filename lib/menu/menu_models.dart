@@ -216,6 +216,8 @@ class MenuOCRLine {
   double get maxY => box.bottom;
   double get midY => (box.top + box.bottom) / 2;
   double get height => box.bottom - box.top;
+  double get width => box.right - box.left;
+  double get midX => (box.left + box.right) / 2;
 }
 
 class MenuPage {
@@ -232,7 +234,9 @@ class MenuPage {
       final t = raw[i].trim();
       if (t.isEmpty) continue;
       final top = 1.0 - (i + 1) * step;
-      lines.add(MenuOCRLine(t, Rect.fromLTRB(0.05, top, 0.95, top + step * 0.6)));
+      // Line height 0.8 step: consecutive lines sit close like real print; a
+      // blank line in the text becomes a gap the segmenter reads as a break.
+      lines.add(MenuOCRLine(t, Rect.fromLTRB(0.05, top, 0.95, top + step * 0.8)));
     }
     return MenuPage(index, lines);
   }

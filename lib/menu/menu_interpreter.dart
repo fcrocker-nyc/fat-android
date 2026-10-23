@@ -109,16 +109,34 @@ class MenuBlock {
 
   /// Add-on / supplement lines attached to this dish, as printed.
   final List<String> addOns;
+
+  /// OCR height of the first line, to spot small-print descriptions.
+  final double firstLineHeight;
   MenuBlock(this.lines, this.section, this.sectionProteins, this.headerStatements,
-      [List<String>? addOns])
+      [List<String>? addOns, this.firstLineHeight = 0])
       : addOns = addOns ?? <String>[];
 
-  String get title => MenuText.stripPrice(lines.isEmpty ? '' : lines.first);
-  String get description => lines
-      .skip(1)
-      .map(MenuText.stripPrice)
-      .where((s) => s.isNotEmpty)
-      .join(', ');
+  /// "Pacific saury*, Gim bugak, Perilla": on a tasting menu the dish name is
+  /// the first item and the rest are its components. Upper-case titles with
+  /// commas ("FARM-RAISED, SUSTAINABLE CAVIAR") are kept whole.
+  (String, String?) get _titleSplit {
+    final first = MenuText.cleanTitle(MenuText.stripPrice(lines.isEmpty ? '' : lines.first));
+    final comma = first.indexOf(', ');
+    if (comma < 0) return (first, null);
+    final head = MenuText._trim(first.substring(0, comma), ' *');
+    final rest = first.substring(comma + 2).trim();
+    if (MenuText.isAllCaps(head) || rest.isEmpty ||
+        head.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length > 5) {
+      return (first, null);
+    }
+    return (head, rest);
+  }
+
+  String get title => _titleSplit.$1;
+  String get description => [
+        if (_titleSplit.$2 != null) _titleSplit.$2!,
+        ...lines.skip(1).map(MenuText.stripPrice),
+      ].where((s) => s.isNotEmpty).join(', ');
   String get text => [title, description].where((s) => s.isNotEmpty).join('\n');
   String get addOnText => addOns.join('\n');
 
@@ -133,6 +151,7 @@ class MenuSegmentation {
   MenuSegmentation(this.blocks, this.allHeaderStatements, this.layoutUncertain);
 }
 
+/// Dart port of the iOS MenuSegmenter (MenuInterpreter.swift) — keep in sync.
 class MenuSegmenter {
   static MenuSegmentation segment(List<MenuPage> pages) {
     final blocks = <MenuBlock>[];
@@ -141,7 +160,13 @@ class MenuSegmenter {
 
     final sortedPages = [...pages]..sort((a, b) => a.index.compareTo(b.index));
     for (final page in sortedPages) {
-      final merged = mergeSameRowPrices(page.lines.where((l) => !isBoilerplate(l.text)).toList());
+      final cleaned = <MenuOCRLine>[];
+      for (final l in page.lines) {
+        final t = MenuText.dropForeignScript(l.text);
+        if (t.isNotEmpty) cleaned.add(MenuOCRLine(t, l.box));
+      }
+      final merged = mergeSameRowPrices(
+          cleaned.where((l) => !isBoilerplate(l.text) && !isWinePairing(l.text)).toList());
       final (columns, columnUncertain) = clusterColumns(merged);
       uncertain = uncertain || columnUncertain;
 
@@ -155,24 +180,61 @@ class MenuSegmenter {
             return a.minX.compareTo(b.minX);
           });
         final medianH = _median(lines.map((l) => l.height).toList()) ?? 0.02;
+        final breakGap = dishBreakGap(lines, medianH);
+        final groupOf = gapGroups(lines, breakGap);
 
         String? section;
         List<ProteinFamily>? sectionProteins;
         var sectionStatements = <String>[];
         var afterLastDish = <String>[];
         var current = <String>[];
+        var currentHeights = <double>[];
         var addOns = <String>[];
         var priced = false;
         var hasDescription = false;
         MenuOCRLine? previous;
 
         void close() {
+          // "O0", "18/pc", "• 82 per person •": not a dish name.
+          while (current.isNotEmpty && MenuText.isJunkTitle(current.first)) {
+            current.removeAt(0);
+            currentHeights.removeAt(0);
+          }
+          // Small print right under a one-line dish name is its description,
+          // even when a gap (a dropped subtitle line) sits between them; so is
+          // a fragment ("Soft poached and chilled prawn,") under a priced title.
+          if (current.isNotEmpty &&
+              currentHeights.isNotEmpty &&
+              !MenuText.isCapsTitle(current.first) &&
+              pageBlocks.length > columnFirstBlock &&
+              pageBlocks.last.lines.length == 1) {
+            final first = current.first;
+            final h = currentHeights.first;
+            final prev = pageBlocks.last;
+            final smaller = !MenuText.looksLikeTitle(first) && h < prev.firstLineHeight * 0.78;
+            final fragment = (MenuText.endsMidPhrase(first) || MenuText.startsLowercase(first)) &&
+                MenuText.hasTrailingPrice(prev.lines.first);
+            if (smaller || fragment) {
+              prev.lines.addAll(current);
+              prev.addOns.addAll(addOns);
+              current = [];
+              currentHeights = [];
+              addOns = [];
+            }
+          }
+          if (current.isNotEmpty && MenuText.isProse(current)) {
+            // An essay paragraph ("Black Angus is the dominant beef breed…")
+            // is not a dish; its claim words would only add noise.
+            current = [];
+            addOns = [];
+          }
           if (current.isNotEmpty) {
             pageBlocks.add(MenuBlock(List.of(current), section, sectionProteins,
-                List.of(sectionStatements), List.of(addOns)));
+                List.of(sectionStatements), List.of(addOns), currentHeights.isEmpty ? 0 : currentHeights.first));
             afterLastDish = [];
           }
           current = [];
+          currentHeights = [];
           addOns = [];
           priced = false;
           hasDescription = false;
@@ -189,8 +251,19 @@ class MenuSegmenter {
           final text = line.text.trim();
           if (text.isEmpty) continue;
 
-          if (previous != null && previous.minY - line.maxY > medianH * 1.2) close();
+          // A line that stops mid-phrase ("Crispy gem lettuce, baby arugula,")
+          // continues on the next line however far down it is.
+          if (previous != null && previous.minY - line.maxY > breakGap && !MenuText.endsMidPhrase(previous.text)) {
+            close();
+          }
+          final prevLine = previous;
           previous = line;
+
+          // "OR" between two tasting-menu choices separates dishes.
+          if (MenuText.isSeparator(text)) {
+            close();
+            continue;
+          }
 
           String? nextText;
           for (final l in lines.skip(lineIndex + 1)) {
@@ -199,8 +272,10 @@ class MenuSegmenter {
               break;
             }
           }
-          final header = MenuText.sectionHeader(text) ?? MenuText.genericSectionHeader(text, nextText);
-          if (header != null) {
+          final header = MenuText.sectionHeader(text) ??
+              MenuText.genericSectionHeader(text, nextText) ??
+              MenuText.largeHeading(text, line.height, medianH);
+          if (header != null && !isDishTitleGroup(lineIndex, lines, groupOf, medianH)) {
             close();
             endSection();
             section = header;
@@ -210,7 +285,15 @@ class MenuSegmenter {
             continue;
           }
 
-          if (MenuText.isHeaderStatement(text)) {
+          // A statement line inside an essay paragraph is prose, not a
+          // menu-wide sourcing statement.
+          final standsAlone = text.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length <= 16 &&
+              !MenuText.endsMidPhrase(text) &&
+              !(nextText != null && MenuText.startsLowercase(nextText)) &&
+              !(lineIndex > 0 &&
+                  MenuText.isProseFragment(lines[lineIndex - 1].text) &&
+                  lines[lineIndex - 1].minY - line.maxY <= breakGap);
+          if (MenuText.isHeaderStatement(text) && standsAlone) {
             close();
             sectionStatements.add(text);
             afterLastDish.add(text);
@@ -221,6 +304,7 @@ class MenuSegmenter {
           if (MenuText.isPriceOnly(text)) {
             if (current.isNotEmpty) {
               current.add(text);
+              currentHeights.add(line.height);
               close();
             }
             continue;
@@ -245,7 +329,7 @@ class MenuSegmenter {
           if (current.isEmpty) {
             startsNew = false;
           } else if (priced) {
-            startsNew = title || MenuText.hasTrailingPrice(text);
+            startsNew = title || capsTitle || MenuText.hasTrailingPrice(text);
           } else if (title && hasDescription) {
             startsNew = true;
           } else if (capsTitle && hasDescription && current.any((l) => !MenuText.isCapsTitle(l))) {
@@ -256,9 +340,12 @@ class MenuSegmenter {
           } else {
             startsNew = false;
           }
-          if (startsNew) close();
+          if (startsNew && !(prevLine != null && MenuText.endsMidPhrase(prevLine.text) && prevLine.text != text)) {
+            close();
+          }
 
           current.add(text);
+          currentHeights.add(line.height);
           if (MenuText.hasTrailingPrice(text)) priced = true;
           if (current.length > 1 && !title && !capsTitle) hasDescription = true;
           if (current.length > 1 && title && !MenuText.isAllCaps(text) && MenuText.isAllCaps(current[0])) {
@@ -311,38 +398,172 @@ class MenuSegmenter {
     ];
   }
 
-  /// Splits a page into columns by left edge. Returns uncertain = true when
-  /// clusters overlap and the page falls back to a single column.
+  /// Splits a page into reading-order pieces with a recursive XY-cut: cut at
+  /// a clean vertical gutter when one exists (columns), otherwise at a wide
+  /// horizontal gap (a new section band), and repeat inside each piece.
+  /// Handles centered columns (Le Bernardin) and pages whose column layout
+  /// changes partway down (Cote). A right-hand strip of prices is glued onto
+  /// the rows it sits beside rather than read as a column.
   static (List<List<MenuOCRLine>>, bool) clusterColumns(List<MenuOCRLine> lines) {
     if (lines.length < 6) return ([lines], false);
-    final sorted = [...lines]..sort((a, b) => a.minX.compareTo(b.minX));
-    final clusters = <List<MenuOCRLine>>[
-      [sorted.first]
-    ];
-    for (final line in sorted.skip(1)) {
-      if (line.minX - clusters.last.last.minX > 0.15) {
-        clusters.add([line]);
-      } else {
-        clusters.last.add(line);
-      }
-    }
-    final merged = <List<MenuOCRLine>>[];
-    for (final c in clusters) {
-      if (c.length < 3 && merged.isNotEmpty) {
-        merged.last.addAll(c);
-      } else {
-        merged.add(c);
-      }
-    }
-    if (merged.length <= 1) return ([lines], false);
-
-    for (var k = 0; k < merged.length - 1; k++) {
-      final nextLeft = merged[k + 1].map((l) => l.minX).reduce((a, b) => a < b ? a : b);
-      final overruns = merged[k].where((l) => l.maxX > nextLeft + 0.05).length;
-      if (overruns / merged[k].length > 0.3) return ([lines], true);
-    }
-    return (merged, false);
+    return (_xyCut(lines, 0).where((p) => p.isNotEmpty).toList(), false);
   }
+
+  static List<List<MenuOCRLine>> _xyCut(List<MenuOCRLine> lines, int depth) {
+    if (lines.length < 6 || depth >= 8) return [lines];
+    final v = _verticalCut(lines);
+    if (v != null) {
+      final (left, right) = v;
+      if (right.isEmpty) return _xyCut(left, depth + 1); // price strip glued on
+      return [..._xyCut(left, depth + 1), ..._xyCut(right, depth + 1)];
+    }
+    final h = _horizontalCut(lines);
+    if (h != null) {
+      final (top, bottom) = h;
+      return [..._xyCut(top, depth + 1), ..._xyCut(bottom, depth + 1)];
+    }
+    return [lines];
+  }
+
+  /// Widest empty vertical strip with real text on both sides.
+  static (List<MenuOCRLine>, List<MenuOCRLine>)? _verticalCut(List<MenuOCRLine> lines) {
+    final minX = lines.map((l) => l.minX).reduce((a, b) => a < b ? a : b);
+    final maxX = lines.map((l) => l.maxX).reduce((a, b) => a > b ? a : b);
+    final width = maxX - minX;
+    if (width <= 0.1) return null;
+    // Banner lines spanning most of the piece don't count against gutters.
+    final body = lines.where((l) => l.width < width * 0.6);
+    const bins = 300;
+    final cover = List<int>.filled(bins, 0);
+    for (final l in body) {
+      final lo = ((l.minX - minX) / width * (bins - 1)).floor();
+      final hi = ((l.maxX - minX) / width * (bins - 1)).floor();
+      for (var b = lo < 0 ? 0 : lo; b <= (hi < lo ? lo : hi) && b < bins; b++) {
+        cover[b]++;
+      }
+    }
+    // Allow one stray crossing line per gutter.
+    (int, int)? best;
+    int? runStart;
+    for (var b = 0; b <= bins; b++) {
+      final empty = b < bins && cover[b] <= 1;
+      if (empty && runStart == null) runStart = b;
+      if (!empty && runStart != null) {
+        final st = runStart;
+        if (st > 0 && b < bins && b - st > (best?.$2 ?? 0)) best = (st, b - st);
+        runStart = null;
+      }
+    }
+    if (best == null || best.$2 / bins * width < 0.006) return null;
+    final cutX = minX + (best.$1 + best.$2 / 2) / bins * width;
+    final left = lines.where((l) => l.midX < cutX).toList();
+    final right = lines.where((l) => l.midX >= cutX).toList();
+    // A short right-hand strip of prices or tags belongs to the rows it sits
+    // beside: glue it on and keep reading the left side as one piece.
+    final pricey = right
+        .where((l) => RegExp(r'\d|price|supplement', caseSensitive: false).hasMatch(l.text))
+        .length;
+    if (right.isNotEmpty &&
+        right.length * 3 < left.length &&
+        (right.length < 3 || pricey / right.length >= 0.6)) {
+      return (_glueOntoRows(right, left), <MenuOCRLine>[]);
+    }
+    if (left.length < 3 || right.length < 3) return null;
+    return (left, right);
+  }
+
+  /// Largest vertical gap between consecutive lines, if it is a clear
+  /// section break (at least 2.5 line-heights).
+  static (List<MenuOCRLine>, List<MenuOCRLine>)? _horizontalCut(List<MenuOCRLine> lines) {
+    final sorted = [...lines]..sort((a, b) => b.maxY.compareTo(a.maxY));
+    final h = _median(sorted.map((l) => l.height).toList()) ?? 0.02;
+    (int, double)? best;
+    var lowestTop = sorted.first.minY;
+    for (var i = 1; i < sorted.length; i++) {
+      final gap = lowestTop - sorted[i].maxY;
+      if (gap > (best?.$2 ?? 0)) best = (i, gap);
+      if (sorted[i].minY < lowestTop) lowestTop = sorted[i].minY;
+    }
+    if (best == null || best.$2 < h * 2.5 || best.$1 < 2 || sorted.length - best.$1 < 2) return null;
+    return (sorted.sublist(0, best.$1), sorted.sublist(best.$1));
+  }
+
+  /// Appends each stray line to the line on its left on the same row.
+  static List<MenuOCRLine> _glueOntoRows(List<MenuOCRLine> strays, List<MenuOCRLine> lines) {
+    final out = List<MenuOCRLine>.of(lines);
+    for (final s in strays) {
+      int? t;
+      for (var i = 0; i < out.length; i++) {
+        final o = out[i];
+        final sameRow = (o.midY - s.midY).abs() < (o.height > s.height ? o.height : s.height) * 0.6;
+        if (o.maxX <= s.minX + 0.02 && sameRow && (t == null || o.maxX > out[t].maxX)) t = i;
+      }
+      if (t != null) {
+        out[t] = MenuOCRLine('${out[t].text} ${s.text}', out[t].box.expandToInclude(s.box));
+      } else {
+        out.add(s);
+      }
+    }
+    return out;
+  }
+
+  /// The vertical gap that separates two dishes on this column, learned from
+  /// the column's own line gaps (inside-dish gaps cluster near zero, between-
+  /// dish gaps higher). Falls back to 0.75 line-heights.
+  static double dishBreakGap(List<MenuOCRLine> lines, double h) {
+    final fallback = h * 0.75;
+    if (lines.length < 4) return fallback;
+    // Cap at two line-heights: a section break or a skipped line is still
+    // just "a big gap" and must not pull the threshold up.
+    final gaps = <double>[
+      for (var i = 1; i < lines.length; i++)
+        (lines[i - 1].minY - lines[i].maxY).clamp(0.0, h * 2).toDouble()
+    ]..sort();
+    var bestScore = double.infinity, bestT = fallback, bestSep = 0.0;
+    for (var k = 1; k < gaps.length; k++) {
+      final lo = gaps.sublist(0, k), hi = gaps.sublist(k);
+      final mLo = lo.reduce((a, b) => a + b) / lo.length;
+      final mHi = hi.reduce((a, b) => a + b) / hi.length;
+      final v = lo.fold<double>(0, (s, g) => s + (g - mLo) * (g - mLo)) +
+          hi.fold<double>(0, (s, g) => s + (g - mHi) * (g - mHi));
+      if (v < bestScore) {
+        bestScore = v;
+        bestT = (gaps[k - 1] + gaps[k]) / 2;
+        bestSep = mHi - mLo;
+      }
+    }
+    if (bestSep <= h * 0.3) return fallback;
+    return bestT.clamp(h * 0.3, h * 1.2).toDouble();
+  }
+
+  /// Numbers the runs of lines between dish breaks.
+  static List<int> gapGroups(List<MenuOCRLine> lines, double breakGap) {
+    final groups = <int>[];
+    var g = 0;
+    for (var i = 0; i < lines.length; i++) {
+      if (i > 0 && lines[i - 1].minY - lines[i].maxY > breakGap) g++;
+      groups.add(g);
+    }
+    return groups;
+  }
+
+  /// A section word ("Caviar", "Oysters", "Sashimi") that opens a short,
+  /// unpriced run of 2–4 lines, or is followed by a lowercase description,
+  /// and isn't set larger than the text around it, is a dish title.
+  static bool isDishTitleGroup(int index, List<MenuOCRLine> lines, List<int> groupOf, double medianH) {
+    if (index >= groupOf.length) return false;
+    if (lines[index].height >= medianH * 1.12) return false;
+    if (index + 1 < lines.length && MenuText.startsLowercase(lines[index + 1].text)) return true;
+    final g = groupOf[index];
+    if (index > 0 && groupOf[index - 1] == g) return false;
+    final run = [for (var i = 0; i < lines.length; i++) if (groupOf[i] == g) i];
+    if (run.length < 2 || run.length > 4) return false;
+    return !run.skip(1).any((i) => MenuText.hasTrailingPrice(lines[i].text) || MenuText.isPriceOnly(lines[i].text));
+  }
+
+  /// Wine-pairing lines: "Linden, Petit Manseng, Virginia (2020)", "(N.V)".
+  static final _wine = RegExp(r'\((?:(?:19|20)\d{2}|N\.?\s?V\.?)\)', caseSensitive: false);
+  static bool isWinePairing(String text) => _wine.hasMatch(text);
 
   static bool isBoilerplate(String text) {
     final t = text.toLowerCase();
@@ -350,6 +571,8 @@ class MenuSegmenter {
       'consuming raw', 'undercooked', 'foodborne illness', 'gratuity', 'service charge',
       'please inform', 'allerg', 'before placing your order', 'split plate', 'corkage',
       'prices subject', 'tax not included', 'www.', '@', 'instagram', 'reservations',
+      'book now', 'make a reservation', 'reserve a table', 'gift card', 'order online',
+      'private dining', 'private events',
     ];
     return markers.any(t.contains);
   }
@@ -365,7 +588,7 @@ class MenuSegmenter {
 
 class MenuText {
   static const _priceCore =
-      r'(?:[$£€¥]\s?)?\d{1,4}(?:[.,]\d{1,2})?(?:\s?/\s?(?:[$£€¥]\s?)?\d{1,4}(?:[.,]\d{1,2})?)?';
+      r'(?:[$£€¥]\s?)?\d{1,4}(?:[.,]\d{1,2})?(?:\s?/\s?(?:[$£€¥]\s?)?\d{1,4}(?:[.,]\d{1,2})?)?(?:\s?/\s?(?:pc|pcs|piece|oz|lb|tin|ea|each|person|guest))?';
   static const _marketPrice = r'(?:mp|m\.p\.|market price|market)';
 
   static final _priceOnly = RegExp('^\\+?\\s?(?:$_priceCore|$_marketPrice)\$', caseSensitive: false);
@@ -503,6 +726,86 @@ class MenuText {
         ' ');
     t = t.replaceAll(RegExp(r'\s+'), ' ');
     return _trim(t, ' +:;,.-–—*\t');
+  }
+
+  /// "OR" / "and" alone on a line between two choices.
+  static bool isSeparator(String text) {
+    final t = _trim(text.toLowerCase(), ' \t.,:;!?-–—•·*~()[]"\'');
+    return t == 'or' || t == 'and' || (t.isEmpty && text.trim().isNotEmpty);
+  }
+
+  /// Running prose rather than a dish: three or more sentences, or a long
+  /// paragraph of full lines.
+  static bool isProse(List<String> lines) {
+    final joined = lines.join(' ');
+    final sentences = joined
+        .split(RegExp(r'[.!?]'))
+        .where((s) => s.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length >= 4)
+        .length;
+    if (sentences >= 3) return true;
+    final words = joined.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    return words >= 30 && words / lines.length >= 7;
+  }
+
+  /// A long line of running text that doesn't end its sentence.
+  static bool isProseFragment(String text) {
+    final t = text.trim();
+    if (endsMidPhrase(t)) return true;
+    if (t.isEmpty || '.!?:'.contains(t[t.length - 1])) return false;
+    return t.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length >= 8;
+  }
+
+  /// A line that stops mid-phrase: ends with a comma, "and", "with", "&"…
+  static bool endsMidPhrase(String text) {
+    final t = text.trim().toLowerCase();
+    if (t.endsWith(',') || t.endsWith('&') || t.endsWith('-') || t.endsWith(';')) return true;
+    final words = t.split(RegExp(r'\s+'));
+    const tails = ['and', 'with', 'of', 'in', 'on', 'or', 'the', 'a', 'de', 'du', 'au', 'et'];
+    return words.isNotEmpty && tails.contains(words.last);
+  }
+
+  /// "1 COTE Galbi" → "COTE Galbi", "• American Wagyu •" → "American Wagyu".
+  static String cleanTitle(String text) {
+    var t = text.replaceFirst(RegExp(r'^[\s•·◦*\-–—]+'), '');
+    t = t.replaceFirst(RegExp(r'^\d{1,2}\s+(?=\p{L}{2})', unicode: true), '');
+    t = t.replaceFirst(RegExp(r'[\s•·◦]+$'), '');
+    return t.trim();
+  }
+
+  /// Fewer than three letters, or mostly digits and symbols.
+  static bool isJunkTitle(String text) {
+    final t = cleanTitle(stripPrice(text));
+    final letters = RegExp(r'\p{L}', unicode: true).allMatches(t).length;
+    final visible = t.replaceAll(RegExp(r'\s'), '').length;
+    if (letters < 3) return true;
+    if (RegExp(r'\bper (person|guest)\b', caseSensitive: false).hasMatch(t) && letters < 20) return true;
+    return letters / (visible == 0 ? 1 : visible) < 0.5;
+  }
+
+  /// OCR of Korean, Japanese or Chinese text with a Latin model comes out as
+  /// stray Cyrillic and symbol runs; drop those tokens.
+  static String dropForeignScript(String text) {
+    final t = text.replaceAll(
+        RegExp(r'\S*[\p{Script=Cyrillic}\p{Script=Hangul}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}₫]\S*',
+            unicode: true),
+        ' ');
+    return t.replaceAll(RegExp(r'\s{2,}'), ' ').trim();
+  }
+
+  static bool startsLowercase(String text) {
+    final m = RegExp(r'\p{L}', unicode: true).firstMatch(text);
+    return m != null && RegExp(r'\p{Ll}', unicode: true).hasMatch(m.group(0)!);
+  }
+
+  /// A course heading set larger than the menu text ("Lightly Cooked"):
+  /// short, unpriced, no comma and no protein word.
+  static String? largeHeading(String text, double height, double medianH) {
+    if (height < medianH * 1.2) return null;
+    final t = collapseLetterSpacing(text);
+    final words = t.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    if (words < 1 || words > 4 || t.contains(',') || hasTrailingPrice(t) || isPriceOnly(t)) return null;
+    if (MenuProteinClassifier.classify(t).proteins.isNotEmpty) return null;
+    return t;
   }
 
   static final _statementPatterns = [
