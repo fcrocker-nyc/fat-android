@@ -563,7 +563,29 @@ class MenuSegmenter {
 
   /// Wine-pairing lines: "Linden, Petit Manseng, Virginia (2020)", "(N.V)".
   static final _wine = RegExp(r'\((?:(?:19|20)\d{2}|N\.?\s?V\.?)\)', caseSensitive: false);
-  static bool isWinePairing(String text) => _wine.hasMatch(text);
+  static bool isWinePairing(String text) {
+    if (_wine.hasMatch(text)) return true;
+    // "Didier Dagueneau, Les Jardins de Babylone, Demi-Sec, Jurançon, France,":
+    // producer, wine, appellation, country — with no vintage when the year
+    // wraps onto the next line. Three or more comma-separated parts ending in
+    // a wine country or region, or carrying a capitalized wine term.
+    final parts = text.split(',').map((p) => p.trim()).where((p) => p.isNotEmpty).toList();
+    if (parts.length < 3) return false;
+    final tail = parts.last.replaceFirst(RegExp(r'\s*\(.*$'), '');
+    if (_wineRegions.contains(tail)) return true;
+    return _wineTerm.hasMatch(text);
+  }
+
+  static final _wineTerm = RegExp(
+      r'\b(Brut|Cuvée|Cuvee|Grand Cru|Premier Cru|Blanc de Blancs|Demi-Sec|Riesling|Sauvignon Blanc|Pinot Noir|Chardonnay|Cabernet|Kabinett|Spätlese|D\.O\.C|A\.O\.C|Appellation)\b');
+
+  static const _wineRegions = <String>{
+    'France', 'Italy', 'Spain', 'Germany', 'Austria', 'Hungary', 'Portugal', 'Greece', 'Slovenia', 'Croatia',
+    'Georgia', 'Lebanon', 'Israel', 'South Africa', 'Australia', 'New Zealand', 'Argentina', 'Chile', 'Uruguay',
+    'California', 'Oregon', 'Washington', 'Virginia', 'New York', 'Champagne', 'Bordeaux', 'Burgundy',
+    'Bourgogne', 'Loire', 'Loire Valley', 'Rhône', 'Rhone', 'Alsace', 'Napa Valley', 'Sonoma', 'Willamette Valley',
+    'Piedmont', 'Tuscany', 'Rioja', 'Mosel', 'Nahe', 'Rheingau', 'Tokaji', 'Jerez', 'Douro', 'Madeira',
+  };
 
   static bool isBoilerplate(String text) {
     final t = text.toLowerCase();

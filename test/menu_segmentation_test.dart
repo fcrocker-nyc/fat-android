@@ -125,4 +125,20 @@ void main() {
     expect(MenuText.isJunkTitle('18/pc'), isTrue);
     expect(MenuText.isJunkTitle('U10 Diver scallop'), isFalse);
   });
+
+  test('wine lines without a vintage are ignored', () {
+    expect(MenuSegmenter.isWinePairing('1 Didier Dagueneau, Les Jardins de Babylone, Demi-Sec, Jurançon, France,'), isTrue);
+    expect(MenuSegmenter.isWinePairing('11 Billecart-Salmon, Cuvée Elisabeth Salmon, Brut Rosé, Champagne, France'), isTrue);
+    expect(MenuSegmenter.isWinePairing('sea urchin, champagne beurre blanc, brioche croutons'), isFalse);
+    expect(MenuSegmenter.isWinePairing('Iceberg lettuce, bacon, tomato'), isFalse);
+    final r = run('Chilled Maine Lobster Tail\nwith Passionfruit and Lime\n'
+        '11 Billecart-Salmon, Cuvée Elisabeth Salmon, Brut Rosé, Champagne, France');
+    expect(names(r), ['chilled maine lobster tail']);
+    expect(r.items.first.proteins, isNot(contains(ProteinFamily.finfish)));
+  });
+
+  test('grass-fed on a beef cut', () {
+    final r = run('Steak Tartare* | 29\nLocal grass-fed top-round, pear, crispy tendon puffs');
+    expect(r.items.first.claims.map((c) => c.entryKey), contains('grass_fed'));
+  });
 }
