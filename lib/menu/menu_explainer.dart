@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart' show rootBundle;
 
+import 'menu_interpreter.dart';
 import 'menu_models.dart';
 
 // 4. ClaimExplainer — turns a dish's claims into cards (What it means / What it
@@ -21,6 +22,9 @@ class MenuClaimCard {
   final List<String> questions;
   final String? stateNote;
 
+  /// Curated note for a known named source, with its attribution.
+  final String? sourceNote;
+
   const MenuClaimCard({
     required this.id,
     required this.entry,
@@ -32,7 +36,16 @@ class MenuClaimCard {
     required this.gap,
     required this.questions,
     required this.stateNote,
+    this.sourceNote,
   });
+}
+
+/// One chip on the dish row. Claims attach to the item they modify:
+/// "salmon (farmed)", "tiger shrimp (wild)", "Named source: Glen Cairn".
+class MenuClaimTag {
+  final String text;
+  final bool inheritedFromHeader;
+  const MenuClaimTag(this.text, this.inheritedFromHeader);
 }
 
 class MenuClaimExplainer {
@@ -68,26 +81,92 @@ class MenuClaimExplainer {
     }
     return [
       for (final (claim, entry) in entries)
-        MenuClaimCard(
-          id: '${entry.key}:${claim.matchedText}',
-          entry: entry,
-          matchedText: claim.matchedText,
-          inheritedFromHeader: claim.inheritedFromHeader,
-          title: '“${claim.matchedText}”',
-          meaning: entry.textFor(claim.appliesTo).meaning,
-          authority: entry.textFor(claim.appliesTo).authority,
-          gap: entry.textFor(claim.appliesTo).gap,
-          questions: entry.textFor(claim.appliesTo).questions,
-          stateNote: diningState == null ? null : entry.stateNote?[diningState],
-        ),
+        () {
+          final text = resolvedText(claim, entry);
+          return MenuClaimCard(
+            id: '${entry.key}:${claim.matchedText}',
+            entry: entry,
+            matchedText: claim.matchedText,
+            inheritedFromHeader: claim.inheritedFromHeader,
+            title: _title(claim),
+            meaning: text.meaning,
+            authority: text.authority,
+            gap: text.gap,
+            questions: text.questions,
+            stateNote: diningState == null ? null : entry.stateNote?[diningState],
+            sourceNote: isNamedSource(claim)
+                ? glossary.knownSource(claim.matchedText, claim.subject)?.note
+                : null,
+          );
+        }(),
     ];
+  }
+
+  static bool isNamedSource(MenuClaim claim) =>
+      MenuClaimExtractor.namedSourceKeys.contains(claim.entryKey);
+
+  static String _title(MenuClaim claim) {
+    if (isNamedSource(claim)) {
+      return 'Named source: ${MenuNamedSources.displayName(claim.matchedText)}';
+    }
+    if (claim.inferred) return 'Farmed (not printed)';
+    return '“${claim.matchedText}”';
+  }
+
+  /// Glossary wording for one claim: protein variant, "{name}" filled in, and
+  /// a lead-in for claims the menu implies but doesn't print.
+  static ClaimText resolvedText(MenuClaim claim, ClaimEntry entry) {
+    final t = entry.textFor(claim.appliesTo);
+    final name = MenuNamedSources.displayName(claim.matchedText);
+    var meaning = t.meaning;
+    if (claim.inferred && claim.subject != null) {
+      meaning = 'The menu doesn’t say farmed, but organic ${claim.subject} is farmed. $meaning';
+    }
+    return ClaimText(meaning, t.authority, t.gap, [
+      for (final q in t.questions) q.replaceAll('{name}', name),
+    ]);
+  }
+
+  /// Chips for the dish row, in menu order. A qualifier ("wild", inferred
+  /// "farmed") joins the species it modifies; a species without one stays plain.
+  static List<MenuClaimTag> tags(MenuItem item) {
+    bool isQualifier(MenuClaim c) => MenuClaimExtractor.qualifierKeys.contains(c.entryKey);
+    final qualifiers = [
+      for (final c in item.claims)
+        if (isQualifier(c) && c.subject != null) c,
+    ];
+    final plainTexts = {
+      for (final c in item.claims)
+        if (!isQualifier(c) && !isNamedSource(c)) c.matchedText.toLowerCase(),
+    };
+    String qualifierText(MenuClaim c) => c.inferred ? 'farmed' : c.matchedText.toLowerCase();
+
+    final out = <MenuClaimTag>[];
+    for (final c in item.claims) {
+      final String text;
+      if (c.subject != null && isQualifier(c)) {
+        if (plainTexts.contains(c.subject)) continue; // shown on the species chip
+        text = '${c.subject} (${qualifierText(c)})';
+      } else if (isNamedSource(c)) {
+        text = 'Named source: ${MenuNamedSources.displayName(c.matchedText)}';
+      } else {
+        final t = c.matchedText.toLowerCase();
+        final qs = [
+          for (final q in qualifiers)
+            if (q.subject == t) qualifierText(q),
+        ];
+        text = qs.isEmpty ? t : '$t (${qs.join(', ')})';
+      }
+      out.add(MenuClaimTag(text, c.inheritedFromHeader));
+    }
+    return out;
   }
 
   /// Top three questions for one dish: one question per claim in family
   /// priority order (species and origin first), then second questions, then
   /// the general questions to fill. De-duplicated.
   static List<String> topQuestions(MenuItem item, MenuGlossary glossary, {int limit = 3}) {
-    final entries = _ordered(item, glossary).map((e) => e.$2.textFor(e.$1.appliesTo)).toList();
+    final entries = _ordered(item, glossary).map((e) => resolvedText(e.$1, e.$2)).toList();
     final out = <String>[];
     void push(String q) {
       if (out.length < limit && !out.contains(q)) out.add(q);

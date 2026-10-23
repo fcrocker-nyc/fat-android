@@ -143,21 +143,26 @@ class MenuGlossary {
   final List<String> generalQuestions;
   final List<ClaimEntry> entries;
 
+  /// Curated named sources ("Glen Cairn" salmon) with a sourced note.
+  final List<KnownSource> knownSources;
+
   const MenuGlossary({
     required this.version,
     required this.status,
     required this.generalQuestions,
     required this.entries,
+    this.knownSources = const [],
   });
 
   factory MenuGlossary.fromJson(Map<String, dynamic> j) => MenuGlossary(
-        version: j['version'] as String,
-        status: (j['status'] as String?) ?? '',
-        generalQuestions: List<String>.from(j['generalQuestions'] as List),
-        entries: (j['entries'] as List)
-            .map((e) => ClaimEntry.fromJson(e as Map<String, dynamic>))
-            .toList(),
-      );
+    version: j['version'] as String,
+    status: (j['status'] as String?) ?? '',
+    generalQuestions: List<String>.from(j['generalQuestions'] as List),
+    entries: (j['entries'] as List).map((e) => ClaimEntry.fromJson(e as Map<String, dynamic>)).toList(),
+    knownSources: ((j['knownSources'] as List?) ?? const [])
+        .map((e) => KnownSource.fromJson(e as Map<String, dynamic>))
+        .toList(),
+  );
 
   ClaimEntry? entry(String key) {
     for (final e in entries) {
@@ -165,6 +170,37 @@ class MenuGlossary {
     }
     return null;
   }
+
+  /// The curated note for a named source on the menu, if FAT has one.
+  KnownSource? knownSource(String name, String? subject) {
+    final n = KnownSource.normalize(name);
+    final subj = (subject ?? '').toLowerCase();
+    for (final ks in knownSources) {
+      if (ks.names.any((x) => KnownSource.normalize(x) == n) &&
+          (ks.species.isEmpty || ks.species.any((s) => subj.contains(s.toLowerCase())))) {
+        return ks;
+      }
+    }
+    return null;
+  }
+}
+
+/// One row of the curated "known named sources" table. The note carries its
+/// own attribution; FAT does not verify it.
+class KnownSource {
+  final List<String> names; // "Glen Cairn", "Glencairn"
+  final List<String> species; // species words it applies to ("salmon")
+  final String note;
+  const KnownSource(this.names, this.species, this.note);
+
+  factory KnownSource.fromJson(Map<String, dynamic> j) => KnownSource(
+    List<String>.from(j['names'] as List),
+    List<String>.from((j['species'] as List?) ?? const []),
+    j['note'] as String,
+  );
+
+  /// "GLEN CAIRN" / "Glencairn" → "glencairn".
+  static String normalize(String s) => s.toLowerCase().replaceAll(RegExp(r'[^\p{L}]', unicode: true), '');
 }
 
 /// One recognized line with a normalized box (0…1, origin bottom-left, to
@@ -207,11 +243,21 @@ class MenuClaim {
   final String matchedText;
   final bool inheritedFromHeader;
   final ProteinFamily? appliesTo;
+
+  /// The item the claim modifies, as printed and lower-cased: "tiger shrimp"
+  /// for "Wild Tiger Shrimp", "salmon" for "Glen Cairn Salmon".
+  final String? subject;
+
+  /// Not printed on the menu but implied ("organic salmon" → farmed).
+  final bool inferred;
+
   const MenuClaim({
     required this.entryKey,
     required this.matchedText,
     required this.inheritedFromHeader,
     this.appliesTo,
+    this.subject,
+    this.inferred = false,
   });
 }
 

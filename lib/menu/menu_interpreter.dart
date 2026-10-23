@@ -737,6 +737,19 @@ class MenuClaimExtractor {
     _patternIndex = pats;
   }
 
+  /// Claims that describe the item printed right after them: "Wild Tiger
+  /// Shrimp" → wild belongs to the tiger shrimp, not the dish.
+  static const qualifierKeys = <String>{'wild_caught', 'farm_raised'};
+
+  /// Species claims for which "organic" means farmed (organic salmon is farmed).
+  static const organicFarmedSpeciesKeys = <String>{'atlantic_salmon'};
+
+  /// Names found by the named-source heuristic ("GLEN CAIRN SALMON").
+  static const menuNamedSourceKey = 'menu_named_source';
+
+  /// Claims shown as "Named source: …".
+  static const namedSourceKeys = <String>{'named_source', 'menu_named_source'};
+
   List<MenuClaim> extract(String text, List<ProteinFamily> dishProteins, {required bool inherited}) {
     final tok = MenuMatcher.tokenize(text);
     final proteinHits = MenuProteinClassifier.classify(text).matches;
@@ -748,8 +761,41 @@ class MenuClaimExtractor {
       }
     }
 
+    final pairs = [for (final r in _phraseIndex) (r.$1, r.$2)];
+    final entryFor = <String, ClaimEntry>{};
+    for (final r in _phraseIndex) {
+      entryFor.putIfAbsent(r.$1, () => r.$3);
+    }
+    final hits = [for (final (phrase, m) in MenuMatcher.matches(pairs, tok, taken)) (entryFor[phrase]!, m)];
+
+    for (final (re, entry) in _patternIndex) {
+      for (final m in re.allMatches(text)) {
+        if (taken.any((t) => t.$1 < m.end && m.start < t.$2)) continue;
+        taken.add((m.start, m.end));
+        final ws = tok.wordIndex(m.start);
+        final we = tok.wordIndex(m.end - 1);
+        hits.add((entry, PhraseMatch(m.start, m.end, ws, we, tok.clauseOfWord.isEmpty ? 0 : tok.clauseOfWord[ws])));
+      }
+    }
+    hits.sort((a, b) => a.$2.start.compareTo(b.$2.start));
+    final speciesHits = [
+      for (final h in hits)
+        if (h.$1.family == ClaimFamily.speciesOrForm) h,
+    ];
+
+    /// The printed name of a protein item: the species claim on it if any
+    /// ("tiger shrimp"), else the protein word ("halibut").
+    String subjectText(PhraseMatch p) {
+      for (final s in speciesHits) {
+        if (s.$2.overlaps(p)) return text.substring(s.$2.start, s.$2.end).toLowerCase();
+      }
+      return text.substring(p.start, p.end).toLowerCase();
+    }
+
     final claims = <MenuClaim>[];
+    final positions = <double>[];
     final seen = <String>{};
+    PhraseMatch? organicMatch;
 
     void consider(ClaimEntry entry, PhraseMatch match) {
       if (seen.contains(entry.key)) return;
@@ -775,8 +821,7 @@ class MenuClaimExtractor {
 
       if (entry.adjacentProtein && nearby.isEmpty && selfProtein == null) return;
 
-      ProteinFamily? target =
-          nearby.isNotEmpty ? nearby.first.$1.first : (selfProtein?.first);
+      ProteinFamily? target = nearby.isNotEmpty ? nearby.first.$1.first : (selfProtein?.first);
       final allowed = entry.proteins;
       if (allowed != null) {
         if (target != null && !allowed.contains(target)) {
@@ -794,42 +839,455 @@ class MenuClaimExtractor {
         if (pool.isNotEmpty && !pool.any(allowed.contains)) return;
       }
 
-      seen.add(entry.key);
-      claims.add(MenuClaim(
-        entryKey: entry.key,
-        matchedText: text.substring(match.start, match.end),
-        inheritedFromHeader: inherited,
-        appliesTo: target,
-      ));
-    }
-
-    final pairs = [for (final r in _phraseIndex) (r.$1, r.$2)];
-    final entryFor = <String, ClaimEntry>{};
-    for (final r in _phraseIndex) {
-      entryFor.putIfAbsent(r.$1, () => r.$3);
-    }
-    final hits = [
-      for (final (phrase, m) in MenuMatcher.matches(pairs, tok, taken)) (entryFor[phrase]!, m)
-    ];
-
-    for (final (re, entry) in _patternIndex) {
-      for (final m in re.allMatches(text)) {
-        if (taken.any((t) => t.$1 < m.end && m.start < t.$2)) continue;
-        taken.add((m.start, m.end));
-        final ws = tok.wordIndex(m.start);
-        final we = tok.wordIndex(m.end - 1);
-        hits.add((
-          entry,
-          PhraseMatch(m.start, m.end, ws, we, tok.clauseOfWord.isEmpty ? 0 : tok.clauseOfWord[ws])
-        ));
+      // "Wild Tiger Shrimp": the qualifier belongs to the next protein item.
+      String? subject;
+      if (qualifierKeys.contains(entry.key)) {
+        ProteinHit? next;
+        for (final p in proteinHits) {
+          if (p.match.clause != match.clause || p.match.wordStart <= match.wordEnd) continue;
+          if (p.match.wordStart - match.wordEnd > adjacencyWindow) continue;
+          if (next == null || p.match.wordStart < next.match.wordStart) next = p;
+        }
+        if (next != null) {
+          subject = subjectText(next.match);
+          for (final f in next.family) {
+            if (allowed == null || allowed.contains(f)) {
+              target = f;
+              break;
+            }
+          }
+        }
       }
+
+      seen.add(entry.key);
+      if (entry.key == 'organic') organicMatch = match;
+      claims.add(
+        MenuClaim(
+          entryKey: entry.key,
+          matchedText: text.substring(match.start, match.end),
+          inheritedFromHeader: inherited,
+          appliesTo: target,
+          subject: subject,
+        ),
+      );
+      positions.add(match.start.toDouble());
     }
 
-    hits.sort((a, b) => a.$2.start.compareTo(b.$2.start));
     for (final (entry, m) in hits) {
       consider(entry, m);
     }
-    return claims;
+
+    if (!inherited) {
+      // Named sources in the dish title: "GLEN CAIRN" salmon, "CRESCENT FARMS" duck.
+      final sources = MenuNamedSources.find(
+        text,
+        tok,
+        proteinHits,
+        taken,
+        isKnown: (name, protein) => glossary.knownSource(name, subjectText(protein)) != null,
+      );
+      if (glossary.entry(menuNamedSourceKey) != null) {
+        for (final s in sources) {
+          claims.add(
+            MenuClaim(
+              entryKey: menuNamedSourceKey,
+              matchedText: text.substring(s.start, s.end),
+              inheritedFromHeader: false,
+              appliesTo: s.protein.family.first,
+              subject: subjectText(s.protein.match),
+            ),
+          );
+          positions.add(s.start.toDouble());
+        }
+      }
+
+      // "ORGANIC (GLEN CAIRN) SALMON": organic salmon is farmed. Only a named
+      // source may sit between the two words.
+      final om = organicMatch;
+      if (om != null && !seen.contains('farm_raised') && glossary.entry('farm_raised') != null) {
+        final following = [
+          for (final p in proteinHits)
+            if (p.match.clause == om.clause && p.match.wordStart > om.wordEnd) p,
+        ]..sort((a, b) => a.match.wordStart.compareTo(b.match.wordStart));
+        if (following.isNotEmpty) {
+          final p = following.first;
+          (ClaimEntry, PhraseMatch)? species;
+          for (final s in speciesHits) {
+            if (s.$2.overlaps(p.match)) {
+              species = s;
+              break;
+            }
+          }
+          var between = true;
+          for (var w = om.wordEnd + 1; w < p.match.wordStart; w++) {
+            if (!sources.any((s) => s.wordStart <= w && w <= s.wordEnd)) between = false;
+          }
+          if (species != null && organicFarmedSpeciesKeys.contains(species.$1.key) && between) {
+            claims.add(
+              MenuClaim(
+                entryKey: 'farm_raised',
+                matchedText: 'farmed',
+                inheritedFromHeader: false,
+                appliesTo: ProteinFamily.finfish,
+                subject: subjectText(p.match),
+                inferred: true,
+              ),
+            );
+            positions.add(species.$2.start + 0.5);
+          }
+        }
+      }
+    }
+
+    final order = List<int>.generate(claims.length, (i) => i)
+      ..sort((a, b) {
+        final c = positions[a].compareTo(positions[b]);
+        return c != 0 ? c : a.compareTo(b);
+      });
+    return [for (final i in order) claims[i]];
+  }
+}
+
+// ── 3b. Named sources ───────────────────────────────────────────────────────
+
+/// A farm, ranch, brand or place name printed in a dish title just before the
+/// species or cut: "ORGANIC GLEN CAIRN SALMON", "OVEN ROASTED CRYSTAL VALLEY
+/// CHICKEN", "GRILLED PRIME ALLEN BROTHERS PORTERHOUSE".
+///
+/// Conservative: only capitalized words, read backwards from the first protein
+/// word in each clause of the title, stopping at a cooking method or a known
+/// claim/protein word. Function words, descriptors and lower-case words reject
+/// the candidate. A name at the very start of the title needs two words.
+class MenuNamedSourceHit {
+  final int start, end; // string offsets, end exclusive
+  final int wordStart, wordEnd;
+  final ProteinHit protein;
+  MenuNamedSourceHit(this.start, this.end, this.wordStart, this.wordEnd, this.protein);
+}
+
+enum _Edge { start, known, reject }
+
+class MenuNamedSources {
+  /// Cooking methods and preparations: a valid left edge for a name.
+  static const cookingWords = <String>{
+    'grilled',
+    'grill',
+    'roasted',
+    'roast',
+    'oven',
+    'pan',
+    'seared',
+    'crusted',
+    'braised',
+    'provençale',
+    'provencale',
+    'smoked',
+    'fried',
+    'poached',
+    'baked',
+    'broiled',
+    'charred',
+    'chargrilled',
+    'blackened',
+    'glazed',
+    'cured',
+    'confit',
+    'sautéed',
+    'sauteed',
+    'steamed',
+    'stuffed',
+    'wood',
+    'fired',
+    'rotisserie',
+    'slow',
+    'cooked',
+    'crispy',
+    'marinated',
+    'tandoori',
+    'jerk',
+    'bbq',
+    'barbecue',
+    'barbecued',
+    'sous',
+    'vide',
+    'torched',
+    'seasoned',
+    'spiced',
+    'rubbed',
+    'aged',
+    'dry',
+    'brined',
+    'plancha',
+    'griddled',
+    'flame',
+    'flamed',
+    'basted',
+    'pressed',
+    'pulled',
+    'carved',
+    'sliced',
+    'shaved',
+    'raw',
+    'herb',
+    'pistachio',
+    'almond',
+    'hazelnut',
+    'pecan',
+    'parmesan',
+    'panko',
+    'breaded',
+    'battered',
+    'teriyaki',
+    'miso',
+    'honey',
+    'maple',
+    'citrus',
+    'lemon',
+    'garlic',
+    'pepper',
+    'peppercorn',
+  };
+
+  /// Words that are never part of a name: function words, sizes, colours,
+  /// styles and cuisine adjectives. Meeting one rejects the candidate.
+  static const rejectWords = <String>{
+    'al',
+    'alla',
+    'all\'',
+    'di',
+    'del',
+    'della',
+    'de',
+    'du',
+    'des',
+    'la',
+    'le',
+    'les',
+    'el',
+    'en',
+    'au',
+    'aux',
+    'a',
+    'an',
+    'the',
+    'of',
+    'for',
+    'with',
+    'and',
+    'or',
+    '&',
+    'on',
+    'in',
+    'our',
+    'my',
+    'your',
+    'half',
+    'whole',
+    'baby',
+    'young',
+    'little',
+    'big',
+    'mini',
+    'jumbo',
+    'giant',
+    'colossal',
+    'large',
+    'small',
+    'lump',
+    'bone',
+    'boneless',
+    'center',
+    'cut',
+    'thick',
+    'double',
+    'triple',
+    'petite',
+    'extra',
+    'house',
+    'classic',
+    'traditional',
+    'famous',
+    'original',
+    'signature',
+    'homemade',
+    'chef',
+    'chef\'s',
+    'chefs',
+    'family',
+    'style',
+    'country',
+    'southern',
+    'hot',
+    'spicy',
+    'sweet',
+    'sour',
+    'sticky',
+    'salt',
+    'marsh',
+    'black',
+    'white',
+    'red',
+    'green',
+    'blue',
+    'golden',
+    'gold',
+    'pink',
+    'yellow',
+    'nero',
+    'rosso',
+    'korean',
+    'thai',
+    'chinese',
+    'japanese',
+    'mexican',
+    'italian',
+    'french',
+    'spanish',
+    'indian',
+    'cajun',
+    'creole',
+    'greek',
+    'moroccan',
+    'vietnamese',
+    'peruvian',
+    'brazilian',
+    'argentinian',
+    'argentine',
+    'turkish',
+    'lebanese',
+    'persian',
+    'szechuan',
+    'sichuan',
+    'hunan',
+    'cantonese',
+    'mongolian',
+    'hawaiian',
+    'caribbean',
+    'jamaican',
+    'cuban',
+    'tuscan',
+    'sicilian',
+    'roman',
+    'neapolitan',
+    'parisian',
+    'mediterranean',
+    'asian',
+    'oriental',
+    'continental',
+    'american',
+    'new',
+    'fresh',
+    'special',
+    'daily',
+    'seasonal',
+    'spaghetti',
+    'pasta',
+    'risotto',
+    'salad',
+    'soup',
+    'stew',
+    'sandwich',
+    'tacos',
+    'taco',
+    'pizza',
+    'bowl',
+    'plate',
+    'platter',
+    'board',
+    'trio',
+    'duo',
+    'tasting',
+    'surf',
+    'turf',
+    'mixed',
+    'assorted',
+    'spring',
+    'summer',
+    'autumn',
+    'fall',
+    'winter',
+  };
+
+  static final _wordChar = RegExp(r"[\p{L}\p{N}'’]", unicode: true);
+  static final _upper = RegExp(r'\p{Lu}', unicode: true);
+  static final _digit = RegExp(r'\p{N}', unicode: true);
+
+  static List<MenuNamedSourceHit> find(
+    String text,
+    Tokenized tok,
+    List<ProteinHit> proteinHits,
+    List<(int, int)> claimRanges, {
+    bool Function(String name, PhraseMatch protein)? isKnown,
+  }) {
+    final nl = text.indexOf('\n');
+    final titleEnd = nl < 0 ? text.length : nl;
+    final words = <(int, int)>[];
+    for (final s in tok.wordStarts) {
+      var e = s;
+      while (e < text.length && _wordChar.hasMatch(text[e])) {
+        e++;
+      }
+      words.add((s, e));
+    }
+
+    final out = <MenuNamedSourceHit>[];
+    final clausesDone = <int>{};
+    final sorted = [...proteinHits]..sort((a, b) => a.match.start.compareTo(b.match.start));
+    for (final p in sorted) {
+      if (p.match.start >= titleEnd || p.minor) continue;
+      if (clausesDone.contains(p.match.clause)) continue;
+      clausesDone.add(p.match.clause);
+
+      var edge = _Edge.start;
+      final candidate = <int>[];
+      var w = p.match.wordStart - 1;
+      while (w >= 0) {
+        if (tok.clauseOfWord[w] != p.match.clause) {
+          edge = _Edge.start;
+          break;
+        }
+        final (ws, we) = words[w];
+        final word = text.substring(ws, we);
+        final lower = word.toLowerCase();
+        if (claimRanges.any((r) => r.$1 < we && ws < r.$2) ||
+            proteinHits.any((h) => h.match.start < we && ws < h.match.end) ||
+            cookingWords.contains(lower)) {
+          edge = _Edge.known;
+          break;
+        }
+        if (rejectWords.contains(lower) || _digit.hasMatch(word)) {
+          edge = _Edge.reject;
+          break;
+        }
+        if (word.isEmpty || !_upper.hasMatch(word[0])) {
+          edge = _Edge.reject;
+          break;
+        }
+        candidate.insert(0, w);
+        w--;
+      }
+      if (candidate.isEmpty || candidate.length > 4) continue;
+      final start = words[candidate.first].$1, end = words[candidate.last].$2;
+      // A curated name ("Glencairn") passes on its own.
+      final known = isKnown?.call(text.substring(start, end), p.match) ?? false;
+      if (edge == _Edge.reject && !known) continue;
+      if (edge == _Edge.start && candidate.length < 2 && !known) continue;
+      out.add(MenuNamedSourceHit(start, end, candidate.first, candidate.last, p));
+    }
+    return out;
+  }
+
+  /// "GLEN CAIRN" → "Glen Cairn"; mixed case is kept as printed.
+  static String displayName(String raw) {
+    if (!MenuText.isAllCaps(raw)) return raw;
+    final b = StringBuffer();
+    var prevLetter = false;
+    for (final ch in raw.split('')) {
+      final isLetter = ch.toLowerCase() != ch.toUpperCase();
+      b.write(isLetter ? (prevLetter ? ch.toLowerCase() : ch.toUpperCase()) : ch);
+      prevLetter = isLetter;
+    }
+    return b.toString();
   }
 }
 

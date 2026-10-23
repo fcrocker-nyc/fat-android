@@ -188,6 +188,22 @@
       "adjacentProtein": false
     },
     {
+      "key": "menu_named_source",
+      "family": "originFarm",
+      "phrases": [],
+      "patterns": null,
+      "proteins": null,
+      "meaning": "The menu names a farm, ranch, brand or place. FAT can’t verify where this name sources from.",
+      "authority": null,
+      "gap": "A name alone doesn’t say where the farm is, or whether it’s the farm itself or a distributor’s brand.",
+      "questions": [
+        "Where is {name} located?",
+        "Is it the farm itself, or a distributor’s brand?"
+      ],
+      "stateNote": null,
+      "adjacentProtein": false
+    },
+    {
       "key": "grass_fed",
       "family": "productionMethod",
       "phrases": [
@@ -713,12 +729,13 @@
             "finfish",
             "shellfish"
           ],
-          "meaning": "The USDA National Organic Program has no standard for seafood, so ‘organic’ on fish or shellfish can’t mean USDA Organic. Organic seafood sold in the U.S. may carry an EU or other foreign organic certification.",
-          "authority": "No USDA standard — foreign or private certification",
-          "gap": "The menu doesn’t say whose organic standard applies or who certified it.",
+          "meaning": "USDA has no organic standard for seafood, and FDA doesn’t run organic labeling, so ‘organic’ on fish can’t mean USDA Organic. Organic salmon is farmed: the claim usually means a European or UK organic certification covering the farm’s feed and practices. It can’t carry the USDA Organic seal.",
+          "authority": "No USDA standard (European/UK organic certification)",
+          "gap": "The menu doesn’t say where the fish was farmed or who certified it.",
           "questions": [
-            "Whose organic standard is it — EU or another certifier?",
-            "Where was it farmed, and by whom?"
+            "Where is it farmed?",
+            "Who certified it organic?",
+            "Is the feed organic, or the whole farm?"
           ]
         }
       ]
@@ -1290,6 +1307,18 @@
       ],
       "stateNote": null,
       "adjacentProtein": false
+    }
+  ],
+  "knownSources": [
+    {
+      "names": [
+        "Glen Cairn",
+        "Glencairn"
+      ],
+      "species": [
+        "salmon"
+      ],
+      "note": "Listed by U.S. distributor The Educated Fish Co. as EU-certified Scottish organic salmon (distributor’s claim, not verified by FAT)."
     }
   ]
 }

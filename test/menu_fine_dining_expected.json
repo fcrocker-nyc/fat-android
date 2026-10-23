@@ -18,6 +18,10 @@
     "claimText": [
       "black angus",
       "foie gras"
+    ],
+    "tags": [
+      "black angus",
+      "foie gras"
     ]
   },
   {
@@ -28,7 +32,8 @@
     "addOnSpecies": [],
     "addOns": [],
     "claims": [],
-    "claimText": []
+    "claimText": [],
+    "tags": []
   },
   {
     "dish": "SPAGHETTI AL NERO FRUTTI DI MARE",
@@ -45,6 +50,9 @@
     "claimText": [
       "wild",
       "tiger shrimp"
+    ],
+    "tags": [
+      "tiger shrimp (wild)"
     ]
   },
   {
@@ -62,6 +70,9 @@
     "claimText": [
       "wild",
       "tiger shrimp"
+    ],
+    "tags": [
+      "tiger shrimp (wild)"
     ]
   },
   {
@@ -76,6 +87,9 @@
     ],
     "claimText": [
       "berkshire"
+    ],
+    "tags": [
+      "berkshire"
     ]
   },
   {
@@ -88,15 +102,25 @@
     "addOns": [],
     "claims": [
       "organic",
+      "menu_named_source",
       "atlantic_salmon",
+      "farm_raised",
       "wild_caught",
       "shrimp"
     ],
     "claimText": [
       "organic",
+      "glen cairn",
       "salmon",
+      "farmed",
       "wild",
       "tiger shrimp"
+    ],
+    "tags": [
+      "organic",
+      "Named source: Glen Cairn",
+      "salmon (farmed)",
+      "tiger shrimp (wild)"
     ]
   },
   {
@@ -106,8 +130,15 @@
     ],
     "addOnSpecies": [],
     "addOns": [],
-    "claims": [],
-    "claimText": []
+    "claims": [
+      "menu_named_source"
+    ],
+    "claimText": [
+      "crystal valley"
+    ],
+    "tags": [
+      "Named source: Crystal Valley"
+    ]
   },
   {
     "dish": "GRILLED PRIME ALLEN BROTHERS PORTERHOUSE FOR TWO* 32oz (GF)",
@@ -117,10 +148,16 @@
     "addOnSpecies": [],
     "addOns": [],
     "claims": [
-      "usda_grade"
+      "usda_grade",
+      "menu_named_source"
     ],
     "claimText": [
-      "prime"
+      "prime",
+      "allen brothers"
+    ],
+    "tags": [
+      "prime",
+      "Named source: Allen Brothers"
     ]
   },
   {
@@ -130,8 +167,15 @@
     ],
     "addOnSpecies": [],
     "addOns": [],
-    "claims": [],
-    "claimText": []
+    "claims": [
+      "menu_named_source"
+    ],
+    "claimText": [
+      "crescent farms"
+    ],
+    "tags": [
+      "Named source: Crescent Farms"
+    ]
   },
   {
     "dish": "GRILLED VENISON LOIN",
@@ -141,7 +185,8 @@
     "addOnSpecies": [],
     "addOns": [],
     "claims": [],
-    "claimText": []
+    "claimText": [],
+    "tags": []
   },
   {
     "dish": "THAI VEGETABLE STEW (GF) (Ve)",
@@ -155,6 +200,7 @@
       "Lobster"
     ],
     "claims": [],
-    "claimText": []
+    "claimText": [],
+    "tags": []
   }
 ]

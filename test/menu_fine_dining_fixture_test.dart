@@ -11,7 +11,7 @@ import 'package:fat_app/menu/menu_models.dart';
 /// expectation file with the iOS suite (FATAppMVP2Tests/menu_fine_dining_*):
 ///   menu_fine_dining_ocr.json      — true Apple Vision OCR lines + boxes
 ///   menu_fine_dining.txt           — the same menu as plain text (letter-spaced header)
-///   menu_fine_dining_expected.json — dish → species → add-on species → claims
+///   menu_fine_dining_expected.json — dish → species → add-on species → claims → row tags
 /// Keep the three files byte-identical across the two repos.
 void main() {
   late MenuGlossary glossary;
@@ -46,6 +46,7 @@ void main() {
             'addOns': i.addOns,
             'claims': [for (final c in i.claims) c.entryKey],
             'claimText': [for (final c in i.claims) c.matchedText.toLowerCase()],
+            'tags': [for (final t in MenuClaimExplainer.tags(i)) t.text],
           }
       ];
 
@@ -84,11 +85,83 @@ void main() {
     final r = interpreter.interpret([ocrPage()]);
     final salmon = r.items.firstWhere((i) => i.dishName.contains('SALMON'));
     final card = MenuClaimExplainer.cards(salmon, glossary, null).firstWhere((c) => c.entry?.key == 'organic');
-    expect(card.meaning, contains('no standard for seafood'));
+    expect(card.meaning, startsWith('USDA has no organic standard for seafood'));
+    expect(card.meaning, contains('Organic salmon is farmed'));
     expect(card.meaning, isNot(contains('7 CFR Part 205')));
+    expect(card.authority, 'No USDA standard (European/UK organic certification)');
+    expect(card.gap, 'The menu doesn’t say where the fish was farmed or who certified it.');
+    expect(card.questions,
+        ['Where is it farmed?', 'Who certified it organic?', 'Is the feed organic, or the whole farm?']);
     final chicken = interpreter.interpret([MenuPage.fromPlainText('Organic Roast Chicken 32')]).items.first;
     final meatCard = MenuClaimExplainer.cards(chicken, glossary, null).firstWhere((c) => c.entry?.key == 'organic');
     expect(meatCard.meaning, contains('7 CFR Part 205'));
+  });
+
+  test('organic salmon is farmed, and wild belongs to the shrimp', () {
+    final r = interpreter.interpret([ocrPage()]);
+    final salmon = r.items.firstWhere((i) => i.dishName.contains('SALMON'));
+    expect([for (final t in MenuClaimExplainer.tags(salmon)) t.text],
+        ['organic', 'Named source: Glen Cairn', 'salmon (farmed)', 'tiger shrimp (wild)']);
+    final farmed = salmon.claims.firstWhere((c) => c.entryKey == 'farm_raised');
+    expect(farmed.inferred, isTrue);
+    expect(farmed.subject, 'salmon');
+    final wild = salmon.claims.firstWhere((c) => c.entryKey == 'wild_caught');
+    expect(wild.subject, 'tiger shrimp');
+    expect(wild.appliesTo, ProteinFamily.shellfish);
+    final card = MenuClaimExplainer.cards(salmon, glossary, null).firstWhere((c) => c.entry?.key == 'farm_raised');
+    expect(card.title, 'Farmed (not printed)');
+    expect(card.meaning, startsWith('The menu doesn’t say farmed, but organic salmon is farmed.'));
+
+    // Only salmon-type species; a word other than a named source in between blocks it.
+    for (final text in ['Organic King Salmon 40', 'Organic Kale Salad with Salmon 30', 'Organic Roast Chicken 32']) {
+      final item = interpreter.interpret([MenuPage.fromPlainText(text)]).items.first;
+      expect(item.claims.any((c) => c.entryKey == 'farm_raised'), isFalse, reason: text);
+    }
+    final plain = interpreter.interpret([MenuPage.fromPlainText('Organic Salmon 38')]).items.first;
+    expect([for (final t in MenuClaimExplainer.tags(plain)) t.text], ['organic', 'salmon (farmed)']);
+  });
+
+  test('named source cards', () {
+    final r = interpreter.interpret([ocrPage()]);
+    MenuClaimCard card(String dish) => MenuClaimExplainer.cards(
+            r.items.firstWhere((i) => i.dishName.contains(dish)), glossary, null)
+        .firstWhere((c) => c.entry?.key == 'menu_named_source');
+    final glen = card('SALMON');
+    expect(glen.title, 'Named source: Glen Cairn');
+    expect(glen.meaning,
+        'The menu names a farm, ranch, brand or place. FAT can’t verify where this name sources from.');
+    expect(glen.questions, ['Where is Glen Cairn located?', 'Is it the farm itself, or a distributor’s brand?']);
+    expect(glen.sourceNote,
+        'Listed by U.S. distributor The Educated Fish Co. as EU-certified Scottish organic salmon (distributor’s claim, not verified by FAT).');
+    for (final (dish, name) in [('CHICKEN', 'Crystal Valley'), ('DUCK', 'Crescent Farms'), ('PORTERHOUSE', 'Allen Brothers')]) {
+      final c = card(dish);
+      expect(c.title, 'Named source: $name', reason: dish);
+      expect(c.sourceNote, isNull, reason: 'no curated facts for $name');
+    }
+    // The curated table also matches the one-word spelling, and only on salmon.
+    final one = interpreter.interpret([MenuPage.fromPlainText('GLENCAIRN SALMON 38')]).items.first;
+    expect(one.claims.firstWhere((c) => c.entryKey == 'menu_named_source').matchedText, 'GLENCAIRN');
+    expect(glossary.knownSource('Glen Cairn', 'chicken'), isNull);
+  });
+
+  test('named source heuristic false positives', () {
+    List<String> names(String title) => [
+          for (final i in interpreter.interpret([MenuPage.fromPlainText(title)]).items)
+            for (final c in i.claims)
+              if (c.entryKey == 'menu_named_source') c.matchedText
+        ];
+    expect(names('OVEN ROASTED CHICKEN'), isEmpty);
+    expect(names('OVEN ROASTED CRYSTAL VALLEY CHICKEN (GF)'), ['CRYSTAL VALLEY']);
+    expect(names('PROVENÇALE CRUSTED RACK OF LAMB*'), isEmpty);
+    expect(names('PROVENÇALE CRUSTED SALMON'), isEmpty);
+    expect(names('GRILLED BLACK ANGUS FILET MIGNON* (GF)'), isEmpty, reason: 'Black Angus is a breed claim');
+    expect(names('SPAGHETTI AL NERO FRUTTI DI MARE'), isEmpty);
+    expect(names('Spaghetti al Nero, calamari, shrimp'), isEmpty);
+    expect(names('GRILLED PRIME ALLEN BROTHERS PORTERHOUSE FOR TWO* 32oz (GF)'), ['ALLEN BROTHERS']);
+    expect(names('Royal Osetra Caviar 180'), isEmpty, reason: 'one word at the start of a title is not enough');
+    expect(names('Jumbo Lump Crab Cakes 24'), isEmpty);
+    expect(names('Half Roast Chicken 29'), isEmpty);
+    expect(names('Roast Chicken 32\nCrystal Valley mushrooms, jus'), isEmpty, reason: 'descriptions are not read');
   });
 
   test('species word beats dish default', () {

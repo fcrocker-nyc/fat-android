@@ -406,9 +406,8 @@ class _DishRow extends StatelessWidget {
                     : _Chip(p.displayName, _ChipStyle.protein),
               if (item.proteins.isEmpty) const _Chip('protein unknown', _ChipStyle.muted),
               if (item.minorProteinOnly) const _Chip('minor ingredient', _ChipStyle.muted),
-              for (final c in item.claims)
-                _Chip(c.matchedText.toLowerCase(),
-                    c.inheritedFromHeader ? _ChipStyle.inherited : _ChipStyle.claim),
+              for (final t in MenuClaimExplainer.tags(item))
+                _Chip(t.text, t.inheritedFromHeader ? _ChipStyle.inherited : _ChipStyle.claim),
               if (item.claims.isEmpty) const _Chip('no sourcing claim', _ChipStyle.muted),
             ]),
           ]),
@@ -596,6 +595,10 @@ class _ClaimCardView extends StatelessWidget {
                 fontSize: 12, fontWeight: FontWeight.w700, color: FATTheme.textSecondary)),
         const SizedBox(height: 12),
         _part('What it doesn’t tell you', card.gap),
+        if (card.sourceNote != null) ...[
+          const SizedBox(height: 12),
+          _part('On file', card.sourceNote!),
+        ],
         if (card.stateNote != null) ...[
           const SizedBox(height: 12),
           Container(

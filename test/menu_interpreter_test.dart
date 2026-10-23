@@ -37,7 +37,8 @@ void main() {
     expect(glossary.generalQuestions.length, 2);
     expect(glossary.entries.map((e) => e.key).toSet().length, glossary.entries.length);
     for (final e in glossary.entries) {
-      expect(e.phrases, isNotEmpty, reason: e.key);
+      // The heuristic named-source entry has no phrases; it's matched in code.
+      if (e.key != MenuClaimExtractor.menuNamedSourceKey) expect(e.phrases, isNotEmpty, reason: e.key);
       expect(e.questions.length, inInclusiveRange(2, 3), reason: e.key);
       for (final p in e.patterns) {
         expect(() => RegExp(p, unicode: true), returnsNormally, reason: e.key);
