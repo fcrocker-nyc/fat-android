@@ -83,7 +83,7 @@ void main() {
     expect(s.unpublishedLine, isNull);
     expect(s.parentLine,
         "The plant's parent company (Smithfield Foods) holds state permits for at least 70 hog farms within 50 miles (North Carolina permit records). Contract farms are listed under growers' own names, so this is a minimum.");
-    expect(s.cardLines, [s.countLine, s.npdesLine]);
+    expect(s.cardLines, [s.countLine, s.npdesLine, ...s.ncLines]);
   });
 
   test('Tar Heel NC (shared 18079, both NC): first candidate + parent line', () {
@@ -238,6 +238,45 @@ void main() {
     expect(SwineIowaCompliance.fromJson('x'), isNull);
   });
 
+  test('NC DEQ compliance: Clinton NC (560) and sentence variants', () {
+    final s = data.summaryFor('560', plantParentName: 'Smithfield Foods')!;
+    expect(data.ncComplianceRetrieved, '2026-10-24');
+    expect(s.iowaLines, isEmpty);
+    expect(s.ncLines, [
+      'North Carolina Department of Environmental Quality records show 246 of these 1,523 North Carolina hog operations received at least one notice of violation, 134 of them in the last five years.',
+      '45 operations were assessed a civil penalty. 458 operations received a notice of deficiency, a lesser finding, but no notice of violation.',
+      'Source: NC DEQ Division of Water Resources document records, retrieved October 24, 2026. Itemized records begin around 2018; older files are scanned in bulk and not counted.',
+    ]);
+    expect(s.cardLines.indexOf(s.ncLines.first), greaterThan(0));
+    SwinePermitSummary mk(Map<String, int> by, SwineNcCompliance c) =>
+        SwinePermitSummary(
+          radiusMiles: 50,
+          total: by.values.fold(0, (a, b) => a + b),
+          byState: by,
+          lagoonStates: const [],
+          lagoonCount: 0,
+          npdesStates: const [],
+          npdesCount: 0,
+          sources: by.keys.map((c) => data.states[c]!).toList(),
+          unpublished: const [],
+          parent: null,
+          parentHoldings: 0,
+          parentStates: const [],
+          nc: c,
+          ncRetrieved: '2026-10-24',
+        );
+    expect(mk({'NC': 5, 'MN': 3}, const SwineNcCompliance(5, 2, 0, 1, 1)).ncLines.take(2), [
+      'In the North Carolina records, 2 of 5 hog operations received at least one notice of violation from the North Carolina Department of Environmental Quality, none of them in the last five years.',
+      '1 operation was assessed a civil penalty. 1 operation received a notice of deficiency, a lesser finding, but no notice of violation.',
+    ]);
+    expect(mk({'NC': 3}, const SwineNcCompliance(3, 0, 0, 0, 0)).ncLines.first,
+        'North Carolina Department of Environmental Quality records show no notice of violation for these 3 North Carolina hog operations.');
+    expect(mk({'NC': 3}, const SwineNcCompliance(3, 0, 0, 0, 0)).ncLines.length, 2);
+    expect(mk({'NC': 1}, const SwineNcCompliance(1, 1, 1, 0, 0)).ncLines.first,
+        'North Carolina Department of Environmental Quality records show this North Carolina hog operation received at least one notice of violation, most recently within the last five years.');
+    expect(SwineNcCompliance.fromJson({'j': 0}), isNull);
+  });
+
   test('exact-name ownership: verified names map, look-alikes do not', () {
     for (final n in [
       'Murphy-Brown LLC',
@@ -291,6 +330,7 @@ void main() {
       lines.addAll([s.countLine, s.npdesLine, s.unpublishedLine, s.parentLine]
           .whereType<String>());
       lines.addAll(s.iowaLines);
+      lines.addAll(s.ncLines);
     }
     final all = lines.join(' ').toLowerCase();
     for (final w in [

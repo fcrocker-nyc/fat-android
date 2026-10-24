@@ -135,6 +135,9 @@ class SwinePermitSummary {
   /// Iowa DNR compliance counts for the Iowa operations in range, or null.
   final SwineIowaCompliance? iowa;
   final String iowaRetrieved;
+  /// NC DEQ document-record counts for the NC operations in range, or null.
+  final SwineNcCompliance? nc;
+  final String ncRetrieved;
 
   const SwinePermitSummary({
     required this.radiusMiles,
@@ -151,6 +154,8 @@ class SwinePermitSummary {
     required this.parentStates,
     this.iowa,
     this.iowaRetrieved = '',
+    this.nc,
+    this.ncRetrieved = '',
   });
 
   bool get isEmpty => sources.isEmpty && unpublished.isEmpty;
@@ -271,6 +276,50 @@ class SwinePermitSummary {
     return lines;
   }
 
+  /// North Carolina DEQ lines (operations, not violations): notices of
+  /// violation, civil penalties, deficiency-only notices, and the source.
+  /// Never a score input.
+  List<String> get ncLines {
+    final c = nc;
+    if (c == null) return const [];
+    final fmt = SwinePermitText.number;
+    final j = c.records;
+    final ncOnly = _contributing.every((s) => s == 'NC') && j == (byState['NC'] ?? 0);
+    const agency = 'North Carolina Department of Environmental Quality';
+    final lines = <String>[];
+    if (c.noticed == 0) {
+      lines.add(ncOnly
+          ? '$agency records show no notice of violation for ${j == 1 ? 'this North Carolina hog operation' : 'these ${fmt(j)} North Carolina hog operations'}.'
+          : 'In the North Carolina records, $agency files show no notice of violation for the ${fmt(j)} North Carolina ${j == 1 ? 'hog operation' : 'hog operations'}.');
+    } else if (j == 1) {
+      final when = c.noticedFiveYears > 0 ? ', most recently within the last five years' : ', none in the last five years';
+      lines.add(ncOnly
+          ? '$agency records show this North Carolina hog operation received at least one notice of violation$when.'
+          : 'In the North Carolina records, the one hog operation received at least one notice of violation from the $agency$when.');
+    } else {
+      final recent = c.noticedFiveYears == 0
+          ? 'none of them in the last five years'
+          : '${fmt(c.noticedFiveYears)} of them in the last five years';
+      lines.add(ncOnly
+          ? '$agency records show ${fmt(c.noticed)} of these ${fmt(j)} North Carolina hog operations received at least one notice of violation, $recent.'
+          : 'In the North Carolina records, ${fmt(c.noticed)} of ${fmt(j)} hog operations received at least one notice of violation from the $agency, $recent.');
+    }
+    final extra = <String>[];
+    if (c.penalized > 0) {
+      extra.add(c.penalized == 1
+          ? '1 operation was assessed a civil penalty.'
+          : '${fmt(c.penalized)} operations were assessed a civil penalty.');
+    }
+    if (c.deficiencyOnly > 0) {
+      extra.add(c.deficiencyOnly == 1
+          ? '1 operation received a notice of deficiency, a lesser finding, but no notice of violation.'
+          : '${fmt(c.deficiencyOnly)} operations received a notice of deficiency, a lesser finding, but no notice of violation.');
+    }
+    if (extra.isNotEmpty) lines.add(extra.join(' '));
+    lines.add('Source: NC DEQ Division of Water Resources document records${_retrievedText(ncRetrieved)}. Itemized records begin around 2018; older files are scanned in bulk and not counted.');
+    return lines;
+  }
+
   static String _retrievedText(String date) {
     final m = RegExp(r'^(\d{4})-(\d{2})-(\d{2})').firstMatch(date);
     if (m == null) return '';
@@ -285,6 +334,7 @@ class SwinePermitSummary {
         countLine,
         npdesLine,
         ...iowaLines,
+        ...ncLines,
         unpublishedLine
       ].whereType<String>().toList();
 }
@@ -339,8 +389,28 @@ class SwinePlantAggregate {
   final Map<String, Map<String, int>> parentHeld; // parent key → state → n
   final List<String> unpublished;
   final SwineIowaCompliance? iowa;
+  final SwineNcCompliance? nc;
   const SwinePlantAggregate(this.total, this.byState, this.lagoon, this.npdes,
-      this.parentHeld, this.unpublished, [this.iowa]);
+      this.parentHeld, this.unpublished, [this.iowa, this.nc]);
+}
+
+/// North Carolina DEQ document-record counts for the NC operations within the
+/// radius (operations, not violations). See swine-permits/README.md.
+class SwineNcCompliance {
+  final int records; // j: NC operations with a DEQ document record
+  final int noticed; // v: with ≥1 notice of violation
+  final int noticedFiveYears; // v5: …dated in the last five years
+  final int penalized; // cp: with ≥1 civil penalty assessment
+  final int deficiencyOnly; // nd: notice of deficiency but no notice of violation
+  const SwineNcCompliance(this.records, this.noticed, this.noticedFiveYears,
+      this.penalized, this.deficiencyOnly);
+
+  static SwineNcCompliance? fromJson(Object? m) {
+    if (m is! Map) return null;
+    int n(String k) => (m[k] as num?)?.toInt() ?? 0;
+    final j = n('j');
+    return j > 0 ? SwineNcCompliance(j, n('v'), n('v5'), n('cp'), n('nd')) : null;
+  }
 }
 
 /// Iowa DNR field-office compliance counts for the Iowa operations within the
@@ -369,9 +439,11 @@ class SwinePermitData {
   final Map<String, SwinePlantAggregate> plants;
   /// Retrieval date (YYYY-MM-DD) of the Iowa DNR compliance records, or ''.
   final String iowaComplianceRetrieved;
+  /// Retrieval date (YYYY-MM-DD) of the NC DEQ document records, or ''.
+  final String ncComplianceRetrieved;
 
   SwinePermitData._(this.generated, this.radiusMiles, this.states, this.plants,
-      [this.iowaComplianceRetrieved = '']);
+      [this.iowaComplianceRetrieved = '', this.ncComplianceRetrieved = '']);
 
   static Map<String, int> _counts(Object? m) => m is Map
       ? m.map((k, v) => MapEntry('$k', (v as num).toInt()))
@@ -410,12 +482,16 @@ class SwinePermitData {
           ph,
           ((m['u'] as List?) ?? const []).map((e) => '$e').toList(),
           SwineIowaCompliance.fromJson(m['ia']),
+          SwineNcCompliance.fromJson(m['nc']),
         );
       });
-      final iaComp = ((d['states'] as Map)['IA'] as Map?)?['compliance'];
+      String retrieved(String st) {
+        final c = ((d['states'] as Map)[st] as Map?)?['compliance'];
+        return c is Map ? '${c['retrieved'] ?? ''}' : '';
+      }
       return SwinePermitData._('${d['generated'] ?? ''}',
           (d['radiusMiles'] as num?)?.toInt() ?? 50, states, plants,
-          iaComp is Map ? '${iaComp['retrieved'] ?? ''}' : '');
+          retrieved('IA'), retrieved('NC'));
     } catch (_) {
       return null;
     }
@@ -473,6 +549,8 @@ class SwinePermitData {
         ..sort()),
       iowa: (a.byState['IA'] ?? 0) > 0 ? a.iowa : null,
       iowaRetrieved: iowaComplianceRetrieved,
+      nc: (a.byState['NC'] ?? 0) > 0 ? a.nc : null,
+      ncRetrieved: ncComplianceRetrieved,
     );
   }
 }

@@ -7,7 +7,7 @@ card on pork scans ("State permit records list N hog operations within 50 miles 
 plant…", the lagoon and federal-permit (NPDES) lines) and a Cat. 16 parent-company detail line.
 Informational only: it never changes a category status or the disclosure count.
 
-Prepared by Dirk Adams with the assistance of AI. Built 2026-10-09; Iowa DNR compliance counts added 2026-10-24.
+Prepared by Dirk Adams with the assistance of AI. Built 2026-10-09; Iowa DNR and NC DEQ compliance counts added 2026-10-24.
 
 App fetch URL: `https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/swine-permits/fat_swine_nearby.json`
 
@@ -30,7 +30,8 @@ establishment ids (public plant records). The earlier row-level file
   waste lagoon (lagoon states only); `np` operations holding a federal Clean Water Act (NPDES)
   permit (NPDES-flag states only); `ph` permits held by an entity mapped to a processor parent,
   by state; `u` states the circle reaches that publish no usable data (not counted); `ia` Iowa DNR
-  compliance counts for the Iowa operations in range (see below).
+  compliance counts for the Iowa operations in range; `nc` NC DEQ document-record counts for the
+  North Carolina operations in range (see below).
 - Plants with no operation within 50 miles and no not-published state in range are omitted.
 - `method`, `parents`, `notPublished` — method notes, parent keys, and states without data.
 
@@ -74,6 +75,29 @@ DNR says it tracks actions since about 2009. Like the rest of this file, `ia` is
 never changes a category status or the disclosure count. Row-level pages (which name farms and
 operators) stay local and are never published.
 
+## North Carolina DEQ document records (`nc`)
+
+For plants whose circle includes North Carolina operations, `nc` counts those operations by the
+documents NC DEQ's Division of Water Resources files under each permit's facility number in its
+public [Laserfiche WebLink repository](https://edocs.deq.nc.gov/WaterResources/) (the permit
+number without its 3-letter prefix; retrieval date in `states.NC.compliance.retrieved`):
+
+- `j` operations with a document record;
+- `v` with at least one notice of violation (document type "Notice of Violation" or "NOV and
+  Intent to Assess", or an NOV-YYYY-XX-NNNN case id in a document name); `v5` with a notice dated
+  in the last five years;
+- `cp` with a civil penalty assessment;
+- `nd` with a notice of deficiency (a lesser finding) but no notice of violation.
+
+Itemized documents begin around 2018; earlier files were scanned in bulk ("Historical Files
+Before 2018") and are not counted. Counts are operations, not violations, and never change a
+category status or the disclosure count. Document names identify farms, so the per-facility cache
+stays local.
+
+Minnesota: MPCA's What's in My Neighborhood site shows feedlot enforcement actions per site, but
+bulk access is bot-protected; a bulk extract was requested from MPCA on 2026-10-24. No Minnesota
+compliance counts yet.
+
 ## Ownership
 
 Permit holders are mapped to a processor parent only on an exact (normalised) entity name,
@@ -89,5 +113,5 @@ Contract-grower farms are permitted under the grower's own name, so a parent-com
 is a minimum. Name look-alikes that are not the packer never match.
 
 Rebuild (local only): `build/pull_nearby.py` + `build/pull_ia_compliance.py` (≈10 h; run from
-`~/fat-ia-compliance/`) + `build/build_nearby.py` in the FAT project's
+`~/fat-ia-compliance/`) + `build/pull_nc_compliance.py` (≈1 h; run from `~/fat-state-compliance/nc/`) + `build/build_nearby.py` in the FAT project's
 `research/hog-permits-2026-10/` folder.
