@@ -132,6 +132,9 @@ class SwinePermitSummary {
   final SwineParent? parent;
   final int parentHoldings;
   final List<String> parentStates;
+  /// Iowa DNR compliance counts for the Iowa operations in range, or null.
+  final SwineIowaCompliance? iowa;
+  final String iowaRetrieved;
 
   const SwinePermitSummary({
     required this.radiusMiles,
@@ -146,6 +149,8 @@ class SwinePermitSummary {
     required this.parent,
     required this.parentHoldings,
     required this.parentStates,
+    this.iowa,
+    this.iowaRetrieved = '',
   });
 
   bool get isEmpty => sources.isEmpty && unpublished.isEmpty;
@@ -217,8 +222,71 @@ class SwinePermitSummary {
     return "The plant's parent company (${p.displayName}) holds state permits for at least ${SwinePermitText.number(parentHoldings)} $farms within $radiusMiles miles (${SwinePermitText.stateList(parentStates)} permit records). Contract farms are listed under growers' own names, so this is a minimum.";
   }
 
-  List<String> get cardLines =>
-      [countLine, npdesLine, unpublishedLine].whereType<String>().toList();
+  /// Iowa DNR field-office compliance lines (operations, not violations):
+  /// who was cited, how many of those citations came from field work rather
+  /// than plan paperwork, manure spills, and the source. Never a score input.
+  List<String> get iowaLines {
+    final c = iowa;
+    if (c == null) return const [];
+    final fmt = SwinePermitText.number;
+    final j = c.records;
+    final iowaOnly = _contributing.every((s) => s == 'IA') && j == (byState['IA'] ?? 0);
+    const agency = 'Iowa Department of Natural Resources';
+    const notices = 'notice of violation or letter of non-compliance';
+    final ops = j == 1 ? 'hog operation' : 'hog operations';
+    final lines = <String>[];
+    if (c.cited == 0) {
+      lines.add(iowaOnly
+          ? '$agency field-office records show no $notices for ${j == 1 ? 'this Iowa hog operation' : 'these ${fmt(j)} Iowa hog operations'}.'
+          : 'In the Iowa records, $agency field offices show no $notices for the ${fmt(j)} Iowa $ops.');
+    } else {
+      final recent = c.citedFiveYears == 0
+          ? 'none of them in the last five years'
+          : '${fmt(c.citedFiveYears)} of them in the last five years';
+      if (j == 1) {
+        final when = c.citedFiveYears > 0 ? ', most recently within the last five years' : ', none in the last five years';
+        lines.add(iowaOnly
+            ? '$agency field-office records show this Iowa hog operation received at least one $notices$when.'
+            : 'In the Iowa records, the one hog operation received at least one $notices from the $agency$when.');
+      } else {
+        lines.add(iowaOnly
+            ? '$agency field-office records show ${fmt(c.cited)} of these ${fmt(j)} Iowa hog operations received at least one $notices, $recent.'
+            : 'In the Iowa records, ${fmt(c.cited)} of ${fmt(j)} hog operations received at least one $notices from the $agency, $recent.');
+      }
+      final rest = c.cited - c.fieldCited;
+      if (c.fieldCited == 0) {
+        lines.add('All of these notices were issued after paperwork reviews, such as manure management plans.');
+      } else if (rest == 0) {
+        lines.add(c.cited == 1
+            ? 'It was issued after an inspection, complaint or spill, not a paperwork review.'
+            : 'Each of these operations had one from an inspection, complaint or spill, not just a paperwork review.');
+      } else {
+        lines.add('${fmt(c.fieldCited)} of these ${fmt(c.cited)} had one from an inspection, complaint or spill; for the other ${fmt(rest)}, the notices were issued only after paperwork reviews, such as manure management plans.');
+      }
+    }
+    if (c.manureSpills > 0) {
+      lines.add('Manure spills are on record for ${fmt(c.manureSpills)} of the ${fmt(j)} Iowa $ops.');
+    }
+    lines.add('Source: Iowa DNR Field Office Compliance database${_retrievedText(iowaRetrieved)}. It tracks field-office actions since about 2009 and does not include enforcement by DNR\'s central office.');
+    return lines;
+  }
+
+  static String _retrievedText(String date) {
+    final m = RegExp(r'^(\d{4})-(\d{2})-(\d{2})').firstMatch(date);
+    if (m == null) return '';
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June', 'July',
+      'August', 'September', 'October', 'November', 'December'
+    ];
+    return ', retrieved ${months[int.parse(m.group(2)!) - 1]} ${int.parse(m.group(3)!)}, ${m.group(1)}';
+  }
+
+  List<String> get cardLines => [
+        countLine,
+        npdesLine,
+        ...iowaLines,
+        unpublishedLine
+      ].whereType<String>().toList();
 }
 
 class SwinePermitText {
@@ -270,8 +338,28 @@ class SwinePlantAggregate {
   final int? npdes;
   final Map<String, Map<String, int>> parentHeld; // parent key → state → n
   final List<String> unpublished;
+  final SwineIowaCompliance? iowa;
   const SwinePlantAggregate(this.total, this.byState, this.lagoon, this.npdes,
-      this.parentHeld, this.unpublished);
+      this.parentHeld, this.unpublished, [this.iowa]);
+}
+
+/// Iowa DNR field-office compliance counts for the Iowa operations within the
+/// radius (operations, not violations). See swine-permits/README.md.
+class SwineIowaCompliance {
+  final int records; // j: Iowa operations with a DNR compliance record page
+  final int cited; // v: with ≥1 notice of violation / letter of non-compliance
+  final int citedFiveYears; // v5: …dated in the last five years
+  final int fieldCited; // vf: …from an inspection, complaint or spill (not plan paperwork)
+  final int manureSpills; // ms: with a manure spill linked to the operation
+  const SwineIowaCompliance(this.records, this.cited, this.citedFiveYears,
+      this.fieldCited, this.manureSpills);
+
+  static SwineIowaCompliance? fromJson(Object? m) {
+    if (m is! Map) return null;
+    int n(String k) => (m[k] as num?)?.toInt() ?? 0;
+    final j = n('j');
+    return j > 0 ? SwineIowaCompliance(j, n('v'), n('v5'), n('vf'), n('ms')) : null;
+  }
 }
 
 class SwinePermitData {
@@ -279,8 +367,11 @@ class SwinePermitData {
   final int radiusMiles;
   final Map<String, SwinePermitStateInfo> states;
   final Map<String, SwinePlantAggregate> plants;
+  /// Retrieval date (YYYY-MM-DD) of the Iowa DNR compliance records, or ''.
+  final String iowaComplianceRetrieved;
 
-  SwinePermitData._(this.generated, this.radiusMiles, this.states, this.plants);
+  SwinePermitData._(this.generated, this.radiusMiles, this.states, this.plants,
+      [this.iowaComplianceRetrieved = '']);
 
   static Map<String, int> _counts(Object? m) => m is Map
       ? m.map((k, v) => MapEntry('$k', (v as num).toInt()))
@@ -318,10 +409,13 @@ class SwinePermitData {
           (m['np'] as num?)?.toInt(),
           ph,
           ((m['u'] as List?) ?? const []).map((e) => '$e').toList(),
+          SwineIowaCompliance.fromJson(m['ia']),
         );
       });
+      final iaComp = ((d['states'] as Map)['IA'] as Map?)?['compliance'];
       return SwinePermitData._('${d['generated'] ?? ''}',
-          (d['radiusMiles'] as num?)?.toInt() ?? 50, states, plants);
+          (d['radiusMiles'] as num?)?.toInt() ?? 50, states, plants,
+          iaComp is Map ? '${iaComp['retrieved'] ?? ''}' : '');
     } catch (_) {
       return null;
     }
@@ -377,6 +471,8 @@ class SwinePermitData {
       parentHoldings: held.values.fold<int>(0, (x, y) => x + y),
       parentStates: (held.entries.where((e) => e.value > 0).map((e) => e.key).toList()
         ..sort()),
+      iowa: (a.byState['IA'] ?? 0) > 0 ? a.iowa : null,
+      iowaRetrieved: iowaComplianceRetrieved,
     );
   }
 }

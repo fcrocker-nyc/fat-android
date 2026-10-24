@@ -114,7 +114,12 @@ void main() {
         "Of these, 152 hold a federal Clean Water Act (NPDES) permit; the other 1,431 don't appear in EPA's database.");
     expect(s.parentLine, isNull);
     // Wisconsin is beyond 50 miles of Austin.
-    expect(s.unpublishedLine, isNull);
+    expect(s.unpublishedLine, isNull);    expect(s.iowaLines, [
+      'In the Iowa records, 200 of 447 hog operations received at least one notice of violation or letter of non-compliance from the Iowa Department of Natural Resources, 75 of them in the last five years.',
+      '85 of these 200 had one from an inspection, complaint or spill; for the other 115, the notices were issued only after paperwork reviews, such as manure management plans.',
+      'Manure spills are on record for 11 of the 447 Iowa hog operations.',
+      "Source: Iowa DNR Field Office Compliance database, retrieved October 24, 2026. It tracks field-office actions since about 2009 and does not include enforcement by DNR's central office.",
+    ]);
   });
 
   test('IA plant (Seaboard Triumph, Sioux City): NE has no NPDES flag', () {
@@ -126,7 +131,18 @@ void main() {
         "In the Iowa records, 15 of 947 hold a federal Clean Water Act (NPDES) permit; the rest don't appear in EPA's database.");
     expect(s.unpublishedLine,
         'Data not published by South Dakota — not counted.');
-    expect(s.parentLine, isNull);
+    expect(s.parentLine, isNull);    expect(s.iowa!.records, 947);
+    expect(s.iowa!.cited, 440);
+    expect(s.iowa!.citedFiveYears, 149);
+    expect(s.iowa!.fieldCited, 152);
+    expect(s.iowa!.manureSpills, 8);
+    expect(s.cardLines.indexOf(s.iowaLines.first), 2);
+  });
+
+  test('Iowa compliance: only plants with Iowa operations; no Iowa lines elsewhere', () {
+    expect(data.iowaComplianceRetrieved, '2026-10-24');
+    expect(data.summaryFor('560', plantParentName: 'Smithfield Foods')!.iowaLines, isEmpty);
+    expect(data.summaryFor('3907', plantParentName: 'Seaboard Foods')!.iowaLines, isEmpty);
   });
 
   test('OK plant (Seaboard, Guymon): not-published note only', () {
@@ -164,6 +180,62 @@ void main() {
     expect(mk({'NE': 5}, 0).npdesLine, isNull);
     expect(mk({'IA': 4, 'NE': 2}, 0).npdesLine,
         "In the Iowa records, 0 of 4 hold a federal Clean Water Act (NPDES) permit; the rest don't appear in EPA's database.");
+  });
+
+  test('Iowa DNR compliance sentence variants', () {
+    SwinePermitSummary mk(Map<String, int> by, SwineIowaCompliance c) =>
+        SwinePermitSummary(
+          radiusMiles: 50,
+          total: by.values.fold(0, (a, b) => a + b),
+          byState: by,
+          lagoonStates: const [],
+          lagoonCount: 0,
+          npdesStates: const [],
+          npdesCount: 0,
+          sources: by.keys.map((c) => data.states[c]!).toList(),
+          unpublished: const [],
+          parent: null,
+          parentHoldings: 0,
+          parentStates: const [],
+          iowa: c,
+          iowaRetrieved: '2026-10-24',
+        );
+    const source =
+        "Source: Iowa DNR Field Office Compliance database, retrieved October 24, 2026. It tracks field-office actions since about 2009 and does not include enforcement by DNR's central office.";
+    expect(mk({'IA': 947}, const SwineIowaCompliance(947, 440, 149, 152, 8)).iowaLines, [
+      'Iowa Department of Natural Resources field-office records show 440 of these 947 Iowa hog operations received at least one notice of violation or letter of non-compliance, 149 of them in the last five years.',
+      '152 of these 440 had one from an inspection, complaint or spill; for the other 288, the notices were issued only after paperwork reviews, such as manure management plans.',
+      'Manure spills are on record for 8 of the 947 Iowa hog operations.',
+      source,
+    ]);
+    expect(mk({'IA': 447, 'MN': 1136}, const SwineIowaCompliance(447, 200, 75, 85, 0)).iowaLines.first,
+        'In the Iowa records, 200 of 447 hog operations received at least one notice of violation or letter of non-compliance from the Iowa Department of Natural Resources, 75 of them in the last five years.');
+    // Fewer record pages than Iowa operations: never says "these".
+    expect(mk({'IA': 10}, const SwineIowaCompliance(9, 2, 0, 0, 0)).iowaLines.take(2), [
+      'In the Iowa records, 2 of 9 hog operations received at least one notice of violation or letter of non-compliance from the Iowa Department of Natural Resources, none of them in the last five years.',
+      'All of these notices were issued after paperwork reviews, such as manure management plans.',
+    ]);
+    expect(mk({'IA': 3}, const SwineIowaCompliance(3, 0, 0, 0, 1)).iowaLines, [
+      'Iowa Department of Natural Resources field-office records show no notice of violation or letter of non-compliance for these 3 Iowa hog operations.',
+      'Manure spills are on record for 1 of the 3 Iowa hog operations.',
+      source,
+    ]);
+    expect(mk({'IA': 1}, const SwineIowaCompliance(1, 1, 1, 1, 0)).iowaLines.take(2), [
+      'Iowa Department of Natural Resources field-office records show this Iowa hog operation received at least one notice of violation or letter of non-compliance, most recently within the last five years.',
+      'It was issued after an inspection, complaint or spill, not a paperwork review.',
+    ]);
+    expect(mk({'IA': 4}, const SwineIowaCompliance(4, 2, 1, 2, 0)).iowaLines[1],
+        'Each of these operations had one from an inspection, complaint or spill, not just a paperwork review.');
+    // No Iowa object → no Iowa lines; card lines keep their order.
+    final none = mk({'MN': 2}, const SwineIowaCompliance(0, 0, 0, 0, 0));
+    expect(SwinePermitSummary(
+      radiusMiles: 50, total: 2, byState: const {'MN': 2}, lagoonStates: const [],
+      lagoonCount: 0, npdesStates: const [], npdesCount: 0,
+      sources: [data.states['MN']!], unpublished: const [], parent: null,
+      parentHoldings: 0, parentStates: const []).iowaLines, isEmpty);
+    expect(none.cardLines.indexOf(none.iowaLines.first), 1);
+    expect(SwineIowaCompliance.fromJson({'j': 0, 'v': 0}), isNull);
+    expect(SwineIowaCompliance.fromJson('x'), isNull);
   });
 
   test('exact-name ownership: verified names map, look-alikes do not', () {
@@ -218,6 +290,7 @@ void main() {
       final s = data.summaryFor(id, plantParentName: 'Smithfield Foods')!;
       lines.addAll([s.countLine, s.npdesLine, s.unpublishedLine, s.parentLine]
           .whereType<String>());
+      lines.addAll(s.iowaLines);
     }
     final all = lines.join(' ').toLowerCase();
     for (final w in [
