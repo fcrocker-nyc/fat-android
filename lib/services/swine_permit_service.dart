@@ -138,6 +138,12 @@ class SwinePermitSummary {
   /// NC DEQ document-record counts for the NC operations in range, or null.
   final SwineNcCompliance? nc;
   final String ncRetrieved;
+  /// IDEM enforcement counts for the Indiana operations in range, or null.
+  final SwineInCompliance? indiana;
+  final String inRetrieved;
+  /// MoDNR warning/violation counts for the Missouri operations in range, or null.
+  final SwineMoCompliance? missouri;
+  final String moRetrieved;
 
   const SwinePermitSummary({
     required this.radiusMiles,
@@ -156,6 +162,10 @@ class SwinePermitSummary {
     this.iowaRetrieved = '',
     this.nc,
     this.ncRetrieved = '',
+    this.indiana,
+    this.inRetrieved = '',
+    this.missouri,
+    this.moRetrieved = '',
   });
 
   bool get isEmpty => sources.isEmpty && unpublished.isEmpty;
@@ -320,6 +330,77 @@ class SwinePermitSummary {
     return lines;
   }
 
+  /// Indiana IDEM lines (operations, not violations): formal enforcement
+  /// documents, agreed or commissioner's orders, and the source. Never a
+  /// score input.
+  List<String> get indianaLines {
+    final c = indiana;
+    if (c == null) return const [];
+    final fmt = SwinePermitText.number;
+    final j = c.records;
+    final inOnly = _contributing.every((s) => s == 'IN') && j == (byState['IN'] ?? 0);
+    const agency = 'Indiana Department of Environmental Management';
+    const action = 'notice of violation or other formal enforcement action';
+    final lines = <String>[];
+    if (c.cited == 0) {
+      lines.add(inOnly
+          ? '$agency records show no $action for ${j == 1 ? 'this Indiana hog operation' : 'these ${fmt(j)} Indiana hog operations'}.'
+          : 'In the Indiana records, $agency files show no $action for the ${fmt(j)} Indiana ${j == 1 ? 'hog operation' : 'hog operations'}.');
+    } else if (j == 1) {
+      final when = c.citedFiveYears > 0 ? ', most recently within the last five years' : ', none in the last five years';
+      lines.add(inOnly
+          ? '$agency records show this Indiana hog operation received a $action$when.'
+          : 'In the Indiana records, the one hog operation received a $action from the $agency$when.');
+    } else {
+      final recent = c.citedFiveYears == 0
+          ? 'none of them in the last five years'
+          : '${fmt(c.citedFiveYears)} of them in the last five years';
+      lines.add(inOnly
+          ? '$agency records show ${fmt(c.cited)} of these ${fmt(j)} Indiana hog operations received a $action, $recent.'
+          : 'In the Indiana records, ${fmt(c.cited)} of ${fmt(j)} hog operations received a $action from the $agency, $recent.');
+    }
+    if (c.ordered > 0) {
+      lines.add(c.ordered == 1
+          ? "1 operation settled a case through an agreed order or was issued a commissioner's order."
+          : "${fmt(c.ordered)} operations settled a case through an agreed order or were issued a commissioner's order.");
+    }
+    lines.add('Source: IDEM Virtual File Cabinet, Confined Feeding enforcement documents${_retrievedText(inRetrieved)}. Scanned records are sparse before 2009.');
+    return lines;
+  }
+
+  /// Missouri DNR lines (operations, not violations; floors, because the
+  /// source is matched by farm name and county). Never a score input.
+  List<String> get missouriLines {
+    final c = missouri;
+    if (c == null) return const [];
+    final fmt = SwinePermitText.number;
+    final j = c.records;
+    final moOnly = _contributing.every((s) => s == 'MO') && j == (byState['MO'] ?? 0);
+    const agency = 'Missouri Department of Natural Resources';
+    const notice = 'letter of warning or notice of violation';
+    final lines = <String>[];
+    if (c.warned == 0) {
+      lines.add('No $notice was found in $agency records for ${j == 1 ? 'this Missouri hog operation' : 'these ${fmt(j)} Missouri hog operations'}.');
+    } else if (j == 1) {
+      final when = c.warnedFiveYears > 0 ? ', most recently within the last five years' : ', none in the last five years';
+      lines.add('$agency records show ${moOnly ? 'this' : 'the one'} Missouri hog operation received at least one $notice$when.');
+    } else {
+      final recent = c.warnedFiveYears == 0
+          ? 'none of them in the last five years'
+          : '${fmt(c.warnedFiveYears)} of them in the last five years';
+      lines.add(moOnly
+          ? '$agency records show at least ${fmt(c.warned)} of these ${fmt(j)} Missouri hog operations received a $notice, $recent.'
+          : 'In the Missouri records, at least ${fmt(c.warned)} of ${fmt(j)} hog operations received a $notice from the $agency, $recent.');
+    }
+    if (c.violations > 0) {
+      lines.add(c.violations == 1
+          ? '1 operation received a notice of violation, the more serious of the two.'
+          : '${fmt(c.violations)} operations received a notice of violation, the more serious of the two.');
+    }
+    lines.add("Source: Missouri DNR Letters of Warning and Notices of Violation search${_retrievedText(moRetrieved)}, matched by farm name and county. Records start in 2009, and DNR says the search holds most but not all of these letters.");
+    return lines;
+  }
+
   static String _retrievedText(String date) {
     final m = RegExp(r'^(\d{4})-(\d{2})-(\d{2})').firstMatch(date);
     if (m == null) return '';
@@ -335,6 +416,8 @@ class SwinePermitSummary {
         npdesLine,
         ...iowaLines,
         ...ncLines,
+        ...indianaLines,
+        ...missouriLines,
         unpublishedLine
       ].whereType<String>().toList();
 }
@@ -390,8 +473,45 @@ class SwinePlantAggregate {
   final List<String> unpublished;
   final SwineIowaCompliance? iowa;
   final SwineNcCompliance? nc;
+  final SwineInCompliance? indiana;
+  final SwineMoCompliance? missouri;
   const SwinePlantAggregate(this.total, this.byState, this.lagoon, this.npdes,
-      this.parentHeld, this.unpublished, [this.iowa, this.nc]);
+      this.parentHeld, this.unpublished, [this.iowa, this.nc, this.indiana, this.missouri]);
+}
+
+/// Missouri DNR warning/violation counts for the Missouri operations within
+/// the radius (operations, not violations). Matched by farm name and county,
+/// so the counts are floors. See swine-permits/README.md.
+class SwineMoCompliance {
+  final int records; // j: Missouri operations
+  final int warned; // v: with ≥1 letter of warning or notice of violation
+  final int warnedFiveYears; // v5: …dated in the last five years
+  final int violations; // nov: with a notice of violation
+  const SwineMoCompliance(this.records, this.warned, this.warnedFiveYears, this.violations);
+
+  static SwineMoCompliance? fromJson(Object? m) {
+    if (m is! Map) return null;
+    int n(String k) => (m[k] as num?)?.toInt() ?? 0;
+    final j = n('j');
+    return j > 0 ? SwineMoCompliance(j, n('v'), n('v5'), n('nov')) : null;
+  }
+}
+
+/// Indiana IDEM enforcement-document counts for the Indiana operations within
+/// the radius (operations, not violations). See swine-permits/README.md.
+class SwineInCompliance {
+  final int records; // j: Indiana operations
+  final int cited; // v: with ≥1 formal enforcement document (NOV, order, referral…)
+  final int citedFiveYears; // v5: …dated in the last five years
+  final int ordered; // ao: with an agreed order or commissioner's order
+  const SwineInCompliance(this.records, this.cited, this.citedFiveYears, this.ordered);
+
+  static SwineInCompliance? fromJson(Object? m) {
+    if (m is! Map) return null;
+    int n(String k) => (m[k] as num?)?.toInt() ?? 0;
+    final j = n('j');
+    return j > 0 ? SwineInCompliance(j, n('v'), n('v5'), n('ao')) : null;
+  }
 }
 
 /// North Carolina DEQ document-record counts for the NC operations within the
@@ -441,9 +561,14 @@ class SwinePermitData {
   final String iowaComplianceRetrieved;
   /// Retrieval date (YYYY-MM-DD) of the NC DEQ document records, or ''.
   final String ncComplianceRetrieved;
+  /// Retrieval date (YYYY-MM-DD) of the IDEM enforcement documents, or ''.
+  final String inComplianceRetrieved;
+  /// Retrieval date (YYYY-MM-DD) of the MoDNR warning/violation search, or ''.
+  final String moComplianceRetrieved;
 
   SwinePermitData._(this.generated, this.radiusMiles, this.states, this.plants,
-      [this.iowaComplianceRetrieved = '', this.ncComplianceRetrieved = '']);
+      [this.iowaComplianceRetrieved = '', this.ncComplianceRetrieved = '',
+      this.inComplianceRetrieved = '', this.moComplianceRetrieved = '']);
 
   static Map<String, int> _counts(Object? m) => m is Map
       ? m.map((k, v) => MapEntry('$k', (v as num).toInt()))
@@ -483,6 +608,8 @@ class SwinePermitData {
           ((m['u'] as List?) ?? const []).map((e) => '$e').toList(),
           SwineIowaCompliance.fromJson(m['ia']),
           SwineNcCompliance.fromJson(m['nc']),
+          SwineInCompliance.fromJson(m['in']),
+          SwineMoCompliance.fromJson(m['mo']),
         );
       });
       String retrieved(String st) {
@@ -491,7 +618,7 @@ class SwinePermitData {
       }
       return SwinePermitData._('${d['generated'] ?? ''}',
           (d['radiusMiles'] as num?)?.toInt() ?? 50, states, plants,
-          retrieved('IA'), retrieved('NC'));
+          retrieved('IA'), retrieved('NC'), retrieved('IN'), retrieved('MO'));
     } catch (_) {
       return null;
     }
@@ -551,6 +678,10 @@ class SwinePermitData {
       iowaRetrieved: iowaComplianceRetrieved,
       nc: (a.byState['NC'] ?? 0) > 0 ? a.nc : null,
       ncRetrieved: ncComplianceRetrieved,
+      indiana: (a.byState['IN'] ?? 0) > 0 ? a.indiana : null,
+      inRetrieved: inComplianceRetrieved,
+      missouri: (a.byState['MO'] ?? 0) > 0 ? a.missouri : null,
+      moRetrieved: moComplianceRetrieved,
     );
   }
 }

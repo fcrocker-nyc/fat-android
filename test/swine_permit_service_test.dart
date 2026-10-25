@@ -277,6 +277,34 @@ void main() {
     expect(SwineNcCompliance.fromJson({'j': 0}), isNull);
   });
 
+  test('IDEM compliance: Tyson Logansport (2484)', () {
+    final s = data.summaryFor('2484', plantParentName: 'Tyson Foods')!;
+    expect(data.inComplianceRetrieved, '2026-10-25');
+    expect(s.indianaLines, [
+      'Indiana Department of Environmental Management records show 41 of these 533 Indiana hog operations received a notice of violation or other formal enforcement action, 4 of them in the last five years.',
+      "31 operations settled a case through an agreed order or were issued a commissioner's order.",
+      'Source: IDEM Virtual File Cabinet, Confined Feeding enforcement documents, retrieved October 25, 2026. Scanned records are sparse before 2009.',
+    ]);
+    expect(s.missouriLines, isEmpty);
+  });
+
+  test('MoDNR compliance: Macon MO (3736) and a mixed Iowa/Missouri plant (3228)', () {
+    final s = data.summaryFor('3736')!;
+    expect(data.moComplianceRetrieved, '2026-10-25');
+    expect(s.missouriLines, [
+      'Missouri Department of Natural Resources records show at least 68 of these 82 Missouri hog operations received a letter of warning or notice of violation, 42 of them in the last five years.',
+      '22 operations received a notice of violation, the more serious of the two.',
+      'Source: Missouri DNR Letters of Warning and Notices of Violation search, retrieved October 25, 2026, matched by farm name and county. Records start in 2009, and DNR says the search holds most but not all of these letters.',
+    ]);
+    final m = data.summaryFor('3228')!;
+    expect(m.missouriLines.first,
+        'In the Missouri records, at least 25 of 31 hog operations received a letter of warning or notice of violation from the Missouri Department of Natural Resources, 12 of them in the last five years.');
+    expect(m.iowaLines, isNotEmpty);
+    expect(m.cardLines.indexOf(m.iowaLines.first) < m.cardLines.indexOf(m.missouriLines.first), isTrue);
+    expect(SwineMoCompliance.fromJson({'j': 0}), isNull);
+    expect(SwineInCompliance.fromJson({'j': 0}), isNull);
+  });
+
   test('exact-name ownership: verified names map, look-alikes do not', () {
     for (final n in [
       'Murphy-Brown LLC',
@@ -325,12 +353,14 @@ void main() {
   test('copy: banned words absent; never says the pork came from the farms',
       () {
     final lines = <String>[];
-    for (final id in ['560', '728', '2938', '6163274', '3907', '3228']) {
+    for (final id in ['560', '728', '2938', '6163274', '3907', '3228', '2484', '3736']) {
       final s = data.summaryFor(id, plantParentName: 'Smithfield Foods')!;
       lines.addAll([s.countLine, s.npdesLine, s.unpublishedLine, s.parentLine]
           .whereType<String>());
       lines.addAll(s.iowaLines);
       lines.addAll(s.ncLines);
+      lines.addAll(s.indianaLines);
+      lines.addAll(s.missouriLines);
     }
     final all = lines.join(' ').toLowerCase();
     for (final w in [

@@ -7,7 +7,7 @@ card on pork scans ("State permit records list N hog operations within 50 miles 
 plant…", the lagoon and federal-permit (NPDES) lines) and a Cat. 16 parent-company detail line.
 Informational only: it never changes a category status or the disclosure count.
 
-Prepared by Dirk Adams with the assistance of AI. Built 2026-10-09; Iowa DNR and NC DEQ compliance counts added 2026-10-24.
+Prepared by Dirk Adams with the assistance of AI. Built 2026-10-09; Iowa DNR and NC DEQ compliance counts added 2026-10-24; IDEM and MoDNR 2026-10-25.
 
 App fetch URL: `https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/swine-permits/fat_swine_nearby.json`
 
@@ -31,7 +31,8 @@ establishment ids (public plant records). The earlier row-level file
   permit (NPDES-flag states only); `ph` permits held by an entity mapped to a processor parent,
   by state; `u` states the circle reaches that publish no usable data (not counted); `ia` Iowa DNR
   compliance counts for the Iowa operations in range; `nc` NC DEQ document-record counts for the
-  North Carolina operations in range (see below).
+  North Carolina operations in range; `in` IDEM enforcement counts (Indiana); `mo` MoDNR
+  warning/violation counts (Missouri) — see below.
 - Plants with no operation within 50 miles and no not-published state in range are omitted.
 - `method`, `parents`, `notPublished` — method notes, parent keys, and states without data.
 
@@ -94,6 +95,25 @@ Before 2018") and are not counted. Counts are operations, not violations, and ne
 category status or the disclosure count. Document names identify farms, so the per-facility cache
 stays local.
 
+## Indiana IDEM enforcement documents (`in`)
+
+`in` counts Indiana operations (approvals) by the formal enforcement documents IDEM files for the
+site under the Confined Feeding program in its [Virtual File Cabinet](https://vfc.idem.in.gov/)
+(joined on agency interest id): `j` operations; `v` with at least one notice of violation,
+violation letter, proposed or final agreed order, commissioner's order, enforcement referral or EPA
+action (correspondence and close-out letters are not counted); `v5` with one dated in the last five
+years; `ao` with an agreed order or commissioner's order. Scanned records are sparse before 2009.
+
+## Missouri DNR letters of warning and notices of violation (`mo`)
+
+`mo` counts Missouri operations (permits) by MoDNR's public
+[Letters of Warning and Notices of Violation search](https://apps5.mo.gov/mosearchpages/):
+`j` operations; `v` with at least one letter of warning, notice of violation, referral notice of
+violation or enforcement action request; `v5` with one dated in the last five years; `nov` with a
+notice of violation. The search has no permit id, so records are matched by facility name and
+county; `v` and `nov` are floors. Records start in 2009, and MoDNR says the search contains most but
+not all of these letters.
+
 Minnesota: MPCA's What's in My Neighborhood site shows feedlot enforcement actions per site, but
 bulk access is bot-protected; a bulk extract was requested from MPCA on 2026-10-24. No Minnesota
 compliance counts yet.
@@ -113,5 +133,5 @@ Contract-grower farms are permitted under the grower's own name, so a parent-com
 is a minimum. Name look-alikes that are not the packer never match.
 
 Rebuild (local only): `build/pull_nearby.py` + `build/pull_ia_compliance.py` (≈10 h; run from
-`~/fat-ia-compliance/`) + `build/pull_nc_compliance.py` (≈1 h; run from `~/fat-state-compliance/nc/`) + `build/build_nearby.py` in the FAT project's
+`~/fat-ia-compliance/`) + `build/pull_nc_compliance.py` (≈1 h; run from `~/fat-state-compliance/nc/`) + `build/pull_in_compliance.py` + `build/pull_mo_compliance.py` + `build/build_nearby.py` in the FAT project's
 `research/hog-permits-2026-10/` folder.
