@@ -304,7 +304,7 @@ class _MenuDishesScreenState extends State<MenuDishesScreen> {
   @override
   Widget build(BuildContext context) {
     final items = r.visibleItems;
-    final withClaims = items.where((i) => i.claims.isNotEmpty).length;
+    final withClaims = items.where((i) => MenuClaimExplainer.hasSourcingClaim(i, widget.glossary)).length;
     return Scaffold(
       appBar: AppBar(title: const Text('Dishes found')),
       body: ListView(
@@ -406,9 +406,12 @@ class _DishRow extends StatelessWidget {
                     : _Chip(p.displayName, _ChipStyle.protein),
               if (item.proteins.isEmpty) const _Chip('protein unknown', _ChipStyle.muted),
               if (item.minorProteinOnly) const _Chip('minor ingredient', _ChipStyle.muted),
-              for (final t in MenuClaimExplainer.tags(item))
+              for (final t in MenuClaimExplainer.tags(item).where((t) => !t.isNote))
                 _Chip(t.text, t.inheritedFromHeader ? _ChipStyle.inherited : _ChipStyle.claim),
-              if (item.claims.isEmpty) const _Chip('no sourcing claim', _ChipStyle.muted),
+              if (!MenuClaimExplainer.hasSourcingClaim(item)) const _Chip('no sourcing claim', _ChipStyle.muted),
+              // "about tuna": FAT can explain the species, but the menu claims nothing.
+              for (final t in MenuClaimExplainer.tags(item).where((t) => t.isNote))
+                _Chip('about ${t.text}', _ChipStyle.note),
             ]),
           ]),
         ),
@@ -418,7 +421,7 @@ class _DishRow extends StatelessWidget {
   }
 }
 
-enum _ChipStyle { protein, addOn, claim, inherited, muted }
+enum _ChipStyle { protein, addOn, claim, inherited, muted, note }
 
 class _Chip extends StatelessWidget {
   final String text;
@@ -433,6 +436,7 @@ class _Chip extends StatelessWidget {
       _ChipStyle.claim => (_certBlue, _certPaleBlue),
       _ChipStyle.inherited => (_certBlue, _certPaleBlue.withValues(alpha: 0.5)),
       _ChipStyle.muted => (FATTheme.textSecondary, const Color(0xFFE6E6E4)),
+      _ChipStyle.note => (FATTheme.textSecondary, Colors.transparent),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -441,7 +445,9 @@ class _Chip extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           border: style == _ChipStyle.addOn
               ? Border.all(color: FATTheme.scanGreen, width: 1.5)
-              : null),
+              : style == _ChipStyle.note
+                  ? Border.all(color: const Color(0xFFC8C8C8))
+                  : null),
       child: Text(text, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: fg)),
     );
   }

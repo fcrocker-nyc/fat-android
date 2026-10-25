@@ -56,3 +56,10 @@ android {
 flutter {
     source = "../.."
 }
+
+// ML Kit script models for the menu reader's second OCR pass (Korean and
+// Japanese subtitles on menus); Latin ships with the plugin.
+dependencies {
+    implementation("com.google.mlkit:text-recognition-korean:16.0.1")
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.1")
+}

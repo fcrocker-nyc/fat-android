@@ -45,7 +45,11 @@ class MenuClaimCard {
 class MenuClaimTag {
   final String text;
   final bool inheritedFromHeader;
-  const MenuClaimTag(this.text, this.inheritedFromHeader);
+
+  /// A species or market-name note ("tuna", "shrimp") — FAT has a card for the
+  /// word, but the menu made no sourcing claim.
+  final bool isNote;
+  const MenuClaimTag(this.text, this.inheritedFromHeader, [this.isNote = false]);
 }
 
 class MenuClaimExplainer {
@@ -59,10 +63,26 @@ class MenuClaimExplainer {
     );
   }
 
+  /// A claim about where the food came from or how it was raised or caught.
+  /// A bare species word ("tuna", "Dover sole") is not one.
+  static bool isSourcingClaim(MenuClaim c, [MenuGlossary? glossary]) {
+    if (isNamedSource(c)) return true;
+    final g = glossary ?? _cached;
+    final e = g?.entry(c.entryKey);
+    if (e == null) return true;
+    return e.family != ClaimFamily.speciesOrForm;
+  }
+
+  static bool hasSourcingClaim(MenuItem item, [MenuGlossary? glossary]) =>
+      item.claims.any((c) => isSourcingClaim(c, glossary));
+
   static List<MenuClaimCard> cards(MenuItem item, MenuGlossary glossary, String? diningState) {
     final entries = _ordered(item, glossary);
-    if (entries.isEmpty) {
-      return [
+    // Species notes explain the word but are not sourcing claims, so a dish
+    // with only notes still leads with the "No sourcing claim" card.
+    final lead = hasSourcingClaim(item, glossary)
+        ? <MenuClaimCard>[]
+        : [
         MenuClaimCard(
           id: 'no_claim',
           entry: null,
@@ -78,8 +98,8 @@ class MenuClaimExplainer {
           stateNote: null,
         ),
       ];
-    }
     return [
+      ...lead,
       for (final (claim, entry) in entries)
         () {
           final text = resolvedText(claim, entry);
@@ -88,7 +108,7 @@ class MenuClaimExplainer {
             entry: entry,
             matchedText: claim.matchedText,
             inheritedFromHeader: claim.inheritedFromHeader,
-            title: _title(claim),
+            title: isSourcingClaim(claim, glossary) ? _title(claim) : 'About “${claim.matchedText}”',
             meaning: text.meaning,
             authority: text.authority,
             gap: text.gap,
@@ -157,9 +177,10 @@ class MenuClaimExplainer {
         ];
         text = qs.isEmpty ? t : '$t (${qs.join(', ')})';
       }
-      out.add(MenuClaimTag(text, c.inheritedFromHeader));
+      out.add(MenuClaimTag(text, c.inheritedFromHeader, !isSourcingClaim(c)));
     }
-    return out;
+    // Real claims first, species notes after.
+    return [...out.where((t) => !t.isNote), ...out.where((t) => t.isNote)];
   }
 
   /// Top three questions for one dish: one question per claim in family

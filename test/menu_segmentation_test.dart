@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui' show Rect;
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fat_app/menu/menu_explainer.dart';
 import 'package:fat_app/menu/menu_interpreter.dart';
 import 'package:fat_app/menu/menu_models.dart';
 
@@ -140,5 +141,56 @@ void main() {
   test('grass-fed on a beef cut', () {
     final r = run('Steak Tartare* | 29\nLocal grass-fed top-round, pear, crispy tendon puffs');
     expect(r.items.first.claims.map((c) => c.entryKey), contains('grass_fed'));
+  });
+
+  test('phone OCR: Filet Mignon read and caviar species shown', () {
+    final r = interpreter.interpret(fixture('phone_lb'));
+    expect(names(r), contains('filet mignon'));
+    expect(names(r).any((n) => n.contains('fit no')), isFalse);
+    final caviar = r.items.firstWhere((i) => i.dishName == 'Caviar');
+    expect(caviar.claims.firstWhere((c) => c.entryKey == 'caviar').matchedText.toLowerCase(), 'osetra');
+  });
+
+  test('phone OCR: Cote has no Korean junk', () {
+    final r = interpreter.interpret(fixture('phone_cote'));
+    final text = r.items.map((i) => '${i.dishName} ${i.description}').join(' | ');
+    for (final junk in ['encerioin', 'Petrossian sai', '0|0122181', 'п|ор', '₫', 'Hvbrid', '.02', 'Miyazaki AS']) {
+      expect(text.contains(junk), isFalse, reason: 'junk "$junk"');
+    }
+    expect(names(r), containsAll(['tenderloin', 'beluga hybrid']));
+  });
+
+  test('OCR merge replaces Latin junk with the CJK line', () {
+    final latin = [
+      MenuOCRLine('Miyazaki Prefecture.п|ор7|7|₫ A5', const Rect.fromLTRB(0.6, 0.5, 0.9, 0.52)),
+      MenuOCRLine('Ribeye 38/oz', const Rect.fromLTRB(0.6, 0.47, 0.9, 0.49)),
+    ];
+    final cjk = [MenuOCRLine('Miyazaki Prefecture..미야자키현 A5 와규', const Rect.fromLTRB(0.6, 0.5, 0.91, 0.52))];
+    final m = MenuOCRMerge.merge(latin, cjk);
+    expect(m.length, 2);
+    expect(m.any((l) => l.text.contains('₫')), isFalse);
+    expect(MenuText.dropForeignScript('Miyazaki Prefecture..미야자키현 A5 와규'), 'Miyazaki Prefecture.. A5');
+  });
+
+  test('tiles split a wide page at its gutter', () {
+    final lines = <MenuOCRLine>[];
+    for (var i = 0; i < 20; i++) {
+      final y = 0.9 - i * 0.04;
+      lines.add(MenuOCRLine('Left $i', Rect.fromLTRB(0.05, y, 0.4, y + 0.02)));
+      lines.add(MenuOCRLine('Right $i', Rect.fromLTRB(0.6, y, 0.95, y + 0.02)));
+    }
+    expect(MenuOCRMerge.tiles(lines, 3600, 2400).length, 4);
+    expect(MenuOCRMerge.tiles(lines, 1000, 1400).length, 1);
+  });
+
+  test('a species word is a note, not a sourcing claim', () {
+    final g = MenuGlossary.fromJson(
+        jsonDecode(File('assets/data/menu_claim_glossary.json').readAsStringSync()) as Map<String, dynamic>);
+    final r = MenuInterpreter(g).interpret([MenuPage.fromPlainText('Tuna\nLayers of Thinly Pounded Yellowfin Tuna\n\nWild Atlantic Black Bass 58')]);
+    final tuna = r.items.firstWhere((i) => i.dishName == 'Tuna');
+    expect(MenuClaimExplainer.hasSourcingClaim(tuna, g), isFalse);
+    expect(MenuClaimExplainer.cards(tuna, g, null).first.title, 'No sourcing claim');
+    final bass = r.items.firstWhere((i) => i.dishName.contains('Black Bass'));
+    expect(MenuClaimExplainer.hasSourcingClaim(bass, g), isTrue);
   });
 }

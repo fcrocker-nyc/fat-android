@@ -1,4 +1,4 @@
-import 'dart:ui' show Rect;
+import 'dart:ui' show Offset, Rect;
 
 import 'menu_lexicon.dart';
 import 'menu_models.dart';
@@ -162,7 +162,7 @@ class MenuSegmenter {
     for (final page in sortedPages) {
       final cleaned = <MenuOCRLine>[];
       for (final l in page.lines) {
-        final t = MenuText.dropForeignScript(l.text);
+        final t = MenuText.fixCommonMisreads(MenuText.dropForeignScript(l.text));
         if (t.isNotEmpty) cleaned.add(MenuOCRLine(t, l.box));
       }
       final merged = mergeSameRowPrices(
@@ -807,11 +807,23 @@ class MenuText {
   /// OCR of Korean, Japanese or Chinese text with a Latin model comes out as
   /// stray Cyrillic and symbol runs; drop those tokens.
   static String dropForeignScript(String text) {
-    final t = text.replaceAll(
-        RegExp(r'\S*[\p{Script=Cyrillic}\p{Script=Hangul}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}₫]\S*',
-            unicode: true),
-        ' ');
+    // Latin-model junk ("п|ор7|7|₫") is dropped as whole tokens; real
+    // Korean/Japanese/Chinese characters on their own, so a word glued to
+    // them ("Prefecture..미야자키현") survives.
+    var t = text.replaceAll(RegExp(r'\S*[\p{Script=Cyrillic}₫]\S*', unicode: true), ' ');
+    t = t.replaceAll(_cjk, ' ');
     return t.replaceAll(RegExp(r'\s{2,}'), ' ').trim();
+  }
+
+  static final _cjk = RegExp(r'[\p{Script=Hangul}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]+', unicode: true);
+
+  /// Known OCR slips on menus: the Wagyu grade "A5" read as "AS" next to a
+  /// Japanese prefecture or Wagyu.
+  static String fixCommonMisreads(String text) {
+    if (!RegExp(r'prefecture|wagyu|kobe|miyazaki|kagoshima|hokkaido|sendai|omi\b', caseSensitive: false).hasMatch(text)) {
+      return text;
+    }
+    return text.replaceAll(RegExp(r'\bAS\b'), 'A5');
   }
 
   static bool startsLowercase(String text) {
@@ -1123,7 +1135,20 @@ class MenuClaimExtractor {
     PhraseMatch? organicMatch;
 
     void consider(ClaimEntry entry, PhraseMatch match) {
-      if (seen.contains(entry.key)) return;
+      if (seen.contains(entry.key)) {
+        // "Caviar … Royal Osetra Caviar": show the most specific wording the
+        // menu used (the species) rather than the generic word.
+        final generic = entry.phrases.isEmpty ? null : entry.phrases.first.toLowerCase();
+        final matched = text.substring(match.start, match.end);
+        final i = claims.indexWhere((c) => c.entryKey == entry.key);
+        if (i >= 0 && claims[i].matchedText.toLowerCase() == generic && matched.toLowerCase() != generic) {
+          final o = claims[i];
+          claims[i] = MenuClaim(
+              entryKey: o.entryKey, matchedText: matched, inheritedFromHeader: o.inheritedFromHeader,
+              appliesTo: o.appliesTo, subject: o.subject, inferred: o.inferred);
+        }
+        return;
+      }
 
       final nearby = <(List<ProteinFamily>, int)>[];
       for (final p in proteinHits) {
@@ -1624,3 +1649,116 @@ Rect normalizedBottomLeft(Rect px, double w, double h) => Rect.fromLTRB(
       px.right / w,
       1.0 - px.top / h, // maxY
     );
+
+// ── OCR pass merge (port of iOS MenuOCRMerge) ───────────────────────────────
+
+/// Combines a Latin OCR pass with a CJK pass of the same image: lines where
+/// the CJK pass found Korean/Japanese/Chinese characters replace the Latin
+/// pass's lines in the same place (usually junk for those scripts).
+class MenuOCRMerge {
+  static final _cjkChar = RegExp(r'[\p{Script=Hangul}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]', unicode: true);
+  static bool hasCJK(String text) => _cjkChar.hasMatch(text);
+
+  static bool _intersects(Rect a, Rect b) => a.overlaps(b);
+
+  static List<MenuOCRLine> merge(List<MenuOCRLine> latin, List<MenuOCRLine> cjk) {
+    final cjkLines = cjk.where((l) => hasCJK(l.text)).toList();
+    if (cjkLines.isEmpty) return latin;
+    final replaced = <int>{};
+    final out = <MenuOCRLine>[];
+    final used = <MenuOCRLine>[];
+    for (final c in cjkLines) {
+      final hits = <int>[];
+      for (var i = 0; i < latin.length; i++) {
+        final l = latin[i];
+        final v = (l.maxY < c.maxY ? l.maxY : c.maxY) - (l.minY > c.minY ? l.minY : c.minY);
+        final h = (l.maxX < c.maxX ? l.maxX : c.maxX) - (l.minX > c.minX ? l.minX : c.minX);
+        final minH = l.height < c.height ? l.height : c.height;
+        final minW = l.width < c.width ? l.width : c.width;
+        if (v > minH * 0.5 && h > minW * 0.3) hits.add(i);
+      }
+      if (hits.isEmpty) continue;
+      if (used.any((u) => _intersects(u.box, c.box))) continue;
+      used.add(c);
+      replaced.addAll(hits);
+      out.add(c);
+    }
+    for (var i = 0; i < latin.length; i++) {
+      if (!replaced.contains(i)) out.add(latin[i]);
+    }
+    return out;
+  }
+
+  /// Widest clean vertical gutter between 30% and 70% of the page width.
+  static double? splitGutter(List<MenuOCRLine> lines) {
+    final body = lines.where((l) => l.width < 0.45).toList();
+    if (body.length < 12) return null;
+    const bins = 200;
+    final cover = List<int>.filled(bins, 0);
+    for (final l in body) {
+      final lo = (l.minX * bins).floor().clamp(0, bins - 1), hi = (l.maxX * bins).floor().clamp(0, bins - 1);
+      for (var b = lo; b <= hi; b++) {
+        cover[b]++;
+      }
+    }
+    (int, int)? best;
+    int? start;
+    final a = (bins * 0.3).floor(), z = (bins * 0.7).floor();
+    for (var b = a; b <= z; b++) {
+      if (cover[b] == 0) {
+        start ??= b;
+      } else if (start != null) {
+        if (b - start > (best?.$2 ?? 0)) best = (start, b - start);
+        start = null;
+      }
+    }
+    if (start != null && z - start > (best?.$2 ?? 0)) best = (start, z - start);
+    if (best == null || best.$2 < 1) return null;
+    return (best.$1 + best.$2 / 2) / bins;
+  }
+
+  /// A horizontal gap between 30% and 70% of the piece's height.
+  static double? rowGap(List<MenuOCRLine> lines, Rect r) {
+    final inside = lines.where((l) => r.contains(Offset((l.minX + l.maxX) / 2, l.midY))).toList()
+      ..sort((x, y) => y.maxY.compareTo(x.maxY));
+    if (inside.length < 16) return null;
+    (double, double)? best;
+    for (var i = 1; i < inside.length; i++) {
+      final gap = inside[i - 1].minY - inside[i].maxY;
+      final mid = (inside[i - 1].minY + inside[i].maxY) / 2;
+      final h = r.bottom - r.top;
+      if (mid <= r.top + h * 0.3 || mid >= r.top + h * 0.7 || gap <= 0) continue;
+      if (gap > (best?.$2 ?? 0)) best = (mid, gap);
+    }
+    return best?.$1;
+  }
+
+  /// Pieces (normalized, bottom-left origin; Rect top=minY, bottom=maxY) to
+  /// re-read a page in. One piece means "don't tile".
+  static List<Rect> tiles(List<MenuOCRLine> lines, int pixelWidth, int pixelHeight) {
+    var cols = [const Rect.fromLTRB(0, 0, 1, 1)];
+    final cut = pixelWidth >= 1800 ? splitGutter(lines) : null;
+    if (cut != null) cols = [Rect.fromLTRB(0, 0, cut, 1), Rect.fromLTRB(cut, 0, 1, 1)];
+    final out = <Rect>[];
+    for (final c in cols) {
+      final y = pixelHeight * (c.bottom - c.top) >= 2400 ? rowGap(lines, c) : null;
+      if (y != null) {
+        out.add(Rect.fromLTRB(c.left, y, c.right, c.bottom));
+        out.add(Rect.fromLTRB(c.left, c.top, c.right, y));
+      } else {
+        out.add(c);
+      }
+    }
+    return out;
+  }
+
+  /// Piece lines replace the full pass, except full-pass lines crossing a cut.
+  static List<MenuOCRLine> preferTiled(List<MenuOCRLine> full, List<MenuOCRLine> tiled, List<Rect> tiles) {
+    if (tiled.isEmpty) return full;
+    bool inside(Rect t, Rect b) =>
+        b.left >= t.left - 0.005 && b.right <= t.right + 0.005 && b.top >= t.top - 0.005 && b.bottom <= t.bottom + 0.005;
+    final crossing = full.where((l) => !tiles.any((t) => inside(t, l.box))).toList();
+    final kept = tiled.where((t) => !crossing.any((c) => c.box.overlaps(t.box))).toList();
+    return [...crossing, ...kept];
+  }
+}
