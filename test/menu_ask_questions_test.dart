@@ -62,7 +62,7 @@ void main() {
 
   test('organic salmon asks where it is farmed and who certified it, not wild or farmed', () {
     final q = qs(ocrResult(), 'SALMON');
-    expect(q.any((s) => s.contains('Where is it farmed')), isTrue, reason: '$q');
+    expect(q.any((s) => s.contains('Where is the salmon farmed')), isTrue, reason: '$q');
     expect(q.any((s) => s.contains('who certified it organic')), isTrue, reason: '$q');
     for (final s in q) {
       expect(s.toLowerCase().contains('wild or farmed'), isFalse, reason: s);
@@ -99,7 +99,19 @@ void main() {
     expect(MenuClaimExplainer.askQuestions(duck, glossary), ['Where does the duck come from?']);
     final steak = interpreter.interpret([MenuPage.fromPlainText('Ribeye Steak 52')]).items.first;
     expect(MenuClaimExplainer.askQuestions(steak, glossary),
-        ['Where does the beef come from?', 'Is it grass-fed or grain-finished?']);
+        ['Where does the beef come from?', 'Is the beef grass-fed or grain-finished?']);
+  });
+
+  test('every question names its subject instead of a bare "it"', () {
+    final r = ocrResult();
+    expect(qs(r, 'SPAGHETTI'), [
+      'Which country is the shrimp from?',
+      'Where was the shrimp caught, and how — line, net, or trap?',
+      'Is the shrimp wild today, or does that change with the season?',
+    ]);
+    expect(qs(r, 'FILET').first, 'What grade is the beef — Prime or Choice?');
+    expect(qs(r, 'CRYSTAL VALLEY'), contains('Is Crystal Valley the farm itself, or a distributor’s brand?'));
+    expect(qs(r, 'VENISON'), ['Where does the venison come from, and is it wild or farmed?']);
   });
 
   test('related glossary questions merge into one', () {

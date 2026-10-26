@@ -843,7 +843,7 @@
       "authority": "USDA's Agricultural Marketing Service (Angus claims for live cattle)",
       "gap": "Breed says nothing about where or how the animal was raised, or its grade.",
       "questions": [
-        "What grade is it — Prime, Choice?",
+        "What grade is it — Prime or Choice?",
         "Where was it raised?"
       ],
       "stateNote": null,
@@ -1005,7 +1005,7 @@
       "gap": "‘Salmon’ alone doesn’t say the species, whether it’s wild or farmed, or which country the farm is in.",
       "questions": [
         "Is the salmon wild or farmed today?",
-        "Which species and which country?"
+        "Which species of salmon is it, and from which country?"
       ],
       "stateNote": null,
       "adjacentProtein": false

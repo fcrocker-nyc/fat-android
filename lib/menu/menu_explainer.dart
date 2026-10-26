@@ -295,9 +295,12 @@ class MenuClaimExplainer {
             if (!item.addOnProteins.contains(p))
               [
                 for (final q in glossary.fallbackAsk[p.name] ?? const <String>[])
-                  bird != null && p == ProteinFamily.poultry
-                      ? q.replaceAll('chicken (or duck)', bird)
-                      : q,
+                  _nameSubject(
+                      bird != null && p == ProteinFamily.poultry
+                          ? q.replaceAll('chicken (or duck)', bird)
+                          : q,
+                      _familyNoun(p, item),
+                      false),
               ],
         ], mainLimit);
       }
@@ -315,7 +318,9 @@ class MenuClaimExplainer {
         }
       }
       if (q == null && item.addOns.isNotEmpty && glossary.addOnAsk != null) {
-        q = glossary.addOnAsk!.replaceAll('{addon}', item.addOns.first.toLowerCase());
+        final addOn = item.addOns.first.toLowerCase();
+        q = _nameSubject(
+            glossary.addOnAsk!.replaceAll('{addon}', addOn), _plainNoun(addOn) ?? addOn, false);
       }
       if (q != null) push(q, 3);
     }
@@ -383,7 +388,82 @@ class MenuClaimExplainer {
           if (i == at) m.merged else if (!m.questions.contains(qs[i])) qs[i],
       ];
     }
-    return qs;
+    final noun = _claimNoun(claim, item);
+    if (noun == null) return qs;
+    return [for (final q in qs) _nameSubject(q, noun.$1, noun.$2)];
+  }
+
+  // ── Naming the subject ────────────────────────────────────────────────────
+  //
+  // A bare "it" is ambiguous on a multi-item dish, so each question names the
+  // item its claim is about: "Which country is the shrimp from?", "Is Crystal
+  // Valley the farm itself…". "{item}" in a glossary question is filled the
+  // same way. A question that already names the item is left as written.
+
+  /// Plain item words, longest first so "foie gras" wins over shorter words.
+  static const _itemWords = [
+    'foie gras', 'sea bass', 'swordfish', 'branzino', 'halibut', 'snapper', 'grouper',
+    'salmon', 'tuna', 'codfish', 'cod', 'trout', 'sole', 'shrimp', 'prawns', 'prawn',
+    'lobster', 'crab', 'scallops', 'scallop', 'oysters', 'mussels', 'clams', 'octopus',
+    'calamari', 'squid', 'caviar', 'beef', 'veal', 'pork', 'lamb', 'chicken', 'duck',
+    'turkey', 'quail', 'goose', 'pheasant', 'venison', 'rabbit', 'bison', 'elk', 'boar',
+  ];
+
+  /// The first plain item word in [text], by position.
+  static String? _plainNoun(String text) {
+    final t = text.toLowerCase();
+    var best = -1;
+    String? word;
+    for (final w in _itemWords) {
+      final m = RegExp('\\b$w\\b').firstMatch(t);
+      if (m != null && (best < 0 || m.start < best)) {
+        best = m.start;
+        word = w;
+      }
+    }
+    return word;
+  }
+
+  static String _familyNoun(ProteinFamily p, MenuItem item) {
+    switch (p) {
+      case ProteinFamily.beef:
+        return 'beef';
+      case ProteinFamily.pork:
+        return 'pork';
+      case ProteinFamily.lamb:
+        return 'lamb';
+      case ProteinFamily.poultry:
+        return _birdWord(item) ?? 'chicken';
+      case ProteinFamily.finfish:
+        return _plainNoun(item.dishName) ?? 'fish';
+      case ProteinFamily.shellfish:
+        return _plainNoun(item.dishName) ?? 'shellfish';
+      case ProteinFamily.other:
+        return _plainNoun(item.dishName) ?? 'meat';
+    }
+  }
+
+  /// The item a claim is about, and whether it is a proper name (no "the").
+  static (String, bool)? _claimNoun(MenuClaim c, MenuItem item) {
+    if (isNamedSource(c)) return (MenuNamedSources.displayName(c.matchedText), true);
+    final fromText = (c.subject == null ? null : _plainNoun(c.subject!)) ?? _plainNoun(c.matchedText);
+    if (fromText != null) return (fromText, false);
+    final p = c.appliesTo ??
+        (item.proteins.where((p) => !item.addOnProteins.contains(p)).firstOrNull);
+    return p == null ? null : (_familyNoun(p, item), false);
+  }
+
+  static final _bareIt = RegExp(r"(?<![\w’'])[Ii]t(?![\w’'])");
+
+  static String _nameSubject(String q, String noun, bool proper) {
+    final phrase = proper ? noun : 'the $noun';
+    if (q.contains('{item}')) return q.replaceAll('{item}', phrase);
+    if (RegExp('\\b${RegExp.escape(noun.toLowerCase())}\\b').hasMatch(q.toLowerCase())) return q;
+    final m = _bareIt.firstMatch(q);
+    if (m == null) return q;
+    final cap = q[m.start] == 'I';
+    final rep = cap ? phrase[0].toUpperCase() + phrase.substring(1) : phrase;
+    return q.replaceRange(m.start, m.end, rep);
   }
 
   static bool _hasQualifier(MenuClaim claim, MenuItem item) {
