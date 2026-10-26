@@ -70,8 +70,13 @@ class MenuClaimExplainer {
     final g = glossary ?? _cached;
     final e = g?.entry(c.entryKey);
     if (e == null) return true;
+    // "fresh" (not frozen) and "foie gras" (an ingredient) don't say where the
+    // meat or fish came from or how it was raised or caught.
+    if (nonSourcingKeys.contains(e.key)) return false;
     return e.family != ClaimFamily.speciesOrForm;
   }
+
+  static const nonSourcingKeys = {'fresh', 'foie_gras'};
 
   static bool hasSourcingClaim(MenuItem item, [MenuGlossary? glossary]) =>
       item.claims.any((c) => isSourcingClaim(c, glossary));

@@ -205,4 +205,17 @@ void main() {
     expect(scallop.claims.any((c) => c.matchedText.toLowerCase() == 'u10'), isFalse);
     expect(scallop.claims.any((c) => c.matchedText.toLowerCase() == 'diver'), isTrue);
   });
+
+  test('fresh, foie gras, bap and grand cru are not sourcing claims', () {
+    final g = MenuGlossary.fromJson(
+        jsonDecode(File('assets/data/menu_claim_glossary.json').readAsStringSync()) as Map<String, dynamic>);
+    final r = MenuInterpreter(g).interpret([
+      MenuPage.fromPlainText('Tuna\nLayers of Yellowfin Tuna, Foie Gras, Toasted Baguette\n\nRed Snapper\n'
+          'Whole Red Snapper Baked in Fresh Herbes\n\nOyster Sot-bap\nTongyeong oyster, Golden Queen rice\n\nGrand Cru Galbi 78')
+    ]);
+    for (final name in ['Tuna', 'Red Snapper', 'Oyster Sot-bap', 'Grand Cru Galbi']) {
+      final d = r.items.firstWhere((i) => i.dishName == name);
+      expect(MenuClaimExplainer.hasSourcingClaim(d, g), isFalse, reason: name);
+    }
+  });
 }

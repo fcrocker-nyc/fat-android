@@ -1560,6 +1560,16 @@ class MenuNamedSources {
     'autumn',
     'fall',
     'winter',
+    // Quality words, not suppliers ("Grand Cru Galbi").
+    'grand',
+    'cru',
+    'premier',
+    'reserve',
+    'select',
+    'prime',
+    'choice',
+    'royal',
+    'imperial',
     // Regions are origins, not suppliers ("East/West Coast oysters").
     'east',
     'west',

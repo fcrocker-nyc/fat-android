@@ -701,9 +701,10 @@
         "asc",
         "asc certified",
         "aquaculture stewardship council",
-        "bap",
         "best aquaculture practices",
-        "bap certified"
+        "bap certified",
+        "bap 4-star",
+        "bap 4 star"
       ],
       "patterns": null,
       "proteins": [
