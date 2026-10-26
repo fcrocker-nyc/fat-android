@@ -7,7 +7,7 @@ card on pork scans ("State permit records list N hog operations within 50 miles 
 plant…", the lagoon and federal-permit (NPDES) lines) and a Cat. 16 parent-company detail line.
 Informational only: it never changes a category status or the disclosure count.
 
-Prepared by Dirk Adams with the assistance of AI. Built 2026-10-09; Iowa DNR and NC DEQ compliance counts added 2026-10-24; IDEM and MoDNR 2026-10-25.
+Prepared by Dirk Adams with the assistance of AI. Built 2026-10-09; Iowa DNR and NC DEQ compliance counts added 2026-10-24; IDEM and MoDNR 2026-10-25; Nebraska DWEE and Michigan (ECHO) 2026-10-26.
 
 App fetch URL: `https://cdn.jsdelivr.net/gh/fcrocker-nyc/fat-android@main/swine-permits/fat_swine_nearby.json`
 
@@ -32,7 +32,8 @@ establishment ids (public plant records). The earlier row-level file
   by state; `u` states the circle reaches that publish no usable data (not counted); `ia` Iowa DNR
   compliance counts for the Iowa operations in range; `nc` NC DEQ document-record counts for the
   North Carolina operations in range; `in` IDEM enforcement counts (Indiana); `mo` MoDNR
-  warning/violation counts (Missouri) — see below.
+  warning/violation counts (Missouri); `ne` Nebraska DWEE document-index counts; `mi` Michigan EGLE
+  action counts via EPA ECHO — see below.
 - Plants with no operation within 50 miles and no not-published state in range are omitted.
 - `method`, `parents`, `notPublished` — method notes, parent keys, and states without data.
 
@@ -114,6 +115,26 @@ notice of violation. The search has no permit id, so records are matched by faci
 county; `v` and `nov` are floors. Records start in 2009, and MoDNR says the search contains most but
 not all of these letters.
 
+## Nebraska DWEE document index (`ne`)
+
+`ne` counts Nebraska operations by the documents in DWEE's public document index
+([Public Access](https://ecmp.nebraska.gov/PublicAccess/)) for each facility number, plus DWEE's
+legal-program (LGL) records: `j` operations with an index record; `v` with at least one notice of
+violation, letter of noncompliance, enforcement request or legal pleading (order, consent decree or
+order, complaint, petition) under the livestock waste control, NPDES or legal programs, or an LGL
+enforcement record; `v5` with such a document dated in the last five years; `fo` with a legal action.
+Corrective-action letters, facility self-reports and citizen-complaint investigations are not
+counted. Documents are imaged from about 2011 and many facilities have none on file, so counts are
+floors.
+
+## Michigan EGLE actions via EPA ECHO (`mi`)
+
+Every Michigan swine CAFO holds a state-issued NPDES permit, so EGLE's actions are recorded in EPA's
+[ECHO ICIS-NPDES bulk data](https://echo.epa.gov/tools/data-downloads) (data date in
+`states.MI.compliance.retrieved`). `mi`: `j` permits found in ECHO; `v` with at least one notice of
+violation, letter of violation/warning letter or administrative order of consent; `v5` with one
+dated in the last five years; `nov` with a notice of violation; `fo` with a consent order.
+
 Minnesota: MPCA's What's in My Neighborhood site shows feedlot enforcement actions per site, but
 bulk access is bot-protected; a bulk extract was requested from MPCA on 2026-10-24. No Minnesota
 compliance counts yet.
@@ -133,5 +154,5 @@ Contract-grower farms are permitted under the grower's own name, so a parent-com
 is a minimum. Name look-alikes that are not the packer never match.
 
 Rebuild (local only): `build/pull_nearby.py` + `build/pull_ia_compliance.py` (≈10 h; run from
-`~/fat-ia-compliance/`) + `build/pull_nc_compliance.py` (≈1 h; run from `~/fat-state-compliance/nc/`) + `build/pull_in_compliance.py` + `build/pull_mo_compliance.py` + `build/build_nearby.py` in the FAT project's
+`~/fat-ia-compliance/`) + `build/pull_nc_compliance.py` (≈1 h; run from `~/fat-state-compliance/nc/`) + `build/pull_in_compliance.py` + `build/pull_mo_compliance.py` + `build/pull_ne_compliance.py` (≈1 h) + `build/pull_mi_compliance.py` + `build/build_nearby.py` in the FAT project's
 `research/hog-permits-2026-10/` folder.

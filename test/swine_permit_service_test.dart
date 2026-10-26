@@ -305,6 +305,32 @@ void main() {
     expect(SwineInCompliance.fromJson({'j': 0}), isNull);
   });
 
+  test('Nebraska DWEE compliance: Tyson Madison (8262); Seaboard Triumph adds NE after IA', () {
+    final s = data.summaryFor('8262', plantParentName: 'Tyson Foods')!;
+    expect(data.neComplianceRetrieved, '2026-10-26');
+    expect(s.nebraskaLines, [
+      'Nebraska Department of Water, Energy, and Environment records show 76 of these 1,167 Nebraska hog operations received a notice of violation, letter of noncompliance or other enforcement action, 8 of them in the last five years.',
+      '33 operations faced formal legal action, such as an administrative or consent order.',
+      'Source: Nebraska DWEE public document index, retrieved October 26, 2026. Documents are imaged from about 2011, and many operations have none on file, so these counts are minimums.',
+    ]);
+    final m = data.summaryFor('6163274', plantParentName: 'Seaboard Foods')!;
+    expect(m.nebraskaLines.first,
+        'In the Nebraska records, 29 of 407 hog operations received a notice of violation, letter of noncompliance or other enforcement action from the Nebraska Department of Water, Energy, and Environment, 4 of them in the last five years.');
+    expect(m.cardLines.indexOf(m.iowaLines.first) < m.cardLines.indexOf(m.nebraskaLines.first), isTrue);
+    expect(SwineNeCompliance.fromJson({'j': 0}), isNull);
+  });
+
+  test('Michigan EGLE compliance (via ECHO): Saranac (7173)', () {
+    final s = data.summaryFor('7173')!;
+    expect(data.miComplianceRetrieved, '2026-10-25');
+    expect(s.michiganLines, [
+      'Michigan Department of Environment, Great Lakes, and Energy records show 46 of these 52 Michigan hog operations received a violation notice or warning letter, 34 of them in the last five years.',
+      '23 operations received a notice of violation, the more serious notice. 7 operations entered a consent order with the state.',
+      "Source: Michigan EGLE actions on state-issued Clean Water Act permits, from EPA's ECHO enforcement data, as of October 25, 2026.",
+    ]);
+    expect(SwineMiCompliance.fromJson({'j': 0}), isNull);
+  });
+
   test('exact-name ownership: verified names map, look-alikes do not', () {
     for (final n in [
       'Murphy-Brown LLC',
@@ -353,7 +379,7 @@ void main() {
   test('copy: banned words absent; never says the pork came from the farms',
       () {
     final lines = <String>[];
-    for (final id in ['560', '728', '2938', '6163274', '3907', '3228', '2484', '3736']) {
+    for (final id in ['560', '728', '2938', '6163274', '3907', '3228', '2484', '3736', '8262', '7173']) {
       final s = data.summaryFor(id, plantParentName: 'Smithfield Foods')!;
       lines.addAll([s.countLine, s.npdesLine, s.unpublishedLine, s.parentLine]
           .whereType<String>());
@@ -361,6 +387,8 @@ void main() {
       lines.addAll(s.ncLines);
       lines.addAll(s.indianaLines);
       lines.addAll(s.missouriLines);
+      lines.addAll(s.nebraskaLines);
+      lines.addAll(s.michiganLines);
     }
     final all = lines.join(' ').toLowerCase();
     for (final w in [

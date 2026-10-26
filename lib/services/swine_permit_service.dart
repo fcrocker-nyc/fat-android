@@ -144,6 +144,12 @@ class SwinePermitSummary {
   /// MoDNR warning/violation counts for the Missouri operations in range, or null.
   final SwineMoCompliance? missouri;
   final String moRetrieved;
+  /// Nebraska DWEE document-index counts for the Nebraska operations in range, or null.
+  final SwineNeCompliance? nebraska;
+  final String neRetrieved;
+  /// Michigan EGLE enforcement counts (via ECHO) for the Michigan operations in range, or null.
+  final SwineMiCompliance? michigan;
+  final String miRetrieved;
 
   const SwinePermitSummary({
     required this.radiusMiles,
@@ -166,6 +172,10 @@ class SwinePermitSummary {
     this.inRetrieved = '',
     this.missouri,
     this.moRetrieved = '',
+    this.nebraska,
+    this.neRetrieved = '',
+    this.michigan,
+    this.miRetrieved = '',
   });
 
   bool get isEmpty => sources.isEmpty && unpublished.isEmpty;
@@ -401,6 +411,89 @@ class SwinePermitSummary {
     return lines;
   }
 
+  /// Nebraska DWEE lines (operations, not violations): notices of violation,
+  /// noncompliance letters and enforcement documents; formal legal actions;
+  /// and the source. Never a score input.
+  List<String> get nebraskaLines {
+    final c = nebraska;
+    if (c == null) return const [];
+    final fmt = SwinePermitText.number;
+    final j = c.records;
+    final neOnly = _contributing.every((s) => s == 'NE') && j == (byState['NE'] ?? 0);
+    const agency = 'Nebraska Department of Water, Energy, and Environment';
+    const action = 'notice of violation, letter of noncompliance or other enforcement action';
+    final lines = <String>[];
+    if (c.cited == 0) {
+      lines.add(neOnly
+          ? '$agency records show no $action for ${j == 1 ? 'this Nebraska hog operation' : 'these ${fmt(j)} Nebraska hog operations'}.'
+          : 'In the Nebraska records, $agency files show no $action for the ${fmt(j)} Nebraska ${j == 1 ? 'hog operation' : 'hog operations'}.');
+    } else if (j == 1) {
+      final when = c.citedFiveYears > 0 ? ', most recently within the last five years' : ', none in the last five years';
+      lines.add(neOnly
+          ? '$agency records show this Nebraska hog operation received a $action$when.'
+          : 'In the Nebraska records, the one hog operation received a $action from the $agency$when.');
+    } else {
+      final recent = c.citedFiveYears == 0
+          ? 'none of them in the last five years'
+          : '${fmt(c.citedFiveYears)} of them in the last five years';
+      lines.add(neOnly
+          ? '$agency records show ${fmt(c.cited)} of these ${fmt(j)} Nebraska hog operations received a $action, $recent.'
+          : 'In the Nebraska records, ${fmt(c.cited)} of ${fmt(j)} hog operations received a $action from the $agency, $recent.');
+    }
+    if (c.legal > 0) {
+      lines.add(c.legal == 1
+          ? '1 operation faced formal legal action, such as an administrative or consent order.'
+          : '${fmt(c.legal)} operations faced formal legal action, such as an administrative or consent order.');
+    }
+    lines.add('Source: Nebraska DWEE public document index${_retrievedText(neRetrieved)}. Documents are imaged from about 2011, and many operations have none on file, so these counts are minimums.');
+    return lines;
+  }
+
+  /// Michigan EGLE lines (operations, not violations): violation notices and
+  /// warning letters, notices of violation, consent orders, and the source.
+  /// Never a score input.
+  List<String> get michiganLines {
+    final c = michigan;
+    if (c == null) return const [];
+    final fmt = SwinePermitText.number;
+    final j = c.records;
+    final miOnly = _contributing.every((s) => s == 'MI') && j == (byState['MI'] ?? 0);
+    const agency = 'Michigan Department of Environment, Great Lakes, and Energy';
+    const action = 'violation notice or warning letter';
+    final lines = <String>[];
+    if (c.cited == 0) {
+      lines.add(miOnly
+          ? '$agency records show no $action for ${j == 1 ? 'this Michigan hog operation' : 'these ${fmt(j)} Michigan hog operations'}.'
+          : 'In the Michigan records, $agency files show no $action for the ${fmt(j)} Michigan ${j == 1 ? 'hog operation' : 'hog operations'}.');
+    } else if (j == 1) {
+      final when = c.citedFiveYears > 0 ? ', most recently within the last five years' : ', none in the last five years';
+      lines.add(miOnly
+          ? '$agency records show this Michigan hog operation received a $action$when.'
+          : 'In the Michigan records, the one hog operation received a $action from the $agency$when.');
+    } else {
+      final recent = c.citedFiveYears == 0
+          ? 'none of them in the last five years'
+          : '${fmt(c.citedFiveYears)} of them in the last five years';
+      lines.add(miOnly
+          ? '$agency records show ${fmt(c.cited)} of these ${fmt(j)} Michigan hog operations received a $action, $recent.'
+          : 'In the Michigan records, ${fmt(c.cited)} of ${fmt(j)} hog operations received a $action from the $agency, $recent.');
+    }
+    final extra = <String>[];
+    if (c.notices > 0) {
+      extra.add(c.notices == 1
+          ? '1 operation received a notice of violation, the more serious notice.'
+          : '${fmt(c.notices)} operations received a notice of violation, the more serious notice.');
+    }
+    if (c.consentOrders > 0) {
+      extra.add(c.consentOrders == 1
+          ? '1 operation entered a consent order with the state.'
+          : '${fmt(c.consentOrders)} operations entered a consent order with the state.');
+    }
+    if (extra.isNotEmpty) lines.add(extra.join(' '));
+    lines.add("Source: Michigan EGLE actions on state-issued Clean Water Act permits, from EPA's ECHO enforcement data${_retrievedText(miRetrieved).replaceFirst('retrieved', 'as of')}.");
+    return lines;
+  }
+
   static String _retrievedText(String date) {
     final m = RegExp(r'^(\d{4})-(\d{2})-(\d{2})').firstMatch(date);
     if (m == null) return '';
@@ -418,6 +511,8 @@ class SwinePermitSummary {
         ...ncLines,
         ...indianaLines,
         ...missouriLines,
+        ...nebraskaLines,
+        ...michiganLines,
         unpublishedLine
       ].whereType<String>().toList();
 }
@@ -475,8 +570,46 @@ class SwinePlantAggregate {
   final SwineNcCompliance? nc;
   final SwineInCompliance? indiana;
   final SwineMoCompliance? missouri;
+  final SwineNeCompliance? nebraska;
+  final SwineMiCompliance? michigan;
   const SwinePlantAggregate(this.total, this.byState, this.lagoon, this.npdes,
-      this.parentHeld, this.unpublished, [this.iowa, this.nc, this.indiana, this.missouri]);
+      this.parentHeld, this.unpublished,
+      [this.iowa, this.nc, this.indiana, this.missouri, this.nebraska, this.michigan]);
+}
+
+/// Michigan EGLE enforcement counts (via EPA ECHO) for the Michigan operations
+/// within the radius (operations, not violations). See swine-permits/README.md.
+class SwineMiCompliance {
+  final int records; // j: Michigan operations found in ECHO
+  final int cited; // v: ≥1 violation notice, warning letter or consent order
+  final int citedFiveYears; // v5: …dated in the last five years
+  final int notices; // nov: with a notice of violation
+  final int consentOrders; // fo: with an administrative order of consent
+  const SwineMiCompliance(this.records, this.cited, this.citedFiveYears, this.notices, this.consentOrders);
+
+  static SwineMiCompliance? fromJson(Object? m) {
+    if (m is! Map) return null;
+    int n(String k) => (m[k] as num?)?.toInt() ?? 0;
+    final j = n('j');
+    return j > 0 ? SwineMiCompliance(j, n('v'), n('v5'), n('nov'), n('fo')) : null;
+  }
+}
+
+/// Nebraska DWEE document-index counts for the Nebraska operations within the
+/// radius (operations, not violations). See swine-permits/README.md.
+class SwineNeCompliance {
+  final int records; // j: Nebraska operations
+  final int cited; // v: ≥1 notice of violation, noncompliance letter or enforcement document
+  final int citedFiveYears; // v5: …dated in the last five years
+  final int legal; // fo: with a formal legal action (administrative/consent order, court case)
+  const SwineNeCompliance(this.records, this.cited, this.citedFiveYears, this.legal);
+
+  static SwineNeCompliance? fromJson(Object? m) {
+    if (m is! Map) return null;
+    int n(String k) => (m[k] as num?)?.toInt() ?? 0;
+    final j = n('j');
+    return j > 0 ? SwineNeCompliance(j, n('v'), n('v5'), n('fo')) : null;
+  }
 }
 
 /// Missouri DNR warning/violation counts for the Missouri operations within
@@ -565,10 +698,15 @@ class SwinePermitData {
   final String inComplianceRetrieved;
   /// Retrieval date (YYYY-MM-DD) of the MoDNR warning/violation search, or ''.
   final String moComplianceRetrieved;
+  /// Retrieval date (YYYY-MM-DD) of the Nebraska DWEE document index, or ''.
+  final String neComplianceRetrieved;
+  /// Data date (YYYY-MM-DD) of the ECHO extract behind the Michigan counts, or ''.
+  final String miComplianceRetrieved;
 
   SwinePermitData._(this.generated, this.radiusMiles, this.states, this.plants,
       [this.iowaComplianceRetrieved = '', this.ncComplianceRetrieved = '',
-      this.inComplianceRetrieved = '', this.moComplianceRetrieved = '']);
+      this.inComplianceRetrieved = '', this.moComplianceRetrieved = '',
+      this.neComplianceRetrieved = '', this.miComplianceRetrieved = '']);
 
   static Map<String, int> _counts(Object? m) => m is Map
       ? m.map((k, v) => MapEntry('$k', (v as num).toInt()))
@@ -610,6 +748,8 @@ class SwinePermitData {
           SwineNcCompliance.fromJson(m['nc']),
           SwineInCompliance.fromJson(m['in']),
           SwineMoCompliance.fromJson(m['mo']),
+          SwineNeCompliance.fromJson(m['ne']),
+          SwineMiCompliance.fromJson(m['mi']),
         );
       });
       String retrieved(String st) {
@@ -618,7 +758,8 @@ class SwinePermitData {
       }
       return SwinePermitData._('${d['generated'] ?? ''}',
           (d['radiusMiles'] as num?)?.toInt() ?? 50, states, plants,
-          retrieved('IA'), retrieved('NC'), retrieved('IN'), retrieved('MO'));
+          retrieved('IA'), retrieved('NC'), retrieved('IN'), retrieved('MO'),
+          retrieved('NE'), retrieved('MI'));
     } catch (_) {
       return null;
     }
@@ -682,6 +823,10 @@ class SwinePermitData {
       inRetrieved: inComplianceRetrieved,
       missouri: (a.byState['MO'] ?? 0) > 0 ? a.missouri : null,
       moRetrieved: moComplianceRetrieved,
+      nebraska: (a.byState['NE'] ?? 0) > 0 ? a.nebraska : null,
+      neRetrieved: neComplianceRetrieved,
+      michigan: (a.byState['MI'] ?? 0) > 0 ? a.michigan : null,
+      miRetrieved: miComplianceRetrieved,
     );
   }
 }
