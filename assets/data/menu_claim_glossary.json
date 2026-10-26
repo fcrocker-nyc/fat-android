@@ -5,6 +5,47 @@
     "What can you tell me about the {protein}? Where does it come from?",
     "Is there a case label or invoice you could show me? Most kitchens are happy to."
   ],
+  "fallbackAsk": {
+    "beef": [
+      "Where does the beef come from?",
+      "Is it grass-fed or grain-finished?"
+    ],
+    "pork": [
+      "Where does the pork come from?"
+    ],
+    "poultry": [
+      "Where does the chicken (or duck) come from?"
+    ],
+    "lamb": [
+      "Where is the lamb from?"
+    ],
+    "finfish": [
+      "Is the fish wild or farmed, and from which country?"
+    ],
+    "shellfish": [
+      "Is it wild or farmed, and from which country?"
+    ],
+    "other": [
+      "Where does it come from, and is it wild or farmed?"
+    ]
+  },
+  "addOnAsk": "If I add the {addon}, where is it from?",
+  "askMerges": [
+    {
+      "questions": [
+        "Is the shrimp wild or farmed?",
+        "Which country is it from?"
+      ],
+      "merged": "Is the shrimp wild or farmed, and which country is it from?"
+    },
+    {
+      "questions": [
+        "Where is it farmed?",
+        "Who certified it organic?"
+      ],
+      "merged": "Where is it farmed, and who certified it organic?"
+    }
+  ],
   "entries": [
     {
       "key": "origin_region",

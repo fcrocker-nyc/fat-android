@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:image_picker/image_picker.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/lost_photo_recovery.dart';
@@ -361,7 +361,11 @@ class _MenuDishesScreenState extends State<MenuDishesScreen> {
                   builder: (_) => MenuDishScreen(
                       item: item, glossary: widget.glossary, diningState: r.diningState),
                 )),
-                child: _DishRow(item: item),
+                child: _DishRow(
+                  item: item,
+                  onAsk: () => showMenuAskSheet(context,
+                      item: item, glossary: widget.glossary, diningState: r.diningState),
+                ),
               ),
             ),
           const SizedBox(height: 16),
@@ -375,7 +379,8 @@ class _MenuDishesScreenState extends State<MenuDishesScreen> {
 
 class _DishRow extends StatelessWidget {
   final MenuItem item;
-  const _DishRow({required this.item});
+  final VoidCallback onAsk;
+  const _DishRow({required this.item, required this.onAsk});
 
   @override
   Widget build(BuildContext context) {
@@ -413,6 +418,24 @@ class _DishRow extends StatelessWidget {
               for (final t in MenuClaimExplainer.tags(item).where((t) => t.isNote))
                 _Chip('about ${t.text}', _ChipStyle.note),
             ]),
+            const SizedBox(height: 6),
+            // Its own tap target: the button handles the tap, so the row's
+            // InkWell never navigates.
+            OutlinedButton.icon(
+              key: ValueKey('menu-ask-${item.id}'),
+              onPressed: onAsk,
+              icon: const Icon(Icons.chat_bubble_outline, size: 16, color: FATTheme.scanGreen),
+              label: const Text(MenuAskCopy.rowButton,
+                  style: TextStyle(
+                      fontSize: 13, fontWeight: FontWeight.w700, color: FATTheme.scanGreen)),
+              style: OutlinedButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                minimumSize: const Size(0, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                side: const BorderSide(color: FATTheme.scanGreen),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              ),
+            ),
           ]),
         ),
         const Icon(Icons.chevron_right, color: FATTheme.textSecondary),
@@ -526,11 +549,8 @@ class MenuDishScreen extends StatelessWidget {
                     fontSize: 11, fontWeight: FontWeight.w800, color: FATTheme.textSecondary)),
           const SizedBox(height: 14),
           GestureDetector(
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              fullscreenDialog: true,
-              builder: (_) => MenuQuestionSheet(
-                  item: item, questions: MenuClaimExplainer.topQuestions(item, glossary)),
-            )),
+            onTap: () => showMenuAskSheet(context,
+                item: item, glossary: glossary, diningState: diningState, showMore: false),
             child: Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -651,54 +671,192 @@ class _ClaimCardView extends StatelessWidget {
   }
 }
 
-// ── Question sheet ──────────────────────────────────────────────────────────
+// ── Ask about this dish ─────────────────────────────────────────────────────
 
-/// Large-type sheet the diner can read from or hand across the table.
-class MenuQuestionSheet extends StatelessWidget {
+/// Opens the compact "Ask about this dish" sheet: the 2–3 ranked questions
+/// with Show to server / Copy / More about this dish. Used by the dish-row
+/// button and the detail screen's "Questions for the table".
+Future<void> showMenuAskSheet(
+  BuildContext context, {
+  required MenuItem item,
+  required MenuGlossary glossary,
+  required String? diningState,
+  bool showMore = true,
+}) {
+  return showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    isScrollControlled: true,
+    builder: (sheetContext) => MenuAskSheet(
+      item: item,
+      questions: MenuClaimExplainer.askQuestions(item, glossary),
+      onMore: showMore
+          ? () {
+              Navigator.of(sheetContext).pop();
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) =>
+                    MenuDishScreen(item: item, glossary: glossary, diningState: diningState),
+              ));
+            }
+          : null,
+    ),
+  );
+}
+
+class MenuAskSheet extends StatefulWidget {
   final MenuItem item;
   final List<String> questions;
-  const MenuQuestionSheet({super.key, required this.item, required this.questions});
+
+  /// "More about this dish"; null on the detail screen itself.
+  final VoidCallback? onMore;
+  const MenuAskSheet({super.key, required this.item, required this.questions, this.onMore});
+
+  @override
+  State<MenuAskSheet> createState() => _MenuAskSheetState();
+}
+
+class _MenuAskSheetState extends State<MenuAskSheet> {
+  bool _copied = false;
+
+  Future<void> _copy() async {
+    await Clipboard.setData(
+        ClipboardData(text: MenuClaimExplainer.shareText(widget.item, widget.questions)));
+    if (!mounted) return;
+    setState(() => _copied = true);
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _copied = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final qs = widget.questions;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(widget.item.dishName,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 2),
+          const Text(MenuAskCopy.sheetSubtitle,
+              style: TextStyle(fontSize: 14, color: FATTheme.textSecondary)),
+          const SizedBox(height: 12),
+          for (var i = 0; i < qs.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                SizedBox(
+                  width: 24,
+                  child: Text('${i + 1}',
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.w900, color: FATTheme.scanGreen)),
+                ),
+                Expanded(
+                    child: Text(qs[i],
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, height: 1.25))),
+              ]),
+            ),
+          const SizedBox(height: 6),
+          Row(children: [
+            Expanded(
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                    backgroundColor: FATTheme.scanGreen, minimumSize: const Size.fromHeight(46)),
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  fullscreenDialog: true,
+                  builder: (_) => MenuServerView(item: widget.item, questions: qs),
+                )),
+                icon: const Icon(Icons.zoom_out_map),
+                label: const Text(MenuAskCopy.showToServer,
+                    style: TextStyle(fontWeight: FontWeight.w800)),
+              ),
+            ),
+            const SizedBox(width: 10),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 46),
+                  side: const BorderSide(color: FATTheme.scanGreen)),
+              onPressed: _copy,
+              icon: const Icon(Icons.copy, color: FATTheme.scanGreen),
+              label: const Text(MenuAskCopy.copy,
+                  style: TextStyle(color: FATTheme.scanGreen, fontWeight: FontWeight.w800)),
+            ),
+          ]),
+          AnimatedOpacity(
+            opacity: _copied ? 1 : 0,
+            duration: const Duration(milliseconds: 200),
+            child: const Padding(
+              padding: EdgeInsets.only(top: 8),
+              child: Row(children: [
+                Icon(Icons.check_circle, size: 16, color: FATTheme.scanGreen),
+                SizedBox(width: 6),
+                Text(MenuAskCopy.copied,
+                    style: TextStyle(fontWeight: FontWeight.w700, color: FATTheme.scanGreen)),
+              ]),
+            ),
+          ),
+          if (widget.onMore != null)
+            Center(
+              child: TextButton(
+                onPressed: widget.onMore,
+                child: const Text(MenuAskCopy.moreAboutDish,
+                    style: TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w700, color: FATTheme.scanGreen)),
+              ),
+            ),
+        ]),
+      ),
+    );
+  }
+}
+
+/// Full-screen, large-type, high-contrast questions for handing the phone
+/// across the table. Tap anywhere to close.
+class MenuServerView extends StatelessWidget {
+  final MenuItem item;
+  final List<String> questions;
+  const MenuServerView({super.key, required this.item, required this.questions});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Questions'),
-        actions: [
-          IconButton(
-            tooltip: 'Share questions',
-            icon: const Icon(Icons.ios_share),
-            onPressed: () => Share.share(MenuClaimExplainer.shareText(item, questions)),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Text(item.dishName,
-              style: const TextStyle(
-                  fontSize: 20, fontWeight: FontWeight.w700, color: FATTheme.textSecondary)),
-          const SizedBox(height: 24),
-          for (var i = 0; i < questions.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 28),
-              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                SizedBox(
-                  width: 36,
-                  child: Text('${i + 1}',
-                      style: const TextStyle(
-                          fontSize: 30, fontWeight: FontWeight.w900, color: FATTheme.scanGreen)),
+      backgroundColor: Colors.black,
+      body: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => Navigator.of(context).pop(),
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.all(24),
+            children: [
+              Text(item.dishName,
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white70)),
+              const SizedBox(height: 24),
+              for (var i = 0; i < questions.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 28),
+                  child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    SizedBox(
+                      width: 40,
+                      child: Text('${i + 1}',
+                          style: const TextStyle(
+                              fontSize: 34, fontWeight: FontWeight.w900, color: Colors.yellowAccent)),
+                    ),
+                    Expanded(
+                        child: Text(questions[i],
+                            style: const TextStyle(
+                                fontSize: 34, fontWeight: FontWeight.w800, height: 1.15, color: Colors.white))),
+                  ]),
                 ),
-                Expanded(
-                    child: Text(questions[i],
-                        style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, height: 1.15))),
-              ]),
-            ),
-          const Text('Thank you — we like knowing where our food comes from.',
-              style: TextStyle(
-                  fontSize: 18, fontStyle: FontStyle.italic, color: FATTheme.textSecondary)),
-        ],
+              const Text(MenuAskCopy.thanks,
+                  style: TextStyle(fontSize: 20, fontStyle: FontStyle.italic, color: Colors.white70)),
+              const SizedBox(height: 24),
+              const Text(MenuAskCopy.serverHint,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, color: Colors.white54)),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -146,12 +146,25 @@ class MenuGlossary {
   /// Curated named sources ("Glen Cairn" salmon) with a sourced note.
   final List<KnownSource> knownSources;
 
+  /// "Ask about this dish" questions for a dish with no sourcing claim, keyed
+  /// by protein family name ("beef", "finfish").
+  final Map<String, List<String>> fallbackAsk;
+
+  /// The one add-on question ("If I add the {addon}, where is it from?").
+  final String? addOnAsk;
+
+  /// Two closely related glossary questions that read better as one.
+  final List<AskMerge> askMerges;
+
   const MenuGlossary({
     required this.version,
     required this.status,
     required this.generalQuestions,
     required this.entries,
     this.knownSources = const [],
+    this.fallbackAsk = const {},
+    this.addOnAsk,
+    this.askMerges = const [],
   });
 
   factory MenuGlossary.fromJson(Map<String, dynamic> j) => MenuGlossary(
@@ -161,6 +174,14 @@ class MenuGlossary {
     entries: (j['entries'] as List).map((e) => ClaimEntry.fromJson(e as Map<String, dynamic>)).toList(),
     knownSources: ((j['knownSources'] as List?) ?? const [])
         .map((e) => KnownSource.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    fallbackAsk: {
+      for (final e in ((j['fallbackAsk'] as Map<String, dynamic>?) ?? const {}).entries)
+        e.key: List<String>.from(e.value as List),
+    },
+    addOnAsk: j['addOnAsk'] as String?,
+    askMerges: ((j['askMerges'] as List?) ?? const [])
+        .map((e) => AskMerge.fromJson(e as Map<String, dynamic>))
         .toList(),
   );
 
@@ -183,6 +204,16 @@ class MenuGlossary {
     }
     return null;
   }
+}
+
+/// Glossary questions that merge into one natural question when both apply.
+class AskMerge {
+  final List<String> questions;
+  final String merged;
+  const AskMerge(this.questions, this.merged);
+
+  factory AskMerge.fromJson(Map<String, dynamic> j) =>
+      AskMerge(List<String>.from(j['questions'] as List), j['merged'] as String);
 }
 
 /// One row of the curated "known named sources" table. The note carries its

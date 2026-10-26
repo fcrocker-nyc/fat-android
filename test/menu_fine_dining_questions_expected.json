@@ -1,0 +1,81 @@
+[
+  {
+    "dish": "GRILLED BLACK ANGUS FILET MIGNON* (GF)",
+    "questions": [
+      "What grade is it — Prime, Choice?",
+      "Where was it raised?",
+      "Which farm is the foie gras from?"
+    ]
+  },
+  {
+    "dish": "PROVENÇALE CRUSTED RACK OF LAMB",
+    "questions": [
+      "Where is the lamb from?"
+    ]
+  },
+  {
+    "dish": "SPAGHETTI AL NERO FRUTTI DI MARE",
+    "questions": [
+      "Which country is it from?",
+      "Where was it caught, and how — line, net, or trap?",
+      "Is it wild today, or does that change with the season?"
+    ]
+  },
+  {
+    "dish": "BOUILLABAISSE",
+    "questions": [
+      "Which country is it from?",
+      "Where was it caught, and how — line, net, or trap?",
+      "Is it wild today, or does that change with the season?"
+    ]
+  },
+  {
+    "dish": "CAVATELLI PASTA, BERKSHIRE PORK OSSO BUCO RAGU",
+    "questions": [
+      "Who raises it, and is the breed certified by the breed association?",
+      "Are the animals raised outdoors?"
+    ]
+  },
+  {
+    "dish": "ORGANIC GLEN CAIRN SALMON* (GF)",
+    "questions": [
+      "Which species and which country?",
+      "Where is it farmed, and who certified it organic?",
+      "Where is Glen Cairn located?"
+    ]
+  },
+  {
+    "dish": "OVEN ROASTED CRYSTAL VALLEY CHICKEN (GF)",
+    "questions": [
+      "Where is Crystal Valley located?",
+      "Is it the farm itself, or a distributor’s brand?"
+    ]
+  },
+  {
+    "dish": "GRILLED PRIME ALLEN BROTHERS PORTERHOUSE FOR TWO* 32oz (GF)",
+    "questions": [
+      "Where is Allen Brothers located?",
+      "Is it USDA-graded Prime, or is ‘prime’ the name of the cut?",
+      "Is it the farm itself, or a distributor’s brand?"
+    ]
+  },
+  {
+    "dish": "ROASTED CRESCENT FARMS DUCK BREAST* (GF)",
+    "questions": [
+      "Where is Crescent Farms located?",
+      "Is it the farm itself, or a distributor’s brand?"
+    ]
+  },
+  {
+    "dish": "GRILLED VENISON LOIN",
+    "questions": [
+      "Where does it come from, and is it wild or farmed?"
+    ]
+  },
+  {
+    "dish": "THAI VEGETABLE STEW (GF) (Ve)",
+    "questions": [
+      "If I add the lobster, where is it from?"
+    ]
+  }
+]

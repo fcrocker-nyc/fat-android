@@ -234,6 +234,204 @@ class MenuClaimExplainer {
     return indexed.map((e) => e.value).toList();
   }
 
+  // ── "Ask about this dish" ────────────────────────────────────────────────
+  //
+  // The 2–3 most useful questions for one dish, shared by the dish-row button
+  // and the detail screen's "Questions for the table". Deterministic and kept
+  // identical to the iOS MenuClaimExplainer.askQuestions (shared expectation:
+  // test/menu_fine_dining_questions_expected.json).
+  //
+  // 1. Claims on the dish itself (not its add-on) are ranked: claims printed
+  //    in the dish name first, then species/origin, production (wild/farmed,
+  //    organic, inferred farmed), named source, others; menu order breaks ties.
+  // 2. Each claim's glossary questions, minus "wild or farmed?" when the menu
+  //    already says which, with closely related pairs merged (askMerges).
+  // 3. One question per claim per round, skipping near-duplicates, up to 3
+  //    (2 when the dish has an add-on).
+  // 4. No sourcing claim: species-note questions, else fallbackAsk by species.
+  // 5. Add-on: one question (its claim's first question, else addOnAsk).
+
+  static const _birdWords = ['chicken', 'duck', 'turkey', 'quail', 'goose', 'pheasant', 'squab', 'hen'];
+
+  static List<String> askQuestions(MenuItem item, MenuGlossary glossary) {
+    final name = item.dishName.toLowerCase();
+    final desc = item.description.toLowerCase();
+    final addOnText = item.addOns.join(' ').toLowerCase();
+    bool isAddOnClaim(MenuClaim c) {
+      final m = c.matchedText.toLowerCase();
+      return addOnText.isNotEmpty && addOnText.contains(m) && !name.contains(m) && !desc.contains(m);
+    }
+
+    final mainClaims = [for (final c in item.claims) if (!isAddOnClaim(c)) c];
+    final addOnClaims = [for (final c in item.claims) if (isAddOnClaim(c)) c];
+    final hasAddOn = item.addOnProteins.isNotEmpty || addOnClaims.isNotEmpty;
+
+    final out = <String>[];
+    void push(String q, int limit) {
+      if (out.length < limit && !out.any((o) => _nearDuplicate(o, q))) out.add(q);
+    }
+
+    void roundRobin(List<List<String>> lists, int limit) {
+      var round = 0;
+      while (out.length < limit && lists.any((l) => l.length > round)) {
+        for (final l in lists) {
+          if (l.length > round) push(l[round], limit);
+        }
+        round++;
+      }
+    }
+
+    final mainLimit = hasAddOn ? 2 : 3;
+    final ranked = _askRanked(mainClaims, item, glossary);
+    if (mainClaims.any((c) => isSourcingClaim(c, glossary))) {
+      roundRobin([for (final (c, e) in ranked) _askFor(c, e, item, glossary)], mainLimit);
+    } else {
+      // Species notes ("tuna") carry species-specific questions.
+      roundRobin([for (final (c, e) in ranked) _askFor(c, e, item, glossary)], mainLimit);
+      if (out.isEmpty) {
+        final bird = _birdWord(item);
+        roundRobin([
+          for (final p in item.proteins)
+            if (!item.addOnProteins.contains(p))
+              [
+                for (final q in glossary.fallbackAsk[p.name] ?? const <String>[])
+                  bird != null && p == ProteinFamily.poultry
+                      ? q.replaceAll('chicken (or duck)', bird)
+                      : q,
+              ],
+        ], mainLimit);
+      }
+    }
+
+    if (hasAddOn) {
+      String? q;
+      for (final c in addOnClaims) {
+        final e = glossary.entry(c.entryKey);
+        if (e == null) continue;
+        final qs = _askFor(c, e, item, glossary);
+        if (qs.isNotEmpty) {
+          q = qs.first;
+          break;
+        }
+      }
+      if (q == null && item.addOns.isNotEmpty && glossary.addOnAsk != null) {
+        q = glossary.addOnAsk!.replaceAll('{addon}', item.addOns.first.toLowerCase());
+      }
+      if (q != null) push(q, 3);
+    }
+
+    if (out.isEmpty && glossary.generalQuestions.isNotEmpty) {
+      out.add(generalQuestions(item, glossary).first);
+    }
+    return out;
+  }
+
+  static int _askTier(ClaimEntry e) {
+    if (e.key == 'organic') return 1;
+    switch (e.family) {
+      case ClaimFamily.speciesOrForm:
+      case ClaimFamily.originRegion:
+        return 0;
+      case ClaimFamily.productionMethod:
+        return 1;
+      case ClaimFamily.originFarm:
+        return 2;
+      case ClaimFamily.certification:
+      case ClaimFamily.gradeOrBreed:
+        return 3;
+    }
+  }
+
+  static bool _inDishName(MenuClaim c, MenuItem item) {
+    final name = item.dishName.toLowerCase();
+    if (name.contains(c.matchedText.toLowerCase())) return true;
+    return c.inferred && c.subject != null && name.contains(c.subject!);
+  }
+
+  static List<(MenuClaim, ClaimEntry)> _askRanked(
+      List<MenuClaim> claims, MenuItem item, MenuGlossary glossary) {
+    final pairs = <(int, MenuClaim, ClaimEntry)>[];
+    for (var i = 0; i < claims.length; i++) {
+      final e = glossary.entry(claims[i].entryKey);
+      if (e != null) pairs.add((i, claims[i], e));
+    }
+    int headline(MenuClaim c) => _inDishName(c, item) ? 0 : 1;
+    pairs.sort((a, b) {
+      final h = headline(a.$2).compareTo(headline(b.$2));
+      if (h != 0) return h;
+      final t = _askTier(a.$3).compareTo(_askTier(b.$3));
+      if (t != 0) return t;
+      return a.$1.compareTo(b.$1);
+    });
+    return [for (final p in pairs) (p.$2, p.$3)];
+  }
+
+  /// One claim's questions for the ask sheet: "wild or farmed?" dropped when
+  /// the menu already says which for that item, related pairs merged.
+  static List<String> _askFor(MenuClaim claim, ClaimEntry entry, MenuItem item, MenuGlossary glossary) {
+    var qs = resolvedText(claim, entry).questions;
+    final speciesOrOrigin =
+        entry.family == ClaimFamily.speciesOrForm || entry.family == ClaimFamily.originRegion;
+    if (speciesOrOrigin && _hasQualifier(claim, item)) {
+      qs = [for (final q in qs) if (!_asksWildOrFarmed(q)) q];
+    }
+    for (final m in glossary.askMerges) {
+      if (m.questions.isEmpty || !m.questions.every(qs.contains)) continue;
+      final at = qs.indexOf(m.questions.first);
+      qs = [
+        for (var i = 0; i < qs.length; i++)
+          if (i == at) m.merged else if (!m.questions.contains(qs[i])) qs[i],
+      ];
+    }
+    return qs;
+  }
+
+  static bool _hasQualifier(MenuClaim claim, MenuItem item) {
+    final m = claim.matchedText.toLowerCase();
+    return item.claims.any((q) {
+      if (!MenuClaimExtractor.qualifierKeys.contains(q.entryKey)) return false;
+      final s = q.subject;
+      if (s == null || s.isEmpty) return q.appliesTo != null && q.appliesTo == claim.appliesTo;
+      return s == m || s.contains(m) || m.contains(s);
+    });
+  }
+
+  static bool _asksWildOrFarmed(String q) {
+    final t = q.toLowerCase();
+    return t.contains('wild') && (t.contains('farmed') || t.contains('ranched'));
+  }
+
+  static String _askNorm(String q) => q
+      .toLowerCase()
+      .replaceAll('’', "'")
+      .replaceAll(RegExp(r"[^a-z0-9']+"), ' ')
+      .trim();
+
+  /// Same question, or two "which country" questions about one dish.
+  static bool _nearDuplicate(String a, String b) {
+    final na = _askNorm(a), nb = _askNorm(b);
+    if (na == nb) return true;
+    final ta = na.split(' ').toSet(), tb = nb.split(' ').toSet();
+    return ta.contains('country') && tb.contains('country');
+  }
+
+  static String? _birdWord(MenuItem item) {
+    for (final text in [item.dishName, item.description]) {
+      final t = text.toLowerCase();
+      var best = -1;
+      String? word;
+      for (final w in _birdWords) {
+        final m = RegExp('\\b$w\\b').firstMatch(t);
+        if (m != null && (best < 0 || m.start < best)) {
+          best = m.start;
+          word = w;
+        }
+      }
+      if (word != null) return word;
+    }
+    return null;
+  }
+
   /// Plain-text export for the share button.
   static String shareText(MenuItem dish, List<String> questions) {
     final lines = ['Questions about ${dish.dishName}:', ''];
@@ -243,4 +441,19 @@ class MenuClaimExplainer {
     lines.addAll(['', '— from the FAT App · farmanimaltransparency.com']);
     return lines.join('\n');
   }
+}
+
+/// Verbatim labels for the "Ask about this dish" button and sheet. Kept
+/// identical to iOS MenuAskCopy; checked by the acronym guard tests.
+class MenuAskCopy {
+  static const rowButton = 'Ask about this dish';
+  static const sheetSubtitle = 'Questions to ask your server or chef';
+  static const showToServer = 'Show to server';
+  static const copy = 'Copy';
+  static const copied = 'Questions copied';
+  static const moreAboutDish = 'More about this dish';
+  static const serverHint = 'Tap anywhere to close';
+  static const thanks = 'Thank you — we like knowing where our food comes from.';
+
+  static const all = [rowButton, sheetSubtitle, showToServer, copy, copied, moreAboutDish, serverHint, thanks];
 }
