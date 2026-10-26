@@ -193,4 +193,16 @@ void main() {
     final bass = r.items.firstWhere((i) => i.dishName.contains('Black Bass'));
     expect(MenuClaimExplainer.hasSourcingClaim(bass, g), isTrue);
   });
+
+  test('A5 misreads, regions and sizes', () {
+    expect(MenuText.fixCommonMisreads('As WAGYU'), 'A5 WAGYU');
+    expect(MenuText.fixCommonMisreads('Miyazaki AS'), 'Miyazaki A5');
+    expect(MenuText.fixCommonMisreads('as tender as wagyu, they say'), 'as tender as wagyu, they say');
+    final r = run('Ice-chilled East/West Coast oysters 5/pc\n\nU10 Diver scallop 18/pc');
+    final oysters = r.items.firstWhere((i) => i.dishName.contains('oysters'));
+    expect(oysters.claims.any(MenuClaimExplainer.isNamedSource), isFalse);
+    final scallop = r.items.firstWhere((i) => i.dishName.contains('scallop'));
+    expect(scallop.claims.any((c) => c.matchedText.toLowerCase() == 'u10'), isFalse);
+    expect(scallop.claims.any((c) => c.matchedText.toLowerCase() == 'diver'), isTrue);
+  });
 }

@@ -823,7 +823,11 @@ class MenuText {
     if (!RegExp(r'prefecture|wagyu|kobe|miyazaki|kagoshima|hokkaido|sendai|omi\b', caseSensitive: false).hasMatch(text)) {
       return text;
     }
-    return text.replaceAll(RegExp(r'\bAS\b'), 'A5');
+    // "AS" anywhere on such a line; "As" only right before a beef word
+    // ("As WAGYU"), so the English word "as" in a sentence is left alone.
+    return text.replaceAll(RegExp(r'\bAS\b'), 'A5').replaceAllMapped(
+        RegExp(r'\bas(?=\s+(?:wagyu|ribeye|rib eye|striploin|strip|tenderloin|sirloin|beef|kobe)\b)', caseSensitive: false),
+        (m) => m[0]!.startsWith('A') ? 'A5' : m[0]!);
   }
 
   static bool startsLowercase(String text) {
@@ -1556,6 +1560,24 @@ class MenuNamedSources {
     'autumn',
     'fall',
     'winter',
+    // Regions are origins, not suppliers ("East/West Coast oysters").
+    'east',
+    'west',
+    'north',
+    'south',
+    'northeast',
+    'northwest',
+    'southeast',
+    'southwest',
+    'eastern',
+    'western',
+    'northern',
+    'coast',
+    'coastal',
+    'atlantic',
+    'pacific',
+    'gulf',
+    'ocean',
   };
 
   static final _wordChar = RegExp(r"[\p{L}\p{N}'’]", unicode: true);
