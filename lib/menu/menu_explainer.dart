@@ -410,7 +410,8 @@ class MenuClaimExplainer {
     'foie gras', 'sea bass', 'swordfish', 'branzino', 'halibut', 'snapper', 'grouper',
     'salmon', 'tuna', 'codfish', 'cod', 'trout', 'sole', 'shrimp', 'prawns', 'prawn',
     'lobster', 'crab', 'scallops', 'scallop', 'oysters', 'mussels', 'clams', 'octopus',
-    'calamari', 'squid', 'caviar', 'beef', 'veal', 'pork', 'lamb', 'chicken', 'duck',
+    'calamari', 'squid', 'caviar', 'sea urchin', 'uni', 'hamachi', 'yellowtail', 'hiramasa',
+    'kanpachi', 'kampachi', 'monkfish', 'fluke', 'flounder', 'beef', 'veal', 'pork', 'lamb', 'chicken', 'duck',
     'turkey', 'quail', 'goose', 'pheasant', 'venison', 'rabbit', 'bison', 'elk', 'boar',
   ];
 
@@ -462,13 +463,27 @@ class MenuClaimExplainer {
 
   static String _nameSubject(String q, String noun, bool proper) {
     final phrase = proper ? noun : 'the $noun';
-    if (q.contains('{item}')) return q.replaceAll('{item}', phrase);
+    if (q.contains('{item}')) return _pluralAgree(q.replaceAll('{item}', phrase), noun);
     if (RegExp('\\b${RegExp.escape(noun.toLowerCase())}\\b').hasMatch(q.toLowerCase())) return q;
     final m = _bareIt.firstMatch(q);
     if (m == null) return q;
     final cap = q[m.start] == 'I';
     final rep = cap ? phrase[0].toUpperCase() + phrase.substring(1) : phrase;
-    return q.replaceRange(m.start, m.end, rep);
+    return _pluralAgree(q.replaceRange(m.start, m.end, rep), noun);
+  }
+
+  /// Plural item words take a plural verb once "it" becomes the noun:
+  /// "Is the oysters wild…" → "Are the oysters wild…".
+  static const pluralNouns = {'oysters', 'prawns', 'scallops', 'mussels', 'clams'};
+
+  static String _pluralAgree(String q, String noun) {
+    if (!pluralNouns.contains(noun.toLowerCase())) return q;
+    final n = RegExp.escape(noun);
+    var out = q;
+    for (final (sing, plur) in [('Is', 'Are'), ('is', 'are'), ('Was', 'Were'), ('was', 'were')]) {
+      out = out.replaceAll(RegExp('\\b$sing the $n\\b'), '$plur the $noun');
+    }
+    return out;
   }
 
   static bool _hasQualifier(MenuClaim claim, MenuItem item) {

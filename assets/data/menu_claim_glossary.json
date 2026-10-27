@@ -1368,7 +1368,7 @@
       "authority": "FDA Seafood List; FAO",
       "gap": "Hamachi is usually farmed, but the menu rarely says so. Related Seriola species are farmed in several countries, and the name doesn’t say which one or where.",
       "questions": [
-        "Is the hamachi farmed or wild?",
+        "Is it farmed or wild?",
         "Which country is it from?"
       ],
       "stateNote": null,
@@ -1487,7 +1487,7 @@
       "authority": "California Dept. of Fish and Wildlife",
       "gap": "‘Uni’ alone doesn’t say which species, which coast, or whether it is domestic or imported.",
       "questions": [
-        "Where is the uni from?",
+        "Where is it from?",
         "Is it domestic or imported?"
       ],
       "stateNote": null,
@@ -1511,7 +1511,7 @@
       "authority": "NOAA Fisheries",
       "gap": "‘Monkfish’ doesn’t say domestic or imported. In 2007 the FDA warned that imported fish sold as monkfish was actually puffer fish, which can carry a dangerous toxin.",
       "questions": [
-        "Is the monkfish domestic or imported?",
+        "Is it domestic or imported?",
         "Where was it caught?"
       ],
       "stateNote": null,

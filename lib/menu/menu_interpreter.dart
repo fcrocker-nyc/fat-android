@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show Offset, Rect;
 
 import 'menu_lexicon.dart';
@@ -136,7 +137,13 @@ class MenuBlock {
   String get description => [
         if (_titleSplit.$2 != null) _titleSplit.$2!,
         ...lines.skip(1).map(MenuText.stripPrice),
-      ].where((s) => s.isNotEmpty).join(', ');
+      ]
+          // Lines are joined with ', ', so a line's own trailing comma (or a
+          // stray OCR comma on a line by itself) would print as ',,' or ', ,'.
+          .map((s) => s.replaceAll(_joinTrim, ''))
+          .where((s) => s.isNotEmpty)
+          .join(', ');
+  static final _joinTrim = RegExp(r'^[\s,;]+|[\s,;]+$');
   String get text => [title, description].where((s) => s.isNotEmpty).join('\n');
   String get addOnText => addOns.join('\n');
 
@@ -1681,6 +1688,37 @@ Rect normalizedBottomLeft(Rect px, double w, double h) => Rect.fromLTRB(
       px.right / w,
       1.0 - px.top / h, // maxY
     );
+
+// ── OCR deskew (port of iOS MenuOCRDeskew) ──────────────────────────────────
+
+/// A phone photo is rarely square to the page. Tilted a few degrees, each
+/// line's axis-aligned box grows taller and lines drift up or down across the
+/// page, so the gaps between dishes close and a list menu reads as one block.
+/// The OCR measures the tilt from the first pass and, when there is a clear
+/// one, straightens the image and reads it again.
+class MenuOCRDeskew {
+  /// Below this tilt the image is read as it is.
+  static const minDegrees = 0.4;
+
+  /// The page's tilt in radians (positive = lines rise to the right, in a
+  /// y-up frame), or null when it is too small to matter or can't be measured.
+  /// [quads] are (topLeft, topRight, bottomLeft) normalized 0…1, bottom-left
+  /// origin. Uses the median over lines at least 4× as long as they are tall.
+  static double? tilt(List<(Offset, Offset, Offset)> quads, double w, double h) {
+    final angles = <double>[];
+    for (final (tl0, tr0, bl0) in quads) {
+      final tl = Offset(tl0.dx * w, tl0.dy * h), tr = Offset(tr0.dx * w, tr0.dy * h);
+      final bl = Offset(bl0.dx * w, bl0.dy * h);
+      final len = (tr - tl).distance, ht = (tl - bl).distance;
+      if (ht <= 0 || len < 4 * ht) continue;
+      angles.add(math.atan2(tr.dy - tl.dy, tr.dx - tl.dx));
+    }
+    if (angles.length < 3) return null;
+    angles.sort();
+    final theta = angles[angles.length ~/ 2];
+    return theta.abs() * 180 / math.pi >= minDegrees ? theta : null;
+  }
+}
 
 // ── OCR pass merge (port of iOS MenuOCRMerge) ───────────────────────────────
 
