@@ -1347,6 +1347,175 @@
       ],
       "stateNote": null,
       "adjacentProtein": false
+    },
+    {
+      "key": "yellowtail_hamachi",
+      "family": "speciesOrForm",
+      "phrases": [
+        "hamachi",
+        "yellowtail",
+        "buri",
+        "amberjack",
+        "kampachi",
+        "kanpachi",
+        "hiramasa"
+      ],
+      "patterns": null,
+      "proteins": [
+        "finfish"
+      ],
+      "meaning": "Hamachi and buri are Japanese names for yellowtail (Seriola quinqueradiata); ‘yellowtail’ is the FDA market name. It is Japan’s most farmed marine fish, usually grown in sea cages from wild-caught young fish (FAO). ‘Kanpachi (Ocean-Farmed)’ is the FDA name for a related farmed amberjack, Seriola rivoliana.",
+      "authority": "FDA Seafood List; FAO",
+      "gap": "Hamachi is usually farmed, but the menu rarely says so. Related Seriola species are farmed in several countries, and the name doesn’t say which one or where.",
+      "questions": [
+        "Is the hamachi farmed or wild?",
+        "Which country is it from?"
+      ],
+      "stateNote": null,
+      "adjacentProtein": false
+    },
+    {
+      "key": "shima_aji",
+      "family": "speciesOrForm",
+      "phrases": [
+        "shima aji",
+        "shima-aji",
+        "shimaaji",
+        "striped jack",
+        "white trevally"
+      ],
+      "patterns": null,
+      "proteins": [
+        "finfish"
+      ],
+      "meaning": "Japanese name for striped jack (Pseudocaranx dentex), also called white trevally. It is both caught wild and farmed in Japan.",
+      "authority": null,
+      "gap": "The name doesn’t say whether the fish was farmed or wild, or which country it came from.",
+      "questions": [
+        "Is the shima-aji farmed or wild?",
+        "Where is it from?"
+      ],
+      "stateNote": null,
+      "adjacentProtein": false
+    },
+    {
+      "key": "flounder_fluke",
+      "family": "speciesOrForm",
+      "phrases": [
+        "fluke",
+        "summer flounder",
+        "flounder"
+      ],
+      "patterns": null,
+      "proteins": [
+        "finfish"
+      ],
+      "meaning": "Fluke is summer flounder (Paralichthys dentatus), wild-caught off the U.S. Atlantic coast, mostly from North Carolina to Massachusetts (NOAA).",
+      "authority": "NOAA Fisheries",
+      "gap": "‘Flounder’ alone covers many flatfish, and flatfish are often swapped for one another: Oceana’s 2018 study found California flounder sold as halibut.",
+      "questions": [
+        "Is it summer flounder (fluke) or another flatfish?",
+        "Where was it caught?"
+      ],
+      "stateNote": null,
+      "adjacentProtein": false
+    },
+    {
+      "key": "halibut",
+      "family": "speciesOrForm",
+      "phrases": [
+        "halibut",
+        "pacific halibut",
+        "atlantic halibut",
+        "alaskan halibut",
+        "alaska halibut"
+      ],
+      "patterns": null,
+      "proteins": [
+        "finfish"
+      ],
+      "meaning": "Pacific halibut is wild-caught off Alaska, British Columbia and the U.S. West Coast under catch limits set by the U.S.–Canada International Pacific Halibut Commission. Atlantic halibut is overfished in U.S. waters and under a NOAA rebuilding plan; some Atlantic halibut is farmed.",
+      "authority": "NOAA Fisheries; IPHC",
+      "gap": "‘Halibut’ doesn’t say Pacific or Atlantic, wild or farmed. Oceana (2018) found 4 of 12 West Coast halibut samples were actually California flounder.",
+      "questions": [
+        "Is it Pacific or Atlantic halibut?",
+        "Is it wild or farmed?"
+      ],
+      "stateNote": null,
+      "adjacentProtein": false
+    },
+    {
+      "key": "dover_sole",
+      "family": "speciesOrForm",
+      "phrases": [
+        "dover sole",
+        "true dover sole",
+        "common sole",
+        "sole",
+        "sole meunière",
+        "sole meuniere"
+      ],
+      "patterns": null,
+      "proteins": [
+        "finfish"
+      ],
+      "meaning": "Two different fish are sold as Dover sole in the U.S.: the European common sole (Solea solea), often called ‘true Dover sole,’ and Pacific Dover sole (Microstomus pacificus), a West Coast flounder. Both names are legal.",
+      "authority": "FDA Seafood List",
+      "gap": "The menu name doesn’t say which fish it is or where it was caught. ‘Sole’ alone can mean several different flatfish.",
+      "questions": [
+        "Is it European (true) Dover sole or Pacific Dover sole?",
+        "Where was it caught?"
+      ],
+      "stateNote": null,
+      "adjacentProtein": false
+    },
+    {
+      "key": "sea_urchin",
+      "family": "speciesOrForm",
+      "phrases": [
+        "uni",
+        "sea urchin",
+        "urchin",
+        "santa barbara uni",
+        "hokkaido uni"
+      ],
+      "patterns": null,
+      "proteins": [
+        "shellfish"
+      ],
+      "meaning": "Uni is sea urchin roe. U.S. uni is hand-harvested by divers, mostly red urchin from California and green urchin from Maine (California Dept. of Fish and Wildlife; SeafoodSource).",
+      "authority": "California Dept. of Fish and Wildlife",
+      "gap": "‘Uni’ alone doesn’t say which species, which coast, or whether it is domestic or imported.",
+      "questions": [
+        "Where is the uni from?",
+        "Is it domestic or imported?"
+      ],
+      "stateNote": null,
+      "adjacentProtein": false
+    },
+    {
+      "key": "monkfish",
+      "family": "speciesOrForm",
+      "phrases": [
+        "monkfish",
+        "anglerfish",
+        "lotte",
+        "ankimo",
+        "monkfish liver"
+      ],
+      "patterns": null,
+      "proteins": [
+        "finfish"
+      ],
+      "meaning": "U.S. monkfish (Lophius americanus) is wild-caught in the Northeast and Mid-Atlantic under NOAA management. NOAA reports catch at the recommended level; whether the stocks are overfished is currently listed as unknown.",
+      "authority": "NOAA Fisheries",
+      "gap": "‘Monkfish’ doesn’t say domestic or imported. In 2007 the FDA warned that imported fish sold as monkfish was actually puffer fish, which can carry a dangerous toxin.",
+      "questions": [
+        "Is the monkfish domestic or imported?",
+        "Where was it caught?"
+      ],
+      "stateNote": null,
+      "adjacentProtein": false
     }
   ],
   "knownSources": [

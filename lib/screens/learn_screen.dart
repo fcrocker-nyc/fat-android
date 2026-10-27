@@ -1829,6 +1829,71 @@ final List<_LearnSection> _sections = <_LearnSection>[
       ),
     ],
   ),
+  // ════════════ SECTION 4 — RESTAURANT MENUS ════════════
+  // Mirrors iOS LearnView "Restaurant Menus" section verbatim.
+  _LearnSection(
+    title: 'Restaurant Menus: Sourcing Words and What to Ask',
+    topics: [
+      _LearnTopic(
+        title: 'How FAT Reads a Restaurant Menu',
+        subtitle: 'Dishes, sourcing claims, “about” notes, and Ask about this dish',
+        body: _text(
+            'Photograph a printed menu or import a screenshot of a QR-code menu (up to six pages). FAT reads the text, splits it into dishes, and keeps the ones that contain meat or seafood. Each dish card shows four kinds of chips.\n\n'
+            'Protein chips (dark green)\nBeef, Pork, Lamb, Poultry, Fish, Shellfish, or Other meat — what FAT found in the dish name and description. You can correct them if FAT misreads a dish.\n\n'
+            'Sourcing-claim chips (light blue)\nWords that say where the food came from or how it was raised or caught: a place (“Santa Barbara,” “Gulf”), a named farm or supplier, a production method (“grass-fed,” “wild,” “farm-raised,” “line-caught”), a certification (MSC, ASC, BAP, Certified Humane), or a grade or breed (Prime, Wagyu, Ibérico). Tap the dish to see what each word means, who defines it, and what it leaves out.\n\n'
+            '“No sourcing claim” (gray)\nThe dish names its meat or seafood but says nothing about where it came from or how it was produced. That’s the most common result on fine-dining menus. It isn’t a criticism — it’s the moment to ask.\n\n'
+            '“About” notes (outlined)\nBackground on the species or ingredient itself — “about tuna,” “about osetra,” “about foie gras.” A note is not a sourcing claim: “yellowfin tuna” names a species, not a source. Notes appear only for species FAT has a sourced explanation for, so some dishes get one and others don’t. Words like “fresh” also appear as notes rather than claims, because they describe condition, not origin.\n\n'
+            'Ask about this dish\nEvery card has a button that builds a short list of questions for that dish — in a friendly, diner’s voice — that you can show to your server or copy.'),
+      ),
+      _LearnTopic(
+        title: 'What a Menu Can and Can’t Tell You',
+        subtitle: 'Why FAT explains instead of checking',
+        body: _text(
+            'Nothing on a menu can be checked at the table.\nThe USDA inspection mark and establishment number are on the wholesale case in the kitchen, not on your plate. Country-of-origin labeling rules don’t apply to restaurants. The USDA’s rules for claims like “grass-fed” or “raised without antibiotics” cover product labels, not menu copy. And words like “local,” “Wagyu,” and “heritage” have no federal definition at all.\n\n'
+            'So the question is the tool.\nIf you know that “grass-fed” doesn’t say whether the animal was finished on grain, or that “Gulf shrimp” names a body of water rather than a country, you can ask a better question. FAT supplies the words and the questions; the restaurant supplies the facts.\n\n'
+            'What a menu usually leaves out.\nSpecies (which snapper?), origin (which country?), method (wild or farmed, and how caught?), the supplier, and whether a certification belongs to the supplier or the restaurant. A 2026 FAT review of 67 Michelin-starred restaurants found that none of their published menus named a boat, cited a seafood certification, or said whether their caviar was wild or farmed.'),
+      ),
+      _LearnTopic(
+        title: 'Meat Words on Menus',
+        subtitle: 'Grass-fed, Wagyu, Kobe, Prime, heritage, local, natural',
+        body: _text(
+            'On a retail label, USDA reviews most of these claims. On a menu, nobody does. Here is what the common words say — and what they don’t.\n\n'
+            '• Grass-fed — the animal ate grass. It doesn’t say whether the animal was finished on grain, or how much of its life was on pasture.\n• Grass-finished / 100% grass-fed — grass and forage through to slaughter, with no grain finishing. It doesn’t say where the animal was raised; much grass-finished beef sold in the U.S. is imported.\n• USDA Prime, Choice, Select — quality grades for marbling and maturity. Grade says nothing about breed, feed, origin, or how the animal was raised. “Prime rib” is a cut and need not be Prime grade.\n• Wagyu — Japanese cattle breeds. Japanese Wagyu is graded A1–A5 by the Japan Meat Grading Association. “American Wagyu” is usually a Wagyu-Angus cross, and the share of Wagyu genetics isn’t stated.\n• Kobe — a Japanese regional designation for Tajima-strain cattle from Hyōgo Prefecture. Very little genuine Kobe beef reaches the U.S.; “Kobe-style” is not Kobe beef.\n• Angus / Certified Angus Beef — Angus usually means mostly black-hided cattle, not a DNA test. Certified Angus Beef is a brand program with marbling and size specifications.\n• Heritage, Berkshire, Kurobuta, Ibérico — breed names. They don’t say how the animal was raised, fed, or housed.\n• Local — no legal definition. It can mean one dish or the whole menu, and the distance is up to the kitchen.\n• Natural — on a label, minimally processed with no artificial ingredients. It says nothing about feed, antibiotics, outdoor access, or origin.\n• Humanely raised — no definition on a menu; it doesn’t say whose standard is used. Third-party certifications (Certified Humane, Animal Welfare Approved, Global Animal Partnership) are more specific.\n• A named farm or ranch — someone the kitchen can tell you more about. A name may cover one cut or one dish, and it may be a distributor’s brand rather than a farm.\n• Foie gras — shown as a note, not a sourcing claim. In conventional production the bird is fattened by force-feeding.'),
+      ),
+      _LearnTopic(
+        title: 'Seafood Words on Menus',
+        subtitle: 'Wild, farmed, Gulf, day-boat, sustainable, fresh, caviar',
+        body: _text(
+            'Grocery stores must say whether seafood is wild or farmed and where it came from. Restaurants don’t. That makes the menu wording — and your questions — more important for seafood than for anything else.\n\n'
+            '• Wild / wild-caught — caught rather than farmed. It doesn’t say where, how, or whether that fishery is well managed.\n• Farm-raised / farmed — it doesn’t say which country, or whether the farm holds a certification (ASC, BAP).\n• Gulf — the Gulf of Mexico (also called the Gulf of America), fished by U.S. and Mexican boats. It names a body of water, not a country.\n• Line-caught, hook-and-line, day boat, diver — catch methods. Hook-and-line, trap, and hand-diving are generally lower-bycatch; “day boat” means the boat returns the same day. “Diver scallops” is sometimes used for large scallops that were dredged.\n• Sustainable — no legal definition. MSC (wild fisheries), ASC and BAP (farms), and Seafood Watch ratings each use their own standards; ask which one.\n• Fresh — shown as a note. On a label it means never frozen. It doesn’t say how many days since catch; fish frozen at sea can be better than “fresh” fish shipped for days.\n• Caviar — in the U.S., “caviar” alone means sturgeon roe; other roe must name the fish. Most sturgeon caviar today is farmed, but menus rarely say so.\n• A named place (Santa Barbara, Maine, Hokkaido, Copper River) — where the seafood came from, as the supplier describes it. It doesn’t say who caught or farmed it.'),
+      ),
+      _LearnTopic(
+        title: 'Species Notes: The “About” Chips',
+        subtitle: 'Why some dishes get a species note and others don’t',
+        body: _text(
+            'Some seafood names tell you a lot; others hide a lot. FAT adds an “about” note when a dish names a species that FAT has a sourced explanation for — usually because the name is easy to substitute, covers several species, or doesn’t say wild or farmed.\n\n'
+            'Species FAT currently explains:\n• Salmon — Atlantic (almost all farmed) vs. Pacific species (king, sockeye, coho)\n• Tuna — bluefin, yellowfin, bigeye, toro; “white tuna” and escolar\n• Snapper and grouper — among the fish most often substituted\n• Sea bass, branzino, Chilean sea bass (toothfish)\n• Yellowtail / hamachi, kanpachi, and shima-aji (striped jack)\n• Halibut, fluke / flounder, and Dover sole\n• Monkfish\n• Shrimp and prawns, crab and “krab,” scallops\n• Uni (sea urchin)\n• Caviar, including osetra, kaluga, and beluga\n• “Catch of the day” and “market fish”\n• Veal and foie gras\n\n'
+            'If a dish names a species not on this list, it simply gets no note. That isn’t a judgment about the dish. The general questions still apply: where is it from, and was it wild or farmed?'),
+      ),
+      _LearnTopic(
+        title: 'Where the Law Reaches Menus',
+        subtitle: 'Gulf-state seafood origin disclosure',
+        body: _text(
+            'Federal country-of-origin labeling doesn’t apply to restaurants, but some Gulf states have their own rules (National Fisherman, 2025):\n\n'
+            '• Alabama — restaurants must tell diners when shrimp is imported.\n• Louisiana — restaurants must tell diners when shrimp or crawfish is imported.\n• Mississippi — restaurants must disclose imported seafood.\n• Texas — restaurants must disclose imported seafood.\n\n'
+            'Set your dining state on the Menu screen and FAT will mention the rule on the dish cards where it applies. If the menu doesn’t say, it’s fair to ask.'),
+      ),
+      _LearnTopic(
+        title: 'How to Ask Your Server or Chef',
+        subtitle: 'Friendly questions get the best answers',
+        body: _text(
+            'Start friendly: “What can you tell me about the fish?” (a Seafood Watch suggestion). Most servers will check with the kitchen, and many chefs are glad to talk about their suppliers.\n\n'
+            'Ask one or two specific questions rather than a list: Is it wild or farmed? Which country is it from? Who is the farm or supplier? FAT’s “Ask about this dish” button picks the most useful ones for each dish.\n\n'
+            'Asking to see a case label or invoice is an invitation, not a demand — many kitchens are happy to show you.\n\n'
+            'What FAT doesn’t do here\nFAT doesn’t score, grade, or verify restaurants, and it never suggests a menu claim is false. It explains what a word says and what it leaves unsaid.'),
+      ),
+    ],
+  ),
 ];
 
 // ─── Deep links ──────────────────────────────────────────────────────────────
