@@ -423,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'EST number, meat brand, or seafood brand — we detect which.',
+              'EST number, brand, or cut of meat — we detect which.',
               style: TextStyle(
                   fontSize: 12.5, color: Colors.white.withValues(alpha: 0.92)),
             ),
