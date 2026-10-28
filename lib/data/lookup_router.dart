@@ -1,11 +1,12 @@
 import 'meat_brand_database.dart';
 import 'seafood_brand_database.dart';
+import '../cuts/cut_guide.dart';
 
 /// Auto-detects which lookup a free-text query should run, so the user no
 /// longer has to pick EST / Meat / Seafood before typing.
 ///
 /// Returns a tab index matching the Lookup screen's segmented control:
-///   0 = EST   1 = Meat Brand   2 = Seafood Brand
+///   0 = EST   1 = Meat Brand   2 = Seafood Brand   4 = Cut
 class LookupRouter {
   /// Decide which lookup tab a raw query should route to.
   ///
@@ -36,6 +37,10 @@ class LookupRouter {
 
     if (seafoodHit && !meatHit) return 2;
     if (meatHit && !seafoodHit) return 1;
+
+    // 3. A cut name ("ribeye", "pork butt") with no brand match → Cut.
+    final cuts = CutGuide.cached;
+    if (!meatHit && !seafoodHit && cuts != null && cuts.search(q).isNotEmpty) return 4;
 
     // 3. Tie or miss → Meat brand (correctable on the Lookup tab).
     return 1;

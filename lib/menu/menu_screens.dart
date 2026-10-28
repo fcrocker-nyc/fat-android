@@ -6,6 +6,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../cuts/cut_guide.dart';
+import '../cuts/cut_screens.dart';
 import '../services/lost_photo_recovery.dart';
 import '../services/scan_store.dart';
 import '../theme/fat_theme.dart';
@@ -671,8 +673,66 @@ class MenuDishScreen extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           for (final c in cards) _ClaimCardView(card: c),
+          _DishCutLink(item: item),
         ],
       ),
+    );
+  }
+}
+
+/// "About the cut" link when a dish names a cut ("Dry Aged Ribeye").
+class _DishCutLink extends StatelessWidget {
+  final MenuItem item;
+  const _DishCutLink({required this.item});
+
+  /// Beef and pork by protein; chicken only when the dish says chicken, so a
+  /// duck breast isn't read as one. Mirrors iOS MenuDishDetailView.cutSpecies.
+  static Set<String> cutSpecies(MenuItem item) => {
+        if (item.proteins.contains(ProteinFamily.beef)) 'beef',
+        if (item.proteins.contains(ProteinFamily.pork)) 'pork',
+        if (item.proteins.contains(ProteinFamily.poultry) &&
+            RegExp(r'\b(chicken|poussin|cornish)\b', caseSensitive: false).hasMatch(item.fullText))
+          'chicken',
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<CutGuide>(
+      future: CutGuide.load(),
+      builder: (context, snap) {
+        final g = snap.data;
+        final cut = g?.cutInDish(item.fullText, cutSpecies(item));
+        if (g == null || cut == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => CutDetailScreen(cut: cut, guide: g))),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: Colors.black12)),
+              child: Row(children: [
+                SizedBox(width: 84, height: 48, child: Image.asset(cut.asset, fit: BoxFit.contain)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const Text('ABOUT THE CUT',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: FATTheme.scanGreen)),
+                    Text(cut.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+                    const Text('Where it comes from on the animal',
+                        style: TextStyle(fontSize: 13, color: FATTheme.textSecondary)),
+                  ]),
+                ),
+                const Icon(Icons.chevron_right, color: Colors.black38),
+              ]),
+            ),
+          ),
+        );
+      },
     );
   }
 }

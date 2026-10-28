@@ -12,10 +12,10 @@ void main() {
     await tester.pump();
   }
 
-  testWidgets('Four ways to look up card shows 4 rows', (tester) async {
+  testWidgets('Five ways to look up card shows 5 rows', (tester) async {
     await pumpLookup(tester);
-    expect(find.text('Four ways to look up'), findsOneWidget);
-    for (int i = 0; i < 4; i++) {
+    expect(find.text('Five ways to look up'), findsOneWidget);
+    for (int i = 0; i < 5; i++) {
       expect(find.byKey(Key('lookupOverviewRow_$i')), findsOneWidget);
     }
     // Default mode is EST: its explainer is visible.
@@ -49,6 +49,16 @@ void main() {
     await tester.pump();
     expect(find.text('Look up a fish by name'), findsOneWidget);
     expect(find.text('Search Seafood Brand'), findsNothing);
+  });
+
+  testWidgets('Cut tab shows the cut search', (tester) async {
+    await pumpLookup(tester);
+    await tester.tap(find.byKey(const Key('lookupOverviewRow_4')));
+    await tester.pump();
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 300)));
+    await tester.pump();
+    expect(find.text('Look up a cut of beef, pork or chicken'), findsOneWidget);
+    expect(find.text('What a cut name tells you'), findsOneWidget);
   });
 
   testWidgets('Overview card collapses', (tester) async {

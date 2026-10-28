@@ -11,6 +11,7 @@ import 'menu/menu_screens.dart';
 import 'screens/service_case_capture_screen.dart';
 import 'services/lost_photo_recovery.dart';
 import 'interpreter/seafood_bycatch.dart';
+import 'cuts/cut_guide.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +21,8 @@ void main() {
   BrandResolver.instance.init();
   // Bundled NOAA MMPA bycatch pairs for the seafood Cat. 10 context line.
   MmpaBycatchData.ensureLoaded();
+  // Cut guide, so Home's Quick Lookup can route "ribeye" to Lookup → Cut.
+  CutGuide.load();
   runApp(const FATApp());
 }
 

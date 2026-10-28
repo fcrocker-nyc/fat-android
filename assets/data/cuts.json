@@ -1,0 +1,1099 @@
+{
+  "version": "1.0",
+  "species": [
+    {
+      "key": "beef",
+      "name": "Beef",
+      "image": "cut_beef",
+      "nameNeverSays": "A cut name says where on the animal the meat comes from. It doesn’t say the breed, the USDA grade, what the animal ate, where it was raised, or who processed it — check the label for those."
+    },
+    {
+      "key": "pork",
+      "name": "Pork",
+      "image": "cut_pork",
+      "nameNeverSays": "A cut name says where on the animal the meat comes from. It doesn’t say the breed, how the pig was raised or housed, what it ate, or where — check the label for those."
+    },
+    {
+      "key": "chicken",
+      "name": "Chicken",
+      "image": "cut_chicken",
+      "nameNeverSays": "A part name says which piece of the bird it is. It doesn’t say how the bird was raised, its age, or where it came from — check the label for those (and the USDA class name, such as Broiler or Roaster)."
+    }
+  ],
+  "primals": [
+    {
+      "species": "beef",
+      "key": "chuck",
+      "name": "Chuck",
+      "about": "The shoulder and neck. Hard-working muscle: rich flavor, more connective tissue."
+    },
+    {
+      "species": "beef",
+      "key": "rib",
+      "name": "Rib",
+      "about": "Ribs six through twelve along the back. Tender, well-marbled cuts."
+    },
+    {
+      "species": "beef",
+      "key": "shortLoin",
+      "name": "Short loin",
+      "about": "The middle of the back behind the rib. The most tender steaks."
+    },
+    {
+      "species": "beef",
+      "key": "sirloin",
+      "name": "Sirloin",
+      "about": "The back between the short loin and the round. Lean, fairly tender."
+    },
+    {
+      "species": "beef",
+      "key": "round",
+      "name": "Round",
+      "about": "The rear leg. Lean, firm muscle."
+    },
+    {
+      "species": "beef",
+      "key": "brisket",
+      "name": "Brisket",
+      "about": "The lower chest below the chuck."
+    },
+    {
+      "species": "beef",
+      "key": "plate",
+      "name": "Plate",
+      "about": "The belly below the rib, behind the brisket."
+    },
+    {
+      "species": "beef",
+      "key": "flank",
+      "name": "Flank",
+      "about": "The belly below the loin, in front of the rear leg."
+    },
+    {
+      "species": "beef",
+      "key": "shank",
+      "name": "Shank",
+      "about": "The lower legs. Very lean, lots of connective tissue."
+    },
+    {
+      "species": "pork",
+      "key": "jowl",
+      "name": "Jowl",
+      "about": "The cheek and jaw."
+    },
+    {
+      "species": "pork",
+      "key": "butt",
+      "name": "Shoulder butt",
+      "about": "The upper shoulder (Boston butt). Well-marbled."
+    },
+    {
+      "species": "pork",
+      "key": "picnic",
+      "name": "Picnic shoulder",
+      "about": "The lower shoulder and front leg."
+    },
+    {
+      "species": "pork",
+      "key": "loin",
+      "name": "Loin",
+      "about": "The back from shoulder to hip. Chops, roasts, tenderloin, back ribs."
+    },
+    {
+      "species": "pork",
+      "key": "belly",
+      "name": "Belly (side)",
+      "about": "The underside below the loin. Bacon and spare ribs."
+    },
+    {
+      "species": "pork",
+      "key": "leg",
+      "name": "Leg (ham)",
+      "about": "The hind leg."
+    },
+    {
+      "species": "chicken",
+      "key": "breast",
+      "name": "Breast",
+      "about": "The chest muscle. White meat."
+    },
+    {
+      "species": "chicken",
+      "key": "wing",
+      "name": "Wing",
+      "about": "The wing: drumette, flat and tip."
+    },
+    {
+      "species": "chicken",
+      "key": "thigh",
+      "name": "Thigh",
+      "about": "The upper leg. Dark meat."
+    },
+    {
+      "species": "chicken",
+      "key": "drumstick",
+      "name": "Drumstick",
+      "about": "The lower leg. Dark meat."
+    },
+    {
+      "species": "chicken",
+      "key": "leg",
+      "name": "Whole leg",
+      "about": "Thigh and drumstick together."
+    },
+    {
+      "species": "chicken",
+      "key": "back",
+      "name": "Back",
+      "about": "The backbone and ribs. Mostly used for stock."
+    },
+    {
+      "species": "chicken",
+      "key": "whole",
+      "name": "Whole bird",
+      "about": "The whole carcass."
+    }
+  ],
+  "cuts": [
+    {
+      "species": "beef",
+      "key": "ribeye",
+      "name": "Ribeye",
+      "primal": "rib",
+      "aliases": [
+        "rib eye",
+        "rib-eye",
+        "rib eye steak",
+        "ribeye steak",
+        "spencer steak",
+        "scotch fillet",
+        "delmonico",
+        "beauty steak"
+      ],
+      "about": "A steak from the rib section, cut from the large eye muscle (longissimus) and the cap around it. Sold boneless or bone-in.",
+      "nameNote": "“Delmonico” is used for more than one cut — some butchers mean a ribeye, others a strip or a chuck-eye steak. Ask which.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "bone_in_ribeye",
+      "name": "Bone-in ribeye (cowboy, tomahawk)",
+      "primal": "rib",
+      "aliases": [
+        "cowboy steak",
+        "cowboy ribeye",
+        "tomahawk",
+        "tomahawk steak",
+        "tomahawk ribeye",
+        "bone-in ribeye",
+        "rib steak"
+      ],
+      "about": "A ribeye with the rib bone left on. A tomahawk keeps a long, cleaned (frenched) bone; a cowboy steak has a shorter one.",
+      "nameNote": "The bone adds weight to the price. The meat is the same ribeye.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "prime_rib",
+      "name": "Prime rib (standing rib roast)",
+      "primal": "rib",
+      "aliases": [
+        "prime rib",
+        "standing rib roast",
+        "rib roast",
+        "ribeye roast"
+      ],
+      "about": "A roast from the rib section, usually bone-in, sliced to order.",
+      "nameNote": "“Prime rib” is the name of the roast, not a USDA grade. It need not be USDA Prime — ask what grade it is.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "ribeye_cap",
+      "name": "Ribeye cap (spinalis)",
+      "primal": "rib",
+      "aliases": [
+        "ribeye cap",
+        "rib cap",
+        "spinalis",
+        "spinalis dorsi",
+        "deckle steak"
+      ],
+      "about": "The curved outer muscle of the ribeye, removed and sold on its own. Very marbled.",
+      "nameNote": "“Deckle” is also used for part of the brisket — ask which.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "short_ribs",
+      "name": "Short ribs",
+      "primal": "plate",
+      "aliases": [
+        "short rib",
+        "short ribs",
+        "galbi",
+        "kalbi",
+        "la galbi",
+        "flanken",
+        "english cut short ribs",
+        "chuck short ribs",
+        "plate short ribs"
+      ],
+      "about": "Rib bones with the meat between them. Most come from the plate; “chuck short ribs” come from the chuck and some from the rib. Flanken and LA galbi are cut across the bones; English-cut runs along one bone.",
+      "nameNote": "“Short rib” doesn’t say which section — plate, chuck or rib — and they differ in meat and fat.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "strip",
+      "name": "Strip steak (New York strip)",
+      "primal": "shortLoin",
+      "aliases": [
+        "strip",
+        "strip steak",
+        "new york strip",
+        "ny strip",
+        "new york steak",
+        "kansas city strip",
+        "kc strip",
+        "top loin steak",
+        "strip loin",
+        "striploin",
+        "shell steak",
+        "ambassador steak",
+        "club steak"
+      ],
+      "about": "A steak from the short loin, cut from the same long muscle as the ribeye but farther back. Leaner, with a firmer bite.",
+      "nameNote": "New York, Kansas City and top loin are the same cut; the city in the name isn’t where the beef came from.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "t_bone",
+      "name": "T-bone",
+      "primal": "shortLoin",
+      "aliases": [
+        "t-bone",
+        "t bone",
+        "tbone",
+        "t-bone steak"
+      ],
+      "about": "A bone-in steak from the short loin with strip on one side of the T-shaped bone and a small piece of tenderloin on the other.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "porterhouse",
+      "name": "Porterhouse",
+      "primal": "shortLoin",
+      "aliases": [
+        "porterhouse",
+        "porterhouse steak",
+        "porterhouse for two"
+      ],
+      "about": "A T-bone cut from the rear of the short loin, where the tenderloin side is larger. USDA specs require a wider tenderloin portion than a T-bone.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "tenderloin",
+      "name": "Tenderloin (filet mignon)",
+      "primal": "shortLoin",
+      "aliases": [
+        "tenderloin",
+        "beef tenderloin",
+        "filet mignon",
+        "filet",
+        "fillet",
+        "beef filet",
+        "beef fillet",
+        "chateaubriand",
+        "tournedos",
+        "medallions",
+        "tenderloin tips"
+      ],
+      "about": "The long, very tender muscle under the backbone. It runs from the short loin back into the sirloin. Filet mignon is a steak cut from it; chateaubriand is a thick center-cut roast.",
+      "nameNote": "“Filet” alone can mean other cuts (a “filet” of chicken or fish, a “sirloin filet”). “Tenderloin tips” are often trimmings.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "top_sirloin",
+      "name": "Top sirloin",
+      "primal": "sirloin",
+      "aliases": [
+        "sirloin",
+        "top sirloin",
+        "top sirloin steak",
+        "sirloin steak",
+        "sirloin butt",
+        "center-cut sirloin",
+        "baseball steak"
+      ],
+      "about": "A lean steak from the top of the sirloin section.",
+      "nameNote": "“Sirloin” alone can mean the top sirloin or cheaper bottom-sirloin cuts.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "picanha",
+      "name": "Picanha (top sirloin cap)",
+      "primal": "sirloin",
+      "aliases": [
+        "picanha",
+        "coulotte",
+        "sirloin cap",
+        "top sirloin cap",
+        "rump cap",
+        "culotte"
+      ],
+      "about": "The cap muscle on top of the sirloin with its fat layer left on. Popular in Brazilian steakhouses.",
+      "nameNote": "In the UK and Australia “rump cap” is the same muscle; in the US “rump roast” means a round cut.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "tri_tip",
+      "name": "Tri-tip",
+      "primal": "sirloin",
+      "aliases": [
+        "tri-tip",
+        "tri tip",
+        "tritip",
+        "triangle steak",
+        "santa maria steak",
+        "bottom sirloin tri-tip"
+      ],
+      "about": "A triangular muscle from the bottom sirloin.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "bavette",
+      "name": "Bavette (sirloin flap)",
+      "primal": "sirloin",
+      "aliases": [
+        "bavette",
+        "sirloin flap",
+        "flap meat",
+        "flap steak",
+        "sirloin tip steak"
+      ],
+      "about": "A loose-grained steak from the bottom sirloin, often used for carne asada.",
+      "nameNote": "In France “bavette” can also mean a flank steak. “Sirloin tip” is also a round cut — ask which.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "top_round",
+      "name": "Top round (London broil)",
+      "primal": "round",
+      "aliases": [
+        "top round",
+        "top round steak",
+        "london broil",
+        "inside round",
+        "topside"
+      ],
+      "about": "A large, lean muscle from the inside of the rear leg.",
+      "nameNote": "“London broil” is a way of cooking and slicing, not a single cut — it may be top round, flank or another lean cut.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "eye_of_round",
+      "name": "Eye of round",
+      "primal": "round",
+      "aliases": [
+        "eye of round",
+        "eye round",
+        "round roast",
+        "eye of round roast"
+      ],
+      "about": "A small, very lean, cylinder-shaped muscle from the rear leg. Often thin-sliced for roast beef.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "bottom_round",
+      "name": "Bottom round (rump roast)",
+      "primal": "round",
+      "aliases": [
+        "bottom round",
+        "rump roast",
+        "outside round",
+        "silverside",
+        "bottom round roast"
+      ],
+      "about": "A lean muscle from the outside of the rear leg, often braised or roasted.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "sirloin_tip",
+      "name": "Sirloin tip (knuckle)",
+      "primal": "round",
+      "aliases": [
+        "sirloin tip",
+        "knuckle",
+        "round tip",
+        "sirloin tip roast",
+        "thick flank"
+      ],
+      "about": "Despite the name, a round cut: the front of the rear leg just below the sirloin.",
+      "nameNote": "“Sirloin” in the name doesn’t mean it comes from the sirloin.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "chuck_roast",
+      "name": "Chuck roast",
+      "primal": "chuck",
+      "aliases": [
+        "chuck roast",
+        "chuck",
+        "pot roast",
+        "chuck pot roast",
+        "shoulder roast",
+        "arm roast",
+        "chuck shoulder roast",
+        "7-bone roast",
+        "blade roast"
+      ],
+      "about": "A shoulder roast with lots of connective tissue that turns tender with slow cooking.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "chuck_eye",
+      "name": "Chuck eye steak",
+      "primal": "chuck",
+      "aliases": [
+        "chuck eye",
+        "chuck eye steak",
+        "chuck eye roll",
+        "poor man's ribeye",
+        "chuck rib"
+      ],
+      "about": "A steak from the chuck where it meets the rib, continuing the ribeye’s eye muscle.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "flat_iron",
+      "name": "Flat iron",
+      "primal": "chuck",
+      "aliases": [
+        "flat iron",
+        "flat-iron",
+        "flatiron",
+        "top blade",
+        "top blade steak",
+        "butler steak",
+        "oyster blade"
+      ],
+      "about": "A tender steak from the top blade muscle of the shoulder, with the center seam of gristle removed.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "denver",
+      "name": "Denver steak",
+      "primal": "chuck",
+      "aliases": [
+        "denver",
+        "denver steak",
+        "underblade",
+        "under blade",
+        "chuck underblade"
+      ],
+      "about": "A steak from the underblade muscle of the chuck.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "teres_major",
+      "name": "Teres major (petite tender)",
+      "primal": "chuck",
+      "aliases": [
+        "teres major",
+        "petite tender",
+        "shoulder tender",
+        "bistro filet",
+        "petite filet"
+      ],
+      "about": "A small, tender shoulder muscle often compared to tenderloin.",
+      "nameNote": "Sold as “petite filet”, but it isn’t tenderloin.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "skirt",
+      "name": "Skirt steak",
+      "primal": "plate",
+      "aliases": [
+        "skirt",
+        "skirt steak",
+        "outside skirt",
+        "inside skirt",
+        "fajita meat",
+        "arrachera",
+        "fajita steak"
+      ],
+      "about": "A long, thin, loose-grained steak from the diaphragm (outside skirt) or the inner belly wall (inside skirt). Common for fajitas.",
+      "nameNote": "“Fajita meat” may be skirt, flank or other cuts.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "hanger",
+      "name": "Hanger steak",
+      "primal": "plate",
+      "aliases": [
+        "hanger",
+        "hanger steak",
+        "onglet",
+        "butcher's steak",
+        "butchers steak",
+        "hanging tender",
+        "hanging tenderloin"
+      ],
+      "about": "A single steak per animal that hangs from the diaphragm beneath the loin.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "flank",
+      "name": "Flank steak",
+      "primal": "flank",
+      "aliases": [
+        "flank",
+        "flank steak",
+        "jiffy steak"
+      ],
+      "about": "A flat, lean, long-grained steak from the belly below the loin.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "brisket",
+      "name": "Brisket",
+      "primal": "brisket",
+      "aliases": [
+        "brisket",
+        "brisket flat",
+        "brisket point",
+        "first cut brisket",
+        "second cut brisket",
+        "deckle",
+        "corned beef"
+      ],
+      "about": "The chest muscles. Sold whole or as the leaner flat (first cut) and fattier point (second cut). Corned beef is usually cured brisket.",
+      "nameNote": "“Corned beef” names the cure, not the cut — some is made from round.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "beef",
+      "key": "shank",
+      "name": "Shank (osso buco)",
+      "primal": "shank",
+      "aliases": [
+        "shank",
+        "beef shank",
+        "fore shank",
+        "foreshank",
+        "hind shank",
+        "osso buco",
+        "ossobuco",
+        "shin"
+      ],
+      "about": "Cross-cut slices of the lower leg with marrow bone in the center, for long braising.",
+      "nameNote": "Osso buco is traditionally veal shank; a menu may not say which.",
+      "source": "USDA IMPS Series 100 (beef); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "pork_butt",
+      "name": "Pork butt (Boston butt)",
+      "primal": "butt",
+      "aliases": [
+        "pork butt",
+        "boston butt",
+        "pork shoulder",
+        "shoulder",
+        "boston shoulder",
+        "pulled pork",
+        "blade roast",
+        "pork shoulder roast",
+        "pork steak",
+        "blade steak"
+      ],
+      "about": "The upper part of the shoulder — not the rear. Well-marbled; the usual cut for pulled pork. Sliced, it’s a blade or pork steak.",
+      "nameNote": "“Butt” doesn’t mean the rear of the pig. “Pork shoulder” can mean the butt or the picnic.",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "collar",
+      "name": "Pork collar (coppa)",
+      "primal": "butt",
+      "aliases": [
+        "collar",
+        "pork collar",
+        "coppa",
+        "capicola",
+        "capocollo",
+        "pork neck"
+      ],
+      "about": "The neck-end muscle of the shoulder butt. Cured whole, it’s coppa (capicola).",
+      "nameNote": "",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "picnic",
+      "name": "Picnic shoulder",
+      "primal": "picnic",
+      "aliases": [
+        "picnic",
+        "picnic shoulder",
+        "picnic roast",
+        "arm roast",
+        "pork arm",
+        "smoked picnic"
+      ],
+      "about": "The lower shoulder and front leg, below the butt. Often sold skin-on or smoked.",
+      "nameNote": "A “picnic ham” is shoulder, not ham.",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "loin_roast",
+      "name": "Pork loin roast",
+      "primal": "loin",
+      "aliases": [
+        "pork loin",
+        "loin roast",
+        "center-cut loin",
+        "boneless pork loin",
+        "pork rib roast",
+        "rack of pork",
+        "crown roast",
+        "frenched rack of pork"
+      ],
+      "about": "The long muscle along the back, sold boneless or bone-in as a rack.",
+      "nameNote": "Pork loin and pork tenderloin are different muscles.",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "chop",
+      "name": "Pork chop",
+      "primal": "loin",
+      "aliases": [
+        "pork chop",
+        "chop",
+        "loin chop",
+        "rib chop",
+        "center-cut chop",
+        "porterhouse chop",
+        "pork porterhouse",
+        "tomahawk chop",
+        "pork tomahawk",
+        "bone-in chop",
+        "boneless chop",
+        "iowa chop"
+      ],
+      "about": "A slice of the loin. Rib chops come from the shoulder end, loin and porterhouse chops from the middle and rear.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "tenderloin",
+      "name": "Pork tenderloin",
+      "primal": "loin",
+      "aliases": [
+        "pork tenderloin",
+        "pork filet",
+        "pork fillet",
+        "pork medallions"
+      ],
+      "about": "A small, lean, very tender muscle inside the loin.",
+      "nameNote": "Not the same as pork loin.",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "baby_back",
+      "name": "Baby back ribs",
+      "primal": "loin",
+      "aliases": [
+        "baby back ribs",
+        "baby backs",
+        "back ribs",
+        "loin back ribs",
+        "loin ribs"
+      ],
+      "about": "Ribs from the top of the rib cage where they meet the loin. Shorter and leaner than spare ribs.",
+      "nameNote": "“Baby” describes the shorter rib, not a young pig.",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "country_ribs",
+      "name": "Country-style ribs",
+      "primal": "loin",
+      "aliases": [
+        "country-style ribs",
+        "country style ribs",
+        "country ribs"
+      ],
+      "about": "Meaty strips from the shoulder end of the loin (or from the butt). Often have little or no rib bone.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "spare_ribs",
+      "name": "Spare ribs (St. Louis)",
+      "primal": "belly",
+      "aliases": [
+        "spare ribs",
+        "spareribs",
+        "st. louis ribs",
+        "st louis ribs",
+        "st. louis-style ribs",
+        "rib tips",
+        "pork ribs"
+      ],
+      "about": "Ribs from the belly side of the rib cage. St. Louis-style are spare ribs trimmed square.",
+      "nameNote": "“Pork ribs” alone could be spare, baby back or country-style.",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "belly",
+      "name": "Pork belly",
+      "primal": "belly",
+      "aliases": [
+        "pork belly",
+        "belly",
+        "samgyeopsal",
+        "side pork",
+        "pork side"
+      ],
+      "about": "The fatty underside below the loin. Fresh, it’s pork belly; cured and smoked, it’s bacon.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "bacon",
+      "name": "Bacon (and pancetta)",
+      "primal": "belly",
+      "aliases": [
+        "bacon",
+        "pancetta",
+        "streaky bacon",
+        "slab bacon",
+        "smoked bacon",
+        "lardons"
+      ],
+      "about": "Cured (and usually smoked) pork belly. Pancetta is Italian cured belly, not smoked.",
+      "nameNote": "“Canadian bacon” and back bacon are cured loin, not belly.",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "fatback",
+      "name": "Fatback (lardo)",
+      "primal": "loin",
+      "aliases": [
+        "fatback",
+        "lardo",
+        "back fat",
+        "salt pork"
+      ],
+      "about": "The firm fat layer over the loin. Cured with herbs, it’s lardo.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "ham",
+      "name": "Ham (fresh or cured)",
+      "primal": "leg",
+      "aliases": [
+        "ham",
+        "fresh ham",
+        "pork leg",
+        "leg of pork",
+        "prosciutto",
+        "jamón",
+        "jamon",
+        "jamón ibérico",
+        "serrano",
+        "country ham",
+        "speck"
+      ],
+      "about": "The hind leg. Fresh ham is uncooked and uncured; most “ham” is cured and often smoked. Prosciutto, jamón and country ham are dry-cured legs.",
+      "nameNote": "“Ham” alone doesn’t say fresh or cured. A cured ham’s name may name a style or region; Ibérico refers to the breed.",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "hock",
+      "name": "Ham hock (shank)",
+      "primal": "leg",
+      "aliases": [
+        "ham hock",
+        "hock",
+        "pork hock",
+        "pork shank",
+        "pork knuckle",
+        "eisbein"
+      ],
+      "about": "The lower leg joint, usually smoked, used for long cooking. Hocks also come from the front leg.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "pork",
+      "key": "jowl",
+      "name": "Pork jowl (guanciale)",
+      "primal": "jowl",
+      "aliases": [
+        "jowl",
+        "pork jowl",
+        "guanciale",
+        "pork cheek",
+        "jowl bacon"
+      ],
+      "about": "The cheek and jaw. Cured, it’s guanciale.",
+      "nameNote": "",
+      "source": "USDA IMPS Series 400 (pork); NAMI Meat Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "breast",
+      "name": "Chicken breast",
+      "primal": "breast",
+      "aliases": [
+        "chicken breast",
+        "breast",
+        "boneless skinless breast",
+        "boneless breast",
+        "split breast",
+        "breast fillet",
+        "chicken fillet",
+        "chicken cutlet",
+        "cutlet"
+      ],
+      "about": "The chest muscle. Sold bone-in or boneless; a cutlet is a breast sliced or pounded thin.",
+      "nameNote": "",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "airline_breast",
+      "name": "Airline breast (Statler)",
+      "primal": "breast",
+      "aliases": [
+        "airline breast",
+        "airline chicken",
+        "statler",
+        "statler breast",
+        "frenched breast"
+      ],
+      "about": "A boneless breast with the first wing joint (the drumette bone) left on.",
+      "nameNote": "",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "tenders",
+      "name": "Chicken tenders",
+      "primal": "breast",
+      "aliases": [
+        "tender",
+        "tenders",
+        "chicken tenders",
+        "tenderloin",
+        "chicken tenderloin",
+        "tenderloins",
+        "strips",
+        "chicken strips",
+        "fingers",
+        "chicken fingers"
+      ],
+      "about": "The small strip of muscle under the breast (the tenderloin).",
+      "nameNote": "“Strips” and “fingers” may be tenderloins or breast meat cut to shape.",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "wing",
+      "name": "Wing",
+      "primal": "wing",
+      "aliases": [
+        "wing",
+        "wings",
+        "chicken wing",
+        "chicken wings",
+        "whole wing",
+        "buffalo wings",
+        "party wings"
+      ],
+      "about": "The whole wing: drumette, flat and tip. Party wings are wings split into drumettes and flats.",
+      "nameNote": "",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "drumette",
+      "name": "Drumette",
+      "primal": "wing",
+      "aliases": [
+        "drumette",
+        "drumettes",
+        "wing drumette"
+      ],
+      "about": "The meaty first wing section, attached to the body. Looks like a small drumstick but is wing.",
+      "nameNote": "",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "flat",
+      "name": "Flat (wingette)",
+      "primal": "wing",
+      "aliases": [
+        "flat",
+        "flats",
+        "wingette",
+        "wingettes",
+        "wing flat",
+        "mid-wing"
+      ],
+      "about": "The middle wing section with two thin bones.",
+      "nameNote": "",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "thigh",
+      "name": "Thigh",
+      "primal": "thigh",
+      "aliases": [
+        "thigh",
+        "thighs",
+        "chicken thigh",
+        "chicken thighs",
+        "boneless thigh",
+        "boneless skinless thigh",
+        "thigh meat"
+      ],
+      "about": "The upper leg. Dark meat; sold bone-in or boneless.",
+      "nameNote": "",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "drumstick",
+      "name": "Drumstick",
+      "primal": "drumstick",
+      "aliases": [
+        "drumstick",
+        "drumsticks",
+        "chicken drumstick",
+        "chicken leg",
+        "lollipop drumstick"
+      ],
+      "about": "The lower leg. Dark meat.",
+      "nameNote": "“Chicken leg” can mean the drumstick alone or the whole leg.",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "leg_quarter",
+      "name": "Leg quarter",
+      "primal": "leg",
+      "aliases": [
+        "leg quarter",
+        "leg quarters",
+        "whole leg",
+        "chicken leg quarter",
+        "thigh and drumstick"
+      ],
+      "about": "The thigh and drumstick together, often with part of the back.",
+      "nameNote": "",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "oyster",
+      "name": "Chicken oyster",
+      "primal": "back",
+      "aliases": [
+        "oyster",
+        "oysters",
+        "chicken oyster",
+        "chicken oysters",
+        "sot-l'y-laisse"
+      ],
+      "about": "Two small, tender pieces of dark meat on the back, near the top of each thigh.",
+      "nameNote": "",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "back",
+      "name": "Back",
+      "primal": "back",
+      "aliases": [
+        "back",
+        "chicken back",
+        "backs",
+        "carcass",
+        "chicken frame"
+      ],
+      "about": "The backbone and ribs, mostly used for stock.",
+      "nameNote": "",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    },
+    {
+      "species": "chicken",
+      "key": "whole",
+      "name": "Whole chicken",
+      "primal": "whole",
+      "aliases": [
+        "whole chicken",
+        "whole bird",
+        "roast chicken",
+        "rotisserie chicken",
+        "spatchcock",
+        "spatchcocked",
+        "half chicken",
+        "chicken half",
+        "poussin",
+        "cornish hen",
+        "cornish game hen"
+      ],
+      "about": "The whole bird. Spatchcocked means backbone removed and flattened; a half chicken is split down the middle.",
+      "nameNote": "Poussin and Cornish game hen are young, small chickens; USDA class names (Broiler, Roaster, Cornish game hen) set an age range.",
+      "source": "USDA Poultry Products specifications (IMPS P-Series); NAMI Poultry Buyer's Guide"
+    }
+  ]
+}

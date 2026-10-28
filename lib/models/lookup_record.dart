@@ -5,7 +5,8 @@ enum LookupCategory {
   establishment, // EST
   meatBrand, // Meat Brand
   seafoodBrand, // Seafood Brand
-  seafoodFDA; // Seafood FDA
+  seafoodFDA, // Seafood FDA
+  cut; // Cut (beef, pork, chicken)
 
   /// Short label used on the History category filter (matches the Lookup tabs).
   String get shortName {
@@ -14,6 +15,7 @@ enum LookupCategory {
       case LookupCategory.meatBrand:     return 'Meat Brand';
       case LookupCategory.seafoodBrand:  return 'Seafood Brand';
       case LookupCategory.seafoodFDA:    return 'Seafood FDA';
+      case LookupCategory.cut:           return 'Cut';
     }
   }
 
@@ -23,6 +25,7 @@ enum LookupCategory {
       case LookupCategory.meatBrand:     return Icons.apartment;
       case LookupCategory.seafoodBrand:  return Icons.set_meal;
       case LookupCategory.seafoodFDA:    return Icons.report;
+      case LookupCategory.cut:           return Icons.restaurant;
     }
   }
 }

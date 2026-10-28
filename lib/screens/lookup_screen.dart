@@ -11,6 +11,7 @@ import '../data/montana_origin.dart';
 import '../data/seafood_enforcement_database.dart';
 import '../interpreter/fish_name_lookup.dart';
 import '../interpreter/seafood_detail_lines.dart';
+import '../cuts/cut_screens.dart';
 import '../models/lookup_record.dart';
 import '../services/scan_store.dart';
 import '../services/processor_service.dart';
@@ -37,7 +38,7 @@ class LookupScreen extends StatefulWidget {
 }
 
 class _LookupScreenState extends State<LookupScreen> {
-  int _selectedTab = 0; // 0=EST, 1=Meat Brand, 2=Seafood Brand
+  int _selectedTab = 0; // 0=EST, 1=Meat Brand, 2=Seafood Brand, 3=Seafood FDA, 4=Cut
   final _estController = TextEditingController();
   final _meatController = TextEditingController();
   final _seafoodController = TextEditingController();
@@ -71,32 +72,36 @@ class _LookupScreenState extends State<LookupScreen> {
 
   // Seafood FDA enforcement
   final _enforcementController = TextEditingController();
+  final _cutController = TextEditingController();
+  int _cutSearchTrigger = 0;
   List<SeafoodEnforcementEntity>? _enforcementResults;
 
   /// Full mode names (match History's LookupCategory.shortName).
-  static const _tabs = ['EST', 'Meat Brand', 'Seafood Brand', 'Seafood FDA'];
+  static const _tabs = ['EST', 'Meat Brand', 'Seafood Brand', 'Seafood FDA', 'Cut'];
 
   /// Short labels for the segmented control so it fits a phone-width screen
   /// without truncation. Mirrors iOS LookupMode.pickerLabel.
-  static const _tabLabels = ['EST', 'Meat', 'Seafood', 'Seafood FDA'];
+  static const _tabLabels = ['EST', 'Meat', 'Seafood', 'FDA', 'Cut'];
 
   static const _tabIcons = [
     Icons.tag,
     Icons.apartment,
     Icons.set_meal,
     Icons.report,
+    Icons.restaurant,
   ];
 
-  /// One-line descriptions for the "Four ways to look up" card.
+  /// One-line descriptions for the "Five ways to look up" card.
   /// Mirrors iOS LookupMode.overviewBlurb.
   static const _tabBlurbs = [
     'Find the USDA-inspected plant behind a meat or poultry label by its EST number or plant name.',
     'Search a meat brand or company to see who owns it, with plant locations and related brands for major companies.',
     'Enter a seafood brand name. The result shows who owns the brand, any sustainability seals it carries (MSC, ASC, BAP), and where its fish come from. No brand? Enter a loose fish\'s name instead.',
     'Search public FDA seafood enforcement (warning letters, import alerts, import refusals) by firm, country, product, or alert number.',
+    'Type a cut of beef, pork or chicken (ribeye, pork butt, thighs) to see where on the animal it comes from and its other names.',
   ];
 
-  /// "Four ways to look up" card: expanded by default, user can collapse it.
+  /// "Five ways to look up" card: expanded by default, user can collapse it.
   bool _overviewExpanded = true;
 
   Future<void> _openUrl(String url) async {
@@ -394,6 +399,10 @@ class _LookupScreenState extends State<LookupScreen> {
         _seafoodController.text = q;
         if (q.isNotEmpty) _searchSeafood();
         break;
+      case 4:
+        _cutController.text = q;
+        if (q.isNotEmpty) _cutSearchTrigger++;
+        break;
       default:
         _estController.text = q;
         if (q.isNotEmpty) _lookupEst();
@@ -501,7 +510,7 @@ class _LookupScreenState extends State<LookupScreen> {
     );
   }
 
-  /// Compact card under the picker explaining all four modes. The current
+  /// Compact card under the picker explaining all five modes. The current
   /// mode is highlighted; tapping a row switches to that mode.
   Widget _lookupOverviewCard() {
     return Padding(
@@ -523,7 +532,7 @@ class _LookupScreenState extends State<LookupScreen> {
               child: Row(
                 children: [
                   const Expanded(
-                    child: Text('Four ways to look up',
+                    child: Text('Five ways to look up',
                         style: TextStyle(
                             fontSize: 15, fontWeight: FontWeight.w700)),
                   ),
@@ -605,6 +614,8 @@ class _LookupScreenState extends State<LookupScreen> {
         return _seafoodTab();
       case 3:
         return _seafoodFdaTab();
+      case 4:
+        return CutLookupTab(controller: _cutController, searchTrigger: _cutSearchTrigger);
       default:
         return _estTab();
     }

@@ -2,7 +2,7 @@ name: fat_app
 description: "Farm Animal Transparency — meat label scanner"
 publish_to: 'none'
 
-version: 1.45.0+113
+version: 1.46.0+114
 environment:
   sdk: ^3.11.1
 
@@ -61,3 +61,5 @@ flutter:
     - assets/data/fsis_establishment_names.json
     - assets/data/mmpa_bycatch_pairs.json
     - assets/data/menu_claim_glossary.json
+    - assets/data/cuts.json
+    - assets/images/cuts/
