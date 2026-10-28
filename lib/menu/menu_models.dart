@@ -360,3 +360,117 @@ class MenuResult {
     ];
   }
 }
+
+// ── History ─────────────────────────────────────────────────────────────────
+//
+// JSON for saving a menu read to History (port of iOS MenuRecord). OCR pages
+// aren't kept: nothing after interpretation needs them, and they're large.
+
+extension MenuClaimJson on MenuClaim {
+  Map<String, dynamic> toMap() => {
+        'entryKey': entryKey,
+        'matchedText': matchedText,
+        'inheritedFromHeader': inheritedFromHeader,
+        'appliesTo': appliesTo?.name,
+        'subject': subject,
+        'inferred': inferred,
+      };
+
+  static MenuClaim fromMap(Map<String, dynamic> m) => MenuClaim(
+        entryKey: m['entryKey'] as String,
+        matchedText: m['matchedText'] as String,
+        inheritedFromHeader: m['inheritedFromHeader'] as bool? ?? false,
+        appliesTo: ProteinFamily.parse(m['appliesTo'] as String? ?? ''),
+        subject: m['subject'] as String?,
+        inferred: m['inferred'] as bool? ?? false,
+      );
+}
+
+extension MenuItemJson on MenuItem {
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'dishName': dishName,
+        'description': description,
+        'section': section,
+        'proteins': proteins.map((p) => p.name).toList(),
+        'claims': claims.map((c) => c.toMap()).toList(),
+        'minorProteinOnly': minorProteinOnly,
+        'dismissed': dismissed,
+        'userCorrected': userCorrected,
+        'addOns': addOns,
+        'addOnProteins': addOnProteins.map((p) => p.name).toList(),
+      };
+
+  static List<ProteinFamily> _families(Object? l) =>
+      ((l as List?) ?? const []).map((e) => ProteinFamily.parse(e as String)).whereType<ProteinFamily>().toList();
+
+  static MenuItem fromMap(Map<String, dynamic> m) => MenuItem(
+        id: m['id'] as String,
+        dishName: m['dishName'] as String,
+        description: m['description'] as String? ?? '',
+        section: m['section'] as String?,
+        proteins: _families(m['proteins']),
+        claims: ((m['claims'] as List?) ?? const [])
+            .map((c) => MenuClaimJson.fromMap(c as Map<String, dynamic>))
+            .toList(),
+        minorProteinOnly: m['minorProteinOnly'] as bool? ?? false,
+        dismissed: m['dismissed'] as bool? ?? false,
+        userCorrected: m['userCorrected'] as bool? ?? false,
+        addOns: List<String>.from((m['addOns'] as List?) ?? const []),
+        addOnProteins: _families(m['addOnProteins']),
+      );
+}
+
+extension MenuResultJson on MenuResult {
+  Map<String, dynamic> toMap() => {
+        'capturedAt': capturedAt.toIso8601String(),
+        'headerStatements': headerStatements,
+        'items': items.map((i) => i.toMap()).toList(),
+        'glossaryVersion': glossaryVersion,
+        'diningState': diningState,
+        'layoutUncertain': layoutUncertain,
+      };
+
+  static MenuResult fromMap(Map<String, dynamic> m) => MenuResult(
+        capturedAt: DateTime.tryParse(m['capturedAt'] as String? ?? '') ?? DateTime.now(),
+        pages: const [],
+        headerStatements: List<String>.from((m['headerStatements'] as List?) ?? const []),
+        items: ((m['items'] as List?) ?? const [])
+            .map((i) => MenuItemJson.fromMap(i as Map<String, dynamic>))
+            .toList(),
+        glossaryVersion: m['glossaryVersion'] as String? ?? '',
+        diningState: m['diningState'] as String?,
+        layoutUncertain: m['layoutUncertain'] as bool? ?? false,
+      );
+}
+
+/// A menu read the diner saved to History: the result (with any dishes they
+/// dismissed or proteins they fixed) and copies of the page photos.
+class MenuRecord {
+  final String id;
+  final DateTime savedAt;
+  final MenuResult result;
+  final List<String> imagePaths;
+
+  const MenuRecord({required this.id, required this.savedAt, required this.result, required this.imagePaths});
+
+  /// "Hamachi, Fluke, Dover Sole" — the first few dish names, for the History row.
+  String get title {
+    final names = result.visibleItems.take(3).map((i) => i.dishName).toList();
+    return names.isEmpty ? 'Menu' : names.join(', ');
+  }
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'savedAt': savedAt.toIso8601String(),
+        'result': result.toMap(),
+        'imagePaths': imagePaths,
+      };
+
+  static MenuRecord fromMap(Map<String, dynamic> m) => MenuRecord(
+        id: m['id'] as String,
+        savedAt: DateTime.tryParse(m['savedAt'] as String? ?? '') ?? DateTime.now(),
+        result: MenuResultJson.fromMap(m['result'] as Map<String, dynamic>),
+        imagePaths: List<String>.from((m['imagePaths'] as List?) ?? const []),
+      );
+}

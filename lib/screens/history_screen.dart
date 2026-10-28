@@ -1,4 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import '../menu/menu_explainer.dart';
+import '../menu/menu_models.dart';
+import '../menu/menu_screens.dart';
+import '../menu/menu_share.dart';
 import '../models/fat_models.dart';
 import '../models/lookup_record.dart';
 import '../services/scan_store.dart';
@@ -38,6 +44,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   /// Which history stream is showing — scanned labels or recorded lookups.
   bool _showLookups = false;
+
+  /// The Menus stream (saved restaurant-menu reads). Overrides _showLookups.
+  bool _showMenus = false;
+  List<MenuRecord> _menus = [];
+  MenuGlossary? _glossary;
 
   // ── Lookup history state ──
   List<LookupRecord> _lookups = [];
@@ -90,10 +101,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Future<void> _load() async {
     final results = await ScanStore.instance.loadAll();
     final lookups = await ScanStore.instance.loadLookups();
+    final menus = await ScanStore.instance.loadMenus();
+    final glossary = _glossary ?? await MenuClaimExplainer.loadGlossary();
     if (mounted) {
       setState(() {
         _results = results;
         _lookups = lookups;
+        _menus = menus;
+        _glossary = glossary;
         _loading = false;
       });
     }
@@ -163,7 +178,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   _sectionToggle(),
                   const SizedBox(height: 10),
                   Expanded(
-                    child: _showLookups ? _lookupsBody() : _scansBody(),
+                    child: _showMenus
+                        ? _menusBody()
+                        : (_showLookups ? _lookupsBody() : _scansBody()),
                   ),
                 ],
               ),
@@ -179,7 +196,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           const Text('History',
               style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900)),
           const Spacer(),
-          if (!_showLookups && _results.isNotEmpty) ...[
+          if (!_showMenus && !_showLookups && _results.isNotEmpty) ...[
             _filterButton(),
             const SizedBox(width: 14),
             GestureDetector(
@@ -191,7 +208,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       color: Colors.red)),
             ),
           ],
-          if (_showLookups && _lookups.isNotEmpty)
+          if (_showMenus && _menus.isNotEmpty)
+            GestureDetector(
+              onTap: _confirmClearMenus,
+              child: const Text('Clear All',
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red)),
+            ),
+          if (!_showMenus && _showLookups && _lookups.isNotEmpty)
             GestureDetector(
               onTap: _confirmClearLookups,
               child: const Text('Clear All',
@@ -205,7 +231,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  // ── Section toggle (Scans | Lookups) ──
+  // ── Section toggle (Scans | Lookups | Menus) ──
   Widget _sectionToggle() {
     Widget seg(String label, bool selected, VoidCallback onTap) => Expanded(
           child: GestureDetector(
@@ -246,12 +272,22 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         child: Row(
           children: [
-            seg('Scans', !_showLookups, () {
-              setState(() => _showLookups = false);
+            seg('Scans', !_showLookups && !_showMenus, () {
+              setState(() {
+                _showLookups = false;
+                _showMenus = false;
+              });
             }),
-            seg('Lookups', _showLookups, () {
-              setState(() => _showLookups = true);
+            seg('Lookups', _showLookups && !_showMenus, () {
+              setState(() {
+                _showLookups = true;
+                _showMenus = false;
+              });
               _load(); // pick up any lookups run since this screen was built
+            }),
+            seg('Menus', _showMenus, () {
+              setState(() => _showMenus = true);
+              _load(); // pick up any menus saved since this screen was built
             }),
           ],
         ),
@@ -593,6 +629,121 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
       ),
     );
+  }
+
+  // ── Menus section body ────────────────────────────────────────────────────
+
+  Widget _menusBody() {
+    final g = _glossary;
+    if (_menus.isEmpty || g == null) {
+      return const Padding(
+        padding: EdgeInsets.fromLTRB(24, 40, 24, 0),
+        child: Column(children: [
+          Icon(Icons.restaurant_menu, size: 40, color: Colors.black38),
+          SizedBox(height: 10),
+          Text('No saved menus yet', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+          SizedBox(height: 6),
+          Text('Tap Save on a menu’s Dishes found screen to keep it here.',
+              textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: Colors.black54)),
+        ]),
+      );
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+      itemCount: _menus.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 10),
+      itemBuilder: (context, i) {
+        final rec = _menus[i];
+        final thumb = rec.imagePaths.isNotEmpty && File(rec.imagePaths.first).existsSync()
+            ? Image.file(File(rec.imagePaths.first), width: 56, height: 72, fit: BoxFit.cover)
+            : const SizedBox(
+                width: 56, height: 72, child: Icon(Icons.restaurant_menu, color: FATTheme.scanGreen));
+        final d = rec.savedAt;
+        return InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => Navigator.of(context)
+              .push(MaterialPageRoute(
+                builder: (_) => MenuDishesScreen(
+                    result: rec.result, glossary: g, imagePaths: rec.imagePaths, savedId: rec.id),
+              ))
+              .then((_) => _load()),
+          onLongPress: () => _confirmDeleteMenu(rec),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: const Color(0xFFF5F5F5), borderRadius: BorderRadius.circular(14)),
+            child: Row(children: [
+              ClipRRect(borderRadius: BorderRadius.circular(8), child: thumb),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Row(children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: FATTheme.scanGreen, borderRadius: BorderRadius.circular(20)),
+                      child: const Text('MENU',
+                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w900, color: Colors.white)),
+                    ),
+                    const Spacer(),
+                    Text('${d.month}/${d.day}/${d.year}',
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Colors.black54)),
+                  ]),
+                  const SizedBox(height: 4),
+                  Text(rec.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                  const SizedBox(height: 2),
+                  Text(MenuShare.summary(rec.result, g),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black54)),
+                ]),
+              ),
+              const Icon(Icons.chevron_right, color: Colors.black38),
+            ]),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmDeleteMenu(MenuRecord rec) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete this menu?'),
+        content: Text(rec.title),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Delete', style: TextStyle(color: Colors.red))),
+        ],
+      ),
+    );
+    if (ok == true) {
+      await ScanStore.instance.deleteMenu(rec.id);
+      await _load();
+    }
+  }
+
+  Future<void> _confirmClearMenus() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Clear All Menus?'),
+        content: const Text('This will permanently delete all saved menus. This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete All', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await ScanStore.instance.deleteAllMenus();
+      setState(() => _menus = []);
+    }
   }
 
   Future<void> _confirmClearLookups() async {

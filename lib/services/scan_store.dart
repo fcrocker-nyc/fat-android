@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/fat_models.dart';
 import '../models/lookup_record.dart';
+import '../menu/menu_models.dart';
 
 /// Lightweight persistence for scan history — mirrors iOS ScanStore.
 /// Stores results as JSON in SharedPreferences.
@@ -16,6 +19,7 @@ class ScanStore extends ChangeNotifier {
 
   static const _key = 'fat_scan_history';
   static const _lookupKey = 'fat_lookup_history';
+  static const _menuKey = 'fat_menu_history';
 
   Future<void> saveResult(FATResult result) async {
     final prefs = await SharedPreferences.getInstance();
@@ -104,6 +108,87 @@ class ScanStore extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_lookupKey);
     notifyListeners();
+  }
+
+  // ── Menu history ───────────────────────────────────────────────────────────
+
+  /// Saves a menu read (newest first). Page photos are copied into the app's
+  /// documents folder: picker and camera files live in a cache Android may
+  /// clear. Returns the saved record.
+  Future<MenuRecord> saveMenu(MenuResult result, List<String> pagePaths) async {
+    final id = DateTime.now().microsecondsSinceEpoch.toString();
+    final docs = await getApplicationDocumentsDirectory();
+    final dir = Directory('${docs.path}/menu_history/$id');
+    await dir.create(recursive: true);
+    final kept = <String>[];
+    for (var i = 0; i < pagePaths.length && i < 6; i++) {
+      final src = File(pagePaths[i]);
+      if (!await src.exists()) continue;
+      final ext = pagePaths[i].contains('.') ? pagePaths[i].split('.').last : 'jpg';
+      kept.add((await src.copy('${dir.path}/page_${i + 1}.$ext')).path);
+    }
+    final record = MenuRecord(id: id, savedAt: DateTime.now(), result: result, imagePaths: kept);
+    final prefs = await SharedPreferences.getInstance();
+    final existing = prefs.getStringList(_menuKey) ?? [];
+    existing.insert(0, jsonEncode(record.toMap()));
+    await prefs.setStringList(_menuKey, existing);
+    notifyListeners();
+    return record;
+  }
+
+  /// Keeps a saved menu's edits (dismissed dishes, fixed proteins) current.
+  Future<void> updateMenu(String id, MenuResult result) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList(_menuKey) ?? [];
+    for (var i = 0; i < raw.length; i++) {
+      try {
+        final m = jsonDecode(raw[i]) as Map<String, dynamic>;
+        if (m['id'] != id) continue;
+        m['result'] = result.toMap();
+        raw[i] = jsonEncode(m);
+        await prefs.setStringList(_menuKey, raw);
+        return;
+      } catch (_) {}
+    }
+  }
+
+  Future<List<MenuRecord>> loadMenus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList(_menuKey) ?? [];
+    return raw
+        .map((s) {
+          try { return MenuRecord.fromMap(jsonDecode(s) as Map<String, dynamic>); }
+          catch (_) { return null; }
+        })
+        .whereType<MenuRecord>()
+        .toList();
+  }
+
+  Future<void> deleteMenu(String id) async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getStringList(_menuKey) ?? [];
+    raw.removeWhere((s) {
+      try { return (jsonDecode(s) as Map<String, dynamic>)['id'] == id; }
+      catch (_) { return false; }
+    });
+    await prefs.setStringList(_menuKey, raw);
+    await _deleteMenuPhotos(id);
+    notifyListeners();
+  }
+
+  Future<void> deleteAllMenus() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_menuKey);
+    await _deleteMenuPhotos(null);
+    notifyListeners();
+  }
+
+  Future<void> _deleteMenuPhotos(String? id) async {
+    try {
+      final docs = await getApplicationDocumentsDirectory();
+      final dir = Directory('${docs.path}/menu_history${id == null ? '' : '/$id'}');
+      if (await dir.exists()) await dir.delete(recursive: true);
+    } catch (_) {}
   }
 
   // ── Serialization ────────────────────────────────────────────────────────

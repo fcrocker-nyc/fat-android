@@ -3,14 +3,17 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/lost_photo_recovery.dart';
+import '../services/scan_store.dart';
 import '../theme/fat_theme.dart';
 import 'menu_explainer.dart';
 import 'menu_interpreter.dart';
 import 'menu_models.dart';
 import 'menu_ocr.dart';
+import 'menu_share.dart';
 
 const _usStates = [
   'AL','AK','AZ','AR','CA','CO','CT','DE','DC','FL','GA','HI','ID','IL','IN','IA','KS','KY',
@@ -105,7 +108,7 @@ class _MenuScanScreenState extends State<MenuScanScreen> {
     if (!mounted) return;
     setState(() => _reading = false);
     Navigator.of(context).push(MaterialPageRoute(
-      builder: (_) => MenuDishesScreen(result: result, glossary: glossary),
+      builder: (_) => MenuDishesScreen(result: result, glossary: glossary, imagePaths: List.of(_pages)),
     ));
   }
 
@@ -123,7 +126,9 @@ class _MenuScanScreenState extends State<MenuScanScreen> {
           const Text('FAT doesn’t check, score, or grade restaurants. The kitchen’s '
               'answers are the disclosure.',
               style: TextStyle(fontSize: 14, color: FATTheme.textSecondary)),
-          const SizedBox(height: 18),
+          const SizedBox(height: 12),
+          const Align(alignment: Alignment.centerLeft, child: MenuReadTipsPill()),
+          const SizedBox(height: 14),
           _bigButton(
             icon: Icons.photo_camera,
             label: _pages.isEmpty ? 'Photograph Menu' : 'Add Another Page',
@@ -279,7 +284,14 @@ class _MenuScanScreenState extends State<MenuScanScreen> {
 class MenuDishesScreen extends StatefulWidget {
   final MenuResult result;
   final MenuGlossary glossary;
-  const MenuDishesScreen({super.key, required this.result, required this.glossary});
+
+  /// The menu page photos, for Save, Share and the question email.
+  final List<String> imagePaths;
+
+  /// Set when the result is already in History (opened from History).
+  final String? savedId;
+  const MenuDishesScreen(
+      {super.key, required this.result, required this.glossary, this.imagePaths = const [], this.savedId});
 
   @override
   State<MenuDishesScreen> createState() => _MenuDishesScreenState();
@@ -287,6 +299,94 @@ class MenuDishesScreen extends StatefulWidget {
 
 class _MenuDishesScreenState extends State<MenuDishesScreen> {
   MenuResult get r => widget.result;
+  late String? _savedId = widget.savedId;
+  bool _saving = false;
+
+  void _changed() {
+    final id = _savedId;
+    if (id != null) ScanStore.instance.updateMenu(id, r);
+  }
+
+  Future<void> _save() async {
+    if (_saving || _savedId != null) return;
+    setState(() => _saving = true);
+    final rec = await ScanStore.instance.saveMenu(r, widget.imagePaths);
+    if (!mounted) return;
+    setState(() {
+      _saving = false;
+      _savedId = rec.id;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved to History · Menus.')));
+  }
+
+  List<XFile> get _photoFiles =>
+      [for (final p in widget.imagePaths.take(4)) if (File(p).existsSync()) XFile(p)];
+
+  /// Share sheet: the menu photos plus the full write-up (dishes, sourcing
+  /// words, questions). Text is the reliable payload whatever the target does.
+  Future<void> _share() async {
+    final text = MenuShare.text(r, widget.glossary);
+    final files = _photoFiles;
+    if (files.isEmpty) {
+      await Share.share(text, subject: 'FAT App — restaurant menu');
+    } else {
+      await Share.shareXFiles(files, text: text, subject: 'FAT App — restaurant menu');
+    }
+  }
+
+  Future<void> _questions() async {
+    final text = 'I have a question about this FAT App menu read:\n\n'
+        '[Please describe your question here]\n\n'
+        'Please email FAT at dirkadams@farmanimaltransparency.com\n\n'
+        '---\n${MenuShare.text(r, widget.glossary)}';
+    final files = _photoFiles;
+    if (files.isEmpty) {
+      await Share.share(text, subject: 'Question about a FAT App menu read');
+    } else {
+      await Share.shareXFiles(files, text: text, subject: 'Question about a FAT App menu read');
+    }
+  }
+
+  Widget _actions() {
+    Widget green(String label, VoidCallback? onTap) => Expanded(
+          child: GestureDetector(
+            onTap: onTap,
+            child: Opacity(
+              opacity: onTap == null ? 0.6 : 1,
+              child: Container(
+                height: 52,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: FATTheme.scanGreen, borderRadius: BorderRadius.circular(12)),
+                child: Text(label,
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
+              ),
+            ),
+          ),
+        );
+    return Column(children: [
+      Row(children: [
+        green(_savedId != null ? 'Saved' : (_saving ? 'Saving…' : 'Save'),
+            (_savedId != null || _saving) ? null : _save),
+        const SizedBox(width: 14),
+        green('Share', _share),
+      ]),
+      const SizedBox(height: 12),
+      GestureDetector(
+        onTap: _questions,
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: FATTheme.fatOrange, borderRadius: BorderRadius.circular(10)),
+          child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.help_outline, color: Colors.white),
+            SizedBox(width: 8),
+            Text('Questions?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
+          ]),
+        ),
+      ),
+    ]);
+  }
 
   Future<void> _fixProtein(MenuItem item) async {
     final chosen = await showModalBottomSheet<List<ProteinFamily>>(
@@ -299,6 +399,7 @@ class _MenuDishesScreenState extends State<MenuDishesScreen> {
       item.proteins = chosen;
       MenuInterpreter(widget.glossary).reinterpret(item, r);
     });
+    _changed();
   }
 
   @override
@@ -354,7 +455,10 @@ class _MenuDishesScreenState extends State<MenuDishesScreen> {
                 child: const Text('Not a dish',
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
               ),
-              onDismissed: (_) => setState(() => item.dismissed = true),
+              onDismissed: (_) {
+                setState(() => item.dismissed = true);
+                _changed();
+              },
               child: InkWell(
                 onLongPress: () => _fixProtein(item),
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(
@@ -368,6 +472,8 @@ class _MenuDishesScreenState extends State<MenuDishesScreen> {
                 ),
               ),
             ),
+          const SizedBox(height: 20),
+          _actions(),
           const SizedBox(height: 16),
           Text('Glossary ${r.glossaryVersion}',
               style: const TextStyle(fontSize: 12, color: FATTheme.textSecondary)),
@@ -899,6 +1005,72 @@ class MenuLearnScreen extends StatelessWidget {
             const SizedBox(height: 18),
           ],
         ],
+      ),
+    );
+  }
+}
+
+// ── How to get a good read ──────────────────────────────────────────────────
+
+class MenuReadTipsPill extends StatelessWidget {
+  const MenuReadTipsPill({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: () => showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (_) => const MenuReadTipsSheet(),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: FATTheme.scanGreen.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.lightbulb, size: 16, color: FATTheme.scanGreen),
+          SizedBox(width: 6),
+          Text(MenuReadTips.pill,
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: FATTheme.scanGreen)),
+          SizedBox(width: 4),
+          Icon(Icons.chevron_right, size: 16, color: FATTheme.scanGreen),
+        ]),
+      ),
+    );
+  }
+}
+
+class MenuReadTipsSheet extends StatelessWidget {
+  const MenuReadTipsSheet({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const Text(MenuReadTips.pill, style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 16),
+          for (final (icon, title, body) in MenuReadTips.tips)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 18),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Icon(icon, size: 24, color: FATTheme.scanGreen),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 4),
+                    Text(body, style: const TextStyle(fontSize: 15, height: 1.35)),
+                  ]),
+                ),
+              ]),
+            ),
+        ]),
       ),
     );
   }
