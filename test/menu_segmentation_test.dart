@@ -206,6 +206,30 @@ void main() {
     expect(scallop.claims.any((c) => c.matchedText.toLowerCase() == 'diver'), isTrue);
   });
 
+  // A photo of an invented menu ("Hollow Creek Kitchen", used for App Store
+  // screenshots): ruled section headings, "crudo" next to a named fish, and
+  // claims that stand alone in the description line.
+  test('ruled headings, crudo and description claims', () {
+    final r = interpreter.interpret(fixture('hc'));
+    expect(names(r).first, 'hamachi crudo');
+    expect(names(r), isNot(contains('to start')));
+    final crudo = r.items.firstWhere((i) => i.dishName == 'Hamachi Crudo');
+    expect(crudo.proteins, [ProteinFamily.finfish]);
+    expect(crudo.section, 'TO START');
+    final chicken = r.items.firstWhere((i) => i.dishName.startsWith('Free-Range Chicken'));
+    expect(chicken.claims.any((c) => c.entryKey == 'air_chilled'), isTrue);
+    final bass = r.items.firstWhere((i) => i.dishName == 'Chilean Sea Bass');
+    expect(bass.claims.any((c) => c.entryKey == 'sustainable'), isTrue);
+    expect(r.items.firstWhere((i) => i.dishName.startsWith('Grass-Fed')).section, 'MAINS');
+  });
+
+  test('plain crudo stays seafood; descriptive words need their own clause', () {
+    final r = interpreter.interpret([MenuPage.fromPlainText('Crudo\nyuzu, chili oil\n\nRoast Chicken\nlocal greens, jus')]);
+    expect(r.items.firstWhere((i) => i.dishName == 'Crudo').proteins, [ProteinFamily.finfish, ProteinFamily.shellfish]);
+    final chicken = r.items.firstWhere((i) => i.dishName == 'Roast Chicken');
+    expect(chicken.claims.any((c) => c.entryKey == 'local'), isFalse, reason: 'local describes the greens');
+  });
+
   test('fresh, foie gras, bap and grand cru are not sourcing claims', () {
     final g = MenuGlossary.fromJson(
         jsonDecode(File('assets/data/menu_claim_glossary.json').readAsStringSync()) as Map<String, dynamic>);

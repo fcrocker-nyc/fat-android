@@ -680,6 +680,7 @@ class MenuText {
     'small bites', 'bites', 'snacks', 'shareables', 'large format', 'accompaniments', 'enhancements',
     'add-ons', 'vegetables', 'greens', 'from the garden', 'pizza', 'pizzas', 'noodles', 'sweets',
     'cheese', 'cheeses', 'entrée', 'entree', 'main plates', 'kids menu', "children's menu",
+    'to start', 'to begin', 'to finish', 'to follow', 'first', 'mains & sides',
   };
 
   /// "C L A S S I C S" → "CLASSICS"; "S I D E S  T O  S H A R E" → "SIDES TO SHARE".
@@ -696,11 +697,22 @@ class MenuText {
     return split.map((g) => g.join()).join(' ');
   }
 
-  /// Returns the header text if the whole line is a known section name.
+  static const _headerTrim = ' .,:;!?-–—*()[]"\'\t~•=·';
+
+  /// Returns the header text if the whole line is a known section name, or
+  /// a short ALL-CAPS name set off by rules ("— TO START —", "~ RAW ~").
   static String? sectionHeader(String text) {
     final collapsed = collapseLetterSpacing(text);
-    final cleaned = _trim(collapsed.toLowerCase().replaceAll('’', "'"), ' .,:;!?-–—*()[]"\'\t');
-    return _sectionWords.contains(cleaned) ? collapsed : null;
+    final bare = _trim(collapsed, _headerTrim);
+    final cleaned = bare.toLowerCase().replaceAll('’', "'");
+    if (_sectionWords.contains(cleaned)) return bare;
+    const rules = '-–—~•*=·';
+    final t = collapsed.trim();
+    if (t.isEmpty || !rules.contains(t[0]) || !rules.contains(t[t.length - 1])) return null;
+    final words = bare.split(RegExp(r'\s+')).where((w) => w.isNotEmpty).length;
+    if (!isAllCaps(bare) || words < 1 || words > 4 || RegExp(r'\d').hasMatch(bare)) return null;
+    if (MenuProteinClassifier.classify(bare).proteins.isNotEmpty) return null;
+    return bare;
   }
 
   /// An unlisted section name: a short ALL-CAPS line (1–3 words) with no
@@ -1038,8 +1050,13 @@ class MenuProteinClassifier {
 
     final major = all.where((h) => !h.minor).toList();
     final source = major.isEmpty ? all : major;
+    // "Crudo" is raw seafood of any kind; once the fish or shellfish itself
+    // is named ("Hamachi Crudo") it adds nothing.
+    final namesSeafood = source.any((h) =>
+        h.family.length == 1 && (h.family.first == ProteinFamily.finfish || h.family.first == ProteinFamily.shellfish));
     final proteins = <ProteinFamily>[];
     for (final h in source) {
+      if (namesSeafood && tok.text.substring(h.match.start, h.match.end).toLowerCase() == 'crudo') continue;
       for (final f in h.family) {
         if (!proteins.contains(f)) proteins.add(f);
       }
@@ -1180,9 +1197,23 @@ class MenuClaimExtractor {
         }
       }
 
-      if (entry.adjacentProtein && nearby.isEmpty && selfProtein == null) return;
+      // A claim that is a whole description clause on its own ("…, air-chilled,
+      // …", "sustainably sourced, miso glaze") describes the dish's protein.
+      ProteinFamily? standalone;
+      if (nearby.isEmpty &&
+          selfProtein == null &&
+          dishProteins.isNotEmpty &&
+          tok.clauseOfWord.where((c) => c == match.clause).length == match.wordEnd - match.wordStart + 1) {
+        for (final f in dishProteins) {
+          if (entry.proteins == null || entry.proteins!.contains(f)) {
+            standalone = f;
+            break;
+          }
+        }
+      }
+      if (entry.adjacentProtein && nearby.isEmpty && selfProtein == null && standalone == null) return;
 
-      ProteinFamily? target = nearby.isNotEmpty ? nearby.first.$1.first : (selfProtein?.first);
+      ProteinFamily? target = nearby.isNotEmpty ? nearby.first.$1.first : (selfProtein?.first ?? standalone);
       final allowed = entry.proteins;
       if (allowed != null) {
         if (target != null && !allowed.contains(target)) {
