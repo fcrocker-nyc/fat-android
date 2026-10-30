@@ -477,8 +477,6 @@ class _MenuDishesScreenState extends State<MenuDishesScreen> {
           const SizedBox(height: 20),
           _actions(),
           const SizedBox(height: 16),
-          Text('Glossary ${r.glossaryVersion}',
-              style: const TextStyle(fontSize: 12, color: FATTheme.textSecondary)),
         ],
       ),
     );
