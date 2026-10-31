@@ -1032,8 +1032,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget _aggregateCard() {
     final recs = _filtered;
     final total = recs.length;
-    final metCount = recs.where((r) => r.regulatoryPassed).length;
-    final pctMet = total > 0 ? '${(metCount / total * 100).round()}%' : '—';
+    // USDA-inspected scans only (meat, poultry, catfish): FDA seafood has no
+    // inspection legend to detect — the same rule the row badge uses.
+    final fsis = recs.where((r) => !r.isSeafood || r.isSiluriformes).toList();
+    final metCount = fsis.where((r) => r.regulatoryPassed).length;
+    final pctMet = fsis.isNotEmpty ? '${(metCount / fsis.length * 100).round()}%' : '—';
     final ids = <String>{};
     for (final r in recs) {
       final est = r.detectedEstablishmentNumber;
