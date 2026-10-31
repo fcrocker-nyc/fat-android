@@ -251,10 +251,11 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
     if (r.substitutionRiskBand != null) {
       lines.add('Substitution risk: ${r.substitutionRiskBand}');
     }
-    lines.add('Resolves to: ${r.resolve().raw}');
+    lines.add('Result: ${r.resolve().display}');
     final lanes = r.enforcementLanes();
-    lines.add(
-        'Enforcement lanes: ${lanes.isEmpty ? "none" : lanes.join(" · ")}');
+    if (lanes.isNotEmpty) {
+      lines.add('Who oversees this sign: ${lanes.map(ServiceCaseRecord.laneDisplay).join(" · ")}');
+    }
     if (_lastOcrText.isNotEmpty) {
       lines.add('');
       lines.add('Placard text as read:');
@@ -455,16 +456,13 @@ class _ServiceCaseCaptureScreenState extends State<ServiceCaseCaptureScreen> {
             border: Border.all(color: FATTheme.scanGreen.withValues(alpha: 0.3)),
           ),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(children: [
-              const Text('Resolves to  ',
-                  style: TextStyle(fontSize: 14, color: FATTheme.textSecondary)),
-              Text(tier.raw,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w900, color: FATTheme.scanGreen)),
-            ]),
-            const SizedBox(height: 6),
-            Text('Enforcement lanes: ${r.enforcementLanes().isEmpty ? "none" : r.enforcementLanes().join(" · ")}',
-                style: const TextStyle(fontSize: 13)),
+            Text(tier.display,
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: FATTheme.scanGreen)),
+            if (r.enforcementLanes().isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text('Who oversees this sign: ${r.enforcementLanes().map(ServiceCaseRecord.laneDisplay).join(" · ")}',
+                  style: const TextStyle(fontSize: 13)),
+            ],
             if (tier == ResolutionTier.notApplicable) ...[
               const SizedBox(height: 6),
               Text(

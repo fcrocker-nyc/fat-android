@@ -113,6 +113,13 @@ enum ResolutionTier {
         ResolutionTier.tier1Direct => 'tier1_direct',
         ResolutionTier.tier3Advisory => 'tier3_advisory',
       };
+
+  /// What the result means, in words a shopper can read.
+  String get display => switch (this) {
+        ResolutionTier.notApplicable => 'Origin sign not required here',
+        ResolutionTier.tier1Direct => 'Traced to a certified source',
+        ResolutionTier.tier3Advisory => 'Sign facts read — species not confirmed',
+      };
 }
 
 // ── Sub-structures ───────────────────────────────────────────────────────────
@@ -243,6 +250,16 @@ class ServiceCaseRecord {
   }
 
   /// Enforcement lanes attached to the final record.
+  /// The agencies behind each enforcement lane, for display.
+  static String laneDisplay(String lane) => switch (lane) {
+        'ams_cool' => 'USDA (origin labeling)',
+        'fda_integrity' => 'FDA (seafood naming)',
+        'fsis' => 'USDA (catfish inspection)',
+        'icssl' => 'FDA shellfish shipper list',
+        'noaa_simp' => 'NOAA (import monitoring)',
+        _ => lane,
+      };
+
   List<String> enforcementLanes() {
     if (resolve() == ResolutionTier.notApplicable) return const [];
     final lanes = <String>['ams_cool'];
