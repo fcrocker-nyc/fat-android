@@ -367,6 +367,9 @@ class LabelInterpreter {
 
   // ── Country / Origin ─────────────────────────────────────────────────────
 
+  static final usStagesPattern = RegExp(
+      r'\b(?:born|raised|harvested|slaughtered|processed)(?:\s*(?:,|and|&)\s*(?:and\s+)?(?:born|raised|harvested|slaughtered|processed))*\s+in\s+(?:the\s+)?(?:usa|u\.s\.a?\.?|united states)');
+
   static FATCategoryResult _detectCountryOrigin(String text) {
     const patterns = <String, String>{
       'product of usa':            'Product of USA',
@@ -375,6 +378,20 @@ class LabelInterpreter {
     };
     for (final entry in patterns.entries) {
       if (text.contains(entry.key)) return _known(entry.value);
+    }
+    // "Born, raised and harvested in the USA", "born, raised, slaughtered &
+    // processed in the U.S." — the stage list names the country only once.
+    final stages = usStagesPattern.firstMatch(text);
+    if (stages != null) {
+      var phrase = stages.group(0)!;
+      phrase = phrase[0].toUpperCase() + phrase.substring(1);
+      for (final (lower, upper) in const [('u.s.a.', 'U.S.A.'), ('u.s.a', 'U.S.A'), ('u.s.', 'U.S.'), ('u.s', 'U.S'), ('usa', 'USA'), ('united states', 'United States')]) {
+        if (phrase.endsWith(lower)) {
+          phrase = phrase.substring(0, phrase.length - lower.length) + upper;
+          break;
+        }
+      }
+      return _known(phrase);
     }
     for (final k in ['born in', 'raised in', 'processed in']) {
       if (text.contains(k)) return _known(_capitalize(k));

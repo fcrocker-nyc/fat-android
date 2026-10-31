@@ -80,6 +80,13 @@ void main() {
     test('born in / raised in', () => expect(
         status('born in montana raised in wyoming', FATCategory.countryOrigin),
         DisclosureStatus.known));
+    test('stage list names the country once', () {
+      expect(status('born, raised and harvested in the usa', FATCategory.countryOrigin), DisclosureStatus.known);
+      expect(status('born, raised, slaughtered & processed in the u.s.', FATCategory.countryOrigin),
+          DisclosureStatus.known);
+      expect(interp('born, raised and harvested in the usa')[FATCategory.countryOrigin]?.value,
+          'Born, raised and harvested in the USA');
+    });
     test('negative', () => expect(
         status('natural grass fed beef', FATCategory.countryOrigin), DisclosureStatus.missing));
   });
