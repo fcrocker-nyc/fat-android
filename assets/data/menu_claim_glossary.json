@@ -133,7 +133,7 @@
         "AL": "Alabama requires restaurants to tell diners when shrimp is imported (National Fisherman, 2025). If the menu doesn’t say, it’s fair to ask.",
         "LA": "Louisiana requires restaurants to tell diners when shrimp or crawfish is imported (National Fisherman, 2025). If the menu doesn’t say, it’s fair to ask.",
         "MS": "Mississippi requires restaurants to disclose imported seafood (National Fisherman, 2025). If the menu doesn’t say, it’s fair to ask.",
-        "TX": "Texas requires restaurants to disclose imported seafood (National Fisherman, 2025). If the menu doesn’t say, it’s fair to ask."
+        "TX": "Texas bars restaurants from calling imported shrimp Texas, Gulf, domestic or American shrimp (SB 823, 2025). If the menu says Gulf shrimp, it’s fair to ask whether it’s domestic."
       },
       "adjacentProtein": false
     },
@@ -1232,7 +1232,7 @@
         "AL": "Alabama requires restaurants to tell diners when shrimp is imported (National Fisherman, 2025). If the menu doesn’t say, it’s fair to ask.",
         "LA": "Louisiana requires restaurants to tell diners when shrimp or crawfish is imported (National Fisherman, 2025). If the menu doesn’t say, it’s fair to ask.",
         "MS": "Mississippi requires restaurants to disclose imported seafood (National Fisherman, 2025). If the menu doesn’t say, it’s fair to ask.",
-        "TX": "Texas requires restaurants to disclose imported seafood (National Fisherman, 2025). If the menu doesn’t say, it’s fair to ask."
+        "TX": "Texas bars restaurants from calling imported shrimp Texas, Gulf, domestic or American shrimp (SB 823, 2025). If the menu says Gulf shrimp, it’s fair to ask whether it’s domestic."
       },
       "adjacentProtein": false
     },
