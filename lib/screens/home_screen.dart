@@ -50,6 +50,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     _independenceBadge(),
                     const SizedBox(height: 20),
                     _scanCTA(),
+                    const SizedBox(height: 10),
+                    // PREPARED FOODS — same Scan button; the pill explains it
+                    // and opens the Learn topic.
+                    _preparedFoodPill(context),
                     const SizedBox(height: 12),
                     // LOOSE FISH — service-case scan, directly under the main
                     // scan pill and styled with the same forest-green fill.
@@ -256,6 +260,42 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
                       color: Colors.white)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Prepared-foods pill (multi-ingredient lane) ─────────────────────────
+
+  Widget _preparedFoodPill(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: GestureDetector(
+        onTap: () => openPreparedFoodLearnTopic(context),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: FATTheme.scanGreen.withValues(alpha: 0.08),
+            border: Border.all(color: FATTheme.scanGreen.withValues(alpha: 0.45)),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: const Row(
+            children: [
+              Icon(Icons.soup_kitchen, size: 20, color: FATTheme.scanGreen),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                    'Also reads prepared foods — stew, pizza, soup — where meat is one ingredient',
+                    style: TextStyle(
+                        fontSize: 13.5,
+                        height: 1.25,
+                        fontWeight: FontWeight.w700,
+                        color: FATTheme.scanGreen)),
+              ),
+              Icon(Icons.chevron_right, size: 20, color: FATTheme.scanGreen),
             ],
           ),
         ),

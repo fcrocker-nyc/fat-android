@@ -1900,10 +1900,18 @@ final List<_LearnSection> _sections = <_LearnSection>[
 
 /// Opens the Learn "Service-Case Capture Schema" topic (loose seafood at a
 /// counter) directly. Used by the Home loose-fish scan pill's "Learn more" link.
-void openServiceCaseLearnTopic(BuildContext context) {
+void openServiceCaseLearnTopic(BuildContext context) =>
+    _openLearnTopic(context, 'Service-Case Capture Schema');
+
+/// Opens the Learn "Prepared & Multi-Ingredient Foods" topic. Used by the Home
+/// prepared-foods pill.
+void openPreparedFoodLearnTopic(BuildContext context) =>
+    _openLearnTopic(context, 'Prepared & Multi-Ingredient Foods');
+
+void _openLearnTopic(BuildContext context, String title) {
   final topic = _sections
       .expand((s) => s.topics)
-      .firstWhere((t) => t.title == 'Service-Case Capture Schema');
+      .firstWhere((t) => t.title == title);
   Navigator.push(
     context,
     MaterialPageRoute(
