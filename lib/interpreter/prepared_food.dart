@@ -134,6 +134,10 @@ class PreparedFoodDetector {
     _speciesKeywords.forEach((display, kws) {
       if (kws.any((k) => _wordHit(text, k))) species.add(display);
     });
+    // Seafood named alongside the meat (gumbo with sausage and shrimp).
+    for (final s in SeafoodPreparedDetector.speciesNamed(text)) {
+      if (!species.contains(s) && s != 'Fish') species.add(s);
+    }
     if (species.length >= 2) signals.add('multi-species:${species.join('+')}');
 
     // Non-protein component foods.
@@ -256,4 +260,177 @@ class PreparedFoodDetector {
 
     return out;
   }
+}
+
+// ── Seafood side of the Prepared / Multi-Ingredient lane ────────────────────
+//
+// A clam chowder, crab cakes, fish sticks or a shrimp fried rice routes to the
+// seafood pipeline, whose 16 categories ask single-fish questions (wild or
+// farmed, vessel or farm, harvest timing, feed). For a multi-ingredient product
+// no U.S. rule requires the maker to answer them, and processed seafood is
+// outside seafood country-of-origin labeling (7 CFR Part 60), so undisclosed
+// answers go `.notRequired` — the same treatment the meat lane gives a stew.
+class SeafoodPreparedDetector {
+  SeafoodPreparedDetector._();
+
+  // Seafood dishes and formulations. The shared meat-lane identity words
+  // (soup, stew, pizza, fried rice, dumpling, gumbo…) apply too.
+  static const List<String> _identityWords = [
+    'chowder', 'bisque', 'fish stick', 'fish sticks', 'fish cake', 'fishcake',
+    'crab cake', 'crabcake', 'salmon cake', 'crab rangoon', 'rangoon',
+    'tuna salad', 'seafood salad', 'shrimp salad', 'crab salad',
+    'sushi roll', 'california roll', 'paella', 'cioppino', 'bouillabaisse',
+    'scampi', 'pad thai', 'alfredo', 'linguine', 'risotto', 'shumai',
+    'shu mai', 'har gow', 'imitation crab', 'imitation lobster',
+    'crab flavored', 'surimi', 'clam sauce', 'crab dip', 'clam dip',
+    'stuffed clams', 'fish taco', 'seafood medley',
+  ];
+
+  // Raw-product phrases that contain an identity word but are single-species
+  // seafood (e.g. "sushi grade tuna" is a raw loin, "chowder clams" are clams).
+  static const List<String> _guards = [
+    'sushi grade', 'sushi-grade', 'sashimi grade', 'sashimi-grade',
+    'chowder clams', 'for chowder', 'chowder mix', 'for soup', 'for stew',
+    'for paella', 'stew meat', 'soup bones',
+  ];
+
+  // Seafood species named as ingredients — whole-word, plurals allowed.
+  static const Map<String, List<String>> _seafoodKeywords = {
+    'Salmon': ['salmon'],
+    'Tuna': ['tuna'],
+    'Cod': ['cod'],
+    'Pollock': ['pollock'],
+    'Haddock': ['haddock'],
+    'Tilapia': ['tilapia'],
+    'Catfish': ['catfish'],
+    'Trout': ['trout'],
+    'Halibut': ['halibut'],
+    'Flounder': ['flounder'],
+    'Whiting': ['whiting', 'hake'],
+    'Anchovy': ['anchovy', 'anchovies'],
+    'Sardine': ['sardine', 'sardines'],
+    'Mackerel': ['mackerel'],
+    'Shrimp': ['shrimp', 'prawn', 'prawns'],
+    'Crab': ['crab', 'crabs', 'crabmeat'],
+    'Lobster': ['lobster', 'lobsters'],
+    'Crawfish': ['crawfish', 'crayfish'],
+    'Clam': ['clam', 'clams'],
+    'Oyster': ['oyster', 'oysters'],
+    'Mussel': ['mussel', 'mussels'],
+    'Scallop': ['scallop', 'scallops'],
+    'Squid': ['squid', 'calamari'],
+    'Octopus': ['octopus'],
+  };
+
+  /// Every fish, shellfish, meat and poultry species named on the label, in a
+  /// stable order (seafood first, then the meat-lane species).
+  static List<String> speciesNamed(String text) {
+    final out = <String>[];
+    _seafoodKeywords.forEach((display, kws) {
+      if (kws.any((k) => PreparedFoodDetector._wordHit(text, k))) out.add(display);
+    });
+    if (out.isEmpty && PreparedFoodDetector._wordHit(text, 'fish')) out.add('Fish');
+    PreparedFoodDetector._speciesKeywords.forEach((display, kws) {
+      if (kws.any((k) => PreparedFoodDetector._wordHit(text, k))) out.add(display);
+    });
+    return out;
+  }
+
+  static PreparedFoodContext detect(String scannedText) {
+    final text = scannedText.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
+    final signals = <String>[];
+
+    String? identityHit;
+    if (!_guards.any(text.contains)) {
+      for (final w in [..._identityWords, ...PreparedFoodDetector._identityWords]) {
+        // Plural-aware: "crab cakes", "fish tacos", "dumplings".
+        if (RegExp('\\b${RegExp.escape(w)}(s|es)?\\b').hasMatch(text)) {
+          identityHit = w;
+          break;
+        }
+      }
+    }
+    if (identityHit != null) signals.add('identity:$identityHit');
+
+    final hasIngredientStatement = PreparedFoodDetector._ingredientGate.hasMatch(text);
+    if (hasIngredientStatement) signals.add('ingredient-statement');
+
+    final species = speciesNamed(text);
+    if (species.length >= 2) signals.add('multi-species:${species.join('+')}');
+
+    var components = 0;
+    for (final c in PreparedFoodDetector._componentFoods) {
+      if (PreparedFoodDetector._wordHit(text, c)) components++;
+    }
+    if (components >= 3) signals.add('components:$components');
+
+    // Same conservative gate as the meat lane: smoked salmon's "salmon, salt,
+    // sugar, smoke" or canned tuna's "tuna, water, salt" never lands here.
+    final isPrepared = identityHit != null ||
+        (hasIngredientStatement && (species.length >= 2 || components >= 3));
+    if (!isPrepared) return PreparedFoodContext.none;
+    return PreparedFoodContext(isPrepared: true, speciesMentioned: species, signals: signals);
+  }
+
+  /// Transform the seafood-lane category map for a prepared product. Only
+  /// `.missing` results change — voluntary disclosures keep their credit.
+  static Map<SeafoodCategory, FATCategoryResult> apply(
+    Map<SeafoodCategory, FATCategoryResult> categories,
+    PreparedFoodContext context, {
+    required String processedOriginNote,
+  }) {
+    final out = Map<SeafoodCategory, FATCategoryResult>.from(categories);
+
+    if (context.speciesMentioned.isNotEmpty) {
+      out[SeafoodCategory.speciesIdentity] = FATCategoryResult(
+        status: DisclosureStatus.known,
+        value: 'Contains: ${context.speciesMentioned.join(', ')}',
+      );
+    }
+
+    const perFish = [
+      SeafoodCategory.strainVariety,
+      SeafoodCategory.farmVesselFishery,
+      SeafoodCategory.ageAtHarvest,
+      SeafoodCategory.productionMethodFeed,
+      SeafoodCategory.animalWelfare,
+      SeafoodCategory.medicineAntibioticsChemicals,
+      SeafoodCategory.hormones,
+      SeafoodCategory.supplyChainIntermediary,
+    ];
+    for (final cat in perFish) {
+      if (out[cat]?.status == DisclosureStatus.missing) {
+        out[cat] = const FATCategoryResult(
+          status: DisclosureStatus.notRequired,
+          value: PreparedFoodDetector.gapNote,
+        );
+      }
+    }
+
+    // Processed seafood is outside seafood COOL, whatever the label's wording.
+    if (out[SeafoodCategory.countryOrigin]?.status == DisclosureStatus.missing) {
+      out[SeafoodCategory.countryOrigin] = FATCategoryResult(
+        status: DisclosureStatus.notRequired,
+        value: processedOriginNote,
+      );
+    }
+
+    // Catfish products are USDA-inspected: the EST names the plant that made
+    // the product, not the farm or the processor of the fish inside.
+    final proc = out[SeafoodCategory.processor];
+    if (proc != null && proc.status == DisclosureStatus.known) {
+      out[SeafoodCategory.processor] = FATCategoryResult(
+        status: proc.status,
+        value: proc.value,
+        credibility: proc.credibility,
+        credibilityNote: proc.credibilityNote == null
+            ? PreparedFoodDetector.assemblerNote
+            : '${proc.credibilityNote} | ${PreparedFoodDetector.assemblerNote}',
+      );
+    }
+    return out;
+  }
+
+  static const String bannerText =
+      'This looks like a multi-ingredient prepared food — a chowder, crab cake, fish stick or similar — where seafood is one ingredient among many. Because it is a processed food, federal country-of-origin labeling doesn’t apply, and no U.S. rule requires the maker to say whether the seafood was wild or farmed, where it was caught or farmed, or how it was raised. Those categories are marked “not applicable” rather than “not disclosed” — a regulatory gap, not a brand failure. Anything the brand voluntarily discloses (for example “made with wild Alaska pollock” or an MSC label) still counts and still earns its credibility tier. One rule does reach the label: fish and crustacean shellfish such as shrimp, crab and lobster must be named by species in the allergen statement. Mollusks such as clams and oysters are not covered by that rule.';
 }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import '../interpreter/prepared_food.dart';
 import '../widgets/label_image_viewer.dart';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -250,6 +251,7 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
               _header(),
               if (_panelPaths.isNotEmpty) _imageCarousel(),
               _productTypeBanner(),
+              if (result.isPreparedFood) _preparedFoodBanner(),
               _atAGlanceCard(),
               _disclosureSummary(),
               if (_sharedPlants.isNotEmpty)
@@ -437,6 +439,43 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
     );
   }
 
+  // ── Prepared / Multi-Ingredient banner ────────────────────────────────
+  // Neutral context: the blue "not applicable" lights come from the
+  // notRequired mechanics; this card explains why.
+  Widget _preparedFoodBanner() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.07),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.45)),
+      ),
+      child: const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.ramen_dining_outlined, size: 20, color: Colors.blue),
+          SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Prepared / Multi-Ingredient Product',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue)),
+                SizedBox(height: 6),
+                Text(SeafoodPreparedDetector.bannerText,
+                    style: TextStyle(fontSize: 14, height: 1.35)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── At-a-glance card ──────────────────────────────────────────────────
   // Mirrors the meat results screen: FSIS/FDA baseline, a single-color
   // 16-segment disclosure meter, the disclosed count, what the label is silent
@@ -505,7 +544,16 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
   }
 
   Widget _atAGlanceCard() {
-    final total = _seafoodTotal;
+    // A prepared product counts against the categories that apply to it, the
+    // same "of N applicable" reading the meat meter uses.
+    final notApplicable = result.isPreparedFood
+        ? SeafoodCategory.values
+            .where((c) =>
+                c.isAppSupported &&
+                result.seafoodCategories[c]?.status == DisclosureStatus.notRequired)
+            .length
+        : 0;
+    final total = _seafoodTotal - notApplicable;
     final disclosed = result.knownCount;
     final partial = result.partialCount;
     final silent = _silentSeafood;
@@ -564,7 +612,10 @@ class _SeafoodResultsScreenState extends State<SeafoodResultsScreen> {
                       color: _disclosureGreen,
                       height: 1.0)),
               const SizedBox(width: 8),
-              Text('of $total categories disclosed',
+              Text(
+                  notApplicable > 0
+                      ? 'of $total applicable categories disclosed'
+                      : 'of $total categories disclosed',
                   style:
                       const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ],

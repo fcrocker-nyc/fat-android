@@ -162,11 +162,19 @@ class _ScanScreenState extends State<ScanScreen> {
       final FATResult fatResult;
       if (isSeafood) {
         final si = SeafoodInterpreter.interpret(scannedText);
+        // Prepared / Multi-Ingredient lane, seafood side: a chowder, crab
+        // cake or fish stick — the single-fish categories go `.notRequired`.
+        final prepared = SeafoodPreparedDetector.detect(scannedText);
+        final seafoodCategories = prepared.isPrepared
+            ? SeafoodPreparedDetector.apply(si.categories, prepared,
+                processedOriginNote: SeafoodInterpreter.coolNotRequiredProcessed)
+            : si.categories;
         fatResult = FATResult(
           scannedText: scannedText,
           categories: const {},
           productType: ProductType.seafood,
-          seafoodCategories: si.categories,
+          seafoodCategories: seafoodCategories,
+          isPreparedFood: prepared.isPrepared,
           isSiluriformes: si.isSiluriformes,
           productionMethod: si.productionMethod,
           productionSystem: si.productionSystem,

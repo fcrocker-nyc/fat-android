@@ -288,7 +288,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(width: 10),
               Expanded(
                 child: Text(
-                    'Also reads prepared foods — stew, pizza, soup — where meat is one ingredient',
+                    'Also reads prepared foods — stew, pizza, chowder, fish sticks — where meat or seafood is one ingredient',
                     style: TextStyle(
                         fontSize: 13.5,
                         height: 1.25,
