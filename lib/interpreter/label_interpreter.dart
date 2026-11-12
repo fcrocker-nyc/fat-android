@@ -5,6 +5,7 @@ import 'est_number_guard.dart';
 import 'retail_exemption.dart';
 import 'prepared_food.dart';
 import 'foreign_establishment.dart';
+import 'chicken_breed_welfare.dart';
 
 class LabelInterpreter {
   LabelInterpreter._();
@@ -214,6 +215,11 @@ class LabelInterpreter {
         );
       }
     }
+
+    // Chicken only: breed is a welfare determinant. Adds the Breed detail line
+    // (named slower-growing breed / Cornish Cross / none) and the Animal
+    // Welfare Approved growth-rate line. Mirrors iOS LabelInterpreter step 7.6.
+    ChickenBreedWelfare.apply(map, text: normalized, species: species.value);
 
     return map;
   }

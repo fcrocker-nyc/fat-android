@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/fat_theme.dart';
 import 'service_case_schema_screen.dart';
+import '../interpreter/chicken_breed_welfare.dart';
 
 // ─── Content block model ─────────────────────────────────────────────────────
 //
@@ -994,6 +995,12 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'How FAT reads it:\n'
             'FAT counts a class-name disclosure as Known on Category 6, but not as a verified claim. A class name is a USDA naming standard (9 CFR 381.170), not an audited program, so FAT shows it the way it shows the other label basics USDA requires — with no credibility tier. The ceiling is legally binding, and the result card states explicitly that the class name is a ceiling, not the actual age, and displays the NCC 47-day industry benchmark. A label bearing only "chicken breast" or "chicken thighs" with no class term scores Missing on Category 6.\n\n'
             'Source: 9 CFR 381.170; 76 FR 68064 (final rule, eff. Jan 1, 2014); 81 FR 21709 (2016 amendment); NCC 2024 Broiler Performance Report; Zuidhof et al. 2014, Poultry Science 93(12):2970–2982.'),
+      ),
+      // 2.5a
+      _LearnTopic(
+        title: ChickenBreedLearn.title,
+        subtitle: ChickenBreedLearn.subtitle,
+        body: _text(ChickenBreedLearn.body),
       ),
       // 2.6 (was 2.5)
       _LearnTopic(
