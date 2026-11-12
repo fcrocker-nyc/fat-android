@@ -54,7 +54,15 @@ class ClaimEntry {
   final String meaning;
   final String? authority;
   final String gap;
-  final List<String> questions;
+  final List<String> questions; // exactly 2, in the diner's voice
+
+  /// Questions printed exactly as written: no "it" → item substitution (the
+  /// Berkshire pair approved verbatim).
+  final bool questionsVerbatim;
+
+  /// Questions for a claim the menu implies but doesn't print (organic salmon
+  /// → farmed), in place of [questions].
+  final List<String>? inferredQuestions;
   final Map<String, String>? stateNote;
 
   /// Protein-specific wording, e.g. "organic" on fish (no USDA standard).
@@ -73,6 +81,8 @@ class ClaimEntry {
     required this.questions,
     required this.stateNote,
     this.variants = const [],
+    this.questionsVerbatim = false,
+    this.inferredQuestions,
   });
 
   /// The wording for the protein the claim sits next to.
@@ -101,6 +111,8 @@ class ClaimEntry {
         authority: j['authority'] as String?,
         gap: j['gap'] as String,
         questions: List<String>.from(j['questions'] as List),
+        questionsVerbatim: (j['questionsVerbatim'] as bool?) ?? false,
+        inferredQuestions: (j['inferredQuestions'] as List?)?.cast<String>().toList(),
         stateNote: (j['stateNote'] as Map?)?.map(
           (k, v) => MapEntry(k as String, v as String),
         ),
@@ -150,11 +162,9 @@ class MenuGlossary {
   /// by protein family name ("beef", "finfish").
   final Map<String, List<String>> fallbackAsk;
 
-  /// The one add-on question ("If I add the {addon}, where is it from?").
+  /// The add-on question ("If I add the {addon}, where is it from?"), used
+  /// as Q2 when the add-on is the dish's only animal protein.
   final String? addOnAsk;
-
-  /// Two closely related glossary questions that read better as one.
-  final List<AskMerge> askMerges;
 
   const MenuGlossary({
     required this.version,
@@ -164,7 +174,6 @@ class MenuGlossary {
     this.knownSources = const [],
     this.fallbackAsk = const {},
     this.addOnAsk,
-    this.askMerges = const [],
   });
 
   factory MenuGlossary.fromJson(Map<String, dynamic> j) => MenuGlossary(
@@ -180,9 +189,6 @@ class MenuGlossary {
         e.key: List<String>.from(e.value as List),
     },
     addOnAsk: j['addOnAsk'] as String?,
-    askMerges: ((j['askMerges'] as List?) ?? const [])
-        .map((e) => AskMerge.fromJson(e as Map<String, dynamic>))
-        .toList(),
   );
 
   ClaimEntry? entry(String key) {
@@ -204,16 +210,6 @@ class MenuGlossary {
     }
     return null;
   }
-}
-
-/// Glossary questions that merge into one natural question when both apply.
-class AskMerge {
-  final List<String> questions;
-  final String merged;
-  const AskMerge(this.questions, this.merged);
-
-  factory AskMerge.fromJson(Map<String, dynamic> j) =>
-      AskMerge(List<String>.from(j['questions'] as List), j['merged'] as String);
 }
 
 /// One row of the curated "known named sources" table. The note carries its

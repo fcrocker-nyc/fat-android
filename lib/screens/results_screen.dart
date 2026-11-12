@@ -1034,8 +1034,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   const SizedBox(height: 4),
                   Text(
                       clue.$3.isEmpty
-                          ? 'The brand “${clue.$1}” on this label is sold by ${clue.$2}. Brands routinely use multiple plants, so the plant that produced this package can be confirmed only from the number printed on it.'
-                          : 'The brand “${clue.$1}” on this label is sold by ${clue.$2}. Establishments known to pack for ${clue.$2} include ${clue.$3.take(6).map((e) => 'EST. $e').join(', ')}. Brands routinely use multiple plants, so the plant that produced this package can be confirmed only from the number printed on it.',
+                          ? 'The brand “${clue.$1}” on this label is sold by ${clue.$2}. Brands routinely use multiple processing plants, so the processing plant that produced this package can be confirmed only from the number printed on it.'
+                          : 'The brand “${clue.$1}” on this label is sold by ${clue.$2}. Establishments known to pack for ${clue.$2} include ${clue.$3.take(6).map((e) => 'EST. $e').join(', ')}. Brands routinely use multiple processing plants, so the processing plant that produced this package can be confirmed only from the number printed on it.',
                       style: const TextStyle(
                           fontSize: 13, fontWeight: FontWeight.w600, color: Colors.black, height: 1.25)),
                 ]),
@@ -1066,7 +1066,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             : 'Retail Exemption',
         titleColor: _disclosureBlue,
         body:
-            'This item appears to have been cut, ground, or packed in-store. Under the USDA retail store exemption (21 U.S.C. 661(c)(2); 9 CFR 303.1(d)), a store doing traditional retail cutting and grinding is not an official establishment and has no establishment number to display — so the missing EST number is not a compliance failure. The Processor, USDA inspection mark, and Supply-Chain categories are marked “not applicable” rather than “not disclosed”: the information was never required to travel from the source plant to the store scale label. For ground beef, the store must still keep the supplier establishment numbers in its grinder’s log (9 CFR 320.1) — ask at the counter.',
+            'This item appears to have been cut, ground, or packed in-store. Under the USDA retail store exemption (21 U.S.C. 661(c)(2); 9 CFR 303.1(d)), a store doing traditional retail cutting and grinding is not an official establishment and has no establishment number to display — so the missing EST number is not a compliance failure. The Processor, USDA inspection mark, and Supply-Chain categories are marked “not applicable” rather than “not disclosed”: the information was never required to travel from the source processing plant to the store scale label. For ground beef, the store must still keep the supplier establishment numbers in its grinder’s log (9 CFR 320.1) — ask at the counter.',
       ));
     }
     // Imported product — the label carries a foreign establishment mark
@@ -1130,7 +1130,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
         title: 'Prepared / Multi-Ingredient Product',
         titleColor: _disclosureBlue,
         body: result.preparedFsisJurisdiction
-            ? 'This looks like a multi-ingredient prepared food under USDA jurisdiction (it carries a USDA legend or establishment number). On a prepared food the establishment number identifies the final assembler — the cannery or plant that made the product — not the slaughterhouse of the meat inside. The per-animal categories (breed, farm, age, feed, welfare, medicine, hormones) are marked “not applicable” rather than “not disclosed”: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat — a regulatory gap, not a brand failure. Anything the brand voluntarily discloses (e.g., “made with organic chicken”) still counts and still earns its credibility tier.'
+            ? 'This looks like a multi-ingredient prepared food under USDA jurisdiction (it carries a USDA legend or establishment number). On a prepared food the establishment number identifies the final assembler — the cannery or processing plant that made the product — not the slaughterhouse of the meat inside. The per-animal categories (breed, farm, age, feed, welfare, medicine, hormones) are marked “not applicable” rather than “not disclosed”: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat — a regulatory gap, not a brand failure. Anything the brand voluntarily discloses (e.g., “made with organic chicken”) still counts and still earns its credibility tier.'
             : PreparedFoodDetector.fdaBannerText,
       ));
     }
@@ -1239,7 +1239,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ],
           Text(
             live
-                ? 'Matched on the establishment identifier printed on this label. Check the lot number and use-by date in the USDA notice against your package — a recall covers specific production lots, not everything the plant makes.'
+                ? 'Matched on the establishment identifier printed on this label. Check the lot number and use-by date in the USDA notice against your package — a recall covers specific production lots, not everything the processing plant makes.'
                 : 'This notice is closed. It is shown as history for the establishment on this label, not a current warning.',
             style: const TextStyle(fontSize: 12.5, color: Colors.black54),
           ),
@@ -1576,7 +1576,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   children: [
                     Icon(Icons.public, size: 16, color: Colors.blue),
                     SizedBox(width: 6),
-                    Text('Look up this plant on the FAT website',
+                    Text('Look up this processing plant on the FAT website',
                         style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,

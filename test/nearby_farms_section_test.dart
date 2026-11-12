@@ -122,7 +122,7 @@ void main() {
       await _pump(t, isHog: true, result: _zeroViolators());
       expect(
           find.text(
-              'No EPA-flagged hog CAFO operations with environmental violations within 50 miles of this plant.'),
+              'No EPA-flagged hog CAFO operations with environmental violations within 50 miles of this processing plant.'),
           findsOneWidget);
       expect(find.text(NearbyFarmsCopy.unavailable), findsNothing);
     });

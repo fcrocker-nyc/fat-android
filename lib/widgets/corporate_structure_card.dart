@@ -52,7 +52,7 @@ class _CorporateStructureCardState extends State<CorporateStructureCard> {
             children: [
               Icon(Icons.account_balance, size: 18, color: _ink),
               SizedBox(width: 8),
-              Text('Who Owns This Plant',
+              Text('Who Owns This Processing Plant',
                   style: TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w900, color: _ink)),
             ],
@@ -102,7 +102,7 @@ class _CorporateStructureCardState extends State<CorporateStructureCard> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Foreign-owned: this plant is ultimately controlled from ${d.country}. The package label is not required to say so.',
+                      'Foreign-owned: this processing plant is ultimately controlled from ${d.country}. The package label is not required to say so.',
                       style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,

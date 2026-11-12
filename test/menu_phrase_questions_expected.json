@@ -1,0 +1,922 @@
+{
+  "addOnAsk": "If I add the {addon}, where is it from?",
+  "entries": {
+    "air_chilled": {
+      "phrases": [
+        "air-chilled",
+        "air chilled"
+      ],
+      "questions": [
+        "Why did you choose air-chilled for this dish?",
+        "Who raises it?"
+      ]
+    },
+    "angus": {
+      "phrases": [
+        "angus",
+        "black angus",
+        "100% angus"
+      ],
+      "questions": [
+        "Why did you choose Angus beef for this dish?",
+        "Where was it raised?"
+      ]
+    },
+    "asc_bap": {
+      "phrases": [
+        "asc",
+        "asc certified",
+        "aquaculture stewardship council",
+        "best aquaculture practices",
+        "bap certified",
+        "bap 4-star",
+        "bap 4 star"
+      ],
+      "questions": [
+        "Which farm is it from, and in which country?",
+        "If it’s BAP, how many stars?"
+      ]
+    },
+    "atlantic_salmon": {
+      "phrases": [
+        "atlantic salmon",
+        "scottish salmon",
+        "norwegian salmon",
+        "faroe island salmon",
+        "faroese salmon",
+        "salmon"
+      ],
+      "questions": [
+        "Which species of salmon is it?",
+        "Is it wild or farmed, and from which country?"
+      ]
+    },
+    "beluga": {
+      "phrases": [
+        "beluga",
+        "beluga caviar",
+        "huso huso"
+      ],
+      "questions": [
+        "Which species is the beluga, and is it farmed?",
+        "Which farm or producer is it from?"
+      ]
+    },
+    "berkshire": {
+      "phrases": [
+        "berkshire",
+        "kurobuta"
+      ],
+      "questions": [
+        "Why did you decide to feature Berkshire pork?",
+        "Who raises it, and are the animals outdoors?"
+      ],
+      "questionsVerbatim": true
+    },
+    "catch_method": {
+      "phrases": [
+        "line-caught",
+        "line caught",
+        "hook-and-line",
+        "hook and line",
+        "pole-caught",
+        "pole caught",
+        "pole and line",
+        "trap-caught",
+        "harpoon",
+        "harpooned",
+        "spear-caught",
+        "troll-caught",
+        "trolled",
+        "hand-dived",
+        "hand dived",
+        "diver",
+        "diver-harvested",
+        "day boat",
+        "day-boat",
+        "dayboat",
+        "small boat",
+        "petit bateau",
+        "pêche petit bateau"
+      ],
+      "questions": [
+        "Do you know the boat or fishery it came from?",
+        "Where was it caught?"
+      ]
+    },
+    "catch_of_day": {
+      "phrases": [
+        "catch of the day",
+        "market fish",
+        "fish of the day",
+        "daily catch",
+        "pêche du jour",
+        "peche du jour",
+        "pesce del giorno",
+        "pescado del día",
+        "pescado del dia",
+        "market price"
+      ],
+      "questions": [
+        "What’s the fish today, and where is it from?",
+        "How was it caught?"
+      ]
+    },
+    "caviar": {
+      "phrases": [
+        "caviar",
+        "osetra",
+        "ossetra",
+        "oscietra",
+        "oscietre",
+        "osciètre",
+        "kaluga",
+        "sevruga",
+        "siberian sturgeon",
+        "white sturgeon",
+        "paddlefish",
+        "hackleback",
+        "roe"
+      ],
+      "questions": [
+        "Which species and which farm is the caviar from?",
+        "Which country is it from?"
+      ]
+    },
+    "certified_angus": {
+      "phrases": [
+        "certified angus beef",
+        "certified angus"
+      ],
+      "questions": [
+        "Why did you choose Certified Angus Beef for this dish?",
+        "Where was it raised?"
+      ]
+    },
+    "chilean_sea_bass": {
+      "phrases": [
+        "chilean sea bass",
+        "antarctic sea bass",
+        "patagonian toothfish",
+        "toothfish"
+      ],
+      "questions": [
+        "Which fishery is it from?",
+        "Is it Patagonian or Antarctic toothfish?"
+      ]
+    },
+    "crab_form": {
+      "phrases": [
+        "crab",
+        "krab",
+        "crab stick",
+        "crabstick",
+        "imitation crab",
+        "surimi",
+        "kani",
+        "crab meat",
+        "lump crab",
+        "jumbo lump"
+      ],
+      "questions": [
+        "Is it real crab, and which species?",
+        "Where is the crab from?"
+      ]
+    },
+    "dover_sole": {
+      "phrases": [
+        "dover sole",
+        "true dover sole",
+        "common sole",
+        "sole",
+        "sole meunière",
+        "sole meuniere"
+      ],
+      "questions": [
+        "Is it European (true) Dover sole or Pacific Dover sole?",
+        "Where was it caught?"
+      ]
+    },
+    "farm_raised": {
+      "inferredQuestions": [
+        "Where is it farmed?",
+        "Is the farm certified — ASC or BAP?"
+      ],
+      "phrases": [
+        "farm-raised",
+        "farm raised",
+        "farmed",
+        "aquacultured",
+        "responsibly farmed",
+        "sustainably farmed",
+        "sustainably farm raised"
+      ],
+      "questions": [
+        "Why did you choose farm-raised for this dish?",
+        "Which country is the farm in?"
+      ]
+    },
+    "flounder_fluke": {
+      "phrases": [
+        "fluke",
+        "summer flounder",
+        "flounder"
+      ],
+      "questions": [
+        "Is it summer flounder (fluke) or another flatfish?",
+        "Where was it caught?"
+      ]
+    },
+    "foie_gras": {
+      "phrases": [
+        "foie gras",
+        "foie"
+      ],
+      "questions": [
+        "Which farm is the foie gras from?",
+        "Is it from a farm that doesn’t force-feed?"
+      ]
+    },
+    "free_range": {
+      "phrases": [
+        "free-range",
+        "free range",
+        "cage-free",
+        "cage free",
+        "free-roaming"
+      ],
+      "questions": [
+        "Why did you choose free-range for this dish?",
+        "Who raises it, and how much time do the birds spend outdoors?"
+      ]
+    },
+    "fresh": {
+      "phrases": [
+        "fresh",
+        "never frozen",
+        "fresh-caught",
+        "fresh caught",
+        "fresh daily",
+        "flown in"
+      ],
+      "questions": [
+        "When did it come in?",
+        "Was it frozen at any point?"
+      ]
+    },
+    "grass_fed": {
+      "phrases": [
+        "grass-fed",
+        "grass fed",
+        "grassfed",
+        "pasture-fed"
+      ],
+      "questions": [
+        "Why did you choose grass-fed for this dish?",
+        "Was it grass-finished, or finished on grain?"
+      ]
+    },
+    "grass_finished": {
+      "phrases": [
+        "grass-finished",
+        "grass finished",
+        "100% grass-fed",
+        "100% grass fed",
+        "grass-fed and finished",
+        "grass fed and finished"
+      ],
+      "questions": [
+        "Which ranch or supplier does it come from?",
+        "Was it raised in the U.S.?"
+      ]
+    },
+    "gulf": {
+      "phrases": [
+        "gulf",
+        "gulf coast",
+        "gulf of mexico",
+        "gulf of america"
+      ],
+      "questions": [
+        "Who is your {noun} supplier?",
+        "Is it from U.S. boats?"
+      ]
+    },
+    "halibut": {
+      "phrases": [
+        "halibut",
+        "pacific halibut",
+        "atlantic halibut",
+        "alaskan halibut",
+        "alaska halibut"
+      ],
+      "questions": [
+        "Is it Pacific or Atlantic halibut?",
+        "Is it wild or farmed?"
+      ]
+    },
+    "heritage_breed": {
+      "phrases": [
+        "heritage",
+        "heritage breed",
+        "heirloom breed",
+        "duroc",
+        "mangalitsa",
+        "red wattle",
+        "tamworth",
+        "gloucestershire old spot",
+        "bourbon red",
+        "narragansett"
+      ],
+      "questions": [
+        "Why did you decide to feature a heritage breed?",
+        "Who raises it, and are the animals outdoors?"
+      ],
+      "variants": [
+        {
+          "proteins": [
+            "poultry"
+          ],
+          "questions": [
+            "Why did you decide to feature a heritage breed?",
+            "Who raises it, and are the animals outdoors?"
+          ]
+        }
+      ]
+    },
+    "humanely_raised": {
+      "phrases": [
+        "humanely raised",
+        "humane",
+        "humanely",
+        "ethically raised",
+        "ethically sourced",
+        "high welfare",
+        "higher welfare"
+      ],
+      "questions": [
+        "What made you choose this supplier?",
+        "Is it raised under a named welfare standard — Certified Humane, Animal Welfare Approved or Global Animal Partnership?"
+      ]
+    },
+    "iberico": {
+      "phrases": [
+        "ibérico",
+        "iberico",
+        "pata negra",
+        "bellota",
+        "ibérico de bellota",
+        "iberico de bellota",
+        "cebo de campo",
+        "jamón",
+        "jamon"
+      ],
+      "questions": [
+        "Why did you choose Ibérico for this dish?",
+        "Was it acorn-fed, and is it 100% Ibérico or a cross?"
+      ]
+    },
+    "ikejime": {
+      "phrases": [
+        "ikejime",
+        "ike jime",
+        "ike-jime",
+        "shinkei jime",
+        "shinkei-jime",
+        "bled",
+        "iki jime"
+      ],
+      "questions": [
+        "Where was the fish caught, and by whom?",
+        "Was the ikejime done on the boat or after landing?"
+      ]
+    },
+    "imported_domestic": {
+      "phrases": [
+        "imported",
+        "domestic",
+        "product of usa",
+        "made in usa",
+        "usa",
+        "u.s.",
+        "american-raised",
+        "american raised"
+      ],
+      "questions": [
+        "What made you choose this supplier?",
+        "Which country was it raised or caught in?"
+      ]
+    },
+    "kobe": {
+      "phrases": [
+        "kobe",
+        "kobe beef",
+        "kobe-style"
+      ],
+      "questions": [
+        "Is it certified Kobe beef from Japan?",
+        "If it’s Kobe-style, where was it raised?"
+      ]
+    },
+    "local": {
+      "phrases": [
+        "local",
+        "locally sourced",
+        "locally raised",
+        "locally caught",
+        "regional",
+        "from our farm",
+        "our farm",
+        "farm-to-table",
+        "farm to table"
+      ],
+      "questions": [
+        "Which farm is it from?",
+        "How far away is the farm?"
+      ]
+    },
+    "menu_named_source": {
+      "phrases": [],
+      "questions": [
+        "What made you decide to feature {name}?",
+        "Have you visited the farm?"
+      ]
+    },
+    "monkfish": {
+      "phrases": [
+        "monkfish",
+        "anglerfish",
+        "lotte",
+        "ankimo",
+        "monkfish liver"
+      ],
+      "questions": [
+        "Is it domestic or imported?",
+        "Where was it caught?"
+      ]
+    },
+    "msc": {
+      "phrases": [
+        "msc",
+        "msc certified",
+        "msc-certified",
+        "marine stewardship council"
+      ],
+      "questions": [
+        "Which fishery is it from?",
+        "How was it caught?"
+      ]
+    },
+    "named_source": {
+      "phrases": [
+        "niman ranch",
+        "snake river farms",
+        "creekstone",
+        "d'artagnan",
+        "bell & evans",
+        "bell and evans",
+        "mary's",
+        "joyce farms",
+        "heritage foods",
+        "island creek",
+        "sea forager",
+        "verlasso",
+        "kvarøy",
+        "kvaroy",
+        "petrossian",
+        "regiis ova",
+        "marshallberg",
+        "tsar nicoulai",
+        "kaviari",
+        "gillardeau",
+        "imperial caviar berlin"
+      ],
+      "questions": [
+        "What made you decide to feature {name}?",
+        "Have you visited the farm?"
+      ]
+    },
+    "natural": {
+      "phrases": [
+        "natural",
+        "all-natural",
+        "all natural",
+        "naturally raised"
+      ],
+      "questions": [
+        "What does ‘natural’ mean on your menu?",
+        "Who is the supplier?"
+      ]
+    },
+    "no_antibiotics": {
+      "phrases": [
+        "antibiotic-free",
+        "antibiotic free",
+        "no antibiotics",
+        "no antibiotics ever",
+        "raised without antibiotics",
+        "never ever",
+        "never-ever"
+      ],
+      "questions": [
+        "Why did you choose this supplier?",
+        "Who raises it?"
+      ]
+    },
+    "no_hormones": {
+      "phrases": [
+        "hormone-free",
+        "hormone free",
+        "no hormones",
+        "no added hormones",
+        "no hormones added",
+        "raised without hormones"
+      ],
+      "questions": [
+        "Why did you choose this supplier?",
+        "Who raises it?"
+      ]
+    },
+    "organic": {
+      "phrases": [
+        "organic",
+        "usda organic",
+        "certified organic"
+      ],
+      "questions": [
+        "What made you choose organic for this dish?",
+        "Who raises it?"
+      ],
+      "variants": [
+        {
+          "proteins": [
+            "finfish",
+            "shellfish"
+          ],
+          "questions": [
+            "Why did you choose organic {noun} for this dish?",
+            "Where is it farmed?"
+          ]
+        }
+      ]
+    },
+    "origin_region": {
+      "phrases": [
+        "maine",
+        "alaskan",
+        "alaska",
+        "copper river",
+        "chesapeake",
+        "chesapeake bay",
+        "nova scotia",
+        "prince edward island",
+        "pei",
+        "scottish",
+        "norwegian",
+        "faroe island",
+        "faroese",
+        "icelandic",
+        "japanese",
+        "hokkaido",
+        "santa barbara",
+        "cornish",
+        "brittany",
+        "mediterranean",
+        "new zealand",
+        "australian",
+        "canadian",
+        "louisiana",
+        "carolina",
+        "florida",
+        "texas",
+        "montana",
+        "colorado",
+        "nebraska",
+        "kansas",
+        "iowa",
+        "vermont",
+        "wisconsin",
+        "california",
+        "oregon",
+        "pacific northwest",
+        "hudson valley",
+        "long island",
+        "ecuadorian",
+        "chilean",
+        "argentinian",
+        "argentine",
+        "uruguayan"
+      ],
+      "questions": [
+        "Who is your {noun} supplier?",
+        "Is it coming from there right now, or does that change with the season?"
+      ]
+    },
+    "pacific_salmon": {
+      "phrases": [
+        "king salmon",
+        "chinook",
+        "sockeye",
+        "coho",
+        "silver salmon",
+        "keta",
+        "ora king",
+        "chinook salmon",
+        "sockeye salmon",
+        "coho salmon",
+        "keta salmon",
+        "ora king salmon"
+      ],
+      "questions": [
+        "Is it wild or farmed?",
+        "Where is it from?"
+      ]
+    },
+    "pasture_raised": {
+      "phrases": [
+        "pasture-raised",
+        "pasture raised",
+        "pastured",
+        "regeneratively raised",
+        "regenerative"
+      ],
+      "questions": [
+        "Who raises it, and are the animals outdoors?",
+        "How much of their time is on pasture?"
+      ]
+    },
+    "scallop_form": {
+      "phrases": [
+        "dry-packed",
+        "dry packed",
+        "dry scallops",
+        "wet-packed",
+        "sea scallops",
+        "bay scallops",
+        "scallops",
+        "scallop"
+      ],
+      "questions": [
+        "Where are the scallops from?",
+        "Are they dry-packed?"
+      ]
+    },
+    "sea_bass_branzino": {
+      "phrases": [
+        "branzino",
+        "branzini",
+        "loup de mer",
+        "european sea bass",
+        "sea bass",
+        "black bass",
+        "striped bass",
+        "barramundi"
+      ],
+      "questions": [
+        "Which species is it?",
+        "Where is it from?"
+      ]
+    },
+    "sea_urchin": {
+      "phrases": [
+        "uni",
+        "sea urchin",
+        "urchin",
+        "santa barbara uni",
+        "hokkaido uni"
+      ],
+      "questions": [
+        "Where is it from?",
+        "Is it domestic or imported?"
+      ]
+    },
+    "seafood_watch": {
+      "phrases": [
+        "seafood watch",
+        "best choice",
+        "good alternative",
+        "ocean wise",
+        "ocean-wise"
+      ],
+      "questions": [
+        "Where and how was it caught?",
+        "Does that change when you switch suppliers?"
+      ]
+    },
+    "shima_aji": {
+      "phrases": [
+        "shima aji",
+        "shima-aji",
+        "shimaaji",
+        "striped jack",
+        "white trevally"
+      ],
+      "questions": [
+        "Is the shima-aji farmed or wild?",
+        "Where is it from?"
+      ]
+    },
+    "shrimp": {
+      "phrases": [
+        "shrimp",
+        "prawn",
+        "prawns",
+        "langoustine",
+        "langoustines",
+        "scampi",
+        "spot prawn",
+        "spot prawns",
+        "rock shrimp",
+        "tiger shrimp"
+      ],
+      "questions": [
+        "Is it wild or farmed?",
+        "Which country is it from?"
+      ]
+    },
+    "snapper_grouper": {
+      "phrases": [
+        "red snapper",
+        "snapper",
+        "grouper",
+        "red grouper",
+        "black grouper",
+        "rockfish",
+        "pacific red snapper"
+      ],
+      "questions": [
+        "Which species is it?",
+        "Where is it from?"
+      ]
+    },
+    "sustainable": {
+      "phrases": [
+        "sustainable",
+        "sustainably sourced",
+        "sustainably caught",
+        "responsibly sourced",
+        "responsibly caught",
+        "ocean-friendly",
+        "eco-friendly"
+      ],
+      "questions": [
+        "What makes this choice sustainable?",
+        "Who certifies it?"
+      ]
+    },
+    "tuna_species": {
+      "phrases": [
+        "bluefin",
+        "bluefin tuna",
+        "toro",
+        "otoro",
+        "chutoro",
+        "yellowfin",
+        "ahi",
+        "bigeye",
+        "albacore",
+        "skipjack",
+        "tuna"
+      ],
+      "questions": [
+        "Which species is the tuna, and which ocean?",
+        "Is it wild-caught or ranched?"
+      ]
+    },
+    "usda_grade": {
+      "phrases": [
+        "usda prime",
+        "prime",
+        "usda choice",
+        "upper choice",
+        "choice grade"
+      ],
+      "questions": [
+        "Is it USDA Prime, or is ‘Prime’ the name of the cut?",
+        "Where does your beef come from?"
+      ]
+    },
+    "veal": {
+      "phrases": [
+        "veal",
+        "milk-fed veal",
+        "bob veal",
+        "rose veal",
+        "rosé veal"
+      ],
+      "questions": [
+        "Who raises the veal?",
+        "Were the calves raised in group housing?"
+      ]
+    },
+    "wagyu": {
+      "phrases": [
+        "wagyu",
+        "american wagyu",
+        "a5",
+        "a5 wagyu",
+        "australian wagyu",
+        "f1 wagyu",
+        "full blood wagyu",
+        "fullblood wagyu",
+        "miyazaki",
+        "ohmi"
+      ],
+      "questions": [
+        "Is it Japanese, American or Australian Wagyu?",
+        "Full-blood or a cross?"
+      ]
+    },
+    "welfare_cert": {
+      "phrases": [
+        "certified humane",
+        "animal welfare approved",
+        "certified awa",
+        "global animal partnership",
+        "gap certified",
+        "gap step",
+        "american humane certified",
+        "regenerative organic certified"
+      ],
+      "questions": [
+        "What made you choose this supplier?",
+        "Which certification does the farm hold, and at what level?"
+      ]
+    },
+    "white_tuna": {
+      "phrases": [
+        "white tuna",
+        "super white tuna",
+        "escolar",
+        "butterfish",
+        "walu"
+      ],
+      "questions": [
+        "Is the white tuna albacore or escolar?",
+        "Where was it caught?"
+      ]
+    },
+    "wild_caught": {
+      "phrases": [
+        "wild-caught",
+        "wild caught",
+        "wild",
+        "wild-harvested",
+        "wild harvested"
+      ],
+      "questions": [
+        "Why did you choose wild-caught for this dish?",
+        "Where was it caught, and how — line, net or trap?"
+      ]
+    },
+    "yellowtail_hamachi": {
+      "phrases": [
+        "hamachi",
+        "yellowtail",
+        "buri",
+        "amberjack",
+        "kampachi",
+        "kanpachi",
+        "hiramasa"
+      ],
+      "questions": [
+        "Farmed or wild?",
+        "From where?"
+      ]
+    }
+  },
+  "fallbackAsk": {
+    "beef": [
+      "Why did you choose this {noun}?",
+      "Where was {item} raised?"
+    ],
+    "finfish": [
+      "Why did you choose this {noun}?",
+      "Is {item} wild or farmed, and where is it from?"
+    ],
+    "lamb": [
+      "Why did you choose this {noun}?",
+      "Where was {item} raised?"
+    ],
+    "other": [
+      "Why did you choose this {noun}?",
+      "Is {item} wild or farmed, and where is it from?"
+    ],
+    "pork": [
+      "Why did you choose this {noun}?",
+      "Who raises {item}?"
+    ],
+    "poultry": [
+      "Why did you choose this {noun}?",
+      "Who raises {item}?"
+    ],
+    "shellfish": [
+      "Why did you choose this {noun}?",
+      "Is {item} wild or farmed, and where is it from?"
+    ]
+  },
+  "generalQuestions": [
+    "What can you tell me about the {protein}?",
+    "Where does the {protein} come from?"
+  ]
+}

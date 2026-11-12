@@ -183,7 +183,7 @@ class PreparedFoodDetector {
 
   static const String assemblerNote =
       'On a prepared food, the establishment number identifies the final '
-      'assembler — the cannery or plant that made the product — not the '
+      'assembler — the cannery or processing plant that made the product — not the '
       'slaughterhouse of the meat inside. Upstream sourcing is not disclosed '
       'on the label.';
 

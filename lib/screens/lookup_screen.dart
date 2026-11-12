@@ -94,8 +94,8 @@ class _LookupScreenState extends State<LookupScreen> {
   /// One-line descriptions for the "Five ways to look up" card.
   /// Mirrors iOS LookupMode.overviewBlurb.
   static const _tabBlurbs = [
-    'Find the USDA-inspected plant behind a meat or poultry label by its EST number or plant name.',
-    'Search a meat brand or company to see who owns it, with plant locations and related brands for major companies.',
+    'Find the USDA-inspected processing plant behind a meat or poultry label by its EST number or processing plant name.',
+    'Search a meat brand or company to see who owns it, with processing plant locations and related brands for major companies.',
     'Enter a seafood brand name. The result shows who owns the brand, any sustainability seals it carries (MSC, ASC, BAP), and where its fish come from. No brand? Enter a loose fish\'s name instead.',
     'Search public FDA seafood enforcement (warning letters, import alerts, import refusals) by firm, country, product, or alert number.',
     'Type a cut of beef, pork or chicken (ribeye, pork butt, thighs) to see where on the animal it comes from and its other names.',
@@ -210,7 +210,7 @@ class _LookupScreenState extends State<LookupScreen> {
     } else if (plants.isEmpty) {
       title = 'No establishment found';
     } else {
-      title = '${plants.length} USDA-inspected plants';
+      title = '${plants.length} USDA-inspected processing plants';
       subtitle = plants
           .map((p) => '${p.establishmentNumber} ${p.cityState}')
           .join(' · ');
@@ -244,7 +244,7 @@ class _LookupScreenState extends State<LookupScreen> {
       ],
       if (resp.establishments.isEmpty)
         _notFoundCard('No USDA establishment matched \u201C${resp.query}\u201D.',
-            'Check the number on the USDA mark of inspection (e.g. EST. 245C or P-39928), or try part of the plant name.'),
+            'Check the number on the USDA mark of inspection (e.g. EST. 245C or P-39928), or try part of the processing plant name.'),
       for (final p in resp.establishments) ...[
         EstablishmentPlantCard(plant: p),
         ...[
@@ -628,7 +628,7 @@ class _LookupScreenState extends State<LookupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Enter USDA Establishment Number or Plant Name',
+          const Text('Enter USDA Establishment Number or Processing Plant Name',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           _searchField(_estController, 'e.g. 969, 245C, P-39928, or Godshall',
@@ -1259,7 +1259,7 @@ class _LookupScreenState extends State<LookupScreen> {
           ]),
           const SizedBox(height: 6),
           const Text(
-              'Workplace-safety enforcement, separate from food-safety records — conditions for plant workers, not product safety.',
+              'Workplace-safety enforcement, separate from food-safety records — conditions for processing plant workers, not product safety.',
               style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -1267,7 +1267,7 @@ class _LookupScreenState extends State<LookupScreen> {
           if (possible) ...[
             const SizedBox(height: 4),
             const Text(
-                'Possible match — shares this plant\'s company name but is not address-confirmed to this specific facility.',
+                'Possible match — shares this processing plant\'s company name but is not address-confirmed to this specific facility.',
                 style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,

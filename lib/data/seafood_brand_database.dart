@@ -51,7 +51,7 @@ class SeafoodBrandResult {
         certifications: const [],
         primarySpecies: const [],
         sourcingNotes:
-            'Brand-ownership record. Responsible company shown; scan the label for plant/enforcement detail.',
+            'Brand-ownership record. Responsible company shown; scan the label for processing plant/enforcement detail.',
         ownershipNotes: cw['evidence_summary'] as String? ?? '',
         plantLocations: const [],
         sourcingRegions: const [],
@@ -277,10 +277,10 @@ class SeafoodBrandDatabase {
       sourcingNotes:
           "Largest US seafood company. Primarily sources from Alaska fisheries. Vertically integrated — operates own fishing fleet and processing plants.",
       ownershipNotes:
-          "Privately held, headquartered in Seattle, WA. Founded 1973 by Chuck Bundrant. ~9,000 employees globally. Currently restructuring: sold Kodiak plant to Pacific Seafood (2024), seeking buyers for select Alaska plants.",
+          "Privately held, headquartered in Seattle, WA. Founded 1973 by Chuck Bundrant. ~9,000 employees globally. Currently restructuring: sold Kodiak processing plant to Pacific Seafood (2024), seeking buyers for select Alaska processing plants.",
       plantLocations: [
         "Seattle, Washington (HQ + R&D)",
-        "Akutan, Alaska (largest seafood plant in North America — 1,400+ seasonal workers)",
+        "Akutan, Alaska (largest seafood processing plant in North America — 1,400+ seasonal workers)",
         "Naknek, Alaska (Bristol Bay — 600+ seasonal)",
         "Wrangell, Alaska (salmon)",
         "Sand Point, Alaska",
@@ -299,7 +299,7 @@ class SeafoodBrandDatabase {
       fdaEnforcementURL:
           "https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/trident-seafoods-recalling-pacific-salmon-burger-public-notice",
       regulatoryNotes:
-          "Major restructuring 2023-2025: selling select Alaska plants, reducing headcount 10%. Planning new facility at Captains Bay, Unalaska to replace aging Akutan plant. In March 2021 Trident Seafoods issued a public-notice recall for Pacific Salmon Burgers.",
+          "Major restructuring 2023-2025: selling select Alaska processing plants, reducing headcount 10%. Planning new facility at Captains Bay, Unalaska to replace aging Akutan processing plant. In March 2021 Trident Seafoods issued a public-notice recall for Pacific Salmon Burgers.",
     ),
 
     SeafoodBrandResult(
@@ -365,7 +365,7 @@ class SeafoodBrandDatabase {
       plantLocations: [
         "San Diego, California (headquarters)",
         "Santa Fe Springs, California (canning)",
-        "FCF plants in Ghana and Papua New Guinea"
+        "FCF processing plants in Ghana and Papua New Guinea"
       ],
       fleetInfo:
           "FCF parent operates fishing bases in Pacific Island nations, Mauritius, Cape Town (South Africa), and Montevideo (Uruguay). 30+ global subsidiaries and fishing bases.",
@@ -379,7 +379,7 @@ class SeafoodBrandDatabase {
       farmSourcing: null,
       fdaEnforcementURL: null,
       regulatoryNotes:
-          "Former CEO convicted of criminal price-fixing conspiracy with Chicken of the Sea and StarKist (2010-2013). Paid \$25M criminal fine. Filed bankruptcy 2019. 2020 Greenpeace report linked FCF parent to illegal fishing and forced labor. In 2012 a worker died after being trapped in an industrial oven at the Santa Fe Springs plant.",
+          "Former CEO convicted of criminal price-fixing conspiracy with Chicken of the Sea and StarKist (2010-2013). Paid \$25M criminal fine. Filed bankruptcy 2019. 2020 Greenpeace report linked FCF parent to illegal fishing and forced labor. In 2012 a worker died after being trapped in an industrial oven at the Santa Fe Springs processing plant.",
     ),
 
     SeafoodBrandResult(
@@ -443,7 +443,7 @@ class SeafoodBrandDatabase {
       farmSourcing: null,
       fdaEnforcementURL: null,
       regulatoryNotes:
-          "Pleaded guilty in 2018 to price-fixing canned tuna (2011-2013). Paid \$55M+ in civil settlements. Postponed \$77M American Samoa plant expansion citing insufficient cash. Operates under exemptions to Nicholson and Jones Acts in American Samoa.",
+          "Pleaded guilty in 2018 to price-fixing canned tuna (2011-2013). Paid \$55M+ in civil settlements. Postponed \$77M American Samoa processing plant expansion citing insufficient cash. Operates under exemptions to Nicholson and Jones Acts in American Samoa.",
     ),
 
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -112,7 +112,7 @@ class EstablishmentPlantCard extends StatelessWidget {
                     color: Colors.white)),
           ),
           if (p.fullAddress.isNotEmpty) _line(Icons.location_on, p.fullAddress),
-          if (p.size != null) _line(Icons.business, 'Plant size: ${p.size}'),
+          if (p.size != null) _line(Icons.business, 'Processing plant size: ${p.size}'),
           if (p.activityList.isNotEmpty)
             _line(Icons.settings, p.activityList.join(', ')),
           if (p.dba != null && p.dba != p.name)

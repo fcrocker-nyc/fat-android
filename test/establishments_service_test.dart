@@ -115,7 +115,7 @@ void main() {
       expect(r.kind, ResolutionKind.ambiguous);
       expect(r.plants.length, 3);
       expect(EstablishmentsService.sharedHeadline(3),
-          "This number belongs to 3 USDA-inspected plants — match the city on the package's USDA mark");
+          "This number belongs to 3 USDA-inspected processing plants — match the city on the package's USDA mark");
     });
 
     test('scanned 4033 → Bianco Inc.', () {
@@ -248,8 +248,8 @@ void main() {
       plant.salmonellaLine ?? '',
       plant.latestRecallLine ?? '',
       'No USDA establishment matched',
-      'Check the number on the USDA mark of inspection (e.g. EST. 245C or P-39928), or try part of the plant name.',
-      'Enter USDA Establishment Number or Plant Name',
+      'Check the number on the USDA mark of inspection (e.g. EST. 245C or P-39928), or try part of the processing plant name.',
+      'Enter USDA Establishment Number or Processing Plant Name',
       'Recalls:',
       'Public health alerts:',
       'Inspection tasks:',

@@ -85,7 +85,7 @@ class EpaPlant {
 
 class EpaService {
   static const sharedOnFileText =
-      'EPA (ECHO) violations are on file for one of the plants that share this number — match the city on the package to know which';
+      'EPA (ECHO) violations are on file for one of the processing plants that share this number — match the city on the package to know which';
 
   static Map<String, EpaEntry>? _entries;
   static const _indexUrl =

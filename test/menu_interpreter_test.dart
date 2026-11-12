@@ -39,7 +39,7 @@ void main() {
     for (final e in glossary.entries) {
       // The heuristic named-source entry has no phrases; it's matched in code.
       if (e.key != MenuClaimExtractor.menuNamedSourceKey) expect(e.phrases, isNotEmpty, reason: e.key);
-      expect(e.questions.length, inInclusiveRange(2, 3), reason: e.key);
+      expect(e.questions.length, 2, reason: e.key);
       for (final p in e.patterns) {
         expect(() => RegExp(p, unicode: true), returnsNormally, reason: e.key);
       }
@@ -194,17 +194,16 @@ Kani Salad 12
     final cards = MenuClaimExplainer.cards(d, glossary, null);
     expect(cards.length, 1);
     expect(cards.first.title, 'No sourcing claim');
-    final qs = MenuClaimExplainer.topQuestions(d, glossary);
-    expect(qs.length, 2);
-    expect(qs.first, contains('chicken'));
+    expect(cards.first.questions,
+        ['What can you tell me about the chicken or duck?', 'Where does the chicken or duck come from?']);
+    expect(MenuClaimExplainer.askQuestions(d, glossary),
+        ['Why did you choose this chicken?', 'Who raises the chicken?']);
   });
 
-  test('top questions prioritise species and origin', () {
+  test('ask questions lead with the first production claim in the name', () {
     final d = dish(run('Sustainable Wild Salmon 42'), 'salmon');
-    final qs = MenuClaimExplainer.topQuestions(d, glossary);
-    expect(qs.length, 3);
-    expect(qs.toSet().length, 3);
-    expect(qs.first, glossary.entry('atlantic_salmon')!.questions.first);
+    expect(MenuClaimExplainer.askQuestions(d, glossary),
+        ['What makes this choice sustainable?', 'Who certifies the salmon?']);
   });
 
   test('result stamps glossary version', () {

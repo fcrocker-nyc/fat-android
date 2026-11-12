@@ -2,50 +2,40 @@
   "version": "0.1.0-draft",
   "status": "Seed set for editorial review. Meanings cite the defining authority when one exists; 'No legal definition' when none does. Not reviewed for publication.",
   "generalQuestions": [
-    "What can you tell me about the {protein}? Where does it come from?",
-    "Is there a case label or invoice you could show me? Most kitchens are happy to."
+    "What can you tell me about the {protein}?",
+    "Where does the {protein} come from?"
   ],
   "fallbackAsk": {
     "beef": [
-      "Where does the beef come from?",
-      "Is it grass-fed or grain-finished?"
+      "Why did you choose this {noun}?",
+      "Where was {item} raised?"
     ],
     "pork": [
-      "Where does the pork come from?"
+      "Why did you choose this {noun}?",
+      "Who raises {item}?"
     ],
     "poultry": [
-      "Where does the chicken (or duck) come from?"
+      "Why did you choose this {noun}?",
+      "Who raises {item}?"
     ],
     "lamb": [
-      "Where is the lamb from?"
+      "Why did you choose this {noun}?",
+      "Where was {item} raised?"
     ],
     "finfish": [
-      "Is the fish wild or farmed, and from which country?"
+      "Why did you choose this {noun}?",
+      "Is {item} wild or farmed, and where is it from?"
     ],
     "shellfish": [
-      "Is it wild or farmed, and from which country?"
+      "Why did you choose this {noun}?",
+      "Is {item} wild or farmed, and where is it from?"
     ],
     "other": [
-      "Where does it come from, and is it wild or farmed?"
+      "Why did you choose this {noun}?",
+      "Is {item} wild or farmed, and where is it from?"
     ]
   },
   "addOnAsk": "If I add the {addon}, where is it from?",
-  "askMerges": [
-    {
-      "questions": [
-        "Is the shrimp wild or farmed?",
-        "Which country is it from?"
-      ],
-      "merged": "Is the shrimp wild or farmed, and which country is it from?"
-    },
-    {
-      "questions": [
-        "Where is it farmed?",
-        "Who certified it organic?"
-      ],
-      "merged": "Where is it farmed, and who certified it organic?"
-    }
-  ],
   "entries": [
     {
       "key": "origin_region",
@@ -98,12 +88,12 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "A place where the animal was raised or the seafood was caught or farmed. Country-of-origin labeling rules define origin for meat and seafood sold in stores (USDA's Agricultural Marketing Service).",
-      "authority": "USDA country-of-origin labeling rule — stores only, not restaurants",
-      "gap": "Restaurants don’t have to follow country-of-origin labeling rules, so a place name on a menu can describe a style or a past supplier rather than what is in the kitchen today.",
+      "meaning": "A place where the animal was raised or the seafood was caught or farmed. In stores, country-of-origin rules define origin for meat and seafood (USDA's Agricultural Marketing Service).",
+      "authority": "USDA country-of-origin rule — stores only, not restaurants",
+      "gap": "Restaurants don’t have to follow country-of-origin rules, so a place name on a menu can describe a style or a past supplier rather than what is in the kitchen today.",
       "questions": [
-        "Is it coming from there right now, or does that change with the season?",
-        "Who do you buy it from?"
+        "Who is your {noun} supplier?",
+        "Is it coming from there right now, or does that change with the season?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -126,8 +116,8 @@
       "authority": "No legal definition on menus",
       "gap": "‘Gulf shrimp’ is sometimes used for a style of shrimp, and much of the shrimp served in the U.S. is imported. The word alone doesn’t say which country’s boats caught it.",
       "questions": [
-        "Is this shrimp domestic or imported?",
-        "Is it wild-caught Gulf shrimp, or farmed?"
+        "Who is your {noun} supplier?",
+        "Is it from U.S. boats?"
       ],
       "stateNote": {
         "AL": "Alabama requires restaurants to tell diners when shrimp is imported (National Fisherman, 2025). If the menu doesn’t say, it’s fair to ask.",
@@ -152,12 +142,12 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "A statement about country. On a retail label, ‘Product of USA’ now means born, raised, slaughtered and processed in the U.S. (USDA rule, effective 2026).",
-      "authority": "USDA — applies to labels, not menu copy",
-      "gap": "On a menu nobody checks the wording, and ‘domestic’ may mean processed here rather than raised here.",
+      "meaning": "A statement about country. On packaged meat in stores, ‘Product of USA’ now means born, raised, slaughtered and processed in the U.S. (USDA rule, effective 2026).",
+      "authority": "USDA — applies to packages in stores, not menus",
+      "gap": "On a menu nobody explains the wording, and ‘domestic’ may mean processed here rather than raised here.",
       "questions": [
-        "Which country was it raised or caught in?",
-        "Does the case it came in say ‘Product of USA’?"
+        "What made you choose this supplier?",
+        "Which country was it raised or caught in?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -182,8 +172,8 @@
       "authority": "No legal definition",
       "gap": "‘Local’ can mean one feature dish or the whole menu, and the distance is up to the kitchen.",
       "questions": [
-        "What does local mean here — how far away?",
-        "Which dishes use the local meat or fish?"
+        "Which farm is it from?",
+        "How far away is the farm?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -222,8 +212,8 @@
       "authority": null,
       "gap": "A named supplier may cover one cut or one dish, not everything on the plate or menu. Supplier names are brands, not certifications.",
       "questions": [
-        "Is everything in this dish from them, or just the feature item?",
-        "How long have you bought from them?"
+        "What made you decide to feature {name}?",
+        "Have you visited the farm?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -234,12 +224,12 @@
       "phrases": [],
       "patterns": null,
       "proteins": null,
-      "meaning": "The menu names a farm, ranch, brand or place. FAT can’t verify where this name sources from.",
+      "meaning": "The menu names a farm, ranch, brand or place. The kitchen can tell you more about it.",
       "authority": null,
       "gap": "A name alone doesn’t say where the farm is, or whether it’s the farm itself or a distributor’s brand.",
       "questions": [
-        "Where is {name} located?",
-        "Is it the farm itself, or a distributor’s brand?"
+        "What made you decide to feature {name}?",
+        "Have you visited the farm?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -258,12 +248,12 @@
         "beef",
         "lamb"
       ],
-      "meaning": "The animal ate grass. On a retail label USDA requires documentation for the claim; the old USDA grass-fed standard was withdrawn in 2016.",
-      "authority": "USDA animal-raising claims guideline (2024) — labels only",
+      "meaning": "The animal ate grass. On packaged meat in stores, USDA requires documentation for the claim; the old USDA grass-fed standard was withdrawn in 2016.",
+      "authority": "USDA animal-raising claims guideline (2024) — packaged meat only",
       "gap": "Grass-fed doesn’t say whether the animal was finished on grain, or how much of its life was on pasture.",
       "questions": [
-        "Grass-fed and grass-finished, or finished on grain?",
-        "Where was it raised?"
+        "Why did you choose grass-fed for this dish?",
+        "Was it grass-finished, or finished on grain?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -284,12 +274,12 @@
         "beef",
         "lamb"
       ],
-      "meaning": "The animal ate grass and forage through to slaughter, with no grain finishing. On labels USDA asks for documentation; third parties (AGA, PCO) certify it.",
-      "authority": "USDA animal-raising claims guideline (2024) — labels only",
-      "gap": "On a menu nobody checks the claim, and it doesn’t say where the animal was raised. Much grass-finished beef sold in the U.S. is imported.",
+      "meaning": "The animal ate grass and forage through to slaughter, with no grain finishing. On packaged meat USDA asks for documentation; third parties (AGA, PCO) certify it.",
+      "authority": "USDA animal-raising claims guideline (2024) — packaged meat only",
+      "gap": "On a menu nobody explains the claim, and it doesn’t say where the animal was raised. Much grass-finished beef sold in the U.S. is imported.",
       "questions": [
-        "Is it certified grass-fed by anyone, or is that the supplier’s description?",
-        "Which country was it raised in?"
+        "Which ranch or supplier does it come from?",
+        "Was it raised in the U.S.?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -306,12 +296,12 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "Raised with time on pasture. USDA approves the claim on labels from the producer’s own documentation; certifiers like Certified Humane set outdoor-space minimums.",
-      "authority": "USDA animal-raising claims guideline (2024) — labels only",
+      "meaning": "Raised with time on pasture. USDA approves the claim on packaged meat from the producer’s own documentation; certifiers like Certified Humane set outdoor-space minimums.",
+      "authority": "USDA animal-raising claims guideline (2024) — packaged meat only",
       "gap": "There’s no federal minimum for days or space on pasture, and the claim says nothing about feed.",
       "questions": [
-        "Is the supplier certified for pasture-raised, or is that their own description?",
-        "How much of the year are the animals outside?"
+        "Who raises it, and are the animals outdoors?",
+        "How much of their time is on pasture?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -332,11 +322,11 @@
         "pork"
       ],
       "meaning": "For poultry, USDA requires that birds had access to the outdoors. ‘Cage-free’ means not raised in cages; meat chickens in the U.S. are not caged anyway.",
-      "authority": "USDA — labels only",
+      "authority": "USDA — packaged poultry only",
       "gap": "Free range sets no minimum for outdoor time or space, and ‘access’ can be a door the birds rarely use.",
       "questions": [
-        "Who raises the chicken?",
-        "Is the farm certified by anyone for how the birds are kept?"
+        "Why did you choose free-range for this dish?",
+        "Who raises it, and how much time do the birds spend outdoors?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -355,12 +345,12 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "The animal received no antibiotics. On labels USDA requires documentation for the claim (2024 guideline).",
-      "authority": "USDA animal-raising claims guideline (2024) — labels only",
+      "meaning": "The animal received no antibiotics. On packaged meat USDA requires documentation for the claim (2024 guideline).",
+      "authority": "USDA animal-raising claims guideline (2024) — packaged meat only",
       "gap": "It doesn’t say anything else about how the animal was raised. Sick animals that need treatment are usually moved to a different program.",
       "questions": [
-        "Is that verified by a third party, or the supplier’s claim?",
-        "Who’s the supplier?"
+        "Why did you choose this supplier?",
+        "Who raises it?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -378,12 +368,12 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "No growth hormones were used. Federal rules already ban hormones in pork and poultry, so USDA requires those labels to say so. For beef the claim needs documentation.",
-      "authority": "USDA — labels only",
+      "meaning": "No growth hormones were used. Federal rules already ban hormones in pork and poultry, so USDA requires those packages to say so. For beef the claim needs documentation.",
+      "authority": "USDA — packaged meat only",
       "gap": "For chicken and pork the claim is true of all of it. For beef it doesn’t say anything about feed, antibiotics, or how the animal was raised.",
       "questions": [
-        "Is the beef from a certified program, or the supplier’s description?",
-        "Where was it raised?"
+        "Why did you choose this supplier?",
+        "Who raises it?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -399,12 +389,12 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "On a retail label, USDA ‘natural’ means minimally processed with no artificial ingredients. It is about processing, not how the animal lived.",
-      "authority": "USDA — labels only",
+      "meaning": "On packaged meat in stores, USDA ‘natural’ means minimally processed with no artificial ingredients. It is about processing, not how the animal lived.",
+      "authority": "USDA — packaged meat only",
       "gap": "‘Natural’ says nothing about feed, antibiotics, outdoor access or where the animal came from.",
       "questions": [
-        "What does natural mean for this dish — how was the animal raised?",
-        "Who’s the supplier?"
+        "What does ‘natural’ mean on your menu?",
+        "Who is the supplier?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -423,12 +413,12 @@
       ],
       "patterns": null,
       "proteins": null,
-      "meaning": "A welfare statement. On labels USDA requires documentation, usually a third-party standard. On a menu there is no definition.",
+      "meaning": "A welfare statement. On packaged meat USDA requires documentation, usually a third-party standard. On a menu there is no definition.",
       "authority": "No legal definition on menus",
       "gap": "It doesn’t say whose standard is used or what it requires.",
       "questions": [
-        "Is the supplier certified by anyone — Certified Humane, Animal Welfare Approved, or GAP?",
-        "What does humane mean for this farm?"
+        "What made you choose this supplier?",
+        "Is it raised under a named welfare standard — Certified Humane, Animal Welfare Approved or Global Animal Partnership?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -445,11 +435,11 @@
         "poultry"
       ],
       "meaning": "The birds were cooled with cold air after slaughter instead of in chilled water baths.",
-      "authority": "USDA — labels only",
+      "authority": "USDA — packaged poultry only",
       "gap": "It describes processing only — not how or where the birds were raised.",
       "questions": [
-        "Who raises the chicken?",
-        "Where is the farm?"
+        "Why did you choose air-chilled for this dish?",
+        "Who raises it?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -493,8 +483,8 @@
       "authority": "USDA",
       "gap": "‘Veal’ alone doesn’t say how the calves were housed or fed.",
       "questions": [
-        "Were the calves raised in group housing?",
-        "Who’s the supplier?"
+        "Who raises the veal?",
+        "Were the calves raised in group housing?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -514,12 +504,12 @@
         "finfish",
         "shellfish"
       ],
-      "meaning": "Caught in the wild rather than farmed. U.S. country-of-origin labeling rules require stores to say whether seafood is wild or farmed (7 CFR Part 60).",
-      "authority": "USDA country-of-origin labeling rule — stores only, not restaurants",
-      "gap": "Restaurants don’t have to follow country-of-origin labeling rules. Wild doesn’t say where it was caught, how, or whether that fishery is well managed.",
+      "meaning": "Caught in the wild rather than farmed. U.S. country-of-origin rules require stores to say whether seafood is wild or farmed (7 CFR Part 60).",
+      "authority": "USDA country-of-origin rule — stores only, not restaurants",
+      "gap": "Restaurants don’t have to follow country-of-origin rules. Wild doesn’t say where it was caught, how, or whether that fishery is well managed.",
       "questions": [
-        "Where was it caught, and how — line, net, or trap?",
-        "Is it wild today, or does that change with the season?"
+        "Why did you choose wild-caught for this dish?",
+        "Where was it caught, and how — line, net or trap?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -541,11 +531,15 @@
         "finfish",
         "shellfish"
       ],
-      "meaning": "Raised on a fish or shellfish farm. U.S. country-of-origin labeling rules require stores to say whether seafood is wild or farmed.",
-      "authority": "USDA country-of-origin labeling rule — stores only, not restaurants",
+      "meaning": "Raised on a fish or shellfish farm. U.S. country-of-origin rules require stores to say whether seafood is wild or farmed.",
+      "authority": "USDA country-of-origin rule — stores only, not restaurants",
       "gap": "Farmed doesn’t say which country, what kind of farm (net pens, ponds, tanks), or whether it’s certified.",
       "questions": [
-        "Which country is the farm in?",
+        "Why did you choose farm-raised for this dish?",
+        "Which country is the farm in?"
+      ],
+      "inferredQuestions": [
+        "Where is it farmed?",
         "Is the farm certified — ASC or BAP?"
       ],
       "stateNote": null,
@@ -615,7 +609,7 @@
       "gap": "It doesn’t say where or how the fish was caught.",
       "questions": [
         "Where was the fish caught, and by whom?",
-        "Was it done on the boat or after landing?"
+        "Was the ikejime done on the boat or after landing?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -636,12 +630,12 @@
         "finfish",
         "shellfish"
       ],
-      "meaning": "On a retail label, FDA ‘fresh’ means never frozen or heat-preserved (21 CFR 101.95).",
-      "authority": "FDA — labels only",
+      "meaning": "In stores, FDA ‘fresh’ means never frozen or heat-preserved (21 CFR 101.95).",
+      "authority": "FDA — packaged food only",
       "gap": "Fresh doesn’t say how many days since catch, or where from. Fish frozen at sea can be higher quality than ‘fresh’ fish shipped for days.",
       "questions": [
-        "Was it frozen at any point?",
-        "When did it come in?"
+        "When did it come in?",
+        "Was it frozen at any point?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -664,8 +658,8 @@
       "authority": "No legal definition",
       "gap": "It doesn’t say whose standard, or what was checked.",
       "questions": [
-        "Sustainable by whose standard — MSC, Seafood Watch, or your own?",
-        "Where was it caught or farmed?"
+        "What makes this choice sustainable?",
+        "Who certifies it?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -686,10 +680,10 @@
       ],
       "meaning": "The fishery is certified by the Marine Stewardship Council, and the supply chain holds MSC chain of custody.",
       "authority": "Marine Stewardship Council (third party)",
-      "gap": "Only a restaurant with MSC chain of custody can use the label; otherwise it describes the supplier’s product as bought.",
+      "gap": "Only a restaurant with MSC chain of custody can use the MSC logo; otherwise it describes the supplier’s product as bought.",
       "questions": [
-        "Is the restaurant MSC chain-of-custody certified, or is it the supplier?",
-        "Which fishery is it from?"
+        "Which fishery is it from?",
+        "How was it caught?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -715,7 +709,7 @@
       "authority": "ASC / Global Seafood Alliance (third party)",
       "gap": "Certification covers the farm and supply as bought. BAP uses star levels — one star covers only the processing plant.",
       "questions": [
-        "Which farm is it, and in which country?",
+        "Which farm is it from, and in which country?",
         "If it’s BAP, how many stars?"
       ],
       "stateNote": null,
@@ -740,8 +734,8 @@
       "authority": "Monterey Bay Aquarium / Ocean Wise (ratings, not certification)",
       "gap": "The rating applies to a specific source and method; it’s only accurate if the kitchen’s supply matches it.",
       "questions": [
-        "Which source is it — where and how was it caught?",
-        "Does it change when you switch suppliers?"
+        "Where and how was it caught?",
+        "Does that change when you switch suppliers?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -760,8 +754,8 @@
       "authority": "USDA National Organic Program",
       "gap": "The dish and the restaurant are not certified — only the ingredient as bought.",
       "questions": [
-        "Is it USDA Organic certified? Which supplier?",
-        "Is the whole dish organic, or just this ingredient?"
+        "What made you choose organic for this dish?",
+        "Who raises it?"
       ],
       "stateNote": null,
       "adjacentProtein": true,
@@ -771,13 +765,12 @@
             "finfish",
             "shellfish"
           ],
-          "meaning": "USDA has no organic standard for seafood, and FDA doesn’t run organic labeling, so ‘organic’ on fish can’t mean USDA Organic. Organic salmon is farmed: the claim usually means a European or UK organic certification covering the farm’s feed and practices. It can’t carry the USDA Organic seal.",
+          "meaning": "USDA has no organic standard for seafood, so ‘organic’ on fish can’t mean USDA Organic. Organic salmon is farmed: the claim usually means a European or UK organic certification covering the farm’s feed and practices. It can’t carry the USDA Organic seal.",
           "authority": "No USDA standard (European/UK organic certification)",
           "gap": "The menu doesn’t say where the fish was farmed or who certified it.",
           "questions": [
-            "Where is it farmed?",
-            "Who certified it organic?",
-            "Is the feed organic, or the whole farm?"
+            "Why did you choose organic {noun} for this dish?",
+            "Where is it farmed?"
           ]
         }
       ]
@@ -801,8 +794,8 @@
       "authority": "Third-party certifier",
       "gap": "Standards differ a lot — some require outdoor access, some don’t. Certification covers the supplier’s product, not the restaurant.",
       "questions": [
-        "Which certification, and which level?",
-        "Who’s the supplier?"
+        "What made you choose this supplier?",
+        "Which certification does the farm hold, and at what level?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -822,8 +815,8 @@
       "authority": "American Angus Association (brand program, USDA-verified specs)",
       "gap": "It’s about breed appearance and eating quality — not where or how the cattle were raised.",
       "questions": [
-        "Where was the beef raised?",
-        "Do you know the packer or ranch?"
+        "Why did you choose Certified Angus Beef for this dish?",
+        "Where was it raised?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -844,7 +837,7 @@
       "authority": "USDA's Agricultural Marketing Service (Angus claims for live cattle)",
       "gap": "Breed says nothing about where or how the animal was raised, or its grade.",
       "questions": [
-        "What grade is it — Prime or Choice?",
+        "Why did you choose Angus beef for this dish?",
         "Where was it raised?"
       ],
       "stateNote": null,
@@ -869,8 +862,8 @@
       "authority": "USDA quality grading",
       "gap": "Grade is about eating quality only — not breed, feed, origin, or how the animal was raised. ‘Prime rib’ is a cut and need not be Prime grade.",
       "questions": [
-        "Is it USDA-graded Prime, or is ‘prime’ the name of the cut?",
-        "Where was it raised?"
+        "Is it USDA Prime, or is ‘Prime’ the name of the cut?",
+        "Where does your beef come from?"
       ],
       "stateNote": null,
       "adjacentProtein": true
@@ -898,8 +891,8 @@
       "authority": "No U.S. legal definition (American Wagyu Association sets its own registry rules)",
       "gap": "Wagyu can be a crossbreed raised anywhere; the share of Wagyu genetics isn’t stated.",
       "questions": [
-        "Is the Wagyu Japanese, American, or Australian?",
-        "Is it full-blood or a cross — what percent?"
+        "Is it Japanese, American or Australian Wagyu?",
+        "Full-blood or a cross?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -920,11 +913,33 @@
       "authority": "Kobe Beef Marketing and Distribution Promotion Association (Japan)",
       "gap": "Very little genuine Kobe beef is exported to the U.S. ‘Kobe-style’ is not Kobe beef.",
       "questions": [
-        "Is it certified Kobe beef? Do you have the certificate number?",
+        "Is it certified Kobe beef from Japan?",
         "If it’s Kobe-style, where was it raised?"
       ],
       "stateNote": null,
       "adjacentProtein": false
+    },
+    {
+      "key": "berkshire",
+      "family": "gradeOrBreed",
+      "phrases": [
+        "berkshire",
+        "kurobuta"
+      ],
+      "patterns": null,
+      "proteins": [
+        "pork"
+      ],
+      "meaning": "A traditional breed. Berkshires are black-colored pigs; Kurobuta is Japanese for ‘black pig.’ ‘Heritage’ has no federal definition.",
+      "authority": "No legal definition (breed associations certify some breeds)",
+      "gap": "How the animal was raised, fed or housed.",
+      "questions": [
+        "Why did you decide to feature Berkshire pork?",
+        "Who raises it, and are the animals outdoors?"
+      ],
+      "questionsVerbatim": true,
+      "stateNote": null,
+      "adjacentProtein": true
     },
     {
       "key": "heritage_breed",
@@ -933,8 +948,6 @@
         "heritage",
         "heritage breed",
         "heirloom breed",
-        "berkshire",
-        "kurobuta",
         "duroc",
         "mangalitsa",
         "red wattle",
@@ -948,15 +961,29 @@
         "pork",
         "poultry"
       ],
-      "meaning": "A traditional breed. ‘Heritage’ has no federal definition; The Livestock Conservancy defines heritage chicken and turkey. Kurobuta is the Japanese name for Berkshire pork.",
+      "meaning": "A traditional breed. Berkshires are black-colored pigs; Kurobuta is Japanese for ‘black pig.’ ‘Heritage’ has no federal definition.",
       "authority": "No legal definition (breed associations certify some breeds)",
-      "gap": "A breed name doesn’t say how the animal was raised, fed, or housed.",
+      "gap": "How the animal was raised, fed or housed.",
       "questions": [
-        "Who raises it, and is the breed certified by the breed association?",
-        "Are the animals raised outdoors?"
+        "Why did you decide to feature a heritage breed?",
+        "Who raises it, and are the animals outdoors?"
       ],
       "stateNote": null,
-      "adjacentProtein": true
+      "adjacentProtein": true,
+      "variants": [
+        {
+          "proteins": [
+            "poultry"
+          ],
+          "meaning": "A traditional breed. ‘Heritage’ has no federal definition; The Livestock Conservancy defines heritage chicken and turkey.",
+          "authority": "No legal definition (breed associations certify some breeds)",
+          "gap": "How the animal was raised, fed or housed.",
+          "questions": [
+            "Why did you decide to feature a heritage breed?",
+            "Who raises it, and are the animals outdoors?"
+          ]
+        }
+      ]
     },
     {
       "key": "iberico",
@@ -976,12 +1003,12 @@
       "proteins": [
         "pork"
       ],
-      "meaning": "Spanish Iberian pork. Spanish law (Real Decreto 4/2014) uses colored labels: black (100% Iberian, acorn-fed), red (cross, acorn-fed), green (pasture with feed), white (farm-raised).",
+      "meaning": "Spanish Iberian pork. Spanish law (Real Decreto 4/2014) uses a color code: black (100% Iberian, acorn-fed), red (cross, acorn-fed), green (pasture with feed), white (farm-raised).",
       "authority": "Spain, Real Decreto 4/2014",
-      "gap": "‘Ibérico’ alone can be the white-label, farm-raised category. ‘Bellota’ means acorn-finished.",
+      "gap": "‘Ibérico’ alone can be the white-coded, farm-raised category. ‘Bellota’ means acorn-finished.",
       "questions": [
-        "Which label color is it — black, red, green, or white?",
-        "Is it 100% Ibérico or a cross?"
+        "Why did you choose Ibérico for this dish?",
+        "Was it acorn-fed, and is it 100% Ibérico or a cross?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -1005,8 +1032,8 @@
       "authority": "FDA Seafood List (species names)",
       "gap": "‘Salmon’ alone doesn’t say the species, whether it’s wild or farmed, or which country the farm is in.",
       "questions": [
-        "Is the salmon wild or farmed today?",
-        "Which species of salmon is it, and from which country?"
+        "Which species of salmon is it?",
+        "Is it wild or farmed, and from which country?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -1037,7 +1064,7 @@
       "gap": "The species name doesn’t say wild or farmed, or where it was caught.",
       "questions": [
         "Is it wild or farmed?",
-        "Where was it caught?"
+        "Where is it from?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -1062,8 +1089,8 @@
       "authority": "FDA Seafood List",
       "gap": "Snapper and grouper are among the fish most often substituted in restaurants (Oceana, 2013 and 2019). ‘Pacific red snapper’ is usually rockfish.",
       "questions": [
-        "What species is the snapper, exactly?",
-        "Where was it caught?"
+        "Which species is it?",
+        "Where is it from?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -1139,7 +1166,7 @@
       "authority": "FDA Seafood List; NOAA / CCAMLR",
       "gap": "The name doesn’t say which fishery. Some toothfish fisheries are MSC certified; others aren’t.",
       "questions": [
-        "Which fishery is it from — is it MSC certified?",
+        "Which fishery is it from?",
         "Is it Patagonian or Antarctic toothfish?"
       ],
       "stateNote": null,
@@ -1166,8 +1193,8 @@
       "authority": "FDA Seafood List",
       "gap": "‘Sea bass’ doesn’t name the species, and doesn’t say wild or farmed.",
       "questions": [
-        "Which species of bass is it?",
-        "Is it wild or farmed, and where from?"
+        "Which species is it?",
+        "Where is it from?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -1193,11 +1220,11 @@
         "finfish"
       ],
       "meaning": "Real crab is a named species (blue, Dungeness, king, snow, Jonah). ‘Kani,’ ‘krab’ and surimi are made from processed pollock or other fish.",
-      "authority": "FDA — imitation crab must be labeled as imitation at retail",
+      "authority": "FDA — imitation crab must be named as imitation in stores",
       "gap": "Lump crab meat is often imported pasteurized blue swimming crab, not Chesapeake blue crab.",
       "questions": [
-        "Is it real crab or imitation? Which species?",
-        "Where is the crab meat from?"
+        "Is it real crab, and which species?",
+        "Where is the crab from?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -1225,7 +1252,7 @@
       "authority": "FDA Seafood List",
       "gap": "‘Shrimp’ alone doesn’t say wild or farmed, or which country.",
       "questions": [
-        "Is the shrimp wild or farmed?",
+        "Is it wild or farmed?",
         "Which country is it from?"
       ],
       "stateNote": {
@@ -1291,7 +1318,7 @@
       "gap": "Menus rarely say the species, the farm, or the country. Kaluga is usually a farmed hybrid from China.",
       "questions": [
         "Which species and which farm is the caviar from?",
-        "Is it farmed, and in which country?"
+        "Which country is it from?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -1312,7 +1339,7 @@
       "authority": "U.S. Fish and Wildlife Service; CITES",
       "gap": "On a menu ‘beluga’ may mean a farmed beluga, a hybrid, or a brand name. The menu won’t say.",
       "questions": [
-        "What does beluga mean here — which species, and is it farmed?",
+        "Which species is the beluga, and is it farmed?",
         "Which farm or producer is it from?"
       ],
       "stateNote": null,
@@ -1343,7 +1370,7 @@
       "gap": "The menu names no species, place, or method.",
       "questions": [
         "What’s the fish today, and where is it from?",
-        "Is it wild or farmed?"
+        "How was it caught?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -1368,8 +1395,8 @@
       "authority": "FDA Seafood List; FAO",
       "gap": "Hamachi is usually farmed, but the menu rarely says so. Related Seriola species are farmed in several countries, and the name doesn’t say which one or where.",
       "questions": [
-        "Is it farmed or wild?",
-        "Which country is it from?"
+        "Farmed or wild?",
+        "From where?"
       ],
       "stateNote": null,
       "adjacentProtein": false

@@ -687,7 +687,7 @@ class PorkOwnerDatabase {
       marketSharePct: 13.0,
       isTop3: true,
       note:
-          'Cargill is the #3 US turkey producer. Part of Cargill Protein division. Sells under Honeysuckle White and Shady Brook Farms brands. Closed Springdale, Arkansas turkey plant in 2025. Cargill is the largest privately held US company.',
+          'Cargill is the #3 US turkey producer. Part of Cargill Protein division. Sells under Honeysuckle White and Shady Brook Farms brands. Closed Springdale, Arkansas turkey processing plant in 2025. Cargill is the largest privately held US company.',
       profileURL: 'https://www.cargill.com',
     ),
     PorkCorporateOwner(

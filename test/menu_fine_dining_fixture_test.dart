@@ -90,8 +90,7 @@ void main() {
     expect(card.meaning, isNot(contains('7 CFR Part 205')));
     expect(card.authority, 'No USDA standard (European/UK organic certification)');
     expect(card.gap, 'The menu doesn’t say where the fish was farmed or who certified it.');
-    expect(card.questions,
-        ['Where is it farmed?', 'Who certified it organic?', 'Is the feed organic, or the whole farm?']);
+    expect(card.questions, ['Why did you choose organic salmon for this dish?', 'Where is the salmon farmed?']);
     final chicken = interpreter.interpret([MenuPage.fromPlainText('Organic Roast Chicken 32')]).items.first;
     final meatCard = MenuClaimExplainer.cards(chicken, glossary, null).firstWhere((c) => c.entry?.key == 'organic');
     expect(meatCard.meaning, contains('7 CFR Part 205'));
@@ -129,8 +128,8 @@ void main() {
     final glen = card('SALMON');
     expect(glen.title, 'Named source: Glen Cairn');
     expect(glen.meaning,
-        'The menu names a farm, ranch, brand or place. FAT can’t verify where this name sources from.');
-    expect(glen.questions, ['Where is Glen Cairn located?', 'Is it the farm itself, or a distributor’s brand?']);
+        'The menu names a farm, ranch, brand or place. The kitchen can tell you more about it.');
+    expect(glen.questions, ['What made you decide to feature Glen Cairn?', 'Have you visited the farm?']);
     expect(glen.sourceNote,
         'Listed by U.S. distributor The Educated Fish Co. as EU-certified Scottish organic salmon (distributor’s claim, not verified by FAT).');
     for (final (dish, name) in [('CHICKEN', 'Crystal Valley'), ('DUCK', 'Crescent Farms'), ('PORTERHOUSE', 'Allen Brothers')]) {

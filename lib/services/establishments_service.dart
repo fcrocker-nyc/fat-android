@@ -435,7 +435,7 @@ class EstablishmentsService {
   static const noParentMappingText = 'no parent mapping on file';
 
   static String sharedOwnerNote(int n) =>
-      'This number belongs to $n USDA-inspected plants with different owners — match the city on the package\'s USDA mark to know which.';
+      'This number belongs to $n USDA-inspected processing plants with different owners — match the city on the package\'s USDA mark to know which.';
 
   /// Who/Owner for a shared number the label didn't resolve, when the
   /// candidate plants map to different parent companies: Partial, value
@@ -521,5 +521,5 @@ class EstablishmentsService {
 
   /// Scan-results headline when several plants share the number.
   static String sharedHeadline(int n) =>
-      'This number belongs to $n USDA-inspected plants — match the city on the package\'s USDA mark';
+      'This number belongs to $n USDA-inspected processing plants — match the city on the package\'s USDA mark';
 }

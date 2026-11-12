@@ -2,79 +2,77 @@
   {
     "dish": "GRILLED BLACK ANGUS FILET MIGNON* (GF)",
     "questions": [
-      "What grade is the beef — Prime or Choice?",
-      "Where was the beef raised?",
-      "Which farm is the foie gras from?"
+      "Why did you choose Angus beef for this dish?",
+      "Where was the beef raised?"
     ]
   },
   {
     "dish": "PROVENÇALE CRUSTED RACK OF LAMB",
     "questions": [
-      "Where is the lamb from?"
+      "Why did you choose this lamb?",
+      "Where was the lamb raised?"
     ]
   },
   {
     "dish": "SPAGHETTI AL NERO FRUTTI DI MARE",
     "questions": [
-      "Which country is the shrimp from?",
-      "Where was the shrimp caught, and how — line, net, or trap?",
-      "Is the shrimp wild today, or does that change with the season?"
+      "Why did you choose wild-caught for this dish?",
+      "Where was the shrimp caught, and how — line, net or trap?"
     ]
   },
   {
     "dish": "BOUILLABAISSE",
     "questions": [
-      "Which country is the shrimp from?",
-      "Where was the shrimp caught, and how — line, net, or trap?",
-      "Is the shrimp wild today, or does that change with the season?"
+      "Why did you choose wild-caught for this dish?",
+      "Where was the shrimp caught, and how — line, net or trap?"
     ]
   },
   {
     "dish": "CAVATELLI PASTA, BERKSHIRE PORK OSSO BUCO RAGU",
     "questions": [
-      "Who raises the pork, and is the breed certified by the breed association?",
-      "Are the animals raised outdoors?"
+      "Why did you decide to feature Berkshire pork?",
+      "Who raises it, and are the animals outdoors?"
     ]
   },
   {
     "dish": "ORGANIC GLEN CAIRN SALMON* (GF)",
     "questions": [
-      "Which species of salmon is it, and from which country?",
-      "Where is the salmon farmed, and who certified it organic?",
-      "Where is Glen Cairn located?"
+      "What made you decide to feature Glen Cairn?",
+      "Where is the salmon farmed?"
     ]
   },
   {
     "dish": "OVEN ROASTED CRYSTAL VALLEY CHICKEN (GF)",
     "questions": [
-      "Where is Crystal Valley located?",
-      "Is Crystal Valley the farm itself, or a distributor’s brand?"
+      "What made you decide to feature Crystal Valley?",
+      "Have you visited the farm?"
     ]
   },
   {
     "dish": "GRILLED PRIME ALLEN BROTHERS PORTERHOUSE FOR TWO* 32oz (GF)",
     "questions": [
-      "Where is Allen Brothers located?",
-      "Is the beef USDA-graded Prime, or is ‘prime’ the name of the cut?",
-      "Is Allen Brothers the farm itself, or a distributor’s brand?"
+      "What made you decide to feature Allen Brothers?",
+      "Where does your beef come from?"
     ]
   },
   {
     "dish": "ROASTED CRESCENT FARMS DUCK BREAST* (GF)",
     "questions": [
-      "Where is Crescent Farms located?",
-      "Is Crescent Farms the farm itself, or a distributor’s brand?"
+      "What made you decide to feature Crescent Farms?",
+      "Have you visited the farm?"
     ]
   },
   {
     "dish": "GRILLED VENISON LOIN",
     "questions": [
-      "Where does the venison come from, and is it wild or farmed?"
+      "Why did you choose this venison?",
+      "Is the venison wild or farmed, and where is it from?"
     ]
   },
   {
     "dish": "THAI VEGETABLE STEW (GF) (Ve)",
     "questions": [
+      "Why did you choose this lobster?",
       "If I add the lobster, where is it from?"
     ]
   }

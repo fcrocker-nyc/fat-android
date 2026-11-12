@@ -19,9 +19,9 @@ import 'processor_service.dart';
 class NcHogLagoonNotice {
   static const title = 'North Carolina hog farms and waste lagoons';
   static const body =
-      "This pork was processed at a plant in North Carolina. Many of the state's hog farms store manure in open-air anaerobic lagoons and apply the liquid to nearby fields. North Carolina placed a moratorium on new and expanded hog farms in 1997 and made it permanent in 2007 for farms that use anaerobic lagoons as their primary waste treatment, so existing lagoon farms continue to operate. NC DEQ's April 2026 list of permitted animal facilities includes 1,962 swine permits, 1,944 of them with at least one lagoon, permitted for about 8.7 million hogs at a time. North Carolina had 7.20 million hogs on June 1, 2026, the third most of any state. In October 2025 the N.C. Supreme Court ruled that DEQ could not enforce the swine general permit's annual reporting requirement without formal rulemaking.";
+      "This pork came from a processing plant in North Carolina. Many of the state's hog farms store manure in open-air anaerobic lagoons and apply the liquid to nearby fields. North Carolina placed a moratorium on new and expanded hog farms in 1997 and made it permanent in 2007 for farms that use anaerobic lagoons as their primary waste treatment, so existing lagoon farms continue to operate. NC DEQ's April 2026 list of permitted animal facilities includes 1,962 swine permits, 1,944 of them with at least one lagoon, permitted for about 8.7 million hogs at a time. North Carolina had 7.20 million hogs on June 1, 2026, the third most of any state. In October 2025 the N.C. Supreme Court ruled that DEQ could not enforce the swine general permit's annual reporting requirement without formal rulemaking.";
   static const caveat =
-      "The package doesn't say which farm raised this pork. The plant's location is only a clue: hogs can travel long distances to slaughter.";
+      "The package doesn't say which farm raised this pork. The processing plant's location is only a clue: hogs can travel long distances to slaughter.";
   static const sourceLabel =
       'Source: NC Department of Environmental Quality — Animal Feeding Operations';
   static const sourceUrl =

@@ -93,7 +93,7 @@ void main() {
     (j['establishment'] as Map)['est_number'] = '99999999';
     final rec = ProcessorRecord.fromJson(j);
     expect(rec.resolvedName, isNull);
-    expect(rec.displayName, 'Plant name not on file');
+    expect(rec.displayName, 'Processing plant name not on file');
   });
 
   test('Suffix folded into prefix resolves to the right plant, never the bare number', () async {

@@ -841,7 +841,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         body: _text(
             'Almost every conventionally processed chicken in the U.S. is treated with an antimicrobial wash before it reaches the package. Two things on the label tell you how, and they carry very different weight.\n\n'
             'Retained water is the regulated fact.\n'
-            'Under 9 CFR 441.10, a plant may only print a retained-water figure — including "0%" or "no retained water" — if it holds data supporting it. A positive percentage (for example, "up to 4% retained water") means the bird was chilled in a water bath, the step where the wash chemical is added. This is the harder signal, because it is backed by a rule.\n\n'
+            'Under 9 CFR 441.10, a processing plant may only print a retained-water figure — including "0%" or "no retained water" — if it holds data supporting it. A positive percentage (for example, "up to 4% retained water") means the bird was chilled in a water bath, the step where the wash chemical is added. This is the harder signal, because it is backed by a rule.\n\n'
             '"Air-chilled" is the softer claim.\n'
             'It is voluntary marketing, not audited by anyone. It means the bird skipped the water bath. FAT flags it like any self-reported claim. A useful cross-check: if a label says "air-chilled" and also shows a retained-water percentage, the two conflict — a percentage means water immersion.\n\n'
             'What the evidence says about the wash:\n\n'
@@ -850,7 +850,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Safe to eat.\n'
             'EFSA (EU), a joint FAO/WHO expert meeting, and a New Zealand government review all put dietary exposure to these chemicals far below safety limits. USDA and the EU find no evidence the wash harms the person eating the chicken. FAT\'s concern is disclosure, not danger.\n\n'
             'Not an OSHA violation.\n'
-            'Using these sprays is not, in itself, an OSHA violation — there is no OSHA airborne limit for peracetic acid for a plant to break. Worker exposure is real but governed only by a voluntary industry guideline: a gap in the rules, not a citation. A plant\'s actual safety-enforcement record, if any, is shown separately.\n\n'
+            'Using these sprays is not, in itself, an OSHA violation — there is no OSHA airborne limit for peracetic acid for a processing plant to break. Worker exposure is real but governed only by a voluntary industry guideline: a gap in the rules, not a citation. A processing plant\'s actual safety-enforcement record, if any, is shown separately.\n\n'
             'Two caveats. Every air-chill claim is self-reported and unaudited. And the high end of the retained-water range ("up to 12%") appears in USDA guidance rather than on any package we could find — which is itself telling.\n\n'
             'Source: FAT research paper — The Chemistry That Isn\'t on the Label: Antimicrobial Washes in U.S. Broiler Processing. Full paper at farmanimaltransparency.com/fat-research/.'),
       ),
@@ -862,7 +862,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Domestic fed cattle — grain-finished steers and heifers — throw off large volumes of fatty trim from carcass fabrication: roughly 50% lean, 50% fat. Retail and foodservice demand runs leaner, typically 80/20 or leaner. Closing that gap takes very lean trim, usually 90% lean or better, which comes disproportionately from mature cull dairy and beef cows rather than from fed cattle at all.\n\n'
             'The domestic cull-cow supply that would fill that gap is shrinking with the U.S. cattle herd, now at a 75-year low. So a large and growing share of the lean side of the blend is imported — roughly 38.7% of all U.S. ground-beef trim in 2025, versus a ~25% average over the prior two decades — chiefly from Australia, New Zealand, Brazil, Uruguay, and Argentina.\n\n'
             'A packer or grinder — most often one of the "Big Four" (Tyson, JBS, Cargill, National Beef), which together process roughly 80–85% of U.S. fed cattle, or a specialist grinder — blends the fatty domestic trim with lean domestic or imported trim to hit a precise lean-point target, verified by inline DEXA (X-ray) fat scanning as the trim moves down the line.\n\n'
-            'What this means for a shopper: no public record traces one retail package back to one animal. Ground beef is structurally a blend of many animals, domestic and often imported, mixed to a target ratio — which is exactly why FAT does not attempt to claim otherwise for this product category. What FAT can confirm is the plant that did the blending, shown on the results screen.\n\n'
+            'What this means for a shopper: no public record traces one retail package back to one animal. Ground beef is structurally a blend of many animals, domestic and often imported, mixed to a target ratio — which is exactly why FAT does not attempt to claim otherwise for this product category. What FAT can confirm is the processing plant that did the blending, shown on the results screen.\n\n'
             'Source: "Lean Beef in America" research briefing v.4, §§1, 3, 5, 6.'),
       ),
       // 2.2e — Product of USA 2026 rule
@@ -916,7 +916,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             "U.S. clearances so far are chicken (UPSIDE Foods, GOOD Meat and Believer Meats, which has since closed), pork fat (Mission Barns) and salmon (Wildtype). Sales have been limited to a few restaurants and promotional retail sales.\n\n"
             'USDA must preapprove the label of any cell-cultivated meat or poultry product. Labels approved so far put "cell-cultivated" in front of the meat name, as in "cell-cultivated chicken."\n\n'
             "Several states, including Montana, Florida, Alabama, Mississippi, Nebraska, Indiana and Texas, ban or restrict its sale.\n\n"
-            'How to check a package: real ground beef carries the USDA inspection mark and an establishment (EST) number. Scan it, and FAT names the plant that produced it. If a label ever says "cell-cultivated," the scan will tell you.\n\n'
+            'How to check a package: real ground beef carries the USDA inspection mark and an establishment (EST) number. Scan it, and FAT names the processing plant that produced it. If a label ever says "cell-cultivated," the scan will tell you.\n\n'
             "Videos claiming that store-brand ground beef is secretly lab-grown are false. Many are AI-generated.\n\n"
             "Source: FAT research paper — Is My Ground Beef Lab-Grown? How to Check in 10 Seconds (Hamburger Research Series). Full paper at farmanimaltransparency.com/is-my-ground-beef-lab-grown/"),
       ),
@@ -925,9 +925,9 @@ final List<_LearnSection> _sections = <_LearnSection>[
         title: 'The Retail Exemption',
         subtitle: 'Why a store-cut steak has no establishment number',
         body: _text(
-            'A boxed subprimal arrives at a supermarket carrying the USDA mark of inspection and the establishment number of the plant that fabricated it. A store butcher opens the box, cuts it into steaks or grinds it, wraps the result on a scale, and prints a label — with a price, a weight, and a sell-by date, but no establishment number. No federal rule requires one.\n\n'
+            'A boxed subprimal arrives at a supermarket carrying the USDA mark of inspection and the establishment number of the processing plant that fabricated it. A store butcher opens the box, cuts it into steaks or grinds it, wraps the result on a scale, and prints a label — with a price, a weight, and a sell-by date, but no establishment number. No federal rule requires one.\n\n'
             'Why the number disappears.\n'
-            'The retail store exemption — 21 U.S.C. 661(c)(2), spelled out at 9 CFR 303.1(d) — covers the ordinary work of a retail meat counter: cutting a wholesale cut into retail cuts, and grinding. A store doing that work is not an "official establishment," so it has no establishment number of its own, and nothing obliges it to carry forward the number of the plant that supplied the box.\n\n'
+            'The retail store exemption — 21 U.S.C. 661(c)(2), spelled out at 9 CFR 303.1(d) — covers the ordinary work of a retail meat counter: cutting a wholesale cut into retail cuts, and grinding. A store doing that work is not an "official establishment," so it has no establishment number of its own, and nothing obliges it to carry forward the number of the processing plant that supplied the box.\n\n'
             'What FAT does with it.\n'
             'When FAT detects a store-cut or store-ground package — an in-store scale label, a store-grind statement, a random-weight barcode, and no EST number — it does not flag the missing number as a violation. It marks the establishment-dependent categories — Processor, the USDA inspection mark, and Supply-Chain Intermediaries — "not applicable" (shown in blue) rather than "not disclosed" (red), and sets them aside from the disclosed count. The information was never required to travel to the store scale label, so its absence says nothing about the store. Scoring it like a national-brand package the company controls would blame the store for a gap that belongs to the regulation.\n\n'
             'The one thing the store must keep.\n'
@@ -947,7 +947,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Where the terms and thresholds come from.\n'
             '"Prepared / Multi-Ingredient" is FAT\'s consumer-facing name, not a legal term. The law\'s own term for the USDA branch is "meat food product" — defined in the Federal Meat Inspection Act (21 U.S.C. 601(j)) as any food made wholly or in part from meat, EXCEPT products containing meat "only in a relatively small proportion," as USDA prescribes. Poultry runs under a different statute entirely: the Poultry Products Inspection Act defines "poultry product" at 21 U.S.C. 453(f). The working thresholds — generally, less than 3% raw or less than 2% cooked meat or poultry puts a product on the FDA side — come from USDA\'s implementing definitions (9 CFR 301.2) and USDA\'s published jurisdiction policy (the USDA Food Standards and Labeling Policy Book). FAT does not use "meat food product" as the lane name because it would be wrong for half the lane: a below-threshold pizza or soup is, by definition, NOT a meat food product — it is an FDA food — and chicken soup is a "poultry product" under a separate act.\n\n'
             'The establishment number names the assembler.\n'
-            'On a prepared food under USDA jurisdiction, the EST number identifies the plant that assembled the product — the cannery, the pizza plant — not the slaughterhouse of the meat inside. Upstream sourcing is not disclosed on the label, and no rule requires it to be. FAT still runs its processor, OSHA, and EPA lookups against that assembler EST, because the assembler\'s own record is real information.\n\n'
+            'On a prepared food under USDA jurisdiction, the EST number identifies the processing plant that assembled the product — the cannery, the pizza processing plant — not the slaughterhouse of the meat inside. Upstream sourcing is not disclosed on the label, and no rule requires it to be. FAT still runs its processor, OSHA, and EPA lookups against that assembler EST, because the assembler\'s own record is real information.\n\n'
             'What FAT does with it.\n'
             'Species is read as a list of every meat, poultry, or seafood ingredient named — "Contains: Beef, Pork" — instead of forcing one animal. The per-animal categories (breed, farm, age at slaughter, feed, welfare, medicine, hormones) are marked "not applicable" in blue and set aside from the disclosed count: the gap belongs to the regulatory design, not the brand. When no legend or EST number is found on a prepared food, FAT infers FDA jurisdiction — labels don\'t state the meat percentage, so this is an inference, and the legend may simply be on a panel that wasn\'t scanned. The missing marks are shown as "not required" rather than counted as a violation. And anything the brand voluntarily discloses ("made with organic chicken") still counts and still earns its credibility tier.\n\n'
             'Seafood ingredients: chowder, crab cakes, fish sticks.\n'
@@ -1009,7 +1009,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         subtitle:
             'The custodians between the farm and the slaughter plant — and who owns them',
         body: _text(
-            'Most of an animal\'s life happens between the farm where it was born (Category 5) and the plant where it was slaughtered (Category 7). The operations in that gap — backgrounders, stockers, contract grow-out farms, and finishing feedlots — rarely appear on a retail label, yet they determine how the animal was fed, housed, and handled for most of its life. Category 16 makes that middle of the supply chain visible.\n\n'
+            'Most of an animal\'s life happens between the farm where it was born (Category 5) and the processing plant where it was slaughtered (Category 7). The operations in that gap — backgrounders, stockers, contract grow-out farms, and finishing feedlots — rarely appear on a retail label, yet they determine how the animal was fed, housed, and handled for most of its life. Category 16 makes that middle of the supply chain visible.\n\n'
             'What FAT looks for:\n'
             '• Whether any intermediate custodian is named or referenced on the label — a feedlot, backgrounder, stocker operation, or contract grower\n'
             '• The captivity status of each operation: packer-owned, packer-contracted (captive supply), independent, or undisclosed\n'
@@ -1063,7 +1063,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'You can look up any USDA establishment number without scanning a label.\n\n'
             'The Lookup tab lets you enter an establishment number manually to view:\n'
             '• Processor name, location, and contact information\n'
-            '• Processing activities and plant size category\n'
+            '• Processing activities and processing plant size category\n'
             '• Complete enforcement history (recalls, violations, actions)\n'
             '• Pathogen testing results\n'
             '• Links to full processor profiles on the FAT website\n\n'
@@ -1094,35 +1094,35 @@ final List<_LearnSection> _sections = <_LearnSection>[
       ),
       _LearnTopic(
         title: 'OSHA Worker-Safety Enforcement',
-        subtitle: 'The plant\'s record for the people who work there',
+        subtitle: 'The processing plant\'s record for the people who work there',
         body: _text(
-            'Meat and poultry plants are among the most dangerous workplaces in U.S. manufacturing — injury and illness rates run well above the manufacturing average, driven by fast line speeds, sharp equipment, cold and wet conditions, and repetitive motion.\n\n'
-            'The Occupational Safety and Health Administration (OSHA), part of the U.S. Department of Labor, inspects these plants and issues citations when it finds hazards. Common ones in slaughter and processing include lockout/tagout (hazardous-energy) failures, unguarded machinery, and process-safety violations on the anhydrous-ammonia refrigeration systems these plants rely on.\n\n'
-            'What FAT shows for a plant\'s OSHA record:\n'
+            'Meat and poultry processing plants are among the most dangerous workplaces in U.S. manufacturing — injury and illness rates run well above the manufacturing average, driven by fast line speeds, sharp equipment, cold and wet conditions, and repetitive motion.\n\n'
+            'The Occupational Safety and Health Administration (OSHA), part of the U.S. Department of Labor, inspects these processing plants and issues citations when it finds hazards. Common ones in slaughter and processing include lockout/tagout (hazardous-energy) failures, unguarded machinery, and process-safety violations on the anhydrous-ammonia refrigeration systems these processing plants rely on.\n\n'
+            'What FAT shows for a processing plant\'s OSHA record:\n'
             '• Inspections — how many times OSHA has been on site\n'
             '• Citations classified Serious, Willful, Repeat, or Other-than-serious\n'
             '• Initial and current penalties (these often differ after employer contests and settlements)\n'
             '• Any fatality or severe-injury event on record\n\n'
             'A separate axis from food safety:\n'
-            'Worker safety is kept deliberately distinct from the food-safety record above (recalls, residue, humane handling) and is never blended into one number. An OSHA citation says nothing about whether the meat is safe to eat, and a food-safety recall says nothing about how the plant treats its workers — they are two different questions.\n\n'
+            'Worker safety is kept deliberately distinct from the food-safety record above (recalls, residue, humane handling) and is never blended into one number. An OSHA citation says nothing about whether the meat is safe to eat, and a food-safety recall says nothing about how the processing plant treats its workers — they are two different questions.\n\n'
             'How the match works:\n'
-            'OSHA records carry no USDA establishment number, so FAT matches them to the plant by name and address. A name-and-address (or ZIP) confirmed match is shown as the plant\'s record; a name-only match is labeled a "possible" match, not confirmed. Worker injury or illness reports are not violations unless OSHA issued a citation, and figures can change after employer contests or settlements.\n\n'
+            'OSHA records carry no USDA establishment number, so FAT matches them to the processing plant by name and address. A name-and-address (or ZIP) confirmed match is shown as the processing plant\'s record; a name-only match is labeled a "possible" match, not confirmed. Worker injury or illness reports are not violations unless OSHA issued a citation, and figures can change after employer contests or settlements.\n\n'
             'Source: OSHA Enforcement data, U.S. Department of Labor.'),
       ),
       _LearnTopic(
         title: 'EPA Environmental Enforcement',
-        subtitle: 'The plant\'s water- and air-pollution record',
+        subtitle: 'The processing plant\'s water- and air-pollution record',
         body: _text(
             'Slaughter and processing plants use enormous volumes of water and generate heavily loaded wastewater — blood, fats, nitrogen, and phosphorus — plus air emissions from rendering, boilers, and the ammonia refrigeration systems that keep product cold. Federal law regulates those discharges.\n\n'
-            'The Environmental Protection Agency (EPA), with state agencies, oversees the plant under the Clean Water Act (wastewater-discharge permits — the NPDES program, 40 CFR 432 for meat and poultry) and the Clean Air Act. A plant that exceeds its permit limits, fails to monitor or report, or otherwise breaks the rules can be placed in noncompliance and penalized.\n\n'
-            'What FAT shows for a plant\'s EPA record (from EPA\'s ECHO database):\n'
+            'The Environmental Protection Agency (EPA), with state agencies, oversees the processing plant under the Clean Water Act (wastewater-discharge permits — the NPDES program, 40 CFR 432 for meat and poultry) and the Clean Air Act. A processing plant that exceeds its permit limits, fails to monitor or report, or otherwise breaks the rules can be placed in noncompliance and penalized.\n\n'
+            'What FAT shows for a processing plant\'s EPA record (from EPA\'s ECHO database):\n'
             '• Whether the facility is a Significant Non-Complier\n'
-            '• How many of the last twelve quarters it spent in noncompliance — Clean Water Act (wastewater) violations are the most common issue at these plants\n'
+            '• How many of the last twelve quarters it spent in noncompliance — Clean Water Act (wastewater) violations are the most common issue at these processing plants\n'
             '• Whether formal enforcement actions or penalties are on record\n\n'
             'How it affects the score:\n'
-            'An EPA record of current noncompliance or penalties applies a penalty to the Processor category — the same category that carries the plant\'s OSHA worker-safety record. Environmental enforcement is kept separate from food safety: a wastewater violation says nothing about whether the meat is safe to eat.\n\n'
+            'An EPA record of current noncompliance or penalties applies a penalty to the Processor category — the same category that carries the processing plant\'s OSHA worker-safety record. Environmental enforcement is kept separate from food safety: a wastewater violation says nothing about whether the meat is safe to eat.\n\n'
             'How the match works:\n'
-            'FAT matches EPA facilities to the plant by name, city, and ZIP, and applies the penalty only on a high-confidence match with violations on record. Compliance status changes slowly and is refreshed periodically.\n\n'
+            'FAT matches EPA facilities to the processing plant by name, city, and ZIP, and applies the penalty only on a high-confidence match with violations on record. Compliance status changes slowly and is refreshed periodically.\n\n'
             'Source: EPA Enforcement and Compliance History Online (ECHO), U.S. Environmental Protection Agency.'),
       ),
       // 2.11
@@ -1167,7 +1167,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
               const _Bullets([
                 'Regulatory Control Action (RCA) — Immediate suspension of slaughter operations. This is the most severe on-the-spot response and is used when an inspector witnesses an egregious violation or imminent animal suffering.',
                 'Noncompliance Record (NR) — A documented finding that the establishment failed to meet humane handling requirements. NRs accumulate in the establishment\'s compliance record.',
-                'Notice of Intended Enforcement (NOIE) — A formal notice that USDA may suspend or withdraw inspection, effectively shutting the plant down. NOIEs related to humane handling are among the most serious enforcement signals.',
+                'Notice of Intended Enforcement (NOIE) — A formal notice that USDA may suspend or withdraw inspection, effectively shutting the processing plant down. NOIEs related to humane handling are among the most serious enforcement signals.',
                 'Suspension — Temporary withdrawal of USDA inspection, halting all operations until corrective actions are verified.',
               ]),
             ],
@@ -1182,7 +1182,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
                   'Poultry (chickens, turkeys, ducks) are not covered by the HMSA. There is no federal humane slaughter law for poultry. USDA does have a policy requiring that poultry be treated humanely, but this is a regulatory policy rather than a statutory requirement, and enforcement is less rigorous than for livestock.',
                   size: 15),
               _Para(
-                  'This means that humane handling enforcement data in the FAT App primarily reflects beef and pork establishments. The absence of humane handling violations at a poultry plant does not indicate good welfare practices — it reflects the lack of a legal standard.',
+                  'This means that humane handling enforcement data in the FAT App primarily reflects beef and pork establishments. The absence of humane handling violations at a poultry processing plant does not indicate good welfare practices — it reflects the lack of a legal standard.',
                   size: 15),
             ],
           ),
@@ -1436,7 +1436,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
               _Bullets([
                 'Reduced competition for livestock, meaning lower prices paid to farmers',
                 'Higher retail meat prices for consumers during supply disruptions',
-                'Reduced resilience — when one large plant shuts down, a large share of national supply is affected',
+                'Reduced resilience — when one large processing plant shuts down, a large share of national supply is affected',
                 'Less diversity of practices (animal welfare, feed, antibiotic use) across the supply chain',
               ]),
               _Para(
@@ -1845,13 +1845,13 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Sourcing-claim chips (light blue)\nWords that say where the food came from or how it was raised or caught: a place (“Santa Barbara,” “Gulf”), a named farm or supplier, a production method (“grass-fed,” “wild,” “farm-raised,” “line-caught”), a certification (MSC, ASC, BAP, Certified Humane), or a grade or breed (Prime, Wagyu, Ibérico). Tap the dish to see what each word means, who defines it, and what it leaves out.\n\n'
             '“No sourcing claim” (gray)\nThe dish names its meat or seafood but says nothing about where it came from or how it was produced. That’s the most common result on fine-dining menus. It isn’t a criticism — it’s the moment to ask.\n\n'
             '“About” notes (outlined)\nBackground on the species or ingredient itself — “about tuna,” “about osetra,” “about foie gras.” A note is not a sourcing claim: “yellowfin tuna” names a species, not a source. Notes appear only for species FAT has a sourced explanation for, so some dishes get one and others don’t. Words like “fresh” also appear as notes rather than claims, because they describe condition, not origin.\n\n'
-            'Ask about this dish\nEvery card has a button that builds a short list of questions for that dish — in a friendly, diner’s voice — that you can show to your server or copy.'),
+            'Ask about this dish\nEvery card has a button with two questions for that dish — in a friendly, diner’s voice — worth asking your server out loud. You can also copy them.'),
       ),
       _LearnTopic(
         title: 'What a Menu Can and Can’t Tell You',
-        subtitle: 'Why FAT explains instead of checking',
+        subtitle: 'Why FAT explains menu words',
         body: _text(
-            'Nothing on a menu can be checked at the table.\nThe USDA inspection mark and establishment number are on the wholesale case in the kitchen, not on your plate. Country-of-origin labeling rules don’t apply to restaurants. The USDA’s rules for claims like “grass-fed” or “raised without antibiotics” cover product labels, not menu copy. And words like “local,” “Wagyu,” and “heritage” have no federal definition at all.\n\n'
+            'Menu words are rarely explained.\nCountry-of-origin rules don’t apply to restaurants. The USDA’s rules for claims like “grass-fed” or “raised without antibiotics” cover packaged meat in stores, not menu copy. And words like “local,” “Wagyu,” and “heritage” have no federal definition at all. Nobody explains them at the table, so FAT does.\n\n'
             'So the question is the tool.\nIf you know that “grass-fed” doesn’t say whether the animal was finished on grain, or that “Gulf shrimp” names a body of water rather than a country, you can ask a better question. FAT supplies the words and the questions; the restaurant supplies the facts.\n\n'
             'What a menu usually leaves out.\nSpecies (which snapper?), origin (which country?), method (wild or farmed, and how caught?), the supplier, and whether a certification belongs to the supplier or the restaurant. A 2026 FAT review of 67 Michelin-starred restaurants found that none of their published menus named a boat, cited a seafood certification, or said whether their caviar was wild or farmed.'),
       ),
@@ -1859,15 +1859,15 @@ final List<_LearnSection> _sections = <_LearnSection>[
         title: 'Meat Words on Menus',
         subtitle: 'Grass-fed, Wagyu, Kobe, Prime, heritage, local, natural',
         body: _text(
-            'On a retail label, USDA reviews most of these claims. On a menu, nobody does. Here is what the common words say — and what they don’t.\n\n'
-            '• Grass-fed — the animal ate grass. It doesn’t say whether the animal was finished on grain, or how much of its life was on pasture.\n• Grass-finished / 100% grass-fed — grass and forage through to slaughter, with no grain finishing. It doesn’t say where the animal was raised; much grass-finished beef sold in the U.S. is imported.\n• USDA Prime, Choice, Select — quality grades for marbling and maturity. Grade says nothing about breed, feed, origin, or how the animal was raised. “Prime rib” is a cut and need not be Prime grade.\n• Wagyu — Japanese cattle breeds. Japanese Wagyu is graded A1–A5 by the Japan Meat Grading Association. “American Wagyu” is usually a Wagyu-Angus cross, and the share of Wagyu genetics isn’t stated.\n• Kobe — a Japanese regional designation for Tajima-strain cattle from Hyōgo Prefecture. Very little genuine Kobe beef reaches the U.S.; “Kobe-style” is not Kobe beef.\n• Angus / Certified Angus Beef — Angus usually means mostly black-hided cattle, not a DNA test. Certified Angus Beef is a brand program with marbling and size specifications.\n• Heritage, Berkshire, Kurobuta, Ibérico — breed names. They don’t say how the animal was raised, fed, or housed.\n• Local — no legal definition. It can mean one dish or the whole menu, and the distance is up to the kitchen.\n• Natural — on a label, minimally processed with no artificial ingredients. It says nothing about feed, antibiotics, outdoor access, or origin.\n• Humanely raised — no definition on a menu; it doesn’t say whose standard is used. Third-party certifications (Certified Humane, Animal Welfare Approved, Global Animal Partnership) are more specific.\n• A named farm or ranch — someone the kitchen can tell you more about. A name may cover one cut or one dish, and it may be a distributor’s brand rather than a farm.\n• Foie gras — shown as a note, not a sourcing claim. In conventional production the bird is fattened by force-feeding.'),
+            'On packaged meat in stores, USDA reviews most of these claims. On a menu, nobody explains them. Here is what the common words say — and what they don’t.\n\n'
+            '• Grass-fed — the animal ate grass. It doesn’t say whether the animal was finished on grain, or how much of its life was on pasture.\n• Grass-finished / 100% grass-fed — grass and forage through to slaughter, with no grain finishing. It doesn’t say where the animal was raised; much grass-finished beef sold in the U.S. is imported.\n• USDA Prime, Choice, Select — quality grades for marbling and maturity. Grade says nothing about breed, feed, origin, or how the animal was raised. “Prime rib” is a cut and need not be Prime grade.\n• Wagyu — Japanese cattle breeds. Japanese Wagyu is graded A1–A5 by the Japan Meat Grading Association. “American Wagyu” is usually a Wagyu-Angus cross, and the share of Wagyu genetics isn’t stated.\n• Kobe — a Japanese regional designation for Tajima-strain cattle from Hyōgo Prefecture. Very little genuine Kobe beef reaches the U.S.; “Kobe-style” is not Kobe beef.\n• Angus / Certified Angus Beef — Angus usually means mostly black-hided cattle, not a DNA test. Certified Angus Beef is a brand program with marbling and size specifications.\n• Heritage, Berkshire, Kurobuta, Ibérico — breed names. They don’t say how the animal was raised, fed, or housed.\n• Local — no legal definition. It can mean one dish or the whole menu, and the distance is up to the kitchen.\n• Natural — on packaged meat, minimally processed with no artificial ingredients. It says nothing about feed, antibiotics, outdoor access, or origin.\n• Humanely raised — no definition on a menu; it doesn’t say whose standard is used. Third-party certifications (Certified Humane, Animal Welfare Approved, Global Animal Partnership) are more specific.\n• A named farm or ranch — someone the kitchen can tell you more about. A name may cover one cut or one dish, and it may be a distributor’s brand rather than a farm.\n• Foie gras — shown as a note, not a sourcing claim. In conventional production the bird is fattened by force-feeding.'),
       ),
       _LearnTopic(
         title: 'Seafood Words on Menus',
         subtitle: 'Wild, farmed, Gulf, day-boat, sustainable, fresh, caviar',
         body: _text(
             'Grocery stores must say whether seafood is wild or farmed and where it came from. Restaurants don’t. That makes the menu wording — and your questions — more important for seafood than for anything else.\n\n'
-            '• Wild / wild-caught — caught rather than farmed. It doesn’t say where, how, or whether that fishery is well managed.\n• Farm-raised / farmed — it doesn’t say which country, or whether the farm holds a certification (ASC, BAP).\n• Gulf — the Gulf of Mexico (also called the Gulf of America), fished by U.S. and Mexican boats. It names a body of water, not a country.\n• Line-caught, hook-and-line, day boat, diver — catch methods. Hook-and-line, trap, and hand-diving are generally lower-bycatch; “day boat” means the boat returns the same day. “Diver scallops” is sometimes used for large scallops that were dredged.\n• Sustainable — no legal definition. MSC (wild fisheries), ASC and BAP (farms), and Seafood Watch ratings each use their own standards; ask which one.\n• Fresh — shown as a note. On a label it means never frozen. It doesn’t say how many days since catch; fish frozen at sea can be better than “fresh” fish shipped for days.\n• Caviar — in the U.S., “caviar” alone means sturgeon roe; other roe must name the fish. Most sturgeon caviar today is farmed, but menus rarely say so.\n• A named place (Santa Barbara, Maine, Hokkaido, Copper River) — where the seafood came from, as the supplier describes it. It doesn’t say who caught or farmed it.'),
+            '• Wild / wild-caught — caught rather than farmed. It doesn’t say where, how, or whether that fishery is well managed.\n• Farm-raised / farmed — it doesn’t say which country, or whether the farm holds a certification (ASC, BAP).\n• Gulf — the Gulf of Mexico (also called the Gulf of America), fished by U.S. and Mexican boats. It names a body of water, not a country.\n• Line-caught, hook-and-line, day boat, diver — catch methods. Hook-and-line, trap, and hand-diving are generally lower-bycatch; “day boat” means the boat returns the same day. “Diver scallops” is sometimes used for large scallops that were dredged.\n• Sustainable — no legal definition. MSC (wild fisheries), ASC and BAP (farms), and Seafood Watch ratings each use their own standards; ask which one.\n• Fresh — shown as a note. In stores it means never frozen. It doesn’t say how many days since catch; fish frozen at sea can be better than “fresh” fish shipped for days.\n• Caviar — in the U.S., “caviar” alone means sturgeon roe; other roe must name the fish. Most sturgeon caviar today is farmed, but menus rarely say so.\n• A named place (Santa Barbara, Maine, Hokkaido, Copper River) — where the seafood came from, as the supplier describes it. It doesn’t say who caught or farmed it.'),
       ),
       _LearnTopic(
         title: 'Species Notes: The “About” Chips',
@@ -1881,7 +1881,7 @@ final List<_LearnSection> _sections = <_LearnSection>[
         title: 'Where the Law Reaches Menus',
         subtitle: 'Gulf-state seafood origin disclosure',
         body: _text(
-            'Federal country-of-origin labeling doesn’t apply to restaurants, but some Gulf states have their own rules (National Fisherman, 2025):\n\n'
+            'Federal country-of-origin rules don’t apply to restaurants, but some Gulf states have their own rules (National Fisherman, 2025):\n\n'
             '• Alabama — restaurants must tell diners when shrimp is imported.\n• Louisiana — restaurants must tell diners when shrimp or crawfish is imported.\n• Mississippi — restaurants must disclose imported seafood.\n• Texas — restaurants must disclose imported seafood.\n\n'
             'Set your dining state on the Menu screen and FAT will mention the rule on the dish cards where it applies. If the menu doesn’t say, it’s fair to ask.'),
       ),
@@ -1890,9 +1890,8 @@ final List<_LearnSection> _sections = <_LearnSection>[
         subtitle: 'Friendly questions get the best answers',
         body: _text(
             'Start friendly: “What can you tell me about the fish?” (a Seafood Watch suggestion). Most servers will check with the kitchen, and many chefs are glad to talk about their suppliers.\n\n'
-            'Ask one or two specific questions rather than a list: Is it wild or farmed? Which country is it from? Who is the farm or supplier? FAT’s “Ask about this dish” button picks the most useful ones for each dish.\n\n'
-            'Asking to see a case label or invoice is an invitation, not a demand — many kitchens are happy to show you.\n\n'
-            'What FAT doesn’t do here\nFAT doesn’t score, grade, or verify restaurants, and it never suggests a menu claim is false. It explains what a word says and what it leaves unsaid.'),
+            'Ask two specific questions out loud rather than a list: Why did you choose it? Who raises it, or where was it caught? FAT’s “Ask about this dish” button picks two for each dish. “I’ll check with the kitchen” is a fine answer. Close with: “Thank you — we like knowing where our food comes from.”\n\n'
+            'What FAT doesn’t do here\nFAT doesn’t score or grade restaurants, and it never suggests a menu claim is false. It explains what a menu word says and what it leaves unsaid. Learn about your food.'),
       ),
     ],
   ),

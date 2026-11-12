@@ -43,14 +43,15 @@ class MenuShare {
       if (notes.isNotEmpty) b.writeln('   Also explained: ${notes.join(', ')}');
       final qs = MenuClaimExplainer.askQuestions(item, glossary);
       if (qs.isNotEmpty) {
-        b.writeln('   Ask:');
+        b.writeln('   ${MenuAskCopy.sheetTitle}:');
         for (final q in qs) {
           b.writeln('   • $q');
         }
       }
     }
     b.writeln();
-    b.writeln('FAT doesn’t check, score, or grade restaurants. The kitchen’s answers are the disclosure.');
+    b.writeln('FAT explains menu words. It doesn’t grade restaurants — the kitchen’s answers are the disclosure.');
+    b.writeln(MenuAskCopy.closingThought);
     b.writeln('Get the FAT App: $appURL');
     return b.toString();
   }

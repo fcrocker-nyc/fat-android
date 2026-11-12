@@ -2755,7 +2755,7 @@ class PoultryChillCard extends StatelessWidget {
       _CertColors.successGreen, _CertColors.successGreenSoft));
     blocks.add(const _ChillBlock(
       'Not an OSHA violation',
-      "There's no OSHA limit for these sprays to break — worker exposure is a gap in the rules, not a citation. The plant's own safety record is shown separately.",
+      "There's no OSHA limit for these sprays to break — worker exposure is a gap in the rules, not a citation. The processing plant's own safety record is shown separately.",
       _CertColors.fatDarkBlue, _CertColors.systemGray6));
 
     return PoultryChillCard._(blocks);

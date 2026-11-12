@@ -57,7 +57,7 @@ class GroundBeefBlendingRegistry {
     'tyson_beef':
         "Tyson's ocean-import manifests have been confidential since September 2023 under a lawful and routine CBP manifest-confidentiality filing — its current import activity is not knowable from public records, and its pre-2023 record shows minimal ocean importing. The absence of data is itself a disclosure fact.",
     'cargill_beef':
-        "CBP vessel manifests name Cargill's foreign suppliers — major Australian and New Zealand packers, with a Brazilian flow from Marfrig plants appearing in August 2026. Its import record was masked by a lawful and routine CBP manifest-confidentiality filing for most of 2024–2026; the mask lapsed in May 2026.",
+        "CBP vessel manifests name Cargill's foreign suppliers — major Australian and New Zealand packers, with a Brazilian flow from Marfrig processing plants appearing in August 2026. Its import record was masked by a lawful and routine CBP manifest-confidentiality filing for most of 2024–2026; the mask lapsed in May 2026.",
     'national_beef':
         "CBP vessel manifests document National Beef as a moderate ocean importer, supplied in part by its own majority owner, Brazil's Marfrig Global Foods. Its record has been open since January 2020.",
   };
@@ -74,16 +74,16 @@ class GroundBeefBlendingRegistry {
      'One of the larger independent beef processors operating outside the Big Four. Documented as running beef fabrication/grinding operations that blend trim to hit target lean points. Notably, CBP vessel manifests show no ocean import-consignee record for Greater Omaha from 2015 through 2026 — a documented (though not provable, given lawful confidentiality masking) non-importer.'),
     ('golden state foods',
      'Golden State Foods',
-     "A quick-service-dedicated grinder — one of the two companies most associated with grinding and forming beef patties for chains like McDonald's, running multiple U.S. plants dedicated to that customer relationship rather than the open wholesale trim market."),
+     "A quick-service-dedicated grinder — one of the two companies most associated with grinding and forming beef patties for chains like McDonald's, running multiple U.S. processing plants dedicated to that customer relationship rather than the open wholesale trim market."),
     ('osi group',
      'OSI Group',
-     'A quick-service-dedicated grinder — one of the two companies most associated with grinding and forming beef patties for major chains, running multiple U.S. plants dedicated to that customer relationship rather than the open wholesale trim market.'),
+     'A quick-service-dedicated grinder — one of the two companies most associated with grinding and forming beef patties for major chains, running multiple U.S. processing plants dedicated to that customer relationship rather than the open wholesale trim market.'),
   ];
 
   static const String sourceLine =
       'Sources: "Lean Beef in America" research briefing v.4, §§3, 6; import '
       'postures from public CBP vessel manifests (FAT working paper "Purchased '
-      'Silence," Sept. 2026). Documents this plant\'s operating pattern and its '
+      'Silence," Sept. 2026). Documents this processing plant\'s operating pattern and its '
       'operator\'s public import record — not this specific package\'s contents.';
 
   static GroundBeefBlendingContext? lookup({

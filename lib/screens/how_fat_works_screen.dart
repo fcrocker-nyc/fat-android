@@ -106,7 +106,7 @@ class HowFATWorksScreen extends StatelessWidget {
                   'When a USDA establishment number is found on the label, FAT retrieves public USDA inspection data including recalls, administrative actions, humane handling violations, quarterly enforcement reports, chemical residue violations, and pathogen testing results.'),
               const SizedBox(height: 12),
               _paragraphView(4, 'Lookup',
-                  'Can\'t scan a label? The Lookup tab lets you search three ways: enter a USDA establishment number to view processor details and enforcement history, search by meat brand to see corporate ownership and market concentration for companies like Tyson, Smithfield, JBS, and Perdue, or search by seafood brand to see corporate ownership, sourcing regions, plant locations, fleet information, and sustainability certifications for brands like Gorton\'s, StarKist, and Bumble Bee.'),
+                  'Can\'t scan a label? The Lookup tab lets you search three ways: enter a USDA establishment number to view processor details and enforcement history, search by meat brand to see corporate ownership and market concentration for companies like Tyson, Smithfield, JBS, and Perdue, or search by seafood brand to see corporate ownership, sourcing regions, processing plant locations, fleet information, and sustainability certifications for brands like Gorton\'s, StarKist, and Bumble Bee.'),
               const SizedBox(height: 12),
               _paragraphView(5, 'Questions?',
                   'Have a question about a scan result? Tap the Questions button on any results page to send the details directly to FAT for review.'),

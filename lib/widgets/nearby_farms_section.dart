@@ -6,18 +6,18 @@ import '../theme/fat_theme.dart';
 /// Feedlots Near This Plant" section. Informational only: never a score
 /// input. Mirrors iOS NearbyFarmsSection.swift.
 class NearbyFarmsCopy {
-  static const hogTitle = 'Hog Farms Near This Plant';
-  static const feedlotTitle = 'Cattle Feedlots Near This Plant';
+  static const hogTitle = 'Hog Farms Near This Processing Plant';
+  static const feedlotTitle = 'Cattle Feedlots Near This Processing Plant';
 
   static const hogExplainer =
-      'Large hog farms (CAFOs) within 50 miles of the plant that processed this pork, and whether EPA or the state has cited them for environmental violations. This describes the area around the plant. It does not mean this product’s hogs came from these farms, and it does not change the label’s disclosure count.';
+      'Large hog farms (CAFOs) within 50 miles of the processing plant that handled this pork, and whether EPA or the state has cited them for environmental violations. This describes the area around the processing plant. It does not mean this product’s hogs came from these farms, and it does not change the label’s disclosure count.';
   static const feedlotExplainer =
-      'Large cattle feedlots within 50 miles of the plant that processed this beef, and whether EPA or the state has cited them for environmental violations. This describes the area around the plant. It does not mean this product’s cattle came from these feedlots, and it does not change the label’s disclosure count.';
+      'Large cattle feedlots within 50 miles of the processing plant that handled this beef, and whether EPA or the state has cited them for environmental violations. This describes the area around the processing plant. It does not mean this product’s cattle came from these feedlots, and it does not change the label’s disclosure count.';
 
   /// Lookup finished without a usable response (network/HTTP/decode error)
   /// and there are no state permit lines.
   static const unavailable =
-      'Nearby farm records couldn’t be loaded for this plant right now.';
+      'Nearby farm records couldn’t be loaded for this processing plant right now.';
 }
 
 /// What renders under the section heading. Every case draws something, so
@@ -111,7 +111,7 @@ class NearbyFarmsSection extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                  'No EPA-flagged $kind operations with environmental violations within ${p.radiusMiles} miles of this plant.',
+                  'No EPA-flagged $kind operations with environmental violations within ${p.radiusMiles} miles of this processing plant.',
                   style: const TextStyle(fontSize: 13.5)),
             ),
           ])

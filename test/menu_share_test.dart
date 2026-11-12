@@ -42,7 +42,8 @@ void main() {
     expect(text, contains('No sourcing claim on the menu'));
     expect(text, contains('Also explained: caviar'));
     expect(text, contains('   • Are the oysters wild or farmed'));
-    expect(text, contains('The kitchen’s answers are the disclosure.'));
+    expect(text, contains('the kitchen’s answers are the disclosure.'));
+    expect(text.endsWith('Learn about your food.\nGet the FAT App: ${MenuShare.appURL}\n'), isTrue, reason: text);
     expect(text, contains(MenuShare.appURL));
   });
 

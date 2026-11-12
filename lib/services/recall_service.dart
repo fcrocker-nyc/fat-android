@@ -162,7 +162,7 @@ class RecallDisplay {
 
 class RecallResolver {
   static const sharedOnFileText =
-      'Recalls or public health alerts are on file for one of the plants that share this number — match the city on the package to know which';
+      'Recalls or public health alerts are on file for one of the processing plants that share this number — match the city on the package to know which';
 
   /// Proxy lookup key: the resolved plant's own number core ("245C"), else
   /// the token on the label.

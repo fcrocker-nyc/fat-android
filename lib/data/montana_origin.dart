@@ -158,7 +158,7 @@ class MontanaOriginCard extends StatelessWidget {
         Text(
             'This is where the product was slaughtered/processed under USDA '
             'inspection. Where the animal was born or raised may be elsewhere — '
-            'the label’s Country/State-of-origin claim, not the plant location, '
+            'the label’s Country/State-of-origin claim, not the processing plant location, '
             'tells you that.',
             style: TextStyle(fontSize: 11.5, color: Colors.black.withValues(alpha: 0.7))),
       ]);

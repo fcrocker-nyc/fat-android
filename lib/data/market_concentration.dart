@@ -89,7 +89,7 @@ class MarketConcentrationSummary {
 
   String get basisLine => basis == ConcentrationBasis.brand
       ? 'Company identified from the brand on the label.'
-      : "Company identified from the plant's USDA establishment number.";
+      : "Company identified from the processing plant's USDA establishment number.";
 
   static MeatSpecies speciesFromLabelValue(String? value) {
     switch ((value ?? '').trim().toLowerCase()) {

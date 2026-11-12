@@ -22,7 +22,7 @@ class MeatBrandResult {
         isForeignOwned: false,
         species: const [],
         marketPosition:
-            'Brand-ownership record. Responsible company shown; scan the USDA EST number on the package to identify the specific plant.',
+            'Brand-ownership record. Responsible company shown; scan the USDA EST number on the package to identify the specific processing plant.',
         plantCount: '',
         keyPlantLocations: const [],
         knownEstNumbers: const [],
@@ -107,7 +107,7 @@ class MeatBrandDatabase {
       ownershipNotes:
           'Founded 1935 by John W. Tyson in Springdale, Arkansas. Publicly traded (NYSE: TSN). Acquired IBP Inc. (largest beef/pork processor) in 2001 for \$3.2 billion. Three generations of Tyson family leadership. Supplies McDonald\'s, Burger King, Wendy\'s, KFC, Taco Bell, Walmart, and Kroger.',
       regulatoryNotes:
-          'Multiple price-fixing investigations. In 2022, Tyson settled a \$221.5M antitrust lawsuit alleging chicken price-fixing. Closed multiple plants in 2023-2025 restructuring including Perry, Iowa (pork, 1,200 jobs), four chicken plants, and Emporia, Kansas (beef, 809 jobs). Subject to proposed legislation by Democratic senators to break up the company over market power concerns.',
+          'Multiple price-fixing investigations. In 2022, Tyson settled a \$221.5M antitrust lawsuit alleging chicken price-fixing. Closed multiple processing plants in 2023-2025 restructuring including Perry, Iowa (pork, 1,200 jobs), four chicken processing plants, and Emporia, Kansas (beef, 809 jobs). Subject to proposed legislation by Democratic senators to break up the company over market power concerns.',
       relatedBrands: [
         'Jimmy Dean',
         'Hillshire Farm',
@@ -126,7 +126,7 @@ class MeatBrandDatabase {
       isForeignOwned: true,
       species: ['Beef', 'Pork', 'Chicken', 'Lamb'],
       marketPosition:
-          'World\'s largest meat company. #1 global beef processor. 9 US beef plants, 5 US pork plants. Owns Pilgrim\'s Pride (#2 US chicken). ~16,000 beef employees, ~11,000 pork employees in US.',
+          'World\'s largest meat company. #1 global beef processor. 9 US beef processing plants, 5 US pork processing plants. Owns Pilgrim\'s Pride (#2 US chicken). ~16,000 beef employees, ~11,000 pork employees in US.',
       plantCount:
           '14+ major US beef/pork facilities plus Pilgrim\'s Pride chicken operations in 14 states',
       keyPlantLocations: [
@@ -147,7 +147,7 @@ class MeatBrandDatabase {
       ownershipNotes:
           'Founded 1953 by Jose Batista Sobrinho in Goias, Brazil. JBS S.A. is publicly traded in Brazil; approved for NYSE listing in May 2025. Acquired Swift & Company (2007, \$225M), Smithfield Beef Group (2008, \$565M), and 64% of Pilgrim\'s Pride (2009, \$800M). BNDES (Brazilian state development bank) invested \$2.6B+ to fuel JBS\'s global expansion. World\'s largest protein company with 200,000+ employees globally.',
       regulatoryNotes:
-          'JBS S.A. founders (Batista brothers) pleaded guilty to bribery in Brazil in 2017, paying \$3.2 billion — the largest leniency fine in Brazilian history. Multiple food safety recalls in US operations. 2021 ransomware attack shut down US plants. Pilgrim\'s Pride subsidiary paid \$110M in 2021 to settle chicken price-fixing charges. In January 2025, Pilgrim\'s Pride donated \$5M to Trump\'s inauguration — the largest single donor. Senator Elizabeth Warren raised concerns about regulatory influence.',
+          'JBS S.A. founders (Batista brothers) pleaded guilty to bribery in Brazil in 2017, paying \$3.2 billion — the largest leniency fine in Brazilian history. Multiple food safety recalls in US operations. 2021 ransomware attack shut down US processing plants. Pilgrim\'s Pride subsidiary paid \$110M in 2021 to settle chicken price-fixing charges. In January 2025, Pilgrim\'s Pride donated \$5M to Trump\'s inauguration — the largest single donor. Senator Elizabeth Warren raised concerns about regulatory influence.',
       relatedBrands: [
         'Pilgrim\'s Pride',
         'Swift',
@@ -181,7 +181,7 @@ class MeatBrandDatabase {
       ownershipNotes:
           'Founded 1946 in Pittsburg, Texas as Bo Pilgrim\'s chicken company. Filed for bankruptcy in 2008. JBS acquired 64% stake in 2009 for \$800M, now owns 75.3%. Publicly traded (NASDAQ: PPC) but controlled by JBS. Second-largest chicken producer in the US.',
       regulatoryNotes:
-          'Paid \$110.5M in 2021 to settle DOJ charges of conspiring to fix prices and rig bids for broiler chicken (2012-2017). Former CEO Jayson Penn was indicted on price-fixing charges. \$5M donation to Trump inauguration in January 2025 drew scrutiny from Senator Elizabeth Warren. Planning \$400M chicken plant in Georgia.',
+          'Paid \$110.5M in 2021 to settle DOJ charges of conspiring to fix prices and rig bids for broiler chicken (2012-2017). Former CEO Jayson Penn was indicted on price-fixing charges. \$5M donation to Trump inauguration in January 2025 drew scrutiny from Senator Elizabeth Warren. Planning \$400M chicken processing plant in Georgia.',
       relatedBrands: ['Gold Kist', 'Country Pride'],
     ),
 
@@ -206,7 +206,7 @@ class MeatBrandDatabase {
       ],
       knownEstNumbers: ['86E', '86K', '86M', '86R', '9400'], // audited 2026-09-06: '969H' resolves to Swift Beef (JBS)
       ownershipNotes:
-          'Founded 1865. Privately held — owned by the Cargill and MacMillan families. Largest private company in the US. One of the Big Four beef packers alongside Tyson, JBS, and National Beef. Sold its US pork business to JBS in 2015. Exiting some beef operations — sold Fresno plant in 2023.',
+          'Founded 1865. Privately held — owned by the Cargill and MacMillan families. Largest private company in the US. One of the Big Four beef packers alongside Tyson, JBS, and National Beef. Sold its US pork business to JBS in 2015. Exiting some beef operations — sold Fresno processing plant in 2023.',
       regulatoryNotes:
           'Among the beef packers investigated by USDA and DOJ over cattle market competition concerns. As a private company, faces less public scrutiny than publicly traded competitors.',
       relatedBrands: ['Sterling Silver', 'Rumba Meats'],
@@ -250,7 +250,7 @@ class MeatBrandDatabase {
           '40+ US facilities including farms, processing plants, and distribution',
       keyPlantLocations: [
         'Smithfield, Virginia (headquarters + processing)',
-        'Tar Heel, North Carolina (largest pork plant in the world)',
+        'Tar Heel, North Carolina (largest pork processing plant in the world)',
         'Sioux Falls, South Dakota (John Morrell legacy)',
         'Clinton, North Carolina',
         'Milan, Missouri',
@@ -287,7 +287,7 @@ class MeatBrandDatabase {
           '~10% of US pork processing. Fortune 500 company. Major prepared meats producer.',
       plantCount: '30+ US facilities',
       keyPlantLocations: [
-        'Austin, Minnesota (headquarters + flagship plant)',
+        'Austin, Minnesota (headquarters + flagship processing plant)',
         'Fremont, Nebraska',
         'Rochelle, Illinois',
         'Dubuque, Iowa',
@@ -318,12 +318,12 @@ class MeatBrandDatabase {
           '~4% of US pork processing. Joint venture between Seaboard Corp and Triumph Foods.',
       plantCount: '2 major pork processing plants',
       keyPlantLocations: [
-        'Sioux City, Iowa (JV plant — one of the newest/largest in the US)',
+        'Sioux City, Iowa (JV processing plant — one of the newest/largest in the US)',
         'St. Joseph, Missouri (Triumph Foods)',
       ],
       knownEstNumbers: ['1243', '1318', '18285', '19112', '21234', '2178', '286', '2882', '6058', '764', '7903', '9197'],
       ownershipNotes:
-          'Joint venture between Seaboard Corporation (NYSE: SEB, based in Merriam, Kansas) and Triumph Foods (privately held, St. Joseph, Missouri). The Sioux City plant opened in 2017 with capacity for 21,000 hogs per day.',
+          'Joint venture between Seaboard Corporation (NYSE: SEB, based in Merriam, Kansas) and Triumph Foods (privately held, St. Joseph, Missouri). The Sioux City processing plant opened in 2017 with capacity for 21,000 hogs per day.',
       regulatoryNotes: null,
       relatedBrands: ['Seaboard Foods', 'Triumph Foods', 'Premium Farms'],
     ),
@@ -386,7 +386,7 @@ class MeatBrandDatabase {
       ownershipNotes:
           'Founded 1985 by Joseph Grendys, a first-generation immigrant from Poland. Privately held. One of the largest privately owned chicken companies in the US. No relation to Koch Industries (the Koch brothers\' company).',
       regulatoryNotes:
-          'In 2019, Koch Foods paid \$3.75M to settle EEOC harassment and discrimination claims at its Morton, Mississippi plant. The Morton plant was the site of a major ICE immigration raid in August 2019, one of the largest workplace raids in US history (680 workers detained).',
+          'In 2019, Koch Foods paid \$3.75M to settle EEOC harassment and discrimination claims at its Morton, Mississippi processing plant. The Morton processing plant was the site of a major ICE immigration raid in August 2019, one of the largest workplace raids in US history (680 workers detained).',
       relatedBrands: ['Koch Foods'],
     ),
 
@@ -503,7 +503,7 @@ class MeatBrandDatabase {
       species: ['Beef', 'Pork', 'Chicken', 'Turkey'],
       marketPosition:
           'Leading natural and organic processed meat brand. Part of Hormel.',
-      plantCount: 'Contract manufacturing — does not operate own plants',
+      plantCount: 'Contract manufacturing — does not operate own processing plants',
       keyPlantLocations: [
         'Bridgewater, New Jersey (headquarters — marketing/admin only)',
       ],
@@ -544,7 +544,7 @@ class MeatBrandDatabase {
       plantCount: '3+ US processing facilities',
       keyPlantLocations: [
         'Chicago, Illinois (Kraft Heinz HQ)',
-        'Madison, Wisconsin (legacy Oscar Mayer plant — closed 2017)',
+        'Madison, Wisconsin (legacy Oscar Mayer processing plant — closed 2017)',
         'Kirksville, Missouri',
         'Davenport, Iowa',
       ],

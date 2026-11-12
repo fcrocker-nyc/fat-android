@@ -31,7 +31,7 @@ class FsisPlantNames {
   static const assetPath = 'assets/data/fsis_establishment_names.json';
 
   /// Neutral placeholder shown when no name is known from any source.
-  static const notOnFileText = 'Plant name not on file';
+  static const notOnFileText = 'Processing plant name not on file';
 
   static List<FsisPlantInfo>? _plants;
   static Map<String, int>? _keys;

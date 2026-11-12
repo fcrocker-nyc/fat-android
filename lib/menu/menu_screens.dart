@@ -5,6 +5,7 @@ import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../cuts/cut_guide.dart';
 import '../cuts/cut_screens.dart';
@@ -125,8 +126,8 @@ class _MenuScanScreenState extends State<MenuScanScreen> {
               'sourcing words on the menu and gives you questions to ask your server or chef.',
               style: TextStyle(fontSize: 16, height: 1.3)),
           const SizedBox(height: 10),
-          const Text('FAT doesn’t check, score, or grade restaurants. The kitchen’s '
-              'answers are the disclosure.',
+          const Text('FAT explains menu words. It doesn’t grade restaurants — the '
+              'kitchen’s answers are the disclosure.',
               style: TextStyle(fontSize: 14, color: FATTheme.textSecondary)),
           const SizedBox(height: 12),
           const Align(alignment: Alignment.centerLeft, child: MenuReadTipsPill()),
@@ -672,6 +673,14 @@ class MenuDishScreen extends StatelessWidget {
           const SizedBox(height: 14),
           for (final c in cards) _ClaimCardView(card: c),
           _DishCutLink(item: item),
+          _DishLearnMore(item: item),
+          const SizedBox(height: 12),
+          const Center(
+            child: Text(MenuAskCopy.closingThought,
+                style: TextStyle(
+                    fontSize: 15, fontWeight: FontWeight.w700, color: FATTheme.textSecondary)),
+          ),
+          const SizedBox(height: 8),
         ],
       ),
     );
@@ -837,9 +846,10 @@ class _ClaimCardView extends StatelessWidget {
 
 // ── Ask about this dish ─────────────────────────────────────────────────────
 
-/// Opens the compact "Ask about this dish" sheet: the 2–3 ranked questions
-/// with Show to server / Copy / More about this dish. Used by the dish-row
-/// button and the detail screen's "Questions for the table".
+/// Opens the compact "Ask about this dish" sheet: the dish's two questions,
+/// worth asking the server out loud, with a courtesy tip, Copy and More about
+/// this dish. Used by the dish-row button and the detail screen's "Questions
+/// for the table".
 Future<void> showMenuAskSheet(
   BuildContext context, {
   required MenuItem item,
@@ -902,8 +912,9 @@ class _MenuAskSheetState extends State<MenuAskSheet> {
           Text(widget.item.dishName,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900)),
           const SizedBox(height: 2),
-          const Text(MenuAskCopy.sheetSubtitle,
-              style: TextStyle(fontSize: 14, color: FATTheme.textSecondary)),
+          const Text(MenuAskCopy.sheetTitle,
+              style: TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.w700, color: FATTheme.textSecondary)),
           const SizedBox(height: 12),
           for (var i = 0; i < qs.length; i++)
             Padding(
@@ -920,23 +931,13 @@ class _MenuAskSheetState extends State<MenuAskSheet> {
                         style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, height: 1.25))),
               ]),
             ),
-          const SizedBox(height: 6),
-          Row(children: [
-            Expanded(
-              child: FilledButton.icon(
-                style: FilledButton.styleFrom(
-                    backgroundColor: FATTheme.scanGreen, minimumSize: const Size.fromHeight(46)),
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  fullscreenDialog: true,
-                  builder: (_) => MenuServerView(item: widget.item, questions: qs),
-                )),
-                icon: const Icon(Icons.zoom_out_map),
-                label: const Text(MenuAskCopy.showToServer,
-                    style: TextStyle(fontWeight: FontWeight.w800)),
-              ),
-            ),
-            const SizedBox(width: 10),
-            OutlinedButton.icon(
+          const SizedBox(height: 2),
+          const _SheetTip(icon: Icons.waving_hand_outlined, text: MenuAskCopy.closeWith),
+          const _SheetTip(icon: Icons.restaurant, text: MenuAskCopy.kitchenNote),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
               style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, 46),
                   side: const BorderSide(color: FATTheme.scanGreen)),
@@ -945,7 +946,7 @@ class _MenuAskSheetState extends State<MenuAskSheet> {
               label: const Text(MenuAskCopy.copy,
                   style: TextStyle(color: FATTheme.scanGreen, fontWeight: FontWeight.w800)),
             ),
-          ]),
+          ),
           AnimatedOpacity(
             opacity: _copied ? 1 : 0,
             duration: const Duration(milliseconds: 200),
@@ -974,54 +975,65 @@ class _MenuAskSheetState extends State<MenuAskSheet> {
   }
 }
 
-/// Full-screen, large-type, high-contrast questions for handing the phone
-/// across the table. Tap anywhere to close.
-class MenuServerView extends StatelessWidget {
-  final MenuItem item;
-  final List<String> questions;
-  const MenuServerView({super.key, required this.item, required this.questions});
+/// One courtesy line under the questions in the ask sheet.
+class _SheetTip extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _SheetTip({required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => Navigator.of(context).pop(),
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              Text(item.dishName,
-                  style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white70)),
-              const SizedBox(height: 24),
-              for (var i = 0; i < questions.length; i++)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 28),
-                  child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    SizedBox(
-                      width: 40,
-                      child: Text('${i + 1}',
-                          style: const TextStyle(
-                              fontSize: 34, fontWeight: FontWeight.w900, color: Colors.yellowAccent)),
-                    ),
-                    Expanded(
-                        child: Text(questions[i],
-                            style: const TextStyle(
-                                fontSize: 34, fontWeight: FontWeight.w800, height: 1.15, color: Colors.white))),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(icon, size: 16, color: FATTheme.textSecondary),
+        const SizedBox(width: 8),
+        Expanded(
+            child: Text(text,
+                style: const TextStyle(fontSize: 14, height: 1.3, color: FATTheme.textSecondary))),
+      ]),
+    );
+  }
+}
+
+/// "Learn more": consumer reading for this dish (MenuLearnLinks).
+class _DishLearnMore extends StatelessWidget {
+  final MenuItem item;
+  const _DishLearnMore({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text(MenuAskCopy.learnMore,
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w900, color: _menuBlue)),
+        for (final link in MenuLearnLinks.linksFor(item))
+          InkWell(
+            onTap: () => launchUrl(Uri.parse(link.url), mode: LaunchMode.externalApplication),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(link.title,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w800, color: FATTheme.scanGreen)),
+                    if (link.blurb != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Text(link.blurb!,
+                            style: const TextStyle(fontSize: 13, height: 1.3, color: Color(0xFF555555))),
+                      ),
                   ]),
                 ),
-              const Text(MenuAskCopy.thanks,
-                  style: TextStyle(fontSize: 20, fontStyle: FontStyle.italic, color: Colors.white70)),
-              const SizedBox(height: 24),
-              const Text(MenuAskCopy.serverHint,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 15, color: Colors.white54)),
-            ],
+                const Icon(Icons.open_in_new, size: 18, color: FATTheme.scanGreen),
+              ]),
+            ),
           ),
-        ),
-      ),
+      ]),
     );
   }
 }
@@ -1032,8 +1044,8 @@ class MenuLearnScreen extends StatelessWidget {
   const MenuLearnScreen({super.key});
 
   static const _sections = <(String, String)>[
-    ('Why FAT explains instead of checking',
-        'Nothing on a menu can be checked at the table. The USDA inspection mark and establishment number are on the wholesale case in the kitchen, not on your plate. Country-of-origin labeling rules don’t apply to restaurants. The USDA’s rules for claims like “grass-fed” or “raised without antibiotics” cover product labels, not menu copy. And words like “local,” “Wagyu” and “heritage” have no federal definition at all.'),
+    ('Why FAT explains menu words',
+        'Menu words are rarely explained. Country-of-origin rules don’t apply to restaurants. The USDA’s rules for claims like “grass-fed” or “raised without antibiotics” cover packaged meat in stores, not menu copy. And words like “local,” “Wagyu” and “heritage” have no federal definition at all. Nobody explains them at the table, so FAT does.'),
     ('So the question is the tool',
         'If you know that “grass-fed” doesn’t say whether the animal was finished on grain, or that “Gulf shrimp” names a body of water rather than a country, you can ask a better question. The kitchen’s answer is the disclosure. FAT supplies the words and the questions; the restaurant supplies the facts.'),
     ('What a menu usually leaves out',
@@ -1041,9 +1053,9 @@ class MenuLearnScreen extends StatelessWidget {
     ('Where the law does reach menus',
         'Some Gulf states — Alabama, Louisiana, Mississippi and Texas — now require restaurants to say when shrimp or other seafood is imported. Set your dining state on the Menu screen and FAT will mention it on the cards where it applies.'),
     ('How to ask',
-        'Start friendly: “What can you tell me about the fish?” (a Seafood Watch suggestion). Most servers will check with the kitchen, and many chefs are glad to talk about their suppliers. Asking to see a case label or invoice is an invitation, not a demand — many kitchens are happy to show you.'),
+        'Start friendly: “What can you tell me about the fish?” (a Seafood Watch suggestion). Ask out loud — two questions are plenty. Most servers will check with the kitchen, and many chefs are glad to talk about their suppliers. “I’ll check with the kitchen” is a fine answer. Close with: “Thank you — we like knowing where our food comes from.”'),
     ('What FAT doesn’t do here',
-        'FAT doesn’t score, grade or verify restaurants, and it never suggests a claim is false. It explains what a claim says and what it leaves unsaid.'),
+        'FAT doesn’t score or grade restaurants, and it never suggests a claim is false. It explains what a menu word says and what it leaves unsaid. Learn about your food.'),
   ];
 
   @override

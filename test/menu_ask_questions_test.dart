@@ -8,10 +8,11 @@ import 'package:fat_app/menu/menu_interpreter.dart';
 import 'package:fat_app/menu/menu_models.dart';
 import 'package:fat_app/menu/menu_screens.dart';
 
-/// "Ask about this dish": the ranked 2–3 questions per dish on the
-/// fine-dining fixture. test/menu_fine_dining_questions_expected.json is
-/// byte-identical to the iOS copy (FATAppMVP2Tests/), so both apps produce the
-/// same questions for the same menu.
+/// "Ask about this dish": exactly two questions per dish on the fine-dining
+/// fixture. test/menu_fine_dining_questions_expected.json and
+/// test/menu_phrase_questions_expected.json are byte-identical to the iOS
+/// copies (FATAppMVP2Tests/), so both apps ask the same questions for the same
+/// menu and a deleted question can't come back unnoticed.
 void main() {
   late MenuGlossary glossary;
   late MenuInterpreter interpreter;
@@ -60,64 +61,178 @@ void main() {
     expect(got, expected, reason: const JsonEncoder.withIndent('  ').convert(got));
   });
 
-  test('organic salmon asks where it is farmed and who certified it, not wild or farmed', () {
-    final q = qs(ocrResult(), 'SALMON');
-    expect(q.any((s) => s.contains('Where is the salmon farmed')), isTrue, reason: '$q');
-    expect(q.any((s) => s.contains('who certified it organic')), isTrue, reason: '$q');
-    for (final s in q) {
-      expect(s.toLowerCase().contains('wild or farmed'), isFalse, reason: s);
-    }
-  });
+  List<String> ask(String text) => MenuClaimExplainer.askQuestions(
+      interpreter.interpret([MenuPage.fromPlainText(text)]).items.first, glossary);
 
-  test('Crystal Valley chicken asks about the named source', () {
-    final q = qs(ocrResult(), 'CRYSTAL VALLEY');
-    expect(
-        q.contains('Where is Crystal Valley located?') ||
-            q.contains('Where does the chicken come from?'),
-        isTrue,
-        reason: '$q');
-  });
+  // ── Question rules ──
 
-  test('Thai vegetable stew asks about the lobster add-on', () {
-    expect(qs(ocrResult(), 'THAI'), contains('If I add the lobster, where is it from?'));
-  });
-
-  test('every dish gets 1–3 questions, no near-duplicates', () {
+  test('every dish gets exactly two questions, never two whys', () {
     for (final r in [ocrResult(), textResult()]) {
       for (final i in r.items) {
         final q = MenuClaimExplainer.askQuestions(i, glossary);
-        expect(q.length, inInclusiveRange(1, 3), reason: i.dishName);
+        expect(q.length, 2, reason: '${i.dishName}: $q');
         expect(q.toSet().length, q.length, reason: i.dishName);
+        expect(q.where(MenuClaimExplainer.isWhyQuestion).length, lessThanOrEqualTo(1), reason: i.dishName);
         final countryQs = q.where((s) => s.toLowerCase().contains('country')).length;
         expect(countryQs, lessThanOrEqualTo(1), reason: i.dishName);
       }
     }
   });
 
-  test('species fallback uses the bird word and the beef pair', () {
-    final duck = interpreter.interpret([MenuPage.fromPlainText('Roast Duck Breast 38')]).items.first;
-    expect(MenuClaimExplainer.askQuestions(duck, glossary), ['Where does the duck come from?']);
-    final steak = interpreter.interpret([MenuPage.fromPlainText('Ribeye Steak 52')]).items.first;
-    expect(MenuClaimExplainer.askQuestions(steak, glossary),
-        ['Where does the beef come from?', 'Is the beef grass-fed or grain-finished?']);
+  test('Berkshire pair is verbatim', () {
+    const want = ['Why did you decide to feature Berkshire pork?', 'Who raises it, and are the animals outdoors?'];
+    expect(qs(ocrResult(), 'BERKSHIRE'), want);
+    expect(ask('Heritage Berkshire Pork Chop 38'), want);
   });
 
-  test('every question names its subject instead of a bare "it"', () {
-    final r = ocrResult();
-    expect(qs(r, 'SPAGHETTI'), [
-      'Which country is the shrimp from?',
-      'Where was the shrimp caught, and how — line, net, or trap?',
-      'Is the shrimp wild today, or does that change with the season?',
+  test('Heritage meaning is verbatim', () {
+    const want =
+        'A traditional breed. Berkshires are black-colored pigs; Kurobuta is Japanese for ‘black pig.’ ‘Heritage’ has no federal definition.';
+    for (final key in ['berkshire', 'heritage_breed']) {
+      expect(glossary.entry(key)!.meaning, want, reason: key);
+      expect(glossary.entry(key)!.gap, 'How the animal was raised, fed or housed.', reason: key);
+    }
+  });
+
+  test('production claim leads and Q2 names the item', () {
+    expect(ask('Grass-Fed Ribeye 58'),
+        ['Why did you choose grass-fed for this dish?', 'Was the beef grass-finished, or finished on grain?']);
+    expect(ask('Wild-Caught Gulf Shrimp 18'),
+        ['Why did you choose wild-caught for this dish?', 'Where was the shrimp caught, and how — line, net or trap?']);
+  });
+
+  test('species fallback uses the bird word and a sourcing question', () {
+    expect(ask('Roast Duck Breast 38'), ['Why did you choose this duck?', 'Who raises the duck?']);
+    expect(ask('Ribeye Steak 52'), ['Why did you choose this beef?', 'Where was the beef raised?']);
+  });
+
+  test('Thai vegetable stew: the add-on question stands in for Q2', () {
+    expect(qs(ocrResult(), 'THAI').last, 'If I add the lobster, where is it from?');
+  });
+
+  test('filet does not ask about the foie gras add-on', () {
+    for (final q in qs(ocrResult(), 'FILET')) {
+      expect(q.toLowerCase().contains('foie'), isFalse, reason: q);
+    }
+  });
+
+  // ── Glossary rules ──
+
+  test('every glossary phrase has exactly two questions', () {
+    for (final e in glossary.entries) {
+      expect(e.questions.length, 2, reason: e.key);
+      if (e.inferredQuestions != null) expect(e.inferredQuestions!.length, 2, reason: e.key);
+      for (final v in e.variants) {
+        expect(v.questions.length, 2, reason: e.key);
+      }
+    }
+    glossary.fallbackAsk.forEach((k, v) => expect(v.length, 2, reason: k));
+    expect(glossary.generalQuestions.length, 2);
+  });
+
+  test('phrase → questions snapshot shared with iOS', () {
+    final got = {
+      'addOnAsk': glossary.addOnAsk ?? '',
+      'entries': {
+        for (final e in glossary.entries)
+          e.key: {
+            'phrases': e.phrases,
+            'questions': e.questions,
+            if (e.questionsVerbatim) 'questionsVerbatim': true,
+            if (e.inferredQuestions != null) 'inferredQuestions': e.inferredQuestions,
+            if (e.variants.isNotEmpty)
+              'variants': [
+                for (final v in e.variants) {'proteins': [for (final p in v.proteins) p.name], 'questions': v.questions},
+              ],
+          },
+      },
+      'fallbackAsk': glossary.fallbackAsk,
+      'generalQuestions': glossary.generalQuestions,
+    };
+    final want = jsonDecode(File('test/menu_phrase_questions_expected.json').readAsStringSync());
+    expect(got, want, reason: const JsonEncoder.withIndent('  ').convert(got));
+  });
+
+  // ── Learn more ──
+
+  test('learn-more links per species', () {
+    final pork = interpreter.interpret([MenuPage.fromPlainText('Berkshire Pork Chop 38')]).items.first;
+    final links = MenuLearnLinks.linksFor(pork);
+    expect([for (final l in links) l.title],
+        ['Ractopamine', 'Menu words, explained', 'How U.S. pork is raised and processed']);
+    expect([for (final l in links) l.url], [
+      'https://farmanimaltransparency.com/ractopamine-us-pork-labels-verification/',
+      'https://farmanimaltransparency.com/how-fat-reads-menus/',
+      'https://farmanimaltransparency.com/category/fatresearch/pork-industry-research-series/',
     ]);
-    expect(qs(r, 'FILET').first, 'What grade is the beef — Prime or Choice?');
-    expect(qs(r, 'CRYSTAL VALLEY'), contains('Is Crystal Valley the farm itself, or a distributor’s brand?'));
-    expect(qs(r, 'VENISON'), ['Where does the venison come from, and is it wild or farmed?']);
+    expect(MenuLearnLinks.ractopamine.blurb,
+        'A growth drug that is legal and unlabeled in conventional U.S. pork, and banned in many export markets. ‘Never fed’ claims are verified under a USDA program; FAT lists who is on it.');
+    for (final text in ['Ribeye Steak 52', 'Seared Scallops 34', 'Roast Chicken 28']) {
+      final item = interpreter.interpret([MenuPage.fromPlainText(text)]).items.first;
+      expect(MenuLearnLinks.linksFor(item), [MenuLearnLinks.menuWords], reason: text);
+    }
   });
 
-  test('related glossary questions merge into one', () {
-    final shrimp = interpreter.interpret([MenuPage.fromPlainText('Garlic Shrimp 24')]).items.first;
-    expect(MenuClaimExplainer.askQuestions(shrimp, glossary).first,
-        'Is the shrimp wild or farmed, and which country is it from?');
+  // ── Wording guard ──
+
+  /// Words the menu flow never uses (Nov 12 menu brief §1, §2, §3).
+  final forbidden = RegExp(
+      r'show to server|full screen|hand to your server|nobody checks|label|everything in this dish|(?<!processing )\bplants?\b',
+      caseSensitive: false);
+  // Dirk's verbatim ractopamine blurb ("unlabeled") is the one exception.
+  final allowed = [MenuLearnLinks.ractopamine.blurb!];
+  bool violates(String s) {
+    if (allowed.contains(s)) return false;
+    return forbidden.hasMatch(s.replaceAll(RegExp(r'https?://\S+'), ''));
+  }
+
+  void allStrings(Object? v, List<String> out) {
+    if (v is String) {
+      out.add(v);
+    } else if (v is List) {
+      for (final x in v) {
+        allStrings(x, out);
+      }
+    } else if (v is Map) {
+      for (final x in v.values) {
+        allStrings(x, out);
+      }
+    }
+  }
+
+  test('menu glossary and copy avoid forbidden words', () {
+    final strings = <String>[];
+    allStrings(jsonDecode(File('assets/data/menu_claim_glossary.json').readAsStringSync()), strings);
+    expect(strings.length, greaterThan(300));
+    strings.addAll(MenuAskCopy.all);
+    for (final l in [MenuLearnLinks.ractopamine, MenuLearnLinks.menuWords, MenuLearnLinks.porkResearch]) {
+      strings.add(l.title);
+      if (l.blurb != null) strings.add(l.blurb!);
+    }
+    for (final s in strings) {
+      expect(violates(s), isFalse, reason: s);
+    }
+    expect(violates('Show to server'), isTrue);
+    expect(violates('the plant that made it'), isTrue);
+    expect(violates('the processing plant that made it'), isFalse);
+  });
+
+  test('no string literal in lib/menu uses a forbidden word', () {
+    final literal = RegExp("'(?:[^'\\\\]|\\\\.)*'" r'|"(?:[^"\\]|\\.)*"');
+    final files = Directory('lib/menu').listSync().whereType<File>().where((f) => f.path.endsWith('.dart')).toList();
+    expect(files.length, greaterThan(5));
+    final hits = <String>[];
+    for (final f in files) {
+      final lines = f.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        if (lines[i].trimLeft().startsWith('//')) continue;
+        for (final m in literal.allMatches(lines[i])) {
+          final lit = m.group(0)!;
+          if (violates(lit.substring(1, lit.length - 1))) hits.add('${f.path}:${i + 1}');
+        }
+      }
+    }
+    expect(hits, isEmpty, reason: 'Menu string literals with a forbidden word: $hits');
   });
 
   testWidgets('row button opens the ask sheet without opening the dish', (tester) async {
@@ -131,7 +246,9 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(button);
     await tester.pumpAndSettle();
-    expect(find.text(MenuAskCopy.showToServer), findsOneWidget);
+    expect(find.text(MenuAskCopy.sheetTitle), findsOneWidget);
+    expect(find.text(MenuAskCopy.closeWith), findsOneWidget);
+    expect(find.text(MenuAskCopy.kitchenNote), findsOneWidget);
     expect(find.text(MenuAskCopy.copy), findsOneWidget);
     expect(find.text(MenuAskCopy.moreAboutDish), findsOneWidget);
     for (final q in MenuClaimExplainer.askQuestions(salmon, glossary)) {
@@ -139,13 +256,6 @@ void main() {
     }
     // The dish screen was not pushed underneath.
     expect(find.byType(MenuDishScreen), findsNothing);
-
-    await tester.tap(find.text(MenuAskCopy.showToServer));
-    await tester.pumpAndSettle();
-    expect(find.byType(MenuServerView), findsOneWidget);
-    await tester.tap(find.byType(MenuServerView));
-    await tester.pumpAndSettle();
-    expect(find.byType(MenuServerView), findsNothing);
   });
 
   test('new sheet copy has no regulatory acronyms', () {

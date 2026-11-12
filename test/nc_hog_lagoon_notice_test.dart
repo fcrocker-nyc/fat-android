@@ -149,7 +149,7 @@ void main() {
     expect(NcHogLagoonNotice.courtUrl,
         'https://appellate.nccourts.org/opinions/?c=1&pdf=45263');
     expect(NcHogLagoonNotice.caveat,
-        "The package doesn't say which farm raised this pork. The plant's location is only a clue: hogs can travel long distances to slaughter.");
+        "The package doesn't say which farm raised this pork. The processing plant's location is only a clue: hogs can travel long distances to slaughter.");
     expect(NcHogLagoonNotice.shareParagraph.contains(NcHogLagoonNotice.body), isTrue);
     expect(NcHogLagoonNotice.shareParagraph.contains(NcHogLagoonNotice.caveat), isTrue);
   });

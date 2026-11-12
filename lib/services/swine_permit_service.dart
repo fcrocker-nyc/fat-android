@@ -191,7 +191,7 @@ class SwinePermitSummary {
     final ops = total == 1 ? 'hog operation' : 'hog operations';
     final src = sources.map((s) => s.citation).join('; ');
     final base =
-        'State permit records list $n $ops within $radiusMiles miles of this plant (sources: $src)';
+        'State permit records list $n $ops within $radiusMiles miles of this processing plant (sources: $src)';
     if (lagoonStates.isEmpty || total == 0) return '$base.';
     final m = SwinePermitText.number(lagoonCount);
     if (_contributing.every(lagoonStates.contains)) {
@@ -244,7 +244,7 @@ class SwinePermitSummary {
     final p = parent;
     if (p == null || parentHoldings < 1) return null;
     final farms = parentHoldings == 1 ? 'hog farm' : 'hog farms';
-    return "The plant's parent company (${p.displayName}) holds state permits for at least ${SwinePermitText.number(parentHoldings)} $farms within $radiusMiles miles (${SwinePermitText.stateList(parentStates)} permit records). Contract farms are listed under growers' own names, so this is a minimum.";
+    return "The processing plant's parent company (${p.displayName}) holds state permits for at least ${SwinePermitText.number(parentHoldings)} $farms within $radiusMiles miles (${SwinePermitText.stateList(parentStates)} permit records). Contract farms are listed under growers' own names, so this is a minimum.";
   }
 
   /// Iowa DNR field-office compliance lines (operations, not violations):

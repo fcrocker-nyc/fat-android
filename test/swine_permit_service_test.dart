@@ -76,13 +76,13 @@ void main() {
     expect(s.npdesCount, 1);
     expect(s.parentHoldings, 70);
     expect(s.countLine,
-        'State permit records list 1,523 hog operations within 50 miles of this plant (sources: NC DEQ, January 2024), 1,431 of them with at least one waste lagoon.');
+        'State permit records list 1,523 hog operations within 50 miles of this processing plant (sources: NC DEQ, January 2024), 1,431 of them with at least one waste lagoon.');
     expect(s.npdesLine,
         "Of these, 1 holds a federal Clean Water Act (NPDES) permit; the other 1,522 don't appear in EPA's database.");
     // South Carolina is beyond 50 miles of Clinton, so no not-published note.
     expect(s.unpublishedLine, isNull);
     expect(s.parentLine,
-        "The plant's parent company (Smithfield Foods) holds state permits for at least 70 hog farms within 50 miles (North Carolina permit records). Contract farms are listed under growers' own names, so this is a minimum.");
+        "The processing plant's parent company (Smithfield Foods) holds state permits for at least 70 hog farms within 50 miles (North Carolina permit records). Contract farms are listed under growers' own names, so this is a minimum.");
     expect(s.cardLines, [s.countLine, s.npdesLine, ...s.ncLines]);
   });
 
@@ -109,7 +109,7 @@ void main() {
     expect(s.byState['MN'], 1136);
     expect(s.byState['IA'], 447);
     expect(s.countLine,
-        'State permit records list 1,583 hog operations within 50 miles of this plant (sources: Iowa DNR, April 2024; MPCA, October 2026).');
+        'State permit records list 1,583 hog operations within 50 miles of this processing plant (sources: Iowa DNR, April 2024; MPCA, October 2026).');
     expect(s.npdesLine,
         "Of these, 152 hold a federal Clean Water Act (NPDES) permit; the other 1,431 don't appear in EPA's database.");
     expect(s.parentLine, isNull);
