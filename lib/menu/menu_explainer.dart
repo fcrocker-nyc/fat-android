@@ -239,7 +239,7 @@ class MenuClaimExplainer {
   //    near-duplicates skipped; "wild or farmed?" dropped when the menu says.
   // 4. Short of two: the species fallback (fallbackAsk) fills in.
   // 5. Add-on: asked about only when it is the dish's only animal protein —
-  //    the add-on question stands in for Q2. Never a question about the whole
+  //    then the add-on question is the single question. Never a question about the whole
   //    plate (sides, sauces, "everything in this dish").
 
   static const _birdWords = ['chicken', 'duck', 'turkey', 'quail', 'goose', 'pheasant', 'squab', 'hen'];
@@ -269,26 +269,20 @@ class MenuClaimExplainer {
     }
 
     if (addOnOnly) {
-      // e.g. a vegetable stew with a lobster add-on.
+      // e.g. a vegetable stew with a lobster add-on. One question is enough:
+      // the add-on question alone.
       final addOn = item.addOns.isEmpty ? '' : item.addOns.first.toLowerCase();
-      String? first;
-      for (final (c, e) in _askRanked(addOnClaims, item, glossary)) {
-        final qs = _askFor(c, e, item, glossary);
-        if (qs.isNotEmpty) {
-          first = qs.first;
-          break;
-        }
-      }
-      if (first != null) {
-        push(first);
-      } else if (item.addOnProteins.isNotEmpty) {
-        final p = item.addOnProteins.first;
-        final qs = glossary.fallbackAsk[p.name] ?? const <String>[];
-        if (qs.isNotEmpty) push(nameSubject(qs.first, _plainNoun(addOn) ?? _familyNoun(p, item), false));
-      }
       if (glossary.addOnAsk != null && addOn.isNotEmpty) {
         push(nameSubject(
             glossary.addOnAsk!.replaceAll('{addon}', addOn), _plainNoun(addOn) ?? addOn, false));
+      } else {
+        for (final (c, e) in _askRanked(addOnClaims, item, glossary)) {
+          final qs = _askFor(c, e, item, glossary);
+          if (qs.isNotEmpty) {
+            push(qs.first);
+            break;
+          }
+        }
       }
       return out;
     }

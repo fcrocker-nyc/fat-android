@@ -460,7 +460,7 @@
       "gap": "The menu won’t say which farm produced it or how the birds were fed.",
       "questions": [
         "Which farm is the foie gras from?",
-        "Is it from a farm that doesn’t force-feed?"
+        "Who raises the ducks?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -540,7 +540,7 @@
       ],
       "inferredQuestions": [
         "Where is it farmed?",
-        "Is the farm certified — ASC or BAP?"
+        "Which country is the farm in?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -913,8 +913,8 @@
       "authority": "Kobe Beef Marketing and Distribution Promotion Association (Japan)",
       "gap": "Very little genuine Kobe beef is exported to the U.S. ‘Kobe-style’ is not Kobe beef.",
       "questions": [
-        "Is it certified Kobe beef from Japan?",
-        "If it’s Kobe-style, where was it raised?"
+        "Is it Kobe beef from Japan, or Kobe-style?",
+        "Where was it raised?"
       ],
       "stateNote": null,
       "adjacentProtein": false
@@ -1223,7 +1223,7 @@
       "authority": "FDA — imitation crab must be named as imitation in stores",
       "gap": "Lump crab meat is often imported pasteurized blue swimming crab, not Chesapeake blue crab.",
       "questions": [
-        "Is it real crab, and which species?",
+        "Which species of crab is it?",
         "Where is the crab from?"
       ],
       "stateNote": null,

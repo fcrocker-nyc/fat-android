@@ -66,11 +66,12 @@ void main() {
 
   // ── Question rules ──
 
-  test('every dish gets exactly two questions, never two whys', () {
+  test('every dish gets two questions (one if add-on only), never two whys', () {
     for (final r in [ocrResult(), textResult()]) {
       for (final i in r.items) {
         final q = MenuClaimExplainer.askQuestions(i, glossary);
-        expect(q.length, 2, reason: '${i.dishName}: $q');
+        // One question only for an add-on-only dish (no second applies).
+        expect(q.length, i.dishName.startsWith('THAI') ? 1 : 2, reason: '${i.dishName}: $q');
         expect(q.toSet().length, q.length, reason: i.dishName);
         expect(q.where(MenuClaimExplainer.isWhyQuestion).length, lessThanOrEqualTo(1), reason: i.dishName);
         final countryQs = q.where((s) => s.toLowerCase().contains('country')).length;
@@ -106,8 +107,8 @@ void main() {
     expect(ask('Ribeye Steak 52'), ['Why did you choose this beef?', 'Where was the beef raised?']);
   });
 
-  test('Thai vegetable stew: the add-on question stands in for Q2', () {
-    expect(qs(ocrResult(), 'THAI').last, 'If I add the lobster, where is it from?');
+  test('add-on-only dish gets the single add-on question', () {
+    expect(qs(ocrResult(), 'THAI'), ['If I add the lobster, where is it from?']);
   });
 
   test('filet does not ask about the foie gras add-on', () {
