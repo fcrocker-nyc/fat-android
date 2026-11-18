@@ -861,19 +861,23 @@ Future<void> showMenuAskSheet(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
-    builder: (sheetContext) => MenuAskSheet(
-      item: item,
-      questions: MenuClaimExplainer.askQuestions(item, glossary),
-      onMore: showMore
-          ? () {
-              Navigator.of(sheetContext).pop();
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) =>
-                    MenuDishScreen(item: item, glossary: glossary, diningState: diningState),
-              ));
-            }
-          : null,
-    ),
+    builder: (sheetContext) {
+      final questions = MenuClaimExplainer.askQuestions(item, glossary);
+      return MenuAskSheet(
+        item: item,
+        questions: questions,
+        extraQuestions: MenuClaimExplainer.shopKindQuestions(item, glossary, questions),
+        onMore: showMore
+            ? () {
+                Navigator.of(sheetContext).pop();
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) =>
+                      MenuDishScreen(item: item, glossary: glossary, diningState: diningState),
+                ));
+              }
+            : null,
+      );
+    },
   );
 }
 
@@ -881,9 +885,17 @@ class MenuAskSheet extends StatefulWidget {
   final MenuItem item;
   final List<String> questions;
 
+  /// "More questions you could ask" (ASPCA ShopKind); empty for seafood.
+  final List<String> extraQuestions;
+
   /// "More about this dish"; null on the detail screen itself.
   final VoidCallback? onMore;
-  const MenuAskSheet({super.key, required this.item, required this.questions, this.onMore});
+  const MenuAskSheet(
+      {super.key,
+      required this.item,
+      required this.questions,
+      this.extraQuestions = const [],
+      this.onMore});
 
   @override
   State<MenuAskSheet> createState() => _MenuAskSheetState();
@@ -891,10 +903,62 @@ class MenuAskSheet extends StatefulWidget {
 
 class _MenuAskSheetState extends State<MenuAskSheet> {
   bool _copied = false;
+  bool _showMore = false;
+
+  /// Collapsed by default; the ShopKind questions, a note and the guide link.
+  Widget _moreQuestions() {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        key: const ValueKey('menuMoreQuestions'),
+        initiallyExpanded: false,
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: const EdgeInsets.only(bottom: 4),
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        iconColor: FATTheme.scanGreen,
+        collapsedIconColor: FATTheme.scanGreen,
+        onExpansionChanged: (open) => setState(() => _showMore = open),
+        title: const Text(MenuAskCopy.moreTitle,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+        subtitle: const Text(MenuAskCopy.moreSubtitle,
+            style: TextStyle(fontSize: 13, color: FATTheme.textSecondary)),
+        children: [
+          for (final q in widget.extraQuestions)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const SizedBox(
+                  width: 24,
+                  child: Text('•',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w900, color: FATTheme.scanGreen)),
+                ),
+                Expanded(
+                    child: Text(q,
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, height: 1.25))),
+              ]),
+            ),
+          const Text(MenuAskCopy.shopKindNote,
+              style: TextStyle(fontSize: 13, height: 1.3, color: FATTheme.textSecondary)),
+          TextButton.icon(
+            key: const ValueKey('menuShopKindLink'),
+            style: TextButton.styleFrom(padding: EdgeInsets.zero),
+            onPressed: () => launchUrl(Uri.parse(MenuAskCopy.shopKindURL),
+                mode: LaunchMode.externalApplication),
+            icon: const Icon(Icons.open_in_new, size: 16, color: FATTheme.scanGreen),
+            label: const Text(MenuAskCopy.shopKindLink,
+                style: TextStyle(fontWeight: FontWeight.w700, color: FATTheme.scanGreen)),
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Future<void> _copy() async {
-    await Clipboard.setData(
-        ClipboardData(text: MenuClaimExplainer.shareText(widget.item, widget.questions)));
+    await Clipboard.setData(ClipboardData(
+        text: MenuClaimExplainer.shareText(widget.item, widget.questions,
+            extra: _showMore ? widget.extraQuestions : const [])));
     if (!mounted) return;
     setState(() => _copied = true);
     Future.delayed(const Duration(seconds: 2), () {
@@ -906,7 +970,7 @@ class _MenuAskSheetState extends State<MenuAskSheet> {
   Widget build(BuildContext context) {
     final qs = widget.questions;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(widget.item.dishName,
@@ -934,6 +998,7 @@ class _MenuAskSheetState extends State<MenuAskSheet> {
           const SizedBox(height: 2),
           const _SheetTip(icon: Icons.waving_hand_outlined, text: MenuAskCopy.closeWith),
           const _SheetTip(icon: Icons.restaurant, text: MenuAskCopy.kitchenNote),
+          if (widget.extraQuestions.isNotEmpty) _moreQuestions(),
           const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,

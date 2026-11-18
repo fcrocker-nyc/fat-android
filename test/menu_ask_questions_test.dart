@@ -259,6 +259,120 @@ void main() {
     expect(find.byType(MenuDishScreen), findsNothing);
   });
 
+  // ── More questions (ASPCA ShopKind) ──
+
+  const outdoors = 'Are the animals raised outdoors?';
+  const antibiotics = 'Does the farm use antibiotics only when an animal is sick?';
+
+  MenuItem dish(String text) => interpreter.interpret([MenuPage.fromPlainText(text)]).items.first;
+
+  List<String> more(String text) {
+    final item = dish(text);
+    return MenuClaimExplainer.shopKindQuestions(
+        item, glossary, MenuClaimExplainer.askQuestions(item, glossary));
+  }
+
+  test('ShopKind: pork dish', () {
+    expect(more('Grilled Pork Chop 32'),
+        [outdoors, 'Are the pigs’ tails docked, or their teeth cut?', antibiotics]);
+  });
+
+  test('ShopKind: chicken dish', () {
+    expect(more('Roast Chicken 28'), [outdoors, 'What breed of chicken is it?', antibiotics]);
+  });
+
+  test('ShopKind: turkey dish asks about beaks', () {
+    expect(more('Smoked Turkey Breast 24'), [outdoors, 'Are the turkeys’ beaks trimmed?', antibiotics]);
+  });
+
+  test('ShopKind: other land animals', () {
+    for (final text in ['Ribeye Steak 52', 'Rack of Lamb 46', 'Roast Duck Breast 38']) {
+      expect(more(text), [outdoors, antibiotics], reason: text);
+    }
+  });
+
+  test('ShopKind: seafood has no section', () {
+    for (final text in ['Grilled Salmon 34', 'Seared Scallops 34', 'Wild-Caught Gulf Shrimp 18']) {
+      expect(more(text), isEmpty, reason: text);
+    }
+  });
+
+  test('ShopKind skips what a main question already asks', () {
+    // Berkshire's main question already asks "are the animals outdoors?".
+    final main = MenuClaimExplainer.askQuestions(dish('Berkshire Pork Chop 38'), glossary);
+    expect(main.any((q) => q.contains('outdoors')), isTrue, reason: '$main');
+    expect(more('Berkshire Pork Chop 38'), ['Are the pigs’ tails docked, or their teeth cut?', antibiotics]);
+  });
+
+  test('ShopKind never duplicates a main question', () {
+    for (final r in [ocrResult(), textResult()]) {
+      for (final item in r.items) {
+        final main = MenuClaimExplainer.askQuestions(item, glossary);
+        for (final q in MenuClaimExplainer.shopKindQuestions(item, glossary, main)) {
+          expect(main.contains(q), isFalse, reason: '${item.dishName}: $q');
+          for (final topic in ['outdoor', 'antibiotic', 'breed', 'beak', 'tail']) {
+            if (!q.toLowerCase().contains(topic)) continue;
+            expect(main.any((m) => m.toLowerCase().contains(topic)), isFalse, reason: '${item.dishName}: $q');
+          }
+        }
+      }
+    }
+  });
+
+  test('ShopKind glossary source and copy', () {
+    final sk = glossary.shopkindAsk!;
+    expect(sk.url, 'https://www.aspca.org/shopkind/guide/findfarms');
+    expect(sk.source, contains('ASPCA ShopKind'));
+    expect(sk.source, contains(sk.url));
+    expect(MenuAskCopy.shopKindURL, sk.url);
+    expect(sk.questions['finfish'], isNull);
+    expect(sk.questions['shellfish'], isNull);
+  });
+
+  test('copy includes ShopKind questions only when expanded', () {
+    final item = dish('Grilled Pork Chop 32');
+    final main = MenuClaimExplainer.askQuestions(item, glossary);
+    final extra = MenuClaimExplainer.shopKindQuestions(item, glossary, main);
+    final collapsed = MenuClaimExplainer.shareText(item, main);
+    expect(collapsed.contains(MenuAskCopy.moreTitle), isFalse);
+    expect(collapsed.contains(outdoors), isFalse);
+    final expanded = MenuClaimExplainer.shareText(item, main, extra: extra);
+    expect(expanded, contains('${MenuAskCopy.moreTitle} — ${MenuAskCopy.moreSubtitle}:'));
+    for (final q in [...main, ...extra]) {
+      expect(expanded, contains(q));
+    }
+  });
+
+  testWidgets('More questions section is collapsed by default and expands', (tester) async {
+    final item = dish('Grilled Pork Chop 32');
+    final main = MenuClaimExplainer.askQuestions(item, glossary);
+    final extra = MenuClaimExplainer.shopKindQuestions(item, glossary, main);
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(body: MenuAskSheet(item: item, questions: main, extraQuestions: extra))));
+    expect(find.text(MenuAskCopy.moreTitle), findsOneWidget);
+    expect(find.text(MenuAskCopy.moreSubtitle), findsOneWidget);
+    expect(find.text(outdoors), findsNothing);
+    await tester.tap(find.text(MenuAskCopy.moreTitle));
+    await tester.pumpAndSettle();
+    for (final q in extra) {
+      expect(find.text(q), findsOneWidget);
+    }
+    expect(find.text(MenuAskCopy.shopKindNote), findsOneWidget);
+    expect(find.text(MenuAskCopy.shopKindLink), findsOneWidget);
+  });
+
+  testWidgets('seafood sheet has no More questions section', (tester) async {
+    final item = dish('Grilled Salmon 34');
+    final main = MenuClaimExplainer.askQuestions(item, glossary);
+    await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: MenuAskSheet(
+                item: item,
+                questions: main,
+                extraQuestions: MenuClaimExplainer.shopKindQuestions(item, glossary, main)))));
+    expect(find.text(MenuAskCopy.moreTitle), findsNothing);
+  });
+
   test('new sheet copy has no regulatory acronyms', () {
     final re = RegExp(r'\b(?:COOL|SIMP|AMS|FSIS|HACCP|NOP|PACA)\b');
     for (final s in [...MenuAskCopy.all, glossary.addOnAsk!, ...glossary.fallbackAsk.values.expand((v) => v)]) {

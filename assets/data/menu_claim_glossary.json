@@ -36,6 +36,47 @@
     ]
   },
   "addOnAsk": "If I add the {addon}, where is it from?",
+  "shopkindAsk": {
+    "source": "ASPCA ShopKind Grocery Buying Guide, ‘How to Shop for More Humane Products at the Farmers Market’, https://www.aspca.org/shopkind/guide/findfarms (read 2026-11-18). Its questions to ask farmers, adapted for asking at a restaurant about the farm or supplier.",
+    "url": "https://www.aspca.org/shopkind/guide/findfarms",
+    "questions": {
+      "beef": [
+        "Are the animals raised outdoors?",
+        "Does the farm use antibiotics only when an animal is sick?"
+      ],
+      "pork": [
+        "Are the animals raised outdoors?",
+        "Are the pigs’ tails docked, or their teeth cut?",
+        "Does the farm use antibiotics only when an animal is sick?"
+      ],
+      "lamb": [
+        "Are the animals raised outdoors?",
+        "Does the farm use antibiotics only when an animal is sick?"
+      ],
+      "chicken": [
+        "Are the animals raised outdoors?",
+        "What breed of chicken is it?",
+        "Does the farm use antibiotics only when an animal is sick?"
+      ],
+      "turkey": [
+        "Are the animals raised outdoors?",
+        "Are the turkeys’ beaks trimmed?",
+        "Does the farm use antibiotics only when an animal is sick?"
+      ],
+      "duck": [
+        "Are the animals raised outdoors?",
+        "Does the farm use antibiotics only when an animal is sick?"
+      ],
+      "poultry": [
+        "Are the animals raised outdoors?",
+        "Does the farm use antibiotics only when an animal is sick?"
+      ],
+      "other": [
+        "Are the animals raised outdoors?",
+        "Does the farm use antibiotics only when an animal is sick?"
+      ]
+    }
+  },
   "entries": [
     {
       "key": "origin_region",

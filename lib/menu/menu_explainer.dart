@@ -318,6 +318,66 @@ class MenuClaimExplainer {
     return out;
   }
 
+  // ── More questions (ASPCA ShopKind) ──
+  //
+  // An optional, collapsed section under the two main questions: ShopKind's
+  // questions to ask farmers, adapted for asking at a restaurant. Chosen by
+  // the dish's main animal protein (the add-on only when it is the only
+  // protein). Seafood gets none: ShopKind's questions don't cover fish.
+  // A question whose topic a main question already covers is left out.
+  // Kept identical to iOS MenuClaimExplainer.shopKindQuestions.
+
+  /// Glossary "shopkindAsk" group for the dish, or null (seafood, no protein).
+  static String? shopKindGroup(MenuItem item) {
+    final main = [for (final p in item.proteins) if (!item.addOnProteins.contains(p)) p];
+    final pool = main.isEmpty ? item.addOnProteins : main;
+    if (pool.isEmpty) return null;
+    switch (pool.first) {
+      case ProteinFamily.beef:
+        return 'beef';
+      case ProteinFamily.pork:
+        return 'pork';
+      case ProteinFamily.lamb:
+        return 'lamb';
+      case ProteinFamily.other:
+        return 'other';
+      case ProteinFamily.finfish:
+      case ProteinFamily.shellfish:
+        return null;
+      case ProteinFamily.poultry:
+        switch (_birdWord(item)) {
+          case null:
+          case 'chicken':
+          case 'hen':
+            return 'chicken';
+          case 'turkey':
+            return 'turkey';
+          case 'duck':
+            return 'duck';
+          default:
+            return 'poultry';
+        }
+    }
+  }
+
+  static const _shopKindTopics = ['outdoor', 'outside', 'antibiotic', 'breed', 'beak', 'tail', 'teeth'];
+
+  static Set<String> _topics(String q) {
+    final t = q.toLowerCase();
+    return {for (final w in _shopKindTopics) if (RegExp('\\b$w').hasMatch(t)) w};
+  }
+
+  static List<String> shopKindQuestions(MenuItem item, MenuGlossary glossary, List<String> main) {
+    final g = shopKindGroup(item);
+    final qs = g == null ? null : glossary.shopkindAsk?.questions[g];
+    if (qs == null) return const [];
+    final covered = {for (final m in main) ..._topics(m)};
+    return [
+      for (final q in qs)
+        if (!main.any((m) => _nearDuplicate(m, q)) && _topics(q).intersection(covered).isEmpty) q,
+    ];
+  }
+
   /// "Why did you choose…", "What made you decide to feature…".
   static bool isWhyQuestion(String q) {
     final t = q.toLowerCase();
@@ -537,10 +597,15 @@ class MenuClaimExplainer {
   }
 
   /// Plain-text export for the share button.
-  static String shareText(MenuItem dish, List<String> questions) {
+  /// [extra]: the ShopKind questions, copied only when that section is open.
+  static String shareText(MenuItem dish, List<String> questions, {List<String> extra = const []}) {
     final lines = ['${MenuAskCopy.sheetTitle} — ${dish.dishName}:', ''];
     for (var i = 0; i < questions.length; i++) {
       lines.add('${i + 1}. ${questions[i]}');
+    }
+    if (extra.isNotEmpty) {
+      lines.addAll(['', '${MenuAskCopy.moreTitle} — ${MenuAskCopy.moreSubtitle}:']);
+      lines.addAll(extra.map((q) => '• $q'));
     }
     lines.addAll(['', '— from the FAT App · farmanimaltransparency.com']);
     return lines.join('\n');
@@ -561,10 +626,16 @@ class MenuAskCopy {
   static const kitchenNote = '“I’ll check with the kitchen” is a fine answer.';
   static const learnMore = 'Learn more';
   static const closingThought = 'Learn about your food.';
+  static const moreTitle = 'More questions you could ask';
+  static const moreSubtitle = 'Adapted from the ASPCA’s ShopKind guide';
+  static const shopKindNote =
+      'ShopKind lists only farms with certifications that audit how animals are raised. More humane farms that aren’t listed exist — these questions help you find out.';
+  static const shopKindLink = 'ASPCA ShopKind guide';
+  static const shopKindURL = 'https://www.aspca.org/shopkind/guide/findfarms';
 
   static const all = [
     rowButton, sheetTitle, copy, copied, moreAboutDish, thanks, closeWith, kitchenNote,
-    learnMore, closingThought,
+    learnMore, closingThought, moreTitle, moreSubtitle, shopKindNote, shopKindLink,
   ];
 }
 

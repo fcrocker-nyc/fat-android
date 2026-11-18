@@ -147,6 +147,25 @@ class ClaimText {
   const ClaimText(this.meaning, this.authority, this.gap, this.questions);
 }
 
+/// The ASPCA ShopKind questions (glossary "shopkindAsk"): [questions] is
+/// keyed by species group ("beef", "pork", "chicken", "turkey", …); seafood
+/// has none.
+class ShopKindAsk {
+  final String source;
+  final String url;
+  final Map<String, List<String>> questions;
+  const ShopKindAsk({required this.source, required this.url, required this.questions});
+
+  factory ShopKindAsk.fromJson(Map<String, dynamic> j) => ShopKindAsk(
+    source: j['source'] as String,
+    url: j['url'] as String,
+    questions: {
+      for (final e in (j['questions'] as Map<String, dynamic>).entries)
+        e.key: List<String>.from(e.value as List),
+    },
+  );
+}
+
 class MenuGlossary {
   final String version;
   final String status;
@@ -166,6 +185,10 @@ class MenuGlossary {
   /// as Q2 when the add-on is the dish's only animal protein.
   final String? addOnAsk;
 
+  /// Optional "More questions you could ask", adapted from the ASPCA's
+  /// ShopKind farmers-market guide, keyed by species group.
+  final ShopKindAsk? shopkindAsk;
+
   const MenuGlossary({
     required this.version,
     required this.status,
@@ -174,6 +197,7 @@ class MenuGlossary {
     this.knownSources = const [],
     this.fallbackAsk = const {},
     this.addOnAsk,
+    this.shopkindAsk,
   });
 
   factory MenuGlossary.fromJson(Map<String, dynamic> j) => MenuGlossary(
@@ -189,6 +213,9 @@ class MenuGlossary {
         e.key: List<String>.from(e.value as List),
     },
     addOnAsk: j['addOnAsk'] as String?,
+    shopkindAsk: j['shopkindAsk'] == null
+        ? null
+        : ShopKindAsk.fromJson(j['shopkindAsk'] as Map<String, dynamic>),
   );
 
   ClaimEntry? entry(String key) {
