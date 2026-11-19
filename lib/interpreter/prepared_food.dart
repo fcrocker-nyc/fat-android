@@ -15,6 +15,8 @@
 // Siluriformes FSIS/FDA split on the seafood side.
 
 import '../models/fat_models.dart';
+import 'label_interpreter.dart';
+import 'product_type_detector.dart';
 
 class PreparedFoodContext {
   final bool isPrepared;
@@ -433,4 +435,59 @@ class SeafoodPreparedDetector {
 
   static const String bannerText =
       'This looks like a multi-ingredient prepared food — a chowder, crab cake, fish stick or similar — where seafood is one ingredient among many. Because it is a processed food, federal country-of-origin labeling doesn’t apply, and no U.S. rule requires the maker to say whether the seafood was wild or farmed, where it was caught or farmed, or how it was raised. Those categories are marked “not applicable” rather than “not disclosed” — a regulatory gap, not a brand failure. Anything the brand voluntarily discloses (for example “made with wild Alaska pollock” or an MSC label) still counts and still earns its credibility tier. One rule does reach the label: fish and crustacean shellfish such as shrimp, crab and lobster must be named by species in the allergen statement. Mollusks such as clams and oysters are not covered by that rule.';
+}
+
+
+// ─── Lane router: meat / seafood / no animal ingredient ─────────────────────
+//
+// The Scan tab sends every label to one of the scoring lanes. A label whose
+// ingredient statement names no meat, poultry or seafood at all — a cheese
+// pizza, a vegetable soup made with vegetable broth — is not scored as meat:
+// the meat lane would otherwise read it as a prepared food (or pick up a false
+// species from a word like "cow's milk"). The gate is conservative: it only
+// fires when an ingredient statement was actually read and nothing on the
+// label — species, processed-meat word, inspection legend or establishment
+// number — points to an animal ingredient. Mirrors iOS LabelLaneRouter.
+enum LabelLane { meat, seafood, noAnimalIngredient }
+
+class LabelLaneRouter {
+  LabelLaneRouter._();
+
+  /// Animal-ingredient words beyond the species keyword lists. Any one of
+  /// them keeps the label in the meat lane.
+  static const List<String> _otherAnimalWords = [
+    'meat', 'meats', 'poultry', 'sausage', 'sausages', 'venison', 'duck',
+    'goose', 'goat', 'mutton', 'rabbit', 'quail', 'lard', 'tallow', 'bone',
+    'bones', 'burger', 'hamburger', 'steak', 'jerky', 'giblets', 'liver',
+  ];
+
+  static const String noAnimalIngredientMessage =
+      'No meat, poultry or seafood is named in this ingredient list, so FAT didn’t score it. FAT reads labels on meat, poultry and seafood, and on foods made with them. If this food does contain one, scan the panel that names it.';
+
+  /// True when the scanned text carries an ingredient statement that names
+  /// no meat, poultry or seafood, and no inspection legend or establishment
+  /// number is on the label.
+  static bool namesNoAnimalIngredient(String scannedText) {
+    final text =
+        scannedText.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (!PreparedFoodDetector.hasIngredientStatement(text)) return false;
+    if (SeafoodPreparedDetector.speciesNamed(text).isNotEmpty) return false;
+    if (_otherAnimalWords.any((w) => PreparedFoodDetector._wordHit(text, w))) {
+      return false;
+    }
+    if (ProductTypeDetector.detect(text).matchedKeywords.isNotEmpty) {
+      return false;
+    }
+    if (PreparedFoodDetector.hasFsisLegend(text)) return false;
+    if (LabelInterpreter.extractEstablishmentNumber(text) != null) return false;
+    return true;
+  }
+
+  static LabelLane lane(String scannedText) {
+    if (namesNoAnimalIngredient(scannedText)) return LabelLane.noAnimalIngredient;
+    return ProductTypeDetector.detect(scannedText).productType ==
+            ProductType.seafood
+        ? LabelLane.seafood
+        : LabelLane.meat;
+  }
 }

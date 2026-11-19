@@ -7,7 +7,6 @@ import '../models/fat_models.dart';
 import '../interpreter/foreign_establishment.dart';
 import '../interpreter/label_interpreter.dart';
 import '../interpreter/prepared_food.dart';
-import '../interpreter/product_type_detector.dart';
 import '../interpreter/seafood_interpreter.dart';
 import '../menu/menu_screens.dart';
 import '../theme/fat_theme.dart';
@@ -155,10 +154,18 @@ class _ScanScreenState extends State<ScanScreen> {
       _pendingBaseText = '';
       _pendingBasePaths = const [];
 
-      // Route by product type: seafood labels go to the seafood pipeline,
-      // everything else to the meat pipeline.
-      final detection = ProductTypeDetector.detect(scannedText);
-      final bool isSeafood = detection.productType == ProductType.seafood;
+      // Route: an ingredient list naming no meat, poultry or seafood (a
+      // cheese pizza) is not scored as meat. Otherwise seafood labels go to
+      // the seafood pipeline, everything else to the meat pipeline.
+      final lane = LabelLaneRouter.lane(scannedText);
+      if (lane == LabelLane.noAnimalIngredient) {
+        setState(() {
+          _isProcessing = false;
+          _errorMessage = LabelLaneRouter.noAnimalIngredientMessage;
+        });
+        return;
+      }
+      final bool isSeafood = lane == LabelLane.seafood;
       final FATResult fatResult;
       if (isSeafood) {
         final si = SeafoodInterpreter.interpret(scannedText);

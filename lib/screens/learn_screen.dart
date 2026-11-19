@@ -667,6 +667,42 @@ final List<_LearnSection> _sections = <_LearnSection>[
     ],
   ),
 
+  // ════════════ PREPARED FOODS ════════════
+  _LearnSection(
+    title: 'Prepared Foods: When Meat Is One Ingredient',
+    topics: [
+      // P.1 — moved from the Meat & Poultry section
+      _LearnTopic(
+        title: 'Prepared & Multi-Ingredient Foods',
+        subtitle: 'Stew, pizza, chowder, fish sticks — when meat or seafood is one ingredient among many',
+        body: _text(
+            'A canned beef stew, a frozen pepperoni pizza, or a chicken noodle soup is not a single-animal product. Scoring it against the per-animal questions — what breed, what farm, what age, what feed — would paint a fully legal product as a transparency failure for answers no regulation ever required it to give. So FAT scans these in a separate Prepared / Multi-Ingredient lane.\n\n'
+            'Two regulators, one grocery aisle.\nWhether USDA or FDA governs a prepared food depends on how much meat is in it. Products with enough meat or poultry (roughly 3% raw or 2% cooked, under USDA jurisdiction rules) are USDA-regulated: they carry the round inspection legend and an establishment number, like any package of meat. Below those thresholds — many frozen pizzas, soups, and sauces — the product is FDA-regulated and legally carries neither mark. The same shelf holds both, and nothing on the front of the package says which is which.\n\n'
+            'Where the terms and thresholds come from.\n“Prepared / Multi-Ingredient” is FAT’s consumer-facing name, not a legal term. The law’s own term for the USDA branch is “meat food product” — defined in the Federal Meat Inspection Act (21 U.S.C. 601(j)) as any food made wholly or in part from meat, EXCEPT products containing meat “only in a relatively small proportion,” as USDA prescribes. Poultry runs under a different statute entirely: the Poultry Products Inspection Act defines “poultry product” at 21 U.S.C. 453(f). The working thresholds — generally, less than 3% raw or less than 2% cooked meat or poultry puts a product on the FDA side — come from USDA’s implementing definitions (9 CFR 301.2) and USDA’s published jurisdiction policy (the USDA Food Standards and Labeling Policy Book). FAT does not use “meat food product” as the lane name because it would be wrong for half the lane: a below-threshold pizza or soup is, by definition, NOT a meat food product — it is an FDA food — and chicken soup is a “poultry product” under a separate act.\n\n'
+            'The establishment number names the assembler.\nOn a prepared food under USDA jurisdiction, the EST number identifies the processing plant that assembled the product — the cannery, the pizza processing plant — not the slaughterhouse of the meat inside. Upstream sourcing is not disclosed on the label, and no rule requires it to be. FAT still runs its processor, OSHA, and EPA lookups against that assembler EST, because the assembler’s own record is real information.\n\n'
+            'What FAT does with it.\nSpecies is read as a list of every meat, poultry, or seafood ingredient named — “Contains: Beef, Pork” — instead of forcing one animal. The per-animal categories (breed, farm, age at slaughter, feed, welfare, medicine, hormones, supply-chain intermediaries) are marked “not applicable” in blue and set aside from the disclosed count: the gap belongs to the regulatory design, not the brand. When no legend or EST number is found on a prepared food, FAT infers FDA jurisdiction — labels don’t state the meat percentage, so this is an inference, and the legend may simply be on a panel that wasn’t scanned. The missing marks are shown as “not applicable” rather than counted as a violation. And anything the brand voluntarily discloses (“made with organic chicken”) still counts and still earns its credibility tier.\n\n'
+            'Seafood ingredients: chowder, crab cakes, fish sticks.\nPrepared seafood gets the same treatment. FDA regulates it (catfish products are the exception — USDA inspects those). Because it is a processed food, seafood country-of-origin labeling doesn’t apply (7 CFR Part 60), and no rule requires the maker to say whether the fish or shellfish was wild or farmed, which vessel or farm it came from, or how it was raised. FAT lists every fish and shellfish named — “Contains: Clam”, “Contains: Pollock” — and, when the label is silent on them, marks strain, vessel or farm, harvest timing, wild-or-farmed and feed, welfare, medicine, hormones, supply-chain intermediaries and country of origin “not applicable” in blue rather than missing. One federal rule does reach the label: fish and crustacean shellfish (shrimp, crab, lobster) must be named by species in the allergen statement (21 U.S.C. 343(w)). Mollusks such as clams, oysters and scallops are not covered by that rule. A voluntary “wild-caught Alaska pollock” or an MSC label still counts and still earns its credibility tier.\n\n'
+            'The bigger point.\nFor whole cuts of meat, labeling rules require at least a species name, an inspection legend, and an establishment number. For the meat inside a prepared food, the required disclosure is essentially zero — no breed, no origin, no farm, no age, no feed, no welfare claim, not even which slaughterhouse it came from. The most processed products on the shelf carry the least information about the animals in them. FAT’s job here is to show that floor accurately — as the regulatory gap it is — rather than blame any single brand for it.\n\n'
+            'The next topic, What a prepared-food scan shows you, walks through the results line by line.'),
+      ),
+      // P.2
+      _LearnTopic(
+        title: 'What a prepared-food scan shows you',
+        subtitle: 'The ingredient line, the not-applicable count, and what still counts',
+        body: _text(
+            'When FAT reads a label as a prepared food, the results look a little different from a package of steak. Here is what you will see.\n\n'
+            'The ingredient statement line.\nOn a meat or poultry prepared food, the card opens with a line about the ingredient list. If FAT read one, it says “Ingredient statement: on the label — lists: beef, pork”, naming each meat, poultry or seafood ingredient it found. If it didn’t, it says “Ingredient statement: not found in the photos (it may be on a panel you didn’t photograph)”. The line is information only. It doesn’t change the count.\n\n'
+            'The not-applicable reason.\nCategories that don’t apply show in blue and come out of the count, and the card says how many and why, for example: “8 not applicable — prepared / multi-ingredient food: no U.S. labeling rule requires these details for ingredient meat”. The count then reads “of 8 applicable categories disclosed”.\n\n'
+            'What is set aside.\nBreed, farm or ranch, age at slaughter, feed, animal welfare, medicine, hormones and supply-chain intermediaries, when the label is silent on them. If the label does say something about one of them, such as “organic chicken”, it still counts.\n\n'
+            'What still counts.\nThe USDA required language (Category 1), species, processor, brand, owner, country of origin claims, quality, and organic. Any other voluntary claim on the label still counts and still shows its credibility tier.\n\n'
+            'More than one animal.\nSpecies lists every meat, poultry or seafood ingredient FAT finds: “Contains: Beef, Pork, Chicken” on a pepperoni pizza, “Contains: Clam, Pork” on a clam chowder made with bacon.\n\n'
+            'USDA or FDA.\nIf the label carries the USDA inspection legend or an establishment number, FAT reads it as a USDA-inspected product. Category 1 and the processor count, and the establishment number is described as the plant that made the product, not the slaughterhouse of the meat inside. If neither mark is found, FAT infers that FDA regulates the product. Labels don’t state how much meat is in them, so this is an inference. Category 1 and the processor are then set aside too (for example, “10 not applicable”), and FAT doesn’t flag a missing establishment number. If the legend is on a panel you didn’t photograph, rescan with that panel included.\n\n'
+            'Prepared seafood.\nChowders, crab cakes, fish sticks and similar foods go through the seafood side. FAT lists every fish and shellfish named. When the label is silent on them, it sets aside strain, vessel or farm, harvest timing, wild-or-farmed and feed, welfare, medicine, hormones, supply-chain intermediaries and country of origin. Processed seafood is outside seafood origin labeling, so no origin statement is required. The card counts “of N applicable categories” and a note near the top explains why. The ingredient statement line appears on meat and poultry prepared foods only.\n\n'
+            'No meat at all.\nIf the ingredient list names no meat, poultry or seafood, as on a cheese pizza, FAT doesn’t score the label and says so on the Scan screen.'),
+      ),
+    ],
+  ),
+
   // ════════════ SECTION 2 ════════════
   _LearnSection(
     title: 'Meat & Poultry: Categories, Enforcement, Ownership',
@@ -936,25 +972,6 @@ final List<_LearnSection> _sections = <_LearnSection>[
             'Not a safety flag.\n'
             'A store-cut tray still meets every USDA minimum. The retail exemption is about who has to print an identifier, not about whether the meat was inspected.\n\n'
             'Source: FAT research paper — The Retail Exemption. Full paper at farmanimaltransparency.com/fat-research/.'),
-      ),
-      // 2.2d
-      _LearnTopic(
-        title: 'Prepared & Multi-Ingredient Foods',
-        subtitle: 'Stew, pizza, chowder, fish sticks — when meat or seafood is one ingredient among many',
-        body: _text(
-            'A canned beef stew, a frozen pepperoni pizza, or a chicken noodle soup is not a single-animal product. Scoring it against the per-animal questions — what breed, what farm, what age, what feed — would paint a fully legal product as a transparency failure for answers no regulation ever required it to give. So FAT scans these in a separate Prepared / Multi-Ingredient lane.\n\n'
-            'Two regulators, one grocery aisle.\n'
-            'Whether USDA or FDA governs a prepared food depends on how much meat is in it. Products with enough meat or poultry (roughly 3% raw or 2% cooked, under USDA jurisdiction rules) are USDA-regulated: they carry the round inspection legend and an establishment number, like any package of meat. Below those thresholds — many frozen pizzas, soups, and sauces — the product is FDA-regulated and legally carries neither mark. The same shelf holds both, and nothing on the front of the package says which is which.\n\n'
-            'Where the terms and thresholds come from.\n'
-            '"Prepared / Multi-Ingredient" is FAT\'s consumer-facing name, not a legal term. The law\'s own term for the USDA branch is "meat food product" — defined in the Federal Meat Inspection Act (21 U.S.C. 601(j)) as any food made wholly or in part from meat, EXCEPT products containing meat "only in a relatively small proportion," as USDA prescribes. Poultry runs under a different statute entirely: the Poultry Products Inspection Act defines "poultry product" at 21 U.S.C. 453(f). The working thresholds — generally, less than 3% raw or less than 2% cooked meat or poultry puts a product on the FDA side — come from USDA\'s implementing definitions (9 CFR 301.2) and USDA\'s published jurisdiction policy (the USDA Food Standards and Labeling Policy Book). FAT does not use "meat food product" as the lane name because it would be wrong for half the lane: a below-threshold pizza or soup is, by definition, NOT a meat food product — it is an FDA food — and chicken soup is a "poultry product" under a separate act.\n\n'
-            'The establishment number names the assembler.\n'
-            'On a prepared food under USDA jurisdiction, the EST number identifies the processing plant that assembled the product — the cannery, the pizza processing plant — not the slaughterhouse of the meat inside. Upstream sourcing is not disclosed on the label, and no rule requires it to be. FAT still runs its processor, OSHA, and EPA lookups against that assembler EST, because the assembler\'s own record is real information.\n\n'
-            'What FAT does with it.\n'
-            'Species is read as a list of every meat, poultry, or seafood ingredient named — "Contains: Beef, Pork" — instead of forcing one animal. The per-animal categories (breed, farm, age at slaughter, feed, welfare, medicine, hormones) are marked "not applicable" in blue and set aside from the disclosed count: the gap belongs to the regulatory design, not the brand. When no legend or EST number is found on a prepared food, FAT infers FDA jurisdiction — labels don\'t state the meat percentage, so this is an inference, and the legend may simply be on a panel that wasn\'t scanned. The missing marks are shown as "not required" rather than counted as a violation. And anything the brand voluntarily discloses ("made with organic chicken") still counts and still earns its credibility tier.\n\n'
-            'Seafood ingredients: chowder, crab cakes, fish sticks.\n'
-            'Prepared seafood gets the same treatment. FDA regulates it (catfish products are the exception — USDA inspects those). Because it is a processed food, seafood country-of-origin labeling doesn\'t apply (7 CFR Part 60), and no rule requires the maker to say whether the fish or shellfish was wild or farmed, which vessel or farm it came from, or how it was raised. FAT lists every fish and shellfish named — "Contains: Clam", "Contains: Pollock" — and marks wild-or-farmed, vessel or farm, harvest timing, feed, welfare, medicine and hormones "not applicable" in blue rather than missing. One federal rule does reach the label: fish and crustacean shellfish (shrimp, crab, lobster) must be named by species in the allergen statement (21 U.S.C. 343(w)). Mollusks such as clams, oysters and scallops are not covered by that rule. A voluntary "wild-caught Alaska pollock" or an MSC label still counts and still earns its credibility tier.\n\n'
-            'The bigger point.\n'
-            'For whole cuts of meat, labeling rules require at least a species name, an inspection legend, and an establishment number. For the meat inside a prepared food, the required disclosure is essentially zero — no breed, no origin, no farm, no age, no feed, no welfare claim, not even which slaughterhouse it came from. The most processed products on the shelf carry the least information about the animals in them. FAT\'s job here is to show that floor accurately — as the regulatory gap it is — rather than blame any single brand for it.'),
       ),
       // 2.3
       _LearnTopic(
@@ -1911,10 +1928,44 @@ final List<_LearnSection> _sections = <_LearnSection>[
 void openServiceCaseLearnTopic(BuildContext context) =>
     _openLearnTopic(context, 'Service-Case Capture Schema');
 
-/// Opens the Learn "Prepared & Multi-Ingredient Foods" topic. Used by the Home
-/// prepared-foods pill.
+/// Title of the Learn section for prepared / multi-ingredient foods.
+const String preparedFoodsSectionTitle =
+    'Prepared Foods: When Meat Is One Ingredient';
+
+/// Opens the Learn "Prepared & Multi-Ingredient Foods" topic, which lives in
+/// the Prepared Foods section.
 void openPreparedFoodLearnTopic(BuildContext context) =>
     _openLearnTopic(context, 'Prepared & Multi-Ingredient Foods');
+
+/// Opens the Prepared Foods Learn section (its topic list). Used by the Home
+/// scan button's "Learn more" link and the How FAT Works paragraph.
+void openPreparedFoodsLearnSection(BuildContext context) {
+  final section =
+      _sections.firstWhere((s) => s.title == preparedFoodsSectionTitle);
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => _LearnSectionScreen(section: section)),
+  );
+}
+
+/// Section titles and their topic titles, in Table of Contents order. Exposed
+/// for tests.
+List<(String, List<String>)> learnTableOfContents() => [
+      for (final s in _sections) (s.title, [for (final t in s.topics) t.title]),
+    ];
+
+/// Body text of a Learn topic (paragraphs joined by blank lines). Exposed for
+/// tests.
+String? learnTopicText(String title) {
+  for (final s in _sections) {
+    for (final t in s.topics) {
+      if (t.title == title) {
+        return t.body.whereType<_Para>().map((p) => p.text).join('\n\n');
+      }
+    }
+  }
+  return null;
+}
 
 void _openLearnTopic(BuildContext context, String title) {
   final topic = _sections
@@ -2017,7 +2068,7 @@ class LearnScreen extends StatelessWidget {
     );
   }
 
-  Widget _sectionHeader(_LearnSection section, BuildContext context) {
+  static Widget _sectionHeader(_LearnSection section, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(
@@ -2065,7 +2116,7 @@ class LearnScreen extends StatelessWidget {
     );
   }
 
-  Widget _tocRow(int number, _LearnTopic topic, BuildContext context) {
+  static Widget _tocRow(int number, _LearnTopic topic, BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(14),
       onTap: () {
@@ -2128,6 +2179,33 @@ class LearnScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Section Screen ──────────────────────────────────────────────────────────
+
+/// One Learn section's topic list, opened from a deep link (the Home scan
+/// button's "Learn more"). Same rows as the Table of Contents.
+class _LearnSectionScreen extends StatelessWidget {
+  final _LearnSection section;
+  const _LearnSectionScreen({required this.section});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: FATTheme.primaryGreen,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        title: const Text('Learn',
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800)),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.only(bottom: 40),
+        children: [LearnScreen._sectionHeader(section, context)],
       ),
     );
   }

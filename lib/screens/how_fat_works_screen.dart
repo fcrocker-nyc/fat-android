@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/fat_theme.dart';
+import 'learn_screen.dart';
 
 /// Dedicated "How FAT works" page — Flutter port of iOS HowFATWorksView.
 ///
@@ -119,6 +120,31 @@ class HowFATWorksScreen extends StatelessWidget {
               const SizedBox(height: 12),
               _paragraphView(8, 'Prepared & Multi-Ingredient Foods',
                   'A canned stew, a frozen pizza, or a chicken noodle soup is not a single-animal product, so FAT scores it in a separate Prepared / Multi-Ingredient lane. Species is read as a list of every meat, poultry, or seafood ingredient named. The per-animal categories — breed, farm, age at slaughter, feed, welfare, medicine, hormones — are marked “not applicable” in blue: no U.S. labeling regulation requires a prepared-food maker to disclose them for ingredient meat, so the gap belongs to the regulatory design, not the brand. Jurisdiction forks the same way catfish does on the seafood side: a product with enough meat (roughly 3% raw / 2% cooked) is USDA-regulated and carries a legend plus an establishment number — which identifies the final assembler, not the slaughterhouse of the meat inside — while below those thresholds the product is FDA-regulated and legally carries neither mark. Labels don\'t state the meat percentage, so when no legend or establishment number is found, FAT infers FDA jurisdiction — if the legend is on a panel that wasn\'t scanned, rescan it. Voluntary claims like “made with organic chicken” still count and still earn their credibility tier.'),
+              const SizedBox(height: 8),
+              // Learn link — opens the Prepared Foods Learn section.
+              GestureDetector(
+                key: const Key('howFatWorks.preparedLearnMore'),
+                behavior: HitTestBehavior.opaque,
+                onTap: () => openPreparedFoodsLearnSection(context),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+                  child: Row(
+                    children: [
+                      Icon(Icons.menu_book, size: 16, color: FATTheme.scanGreen),
+                      SizedBox(width: 6),
+                      Flexible(
+                        child: Text(HowFATWorksText.preparedLearnMore,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: FATTheme.scanGreen,
+                                decoration: TextDecoration.underline,
+                                decorationColor: FATTheme.scanGreen)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -306,4 +332,11 @@ class HowFATWorksScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+/// How FAT Works copy shared with iOS.
+class HowFATWorksText {
+  HowFATWorksText._();
+  static const String preparedLearnMore =
+      'Learn more: “Prepared Foods: When Meat Is One Ingredient”';
 }

@@ -49,11 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 20),
                     _independenceBadge(),
                     const SizedBox(height: 20),
-                    _scanCTA(),
-                    const SizedBox(height: 10),
-                    // PREPARED FOODS — same Scan button; the pill explains it
-                    // and opens the Learn topic.
-                    _preparedFoodPill(context),
+                    // SCAN — one scanner for meat, poultry, seafood and the
+                    // prepared foods made with them; its Learn link opens the
+                    // Prepared Foods Learn section.
+                    _scanCTA(context),
                     const SizedBox(height: 12),
                     // LOOSE FISH — service-case scan, directly under the main
                     // scan pill and styled with the same forest-green fill.
@@ -238,66 +237,74 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ── Scan CTA ────────────────────────────────────────────────────────────
 
-  Widget _scanCTA() {
+  Widget _scanCTA(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GestureDetector(
-        onTap: widget.onScanTap,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          decoration: BoxDecoration(
-            color: FATTheme.scanGreen,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.center_focus_weak, color: Colors.white, size: 26),
-              SizedBox(width: 14),
-              Text('Scan Meat/Seafood Label',
-                  style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white)),
-            ],
-          ),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 14),
+        decoration: BoxDecoration(
+          color: FATTheme.scanGreen,
+          borderRadius: BorderRadius.circular(16),
         ),
-      ),
-    );
-  }
-
-  // ── Prepared-foods pill (multi-ingredient lane) ─────────────────────────
-
-  Widget _preparedFoodPill(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GestureDetector(
-        onTap: () => openPreparedFoodLearnTopic(context),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: FATTheme.scanGreen.withValues(alpha: 0.08),
-            border: Border.all(color: FATTheme.scanGreen.withValues(alpha: 0.45)),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.soup_kitchen, size: 20, color: FATTheme.scanGreen),
-              SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                    'Also reads prepared foods — stew, pizza, chowder, fish sticks — where meat or seafood is one ingredient',
+        child: Column(
+          children: [
+            GestureDetector(
+              key: const Key('home.scanLabel'),
+              behavior: HitTestBehavior.opaque,
+              onTap: widget.onScanTap,
+              child: Column(
+                children: [
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.center_focus_weak,
+                          color: Colors.white, size: 26),
+                      SizedBox(width: 14),
+                      Text(HomeScanText.title,
+                          style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white)),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    HomeScanText.subtitle,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 13.5,
-                        height: 1.25,
-                        fontWeight: FontWeight.w700,
-                        color: FATTheme.scanGreen)),
+                        fontSize: 14,
+                        height: 1.3,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withValues(alpha: 0.95)),
+                  ),
+                ],
               ),
-              Icon(Icons.chevron_right, size: 20, color: FATTheme.scanGreen),
-            ],
-          ),
+            ),
+            const SizedBox(height: 10),
+            // Learn link — own hit target so it doesn't trigger the scan.
+            GestureDetector(
+              key: const Key('home.preparedLearnMore'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () => openPreparedFoodsLearnSection(context),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.menu_book, color: Colors.white, size: 16),
+                  SizedBox(width: 6),
+                  Flexible(
+                    child: Text(HomeScanText.learnMore,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            decoration: TextDecoration.underline,
+                            decorationColor: Colors.white)),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -565,4 +572,13 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+}
+
+/// Home scan-button copy. Identical to iOS `HomeScanText`.
+class HomeScanText {
+  HomeScanText._();
+  static const String title = 'Scan a Label';
+  static const String subtitle =
+      'Meat, poultry or seafood — or food made with them: stew, pizza, soup, fish sticks.';
+  static const String learnMore = 'How FAT reads prepared foods — Learn more';
 }
